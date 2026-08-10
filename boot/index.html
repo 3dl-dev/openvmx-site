@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Boot OVMX in your browser</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link rel="stylesheet" href="assets/xterm.css">
+<style>
+  :root { color-scheme: dark; }
+  body { background:#0b0e14; color:#c9d1d9; font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif; margin:0; padding:1.25rem 1.25rem 3rem; }
+  main { max-width: 980px; margin: 0 auto; }
+  h1 { font-size:1.5rem; margin:.2rem 0 .4rem; }
+  a { color:#58a6ff; }
+  .muted { color:#8b949e; }
+  .real { color:#3fb950; font-weight:600; }
+  #status { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:.85rem; margin:.5rem 0; }
+  #terminal { margin-top:.75rem; }
+  #banner { display:none; background:#3d1d1d; border:1px solid #f85149; color:#ffb3ae; padding:.75rem 1rem; border-radius:6px; margin:.75rem 0; }
+  .note { background:#11161f; border:1px solid #21262d; border-radius:6px; padding:.75rem 1rem; font-size:.85rem; }
+  code { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; color:#e3b341; }
+  ul { margin:.4rem 0; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Boot OVMX in your browser</h1>
+  <p class="muted">
+    This tab boots the <span class="real">real OVMX runtime</span> — the actual OVMX Linux kernel and
+    <code>initramfs-ovmx.cpio.gz</code>, which loads the <code>vms.ko</code> VMS executive, so
+    <code>/dev/vms</code> is present and DCL/RMS/RTL run against it. It is the same machine
+    <code>distro/boot/run-qemu.sh</code> boots natively, running under
+    <a href="https://github.com/ktock/qemu-wasm">QEMU compiled to WebAssembly</a> — entirely client-side.
+    Nothing here is a scripted transcript.
+  </p>
+
+  <div id="banner"></div>
+  <div id="status">initializing…</div>
+  <div id="terminal"></div>
+
+  <div class="note">
+    <strong>What this is / isn't (honest limits):</strong>
+    <ul>
+      <li><strong>Real, not faked.</strong> Every character in the terminal is the guest's real serial console.
+          Log in as <code>SYSTEM</code> / <code>MANAGER</code> (or <code>GUEST</code>/<code>GUEST</code>).</li>
+      <li><strong>Slow.</strong> This is TCG (a JIT-to-WebAssembly interpreter), not KVM. Boot takes tens of seconds
+          and interaction is sluggish. The measured boot-to-<code>Username:</code> time appears above once reached.</li>
+      <li><strong>Single node.</strong> One tab is one VM — no cluster / SCS / multi-node behaviour here.</li>
+      <li><strong>Fresh disk each load.</strong> A blank 64&nbsp;MiB system disk is created in memory and installed on
+          first boot; it is not yet persisted across reloads.</li>
+      <li><strong>Needs cross-origin isolation</strong> (SharedArrayBuffer). On a host that can't set COOP/COEP headers
+          (e.g. GitHub Pages) the self-hosted <code>coi-serviceworker.js</code> supplies them and reloads once.</li>
+      <li>Terminal styling is OVMX web-demo presentation, invented for this page — not asserted to be how VMS looked
+          (clean-room labelling).</li>
+    </ul>
+  </div>
+</main>
+
+<!-- Cross-origin isolation shim: self-hosted, same-origin (NO CDN). On a
+     header-capable host it is a harmless no-op; on GitHub Pages it injects
+     COOP: same-origin + COEP and does one silent reload on first visit. -->
+<script src="coi-serviceworker.js"></script>
+
+<!-- Terminal (self-hosted UMD: exposes window.Terminal and window.openpty) -->
+<script src="assets/xterm.js"></script>
+<script src="assets/xterm-pty.js"></script>
+
+<!-- QEMU argv + file locators (defines global Module) -->
+<script src="module.js"></script>
+
+<!-- pc-bios ROM package (file_packager output, matched to the wasm build) -->
+<script src="load-rom.js"></script>
+
+<script type="module">
+  const statusEl = document.getElementById('status');
+  const bannerEl = document.getElementById('banner');
+
+  function fail(msg) {
+    bannerEl.style.display = 'block';
+    bannerEl.innerHTML = msg;
+    statusEl.textContent = 'halted.';
+  }
+
+  // Cross-origin isolation is mandatory for SharedArrayBuffer / MTTCG.
+  if (!self.crossOriginIsolated || typeof SharedArrayBuffer === 'undefined') {
+    fail('This page is <b>not cross-origin isolated</b>, so SharedArrayBuffer is unavailable and QEMU-Wasm cannot start.' +
+         ' The self-hosted <code>coi-serviceworker.js</code> should fix this with a one-time reload on first visit —' +
+         ' if you still see this after a reload, your host is not sending <code>COOP: same-origin</code> +' +
+         ' <code>COEP: require-corp</code> and your browser lacks SharedArrayBuffer. Use a header-capable host or a' +
+         ' recent Chrome/Firefox.');
+  } else {
+    statusEl.textContent = 'cross-origin isolated OK — fetching OVMX kernel + initramfs…';
+
+    // Wire the serial console: xterm.js <-> emscripten pty.
+    const term = new Terminal({ cols: 100, rows: 34, convertEol: true,
+      theme: { background: '#0b0e14' }, fontFamily: 'ui-monospace, Menlo, monospace' });
+    term.open(document.getElementById('terminal'));
+    window.__ovmxTerm = term; // debug/test handle: read the live screen buffer
+    const { master, slave } = openpty();
+    term.loadAddon(master);
+    Module.pty = slave;
+
+    // Populate the guest's virtual FS with the REAL OVMX payload before boot.
+    // This is the same role file_packager plays for the ROMs, done at runtime
+    // so nothing but the raw kernel/initramfs needs shipping.
+    Module.preRun = Module.preRun || [];
+    Module.preRun.push(function (mod) {
+      mod.addRunDependency('ovmx-payload');
+      const mkdir = (p) => { try { mod.FS.mkdir(p); } catch (e) {} };
+      Promise.all([
+        fetch('vmlinuz').then((r) => r.arrayBuffer()),
+        fetch('initramfs-ovmx.cpio.gz').then((r) => r.arrayBuffer()),
+      ]).then(([kbuf, ibuf]) => {
+        mkdir('/pack-kernel'); mkdir('/pack-initramfs'); mkdir('/pack-disk');
+        mod.FS.writeFile('/pack-kernel/vmlinuz', new Uint8Array(kbuf));
+        mod.FS.writeFile('/pack-initramfs/initramfs-ovmx.cpio.gz', new Uint8Array(ibuf));
+        // Blank 64 MiB system disk — fat initramfs INITIALIZEs + installs it.
+        mod.FS.writeFile('/pack-disk/sysdisk.img', new Uint8Array(64 * 1024 * 1024));
+        statusEl.textContent = 'payload loaded — starting QEMU (TCG). First boot INITIALIZEs + installs the disk…';
+        mod.removeRunDependency('ovmx-payload');
+      }).catch((e) => fail('Failed to fetch OVMX payload: ' + e));
+    });
+
+    // Boot-time measurement: watch the real terminal buffer for the login prompt.
+    const t0 = performance.now();
+    let reported = false;
+    const timer = setInterval(() => {
+      if (reported) return;
+      const buf = term.buffer.active;
+      for (let i = 0; i < buf.length; i++) {
+        const line = buf.getLine(i);
+        if (line && line.translateToString(true).indexOf('Username:') >= 0) {
+          const secs = ((performance.now() - t0) / 1000).toFixed(1);
+          statusEl.innerHTML = '<span class="real">reached the OVMX Username: prompt in ' + secs +
+            's</span> (real client-side boot). Log in: SYSTEM / MANAGER.';
+          reported = true;
+          clearInterval(timer);
+          return;
+        }
+      }
+    }, 500);
+
+    // Load and start QEMU-Wasm.
+    import('./out.js').then((m) => {
+      const init = m.default;
+      init(Module).then((mod) => {
+        // Mirror the demo's TTY poll fix so keystrokes flow to the guest.
+        const oldPoll = mod['TTY'].stream_ops.poll;
+        const pty = mod['pty'];
+        mod['TTY'].stream_ops.poll = function (stream, timeout) {
+          if (!pty.readable) {
+            return (pty.readable ? 1 : 0) | (pty.writable ? 4 : 0);
+          }
+          return oldPoll.call(stream, stream, timeout);
+        };
+      });
+    }).catch((e) => fail('Failed to load QEMU-Wasm (out.js): ' + e));
+  }
+</script>
+</body>
+</html>
