@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>OpenVMX — an OpenVMS-compatible environment for Linux</title>
-<meta name="description" content="OpenVMX is an open-source, OpenVMS-compatible environment for Linux: VMS system services, the DCL shell, RMS, and a kernel executive, packaged as a bootable distribution.">
+<title>OpenVMX — an open operating environment in the VMS tradition</title>
+<meta name="description" content="OpenVMX is an open-source operating environment for Linux in the VMS tradition: the DCL command language, RMS record management, system services, and a kernel executive, packaged to boot.">
 <meta name="theme-color" content="#e8e2d4" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#14140f" media="(prefers-color-scheme: dark)">
-<meta property="og:title" content="OpenVMX — an OpenVMS-compatible environment for Linux">
-<meta property="og:description" content="Open-source OpenVMS compatibility for Linux: DCL, RMS, VMS system services, and a kernel executive. Reproduce what's gated; give it away.">
+<meta property="og:title" content="OpenVMX — an open operating environment in the VMS tradition">
+<meta property="og:description" content="Open source, for Linux, in the VMS tradition — the DCL command language, RMS, system services, and a real kernel executive. Built from public specifications.">
 <meta property="og:type" content="website">
 <style>
 /* ============================================================
@@ -314,11 +314,11 @@ footer{background:var(--paper-2)}
       <div class="left">
         <div class="wrapL">
           <p class="eyebrow">Software Product Description · Open Source</p>
-          <h1>OpenVMS,<br><span class="rust">uncaged.</span></h1>
-          <p class="lede"><b>OpenVMX</b> is an open-source, OpenVMS-compatible
-            operating environment for Linux — VMS system services, the DCL shell,
-            RMS record management, and a real kernel <b>executive</b>, packaged as a
-            bootable distribution.</p>
+          <h1>Computing in the<br><span class="rust">VMS tradition.</span></h1>
+          <p class="lede"><b>OpenVMX</b> brings the VMS way of working to modern
+            hardware — the DCL command language, RMS record management, system
+            services, and a real kernel <b>executive</b>. Open source, built from
+            public specifications, and packaged to boot.</p>
           <div class="cta">
             <a class="btn primary" href="https://github.com/3dl-dev/vms">
               <span>▸</span> View the source</a>
@@ -348,19 +348,18 @@ footer{background:var(--paper-2)}
         <span class="sec-no">1.0</span>
         <h2>A real system, not an emulator skin</h2>
       </div>
-      <p class="sec-sub">OpenVMX reconstructs the pieces VSI keeps behind a license,
-        clean-room, from public documentation and observed behavior — and gives them away.
-        The goal is total VMS commoditization: reproduce what's gated, release it under an
-        open license.</p>
+      <p class="sec-sub">OpenVMX rebuilds the VMS environment as its own software — the
+        command language, the file system, the system services, the executive — implemented
+        from public specifications and released as open source.</p>
 
       <div class="cols">
         <div>
-          <p>The layers you know from OpenVMS are here as their own libraries, built in
+          <p>The layers you know from VMS are here as their own libraries, built in
             dependency order: the freestanding syscall floor, process control blocks with
             ASTs and event flags, the SYS$ / LIB$ / STR$ run-time, logical-name management,
             an ODS-2 file system, and Record Management Services on top.</p>
           <p>Above them sits <b>DCL</b> — the Digital Command Language shell — matching
-            OpenVMS behavior rather than bash, down to <span class="mono">$</span> prompts,
+            VMS behavior rather than bash, down to <span class="mono">$</span> prompts,
             <span class="mono">SHOW</span> verbs, and VMS-format file specifications.</p>
           <p>Underneath, a kernel module — <span class="mono">vms.ko</span> — provides the
             VMS <b>executive</b>: locks, event flags, ASTs, and access modes as genuinely
@@ -370,15 +369,12 @@ footer{background:var(--paper-2)}
             fake reporting success.</p>
         </div>
         <aside class="aside">
-          <h4>Clean-room, on purpose</h4>
+          <h4>How it's built</h4>
           <ul>
-            <li>Formats and protocols derived <b>only</b> from public OpenVMS docs and
-              observed behavior in a reference lab.</li>
-            <li><b>No</b> VSI/HPE source, binaries, or disassembly — ever.</li>
-            <li>Legally protected interop under DMCA §1201(f) and the EU Software
-              Directive Art. 6.</li>
-            <li>Where docs publish no byte layout, OpenVMX defines its own and labels it
-              as an OpenVMX design choice.</li>
+            <li>Implemented from <b>public documentation</b> and observed behavior.</li>
+            <li>Original, independent code — nothing borrowed.</li>
+            <li>Where the specs stop, OpenVMX makes its own choices, clearly labeled.</li>
+            <li>Open source, readable end to end.</li>
           </ul>
         </aside>
       </div>
@@ -405,7 +401,7 @@ footer{background:var(--paper-2)}
         <div class="tile">
           <div class="code">DCL</div>
           <h3>The DCL shell</h3>
-          <p>Lexer, parser, executor, and built-in verbs that follow OpenVMS DCL — not a
+          <p>Lexer, parser, executor, and built-in verbs that follow VMS DCL — not a
             bash reskin. External utilities dispatch the VMS way.</p>
         </div>
         <div class="tile">
@@ -429,8 +425,8 @@ footer{background:var(--paper-2)}
         <div class="tile">
           <div class="code">SCS · NISCA</div>
           <h3>Cluster interop</h3>
-          <p>Clean-room reconstruction of the VMScluster wire protocol, developed against a
-            hardware reference lab. In active research.</p>
+          <p>An implementation of the VMScluster wire protocol, so OpenVMX nodes can join
+            and serve storage as a cluster. In active research.</p>
         </div>
       </div>
     </div>
@@ -463,9 +459,8 @@ footer{background:var(--paper-2)}
             <td><span class="st plan">ASPIRATIONAL</span></td></tr>
         </tbody>
       </table>
-      <p class="buildnote">Itanium (IA-64) is out of scope. VMS on Alpha is where the
-        64-bit questions get answered — a reference lab runs OpenVMS Alpha as an oracle for
-        width- and architecture-dependent behavior.</p>
+      <p class="buildnote">Itanium (IA-64) is out of scope. Alpha is where OpenVMX proves
+        its 64-bit behavior — the architecture VMS was rebuilt around when it went 64-bit.</p>
     </div>
   </section>
 
@@ -517,9 +512,9 @@ footer{background:var(--paper-2)}
         <a href="#top" class="logo" style="text-decoration:none;margin-bottom:16px">
           <span class="seg">open</span><span class="seg hi">vm</span><span class="seg rust">x</span>
         </a>
-        <p>An OpenVMS-compatible environment for Linux.</p>
-        <p>Reproduce what's gated. Give it away.</p>
-        <p style="margin-top:14px"><span class="badge">OpenVMS-compatible</span></p>
+        <p>An open operating environment in the VMS tradition.</p>
+        <p>Free and open source, for the people who still love this way of working.</p>
+        <p style="margin-top:14px"><span class="badge">Free &amp; open source</span></p>
       </div>
       <div>
         <h5>Project</h5>
@@ -537,11 +532,8 @@ footer{background:var(--paper-2)}
     </div>
     <div class="wrap disclaim" style="padding-inline:0">
       <span>
-        OpenVMX is an independent, clean-room, open-source project. It is
-        <b>not</b> affiliated with, authorized by, or endorsed by VMS Software, Inc.,
-        Hewlett-Packard, or the former Digital Equipment Corporation. <br>
-        OpenVMS is a trademark of its respective owner; used here only to describe
-        compatibility.
+        OpenVMX is an independent, open-source project. OpenVMS and VMS are trademarks of
+        their respective owners, referenced here only to describe compatibility.
       </span>
       <span class="partno-b">AA–OVMX2–TE<br>Printed in the open · <span id="yr"></span></span>
     </div>
@@ -579,7 +571,7 @@ footer{background:var(--paper-2)}
     {t:"%OVMX-I-SYSINIT, SYS$ services online",c:"i"},
     {t:"%OVMX-I-MOUNT, DKA0: mounted  volume OPENVMX",c:"i"},
     {t:"",c:""},
-    {t:"    Welcome to OpenVMX  (OpenVMS-compatible)",c:""},
+    {t:"    Welcome to OpenVMX   V0.2",c:""},
     {t:"",c:""},
     {t:"Username: SYSTEM",c:"p"},
     {t:"Password:",c:"p"},
