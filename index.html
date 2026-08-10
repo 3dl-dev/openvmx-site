@@ -406,10 +406,9 @@ footer{background:var(--paper-2)}
   <section id="arch">
     <div class="wrap">
       <div class="chap"><span class="cn">3.0</span><h2>Supported architectures</h2></div>
-      <p class="deck2">OpenVMX targets the 64-bit machines people run today, and is building toward
-        <b>Alpha</b>, the architecture this lineage was designed around when it first went 64-bit.</p>
+      <p class="deck2">OpenVMX runs on modern 64-bit hardware.</p>
 
-      <table class="spec">
+      <table class="spec" style="margin-bottom:clamp(48px,6vw,88px)">
         <caption>Table 3–1 · Architecture support matrix</caption>
         <thead>
           <tr><th scope="col">Architecture</th><th scope="col">Width</th><th scope="col">Notes</th><th scope="col">Status</th></tr>
@@ -421,12 +420,8 @@ footer{background:var(--paper-2)}
             <td><span class="st ok">Supported</span></td></tr>
           <tr><th scope="row">Alpha / AXP</th><td class="tab">64-bit</td><td>DEC Alpha · first-class</td>
             <td><span class="st dev">In&nbsp;progress</span></td></tr>
-          <tr><th scope="row">VAX</th><td class="tab">32-bit</td><td>The original machine</td>
-            <td><span class="st plan">Aspirational</span></td></tr>
         </tbody>
       </table>
-      <p class="buildnote pad-b">Itanium (IA-64) is out of scope. Alpha is where OpenVMX proves its
-        64-bit behavior against real hardware.</p>
     </div>
   </section>
 
