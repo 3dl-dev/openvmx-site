@@ -5,302 +5,305 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>OpenVMX — an open operating environment in the VMS tradition</title>
 <meta name="description" content="OpenVMX is an open-source operating environment for Linux in the VMS tradition: the DCL command language, RMS record management, system services, and a kernel executive, packaged to boot.">
-<meta name="theme-color" content="#e8e2d4" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#14140f" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#16359e" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0b0c11" media="(prefers-color-scheme: dark)">
 <meta property="og:title" content="OpenVMX — an open operating environment in the VMS tradition">
-<meta property="og:description" content="Open source, for Linux, in the VMS tradition — the DCL command language, RMS, system services, and a real kernel executive. Built from public specifications.">
+<meta property="og:description" content="Open source, for Linux, in the VMS tradition: the DCL command language, RMS, system services, and a real kernel executive. Built from public specifications.">
 <meta property="og:type" content="website">
 <style>
 /* ============================================================
-   OpenVMX — order no. AA–OVMX2–TE
-   Design: DEC engineering-document treatment.
-   Two voices: Helvetica (corporate print) x monospace (the machine).
+   OpenVMX — Digital Equipment Corporation corporate-brochure
+   direction. Not a landing page dressed as Swiss: a product
+   brochure. Blue as a FIELD, the segmented module as signature,
+   the doc-set as structure. Helvetica + one Digital blue.
    ============================================================ */
 
-/* ---- Tokens: light ("documentation paper") is the base ---- */
 :root{
-  --paper:#e8e2d4;        /* putty / manual stock            */
-  --paper-2:#ded7c6;      /* recessed panel                  */
-  --paper-3:#d3cbb6;      /* deeper cell                     */
-  --ink:#191712;          /* warm near-black ink             */
-  --ink-soft:#4a453a;     /* secondary text (warm grey)      */
-  --rule:#b3aa93;         /* hairline, blue-warm grey        */
-  --rule-soft:#c7bfa8;
-  --blue:#2b2f77;         /* DEC corporate indigo — structure*/
-  --blue-ink:#20244f;
-  --rust:#bd4620;         /* VMS-manual orange — the accent  */
-  --rust-deep:#8f3416;
-  --amber:#b5650f;        /* phosphor, print-safe on paper   */
-  --console-bg:#1c1a12;   /* VT screen                       */
-  --console-fg:#ffb531;   /* VT amber                        */
-  --console-dim:#9a6a1c;
-  --good:#2f6d40;
-  --shadow:rgba(25,23,18,.16);
+  --paper:#ffffff;
+  --paper-2:#f2f3f7;
+  --paper-3:#e7e9f0;
+  --ink:#0f1013;
+  --ink-2:#3a3d47;
+  --ink-3:#6b6f7d;
+
+  --blue:#16359e;         /* DIGITAL BLUE — the brand */
+  --blue-2:#26439f;
+  --blue-deep:#0d2260;
+  --blue-line:#c7cde6;
+  --on-blue:#ffffff;
+  --on-blue-2:#c4ccec;    /* dim text on blue fields */
+  --link:#16359e;
+
+  --amber:#b8730f;        /* status/machine ink only */
+  --ok:#1f7a4d;
+  --console-bg:#091327;
+  --console-fg:#f4b13a;
+  --console-dim:#8391b8;
+  --console-ok:#6cc794;
+
+  --grid-line:rgba(22,53,158,.13);
 
   --f-sans:"Helvetica Neue",Helvetica,Arial,"Liberation Sans",system-ui,sans-serif;
   --f-mono:"SFMono-Regular",Menlo,Consolas,"DejaVu Sans Mono","Liberation Mono",monospace;
 
-  --maxw:1140px;
-  --gutter:clamp(20px,5vw,64px);
+  --maxw:1220px;
+  --gutter:clamp(20px,5vw,76px);
+  --hair:1.5px;
 }
 
-/* Dark ("console at night") — only under system-dark with no explicit light choice */
 @media (prefers-color-scheme:dark){
   :root:not([data-theme="light"]){
-    --paper:#14140f;
-    --paper-2:#1c1b14;
-    --paper-3:#24231a;
-    --ink:#e7e0cf;
-    --ink-soft:#a49c88;
-    --rule:#3b3a2d;
-    --rule-soft:#2c2b21;
-    --blue:#9aa2ef;
-    --blue-ink:#b9bffb;
-    --rust:#e26a37;
-    --rust-deep:#c14a24;
-    --amber:#ffb531;
-    --console-bg:#0c0c08;
-    --console-fg:#ffb531;
-    --console-dim:#8a5f1a;
-    --good:#6fb583;
-    --shadow:rgba(0,0,0,.5);
+    --paper:#0b0c11;--paper-2:#12141c;--paper-3:#181b25;
+    --ink:#eef0f6;--ink-2:#b7bccb;--ink-3:#868da0;
+    --blue:#3a55d6;--blue-2:#4d67e6;--blue-deep:#1b2f8f;--blue-line:#2a3350;
+    --on-blue:#ffffff;--on-blue-2:#c7cff2;--link:#8ea3ff;
+    --amber:#f0b24a;--ok:#5fc491;
+    --console-bg:#060a15;--console-fg:#f4b13a;--console-dim:#7280a8;--console-ok:#6cc794;
+    --grid-line:rgba(120,142,255,.15);
   }
 }
-/* Explicit dark toggle wins in both directions */
 :root[data-theme="dark"]{
-  --paper:#14140f;--paper-2:#1c1b14;--paper-3:#24231a;
-  --ink:#e7e0cf;--ink-soft:#a49c88;
-  --rule:#3b3a2d;--rule-soft:#2c2b21;
-  --blue:#9aa2ef;--blue-ink:#b9bffb;
-  --rust:#e26a37;--rust-deep:#c14a24;--amber:#ffb531;
-  --console-bg:#0c0c08;--console-fg:#ffb531;--console-dim:#8a5f1a;
-  --good:#6fb583;--shadow:rgba(0,0,0,.5);
+  --paper:#0b0c11;--paper-2:#12141c;--paper-3:#181b25;
+  --ink:#eef0f6;--ink-2:#b7bccb;--ink-3:#868da0;
+  --blue:#3a55d6;--blue-2:#4d67e6;--blue-deep:#1b2f8f;--blue-line:#2a3350;
+  --on-blue:#ffffff;--on-blue-2:#c7cff2;--link:#8ea3ff;
+  --amber:#f0b24a;--ok:#5fc491;
+  --console-bg:#060a15;--console-fg:#f4b13a;--console-dim:#7280a8;--console-ok:#6cc794;
+  --grid-line:rgba(120,142,255,.15);
 }
 
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
 body{
   margin:0;background:var(--paper);color:var(--ink);
-  font-family:var(--f-sans);font-size:17px;line-height:1.6;
-  -webkit-font-smoothing:antialiased;
+  font-family:var(--f-sans);font-size:17px;line-height:1.55;font-weight:400;
+  -webkit-font-smoothing:antialiased;letter-spacing:-.004em;overflow-x:hidden;
 }
-/* faint engineering grid, very low contrast */
-body::before{
-  content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
-  background-image:
-    linear-gradient(to right,var(--rule) 1px,transparent 1px),
-    linear-gradient(to bottom,var(--rule) 1px,transparent 1px);
-  background-size:64px 64px;opacity:.05;
-}
-main,header,footer{position:relative;z-index:1}
 img{max-width:100%;display:block}
-a{color:var(--blue);text-decoration:none}
-a:hover{text-decoration:underline;text-underline-offset:3px}
-:focus-visible{outline:2px solid var(--rust);outline-offset:2px}
+a{color:var(--link);text-decoration:none}
+a:hover{text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1.5px}
+:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+::selection{background:var(--blue);color:var(--on-blue)}
+.wrap{max-width:var(--maxw);margin-inline:auto;padding-inline:var(--gutter);width:100%}
+.mono{font-family:var(--f-mono);font-size:.92em}
 
-.wrap{max-width:var(--maxw);margin-inline:auto;padding-inline:var(--gutter)}
+/* ---- the atom: segmented "digital"-mark wordmark ---- */
+.mark{display:inline-flex;align-items:stretch;border:var(--hair) solid var(--ink);
+  background:var(--paper);line-height:1;user-select:none}
+.mark .m{font-weight:700;font-size:15px;letter-spacing:0;text-transform:lowercase;
+  padding:.42em .58em;border-right:1px solid var(--ink);color:var(--ink);display:flex;align-items:center}
+.mark .m:last-child{border-right:0}
+.mark .m.fill{background:var(--blue);color:var(--on-blue);border-right-color:var(--blue-deep)}
+.mark.lg .m{font-size:20px;padding:.5em .72em}
+/* mark rendered on a blue field (hero panel / footer options) */
+.mark.on-blue{border-color:#fff;background:transparent}
+.mark.on-blue .m{color:#fff;border-right-color:rgba(255,255,255,.5)}
+.mark.on-blue .m.fill{background:#fff;color:var(--blue)}
 
-.mono{font-family:var(--f-mono)}
-.eyebrow{
-  font-family:var(--f-mono);font-size:12px;letter-spacing:.18em;
-  text-transform:uppercase;color:var(--ink-soft);
-}
+/* ============================================================ MASTHEAD */
+.mast{position:sticky;top:0;z-index:40;background:var(--paper);
+  border-bottom:var(--hair) solid var(--ink)}
+.mast .row{display:flex;align-items:center;gap:22px;height:62px}
+.mast .partno{font-family:var(--f-mono);font-size:11px;color:var(--ink-3);letter-spacing:.1em}
+.mast nav{margin-left:auto;display:flex;gap:26px;align-items:center}
+.mast nav a{font-family:var(--f-mono);font-size:12.5px;color:var(--ink);letter-spacing:.02em}
+.mast nav a:hover{color:var(--blue);text-decoration:none}
+.mast nav a.gh{color:var(--blue)}
+.tgl{font-family:var(--f-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+  background:transparent;border:1px solid var(--ink);color:var(--ink);padding:7px 10px;cursor:pointer;line-height:1}
+.tgl:hover{background:var(--ink);color:var(--paper)}
+@media (max-width:860px){.mast nav a.txt{display:none}.mast .partno{display:none}}
 
-/* ---------- boxed "digital"-style wordmark ---------- */
-.logo{display:inline-flex;align-items:stretch;border:1.5px solid var(--ink);
-  background:var(--paper);box-shadow:2px 2px 0 var(--shadow);}
-.logo .seg{
-  font-family:var(--f-sans);font-weight:700;font-size:15px;letter-spacing:.02em;
-  padding:.28em .5em;border-right:1px solid var(--ink);color:var(--ink);
-  display:flex;align-items:center;text-transform:lowercase;
-}
-.logo .seg:last-child{border-right:0}
-.logo .seg.hi{background:var(--blue);color:#efeadb}
-.logo .seg.rust{background:var(--rust);color:#f7efe2}
+/* ============================================================ HERO (brochure cover) */
+.hero{position:relative;border-bottom:0;overflow:hidden}
+.hero .reveal{position:absolute;inset:0;z-index:0;display:grid;pointer-events:none}
+.hero .reveal .cell{border-right:1px solid var(--grid-line);border-bottom:1px solid var(--grid-line);
+  opacity:0;transform:scale(.96)}
+.reveal-on .hero .reveal .cell{opacity:1;transform:none;
+  transition:opacity .55s ease,transform .55s cubic-bezier(.2,.7,.3,1);transition-delay:calc(var(--i,0)*24ms)}
 
-/* ---------- masthead ---------- */
-.mast{
-  position:sticky;top:0;z-index:20;background:var(--paper);
-  border-bottom:1.5px solid var(--ink);
-}
-.mast .row{display:flex;align-items:center;gap:20px;height:60px}
-.mast nav{margin-left:auto;display:flex;gap:22px;align-items:center}
-.mast nav a{font-family:var(--f-mono);font-size:13px;color:var(--ink);letter-spacing:.04em}
-.mast nav a:hover{color:var(--rust);text-decoration:none}
-.partno{font-family:var(--f-mono);font-size:11px;color:var(--ink-soft);letter-spacing:.08em}
-.tgl{
-  font-family:var(--f-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;
-  background:transparent;border:1px solid var(--rule);color:var(--ink-soft);
-  padding:6px 9px;cursor:pointer;line-height:1;
-}
-.tgl:hover{border-color:var(--ink);color:var(--ink)}
-@media (max-width:820px){.mast nav a:not(.gh){display:none}.partno{display:none}}
+.hero .inner{position:relative;z-index:1}
+.cover{padding:clamp(48px,7vw,116px) 0 clamp(44px,6vw,92px)}
+.cover .pn{font-family:var(--f-mono);font-size:11.5px;letter-spacing:.14em;color:var(--ink-3);
+  display:flex;gap:14px;align-items:center;margin:0 0 clamp(20px,3vw,34px)}
+.cover .pn b{color:var(--blue);font-weight:700}
+.cover h1{font-weight:700;letter-spacing:-.035em;line-height:.94;
+  font-size:clamp(52px,10vw,120px);margin:0 0 .3em;max-width:11ch;text-wrap:balance}
+.cover h1 .blue{color:var(--blue)}
+.deck{font-size:clamp(19px,2.1vw,23px);line-height:1.42;color:var(--ink-2);max-width:46ch;
+  margin:0 0 clamp(28px,3.5vw,40px);letter-spacing:-.01em}
+.deck b{color:var(--ink);font-weight:600}
+.go{display:flex;flex-direction:column;gap:14px;align-items:flex-start}
+.golink{font-family:var(--f-mono);font-size:15px;font-weight:700;letter-spacing:.01em;
+  color:var(--blue);display:inline-flex;align-items:center;gap:12px;
+  border-bottom:2px solid var(--blue);padding-bottom:4px}
+.golink:hover{text-decoration:none;gap:16px}
+.golink .ar{transition:transform .12s ease}
+.golink:hover .ar{transform:translateX(3px)}
+.go .sub{font-family:var(--f-mono);font-size:13px;color:var(--ink-3)}
+.go .sub a{color:var(--ink-2);border-bottom:1px solid var(--blue-line)}
+.go .sub a:hover{color:var(--blue);text-decoration:none}
 
-/* ---------- hero ---------- */
-.hero{border-bottom:1.5px solid var(--ink)}
-.hero .grid{display:grid;grid-template-columns:1.05fr .95fr;gap:0}
-.hero .left{padding:clamp(40px,6vw,84px) var(--gutter) clamp(40px,6vw,72px);
-  border-right:1.5px solid var(--ink);}
-.hero .right{background:var(--paper-2);display:flex;flex-direction:column}
-@media (max-width:900px){
-  .hero .grid{grid-template-columns:1fr}
-  .hero .left{border-right:0;border-bottom:1.5px solid var(--ink)}
-}
-.hero .wrapL{max-width:560px;margin-left:auto;margin-right:0}
-.hero h1{
-  font-family:var(--f-sans);font-weight:700;letter-spacing:-.015em;
-  font-size:clamp(38px,6.2vw,68px);line-height:1.02;margin:.5em 0 .35em;
-  text-wrap:balance;
-}
-.hero h1 .rust{color:var(--rust)}
-.lede{font-size:clamp(18px,2.1vw,21px);color:var(--ink-soft);max-width:46ch;margin:0 0 1.6em}
-.lede b{color:var(--ink);font-weight:600}
-.cta{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
-.btn{
-  font-family:var(--f-mono);font-size:14px;letter-spacing:.03em;
-  padding:13px 20px;border:1.5px solid var(--ink);cursor:pointer;
-  display:inline-flex;gap:9px;align-items:center;background:var(--paper);color:var(--ink);
-  box-shadow:3px 3px 0 var(--shadow);transition:transform .06s ease,box-shadow .06s ease;
-}
-.btn:hover{text-decoration:none;transform:translate(-1px,-1px);box-shadow:4px 4px 0 var(--shadow)}
-.btn:active{transform:translate(2px,2px);box-shadow:0 0 0 var(--shadow)}
-.btn.primary{background:var(--blue);color:#efeadb;border-color:var(--blue-ink)}
-.btn.primary:hover{background:var(--blue-ink)}
-.metaline{margin-top:26px;font-family:var(--f-mono);font-size:12px;color:var(--ink-soft);
-  letter-spacing:.03em;display:flex;flex-wrap:wrap;gap:6px 18px}
-.metaline span::before{content:"▪ ";color:var(--rust)}
-
-/* ---------- VT100 console ---------- */
-.console{
-  flex:1;background:var(--console-bg);color:var(--console-fg);
-  font-family:var(--f-mono);font-size:13.5px;line-height:1.55;
-  padding:22px 22px 20px;position:relative;overflow:hidden;
-  min-height:360px;
-}
-.console::after{ /* scanlines + phosphor vignette */
-  content:"";position:absolute;inset:0;pointer-events:none;
-  background:
-    repeating-linear-gradient(to bottom,rgba(0,0,0,0) 0 2px,rgba(0,0,0,.10) 2px 3px),
-    radial-gradient(120% 130% at 50% 20%,transparent 55%,rgba(0,0,0,.45) 100%);
-}
-.console .bar{
-  color:var(--console-dim);border-bottom:1px solid rgba(255,181,49,.25);
-  padding-bottom:8px;margin-bottom:12px;display:flex;justify-content:space-between;
-  font-size:11px;letter-spacing:.1em;text-transform:uppercase;
-}
+/* the blue FEATURE band: bold brand field carrying the machine, full-bleed */
+.feature{background:var(--blue);color:var(--on-blue);
+  border-top:var(--hair) solid var(--ink);border-bottom:var(--hair) solid var(--ink)}
+.feature .wrap{padding:clamp(44px,6vw,92px) var(--gutter)}
+.feature .thesis-line{font-size:clamp(28px,4.8vw,56px);font-weight:700;letter-spacing:-.032em;
+  line-height:1.02;max-width:22ch;margin:0 0 clamp(30px,4vw,48px);color:#fff;text-wrap:balance}
+.fbody{display:flex;gap:clamp(20px,3vw,40px);align-items:stretch}
+@media (max-width:760px){.fbody{flex-direction:column}}
+.fbody .cwrap{flex:1;min-width:0;display:flex;flex-direction:column}
+.fbody .rail{flex:none;width:clamp(210px,24vw,280px);display:flex;flex-direction:column;justify-content:flex-end}
+@media (max-width:760px){.fbody .rail{width:auto}}
+.vt-cap{font-family:var(--f-mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--on-blue-2);margin:0 0 12px;display:flex;justify-content:space-between;gap:12px}
+.console{background:var(--console-bg);color:var(--console-fg);font-family:var(--f-mono);
+  font-size:12.5px;line-height:1.5;padding:15px 15px 13px;position:relative;overflow:hidden;
+  flex:1;min-height:288px;border:var(--hair) solid #fff}
+.console::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:repeating-linear-gradient(to bottom,rgba(0,0,0,0) 0 2px,rgba(0,0,0,.15) 2px 3px),
+    radial-gradient(130% 130% at 50% 0%,transparent 58%,rgba(0,0,0,.45) 100%)}
+.console .cbar{color:var(--console-dim);border-bottom:1px solid rgba(131,145,184,.32);
+  padding-bottom:8px;margin-bottom:11px;display:flex;justify-content:space-between;
+  font-size:10.5px;letter-spacing:.12em;text-transform:uppercase}
 .console pre{margin:0;white-space:pre-wrap;word-break:break-word}
-.console .i{color:var(--console-dim)}      /* informational   */
-.console .p{color:#e7e0cf}                  /* prompt / user   */
-.console .cur{display:inline-block;width:.6em;height:1.05em;vertical-align:-.18em;
+.console .i{color:var(--console-dim)}
+.console .p{color:#e4e9f6}
+.console .ok{color:var(--console-ok)}
+.console .cur{display:inline-block;width:.58em;height:1em;vertical-align:-.14em;
   background:var(--console-fg);animation:blink 1.05s steps(1) infinite}
 @keyframes blink{50%{opacity:0}}
-@media (prefers-reduced-motion:reduce){.console .cur{animation:none}}
+.facts{display:flex;flex-direction:column;gap:0}
+.facts div{display:flex;flex-direction:column;gap:3px;padding:14px 0;
+  border-top:1px solid rgba(255,255,255,.28);font-family:var(--f-mono);color:var(--on-blue-2)}
+.facts div span{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase}
+.facts div b{color:#fff;font-weight:700;font-size:13.5px;letter-spacing:0}
+@media (max-width:760px){.facts{flex-direction:row;flex-wrap:wrap;gap:0 28px}.facts div{border-top:0;padding:10px 0}}
 
-/* ---------- section scaffold ---------- */
-section{border-bottom:1.5px solid var(--ink)}
-.sec-head{display:flex;align-items:baseline;gap:18px;padding:34px 0 8px;flex-wrap:wrap}
-.sec-no{font-family:var(--f-mono);font-size:13px;color:var(--rust);letter-spacing:.12em;
-  border:1px solid var(--rust);padding:3px 8px}
-.sec-head h2{font-size:clamp(24px,3.4vw,34px);font-weight:700;letter-spacing:-.01em;margin:0;
-  text-wrap:balance}
-.sec-sub{color:var(--ink-soft);max-width:62ch;margin:0 0 30px;font-size:17px}
-.rule{height:1.5px;background:var(--ink);opacity:.9}
+/* signature: a strip of segmented modules, a few filled */
+.modrule{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;
+  border-top:var(--hair) solid var(--ink);border-bottom:var(--hair) solid var(--ink);height:16px}
+.modrule i{border-right:1px solid var(--blue-line)}
+.modrule i:last-child{border-right:0}
+.modrule i.f{background:var(--blue);border-right-color:var(--blue-deep)}
 
-/* feature tiles — echo the boxed logo cells */
-.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:0;
-  border-top:1.5px solid var(--ink);border-left:1.5px solid var(--ink);
-  margin:0 0 6px}
-@media (max-width:840px){.tiles{grid-template-columns:repeat(2,1fr)}}
-@media (max-width:520px){.tiles{grid-template-columns:1fr}}
-.tile{border-right:1.5px solid var(--ink);border-bottom:1.5px solid var(--ink);
-  padding:24px 22px 26px;background:var(--paper);
-  transition:transform .07s ease,box-shadow .07s ease,background .12s;}
-.tile:hover{background:var(--paper-2);transform:translateY(-2px);
-  box-shadow:0 6px 0 -2px var(--shadow)}
-.tile .code{font-family:var(--f-mono);font-size:11px;color:var(--ink-soft);letter-spacing:.14em}
-.tile h3{margin:.5em 0 .3em;font-size:19px;font-weight:700;letter-spacing:-.01em}
-.tile p{margin:0;font-size:15px;color:var(--ink-soft);line-height:1.55}
-.tile .k{color:var(--rust)}
+.sig{font-family:var(--f-mono);font-size:12px;letter-spacing:.12em;color:var(--on-blue-2);
+  margin:clamp(28px,3vw,40px) 0 0;text-transform:uppercase}
 
-/* spec sheet */
-.spec{width:100%;border-collapse:collapse;font-size:15px;
-  border:1.5px solid var(--ink);margin-bottom:6px;background:var(--paper)}
-.spec caption{caption-side:top;text-align:left;font-family:var(--f-mono);font-size:12px;
-  color:var(--ink-soft);letter-spacing:.1em;text-transform:uppercase;padding:0 0 10px}
-.spec th,.spec td{padding:12px 16px;border-bottom:1px solid var(--rule);text-align:left;
-  vertical-align:top}
-.spec thead th{background:var(--blue);color:#efeadb;font-family:var(--f-mono);
-  font-size:12px;letter-spacing:.08em;text-transform:uppercase;border-bottom:1.5px solid var(--ink)}
-.spec tbody th{font-family:var(--f-mono);font-weight:400;font-size:13px;
-  color:var(--ink);white-space:nowrap;border-right:1px solid var(--rule);width:1%}
-.spec td .st{font-family:var(--f-mono);font-size:12px;padding:2px 8px;border:1px solid currentColor;
-  display:inline-block;letter-spacing:.06em}
-.st.ok{color:var(--good)}
-.st.dev{color:var(--rust)}
-.st.plan{color:var(--ink-soft)}
-.spec tbody tr:last-child td,.spec tbody tr:last-child th{border-bottom:0}
-.tab{font-variant-numeric:tabular-nums}
+/* ============================================================ CHAPTER SCAFFOLD */
+section{border-bottom:var(--hair) solid var(--ink)}
+.chap{display:flex;align-items:baseline;gap:clamp(16px,2.2vw,30px);padding:clamp(44px,5.5vw,84px) 0 0}
+.chap .cn{flex:none;font-family:var(--f-mono);font-weight:700;font-size:clamp(13px,1.4vw,16px);
+  color:var(--blue);letter-spacing:.04em}
+.chap h2{font-size:clamp(30px,4.8vw,58px);font-weight:700;letter-spacing:-.032em;line-height:1.0;
+  margin:0;text-wrap:balance}
+.deck2{color:var(--ink-2);max-width:62ch;margin:clamp(16px,2vw,22px) 0 0;
+  font-size:clamp(17px,1.9vw,19.5px);line-height:1.5;letter-spacing:-.006em}
+.pad-b{padding-bottom:clamp(48px,6vw,88px)}
 
-/* prose block */
-.cols{display:grid;grid-template-columns:1.2fr 1fr;gap:clamp(24px,4vw,56px);align-items:start;
-  padding-bottom:40px}
-@media (max-width:820px){.cols{grid-template-columns:1fr}}
-.cols p{margin:0 0 1em}
-.aside{background:var(--paper-2);border:1.5px solid var(--ink);padding:20px 22px;
-  box-shadow:4px 4px 0 var(--shadow)}
-.aside h4{margin:0 0 .6em;font-family:var(--f-mono);font-size:12px;letter-spacing:.1em;
-  text-transform:uppercase;color:var(--rust)}
-.aside ul{margin:0;padding-left:1.1em}
-.aside li{margin:.35em 0;font-size:15px;color:var(--ink-soft)}
-.aside li b{color:var(--ink)}
+/* overview: true manual marginalia (note in the margin, not a boxed card) */
+.manual{display:grid;grid-template-columns:.34fr 1fr;gap:clamp(28px,4vw,64px);
+  margin-top:clamp(34px,4vw,56px);padding-top:clamp(28px,3vw,40px);border-top:var(--hair) solid var(--ink)}
+@media (max-width:820px){.manual{grid-template-columns:1fr;gap:28px}}
+.manual .marg{position:sticky;top:88px;align-self:start}
+@media (max-width:820px){.manual .marg{position:static}}
+.manual .marg h4{margin:0 0 14px;font-family:var(--f-mono);font-size:11.5px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--blue);border-top:2px solid var(--blue);padding-top:12px}
+.manual .marg ul{margin:0;padding:0;list-style:none}
+.manual .marg li{padding:9px 0;font-size:14px;color:var(--ink-2);line-height:1.45;
+  border-bottom:1px solid var(--blue-line)}
+.manual .marg li:last-child{border-bottom:0}
+.manual .marg li b{color:var(--ink);font-weight:600}
+.manual .text p{margin:0 0 1.05em;font-size:clamp(17px,1.9vw,18.5px);line-height:1.62;color:var(--ink)}
+.manual .text p:last-child{margin-bottom:0}
+.manual .text b{font-weight:600}
 
-/* code / build block */
-.build{background:var(--console-bg);color:#e7e0cf;font-family:var(--f-mono);
-  font-size:13.5px;line-height:1.7;border:1.5px solid var(--ink);
-  box-shadow:5px 5px 0 var(--shadow);margin:0 0 8px;overflow-x:auto}
+/* components: documentation contents-index with dot leaders (NOT cards) */
+.index{margin-top:clamp(30px,4vw,52px);border-top:var(--hair) solid var(--ink)}
+.ix{padding:clamp(20px,2.4vw,28px) 0;border-bottom:1px solid var(--blue-line);
+  transition:background .12s ease}
+.ix:hover{background:var(--paper-2)}
+.ixhead{display:flex;align-items:baseline;gap:16px}
+.ix .n{flex:none;font-family:var(--f-mono);font-weight:700;font-size:13px;color:var(--blue);width:3ch}
+.ix .nm{font-weight:700;font-size:clamp(21px,2.7vw,32px);letter-spacing:-.025em;line-height:1;
+  color:var(--ink)}
+.ix .dots{flex:1;border-bottom:1.5px dotted var(--ink-3);opacity:.5;transform:translateY(-5px);
+  min-width:24px}
+.ix .cd{flex:none;font-family:var(--f-mono);font-size:12px;color:var(--ink-3);letter-spacing:.06em;
+  text-transform:uppercase}
+.ix .ds{margin:10px 0 0 calc(3ch + 16px);max-width:72ch;color:var(--ink-2);font-size:15.5px;line-height:1.55}
+.ix .ds .k{color:var(--blue);font-weight:600}
+.ix:hover .nm{color:var(--blue)}
+@media (max-width:560px){
+  .ix .dots{display:none}.ix .cd{width:100%;order:3;margin-left:calc(3ch + 16px);margin-top:6px}
+  .ixhead{flex-wrap:wrap}.ix .ds{margin-left:calc(3ch + 16px)}
+}
+
+/* architecture: DEC data sheet */
+.spec{width:100%;border-collapse:collapse;font-size:15.5px;
+  margin-top:clamp(28px,3.5vw,44px);border-top:var(--hair) solid var(--ink);border-bottom:var(--hair) solid var(--ink)}
+.spec caption{caption-side:top;text-align:left;font-family:var(--f-mono);font-size:11px;
+  color:var(--ink-3);letter-spacing:.14em;text-transform:uppercase;padding:0 0 14px}
+.spec th,.spec td{padding:15px 18px;border-bottom:1px solid var(--blue-line);text-align:left;vertical-align:middle}
+.spec thead th{background:var(--blue);color:var(--on-blue);font-family:var(--f-mono);font-size:11px;
+  letter-spacing:.1em;text-transform:uppercase;font-weight:700;border-bottom:var(--hair) solid var(--ink)}
+.spec tbody th{font-weight:700;font-size:17px;color:var(--ink);white-space:nowrap;letter-spacing:-.01em}
+.spec tbody td{color:var(--ink-2)}
+.spec tbody tr:last-child th,.spec tbody tr:last-child td{border-bottom:0}
+.spec tbody tr:hover th,.spec tbody tr:hover td{background:var(--paper-2)}
+.tab{font-variant-numeric:tabular-nums;font-family:var(--f-mono);font-size:13px}
+.st{font-family:var(--f-mono);font-size:11px;padding:5px 10px;letter-spacing:.08em;display:inline-block;
+  font-weight:700;border:1.5px solid currentColor}
+.st.ok{color:var(--blue)}.st.dev{color:var(--amber)}.st.plan{color:var(--ink-3)}
+
+/* build */
+.build{background:var(--console-bg);color:#e4e9f6;font-family:var(--f-mono);font-size:13px;line-height:1.75;
+  border:var(--hair) solid var(--ink);margin-top:clamp(28px,3.5vw,44px);overflow-x:auto}
 .build .top{display:flex;justify-content:space-between;color:var(--console-dim);
-  border-bottom:1px solid rgba(255,181,49,.22);padding:9px 16px;font-size:11px;
-  letter-spacing:.1em;text-transform:uppercase}
-.build pre{margin:0;padding:18px 16px;white-space:pre}
-.build .c{color:var(--console-dim)}      /* comment */
-.build .d{color:var(--console-fg)}        /* $ dollar prompt */
-.build .s{color:#e7e0cf}
-.buildnote{font-size:14px;color:var(--ink-soft);margin:14px 0 34px}
+  border-bottom:1px solid rgba(131,145,184,.3);padding:11px 18px;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase}
+.build pre{margin:0;padding:20px 18px;white-space:pre;min-width:520px}
+.build .c{color:var(--console-dim)}.build .d{color:var(--console-fg)}.build .s{color:#e4e9f6}
+.buildnote{font-size:15.5px;color:var(--ink-2);line-height:1.55;margin:20px 0 0;max-width:66ch}
+.mt{margin-top:clamp(26px,3vw,36px)}
 
-/* ---------- footer / colophon ---------- */
+/* ============================================================ COLOPHON */
 footer{background:var(--paper-2)}
-.colo{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:28px;
-  padding:44px 0 30px}
+.colo{display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:0;border-top:var(--hair) solid var(--ink)}
 @media (max-width:760px){.colo{grid-template-columns:1fr 1fr}}
 @media (max-width:480px){.colo{grid-template-columns:1fr}}
-.colo h5{font-family:var(--f-mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;
-  color:var(--ink-soft);margin:0 0 12px}
-.colo a{display:block;color:var(--ink);font-size:15px;margin:.35em 0}
-.colo a:hover{color:var(--rust);text-decoration:none}
-.colo p{margin:.4em 0;font-size:14px;color:var(--ink-soft)}
-.disclaim{border-top:1.5px solid var(--ink);padding:20px 0 48px;
-  font-size:12.5px;color:var(--ink-soft);font-family:var(--f-mono);line-height:1.7;
-  display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
-.disclaim .partno-b{color:var(--ink)}
-.badge{display:inline-block;border:1px solid var(--rust);color:var(--rust);
-  padding:2px 8px;letter-spacing:.06em}
+.colo>div{padding:clamp(30px,3.4vw,46px) clamp(22px,2.4vw,34px);border-right:var(--hair) solid var(--ink)}
+.colo>div:first-child{padding-left:0}
+.colo>div:last-child{border-right:0}
+@media (max-width:760px){.colo>div{border-right:0;border-bottom:1px solid var(--blue-line)}
+  .colo>div:first-child{padding-left:clamp(22px,2.4vw,34px)}}
+.colo p{margin:.5em 0;font-size:14.5px;color:var(--ink-2);line-height:1.5;max-width:36ch}
+.colo h5{font-family:var(--f-mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);margin:0 0 15px}
+.colo a{display:block;color:var(--ink);font-size:15px;margin:.55em 0}
+.colo a:hover{color:var(--blue);text-decoration:none}
+.badge{display:inline-block;border:1.5px solid var(--blue);color:var(--blue);padding:4px 10px;
+  letter-spacing:.06em;font-family:var(--f-mono);font-size:11px;text-transform:uppercase;font-weight:700;margin-top:10px}
+.disclaim{display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;
+  padding:22px 0 clamp(40px,5vw,64px);font-family:var(--f-mono);font-size:12px;color:var(--ink-3);
+  line-height:1.7;border-top:var(--hair) solid var(--ink)}
+.disclaim .r{text-align:right;color:var(--ink-2)}
+@media (max-width:560px){.disclaim .r{text-align:left}}
 </style>
 </head>
 <body>
 
-<!-- ============ MASTHEAD ============ -->
+<!-- ================= MASTHEAD ================= -->
 <header class="mast">
   <div class="wrap row">
-    <a href="#top" aria-label="OpenVMX home" class="logo" style="text-decoration:none">
-      <span class="seg">open</span><span class="seg hi">vm</span><span class="seg rust">x</span>
+    <a href="#top" aria-label="OpenVMX home" class="mark" style="text-decoration:none">
+      <span class="m">open</span><span class="m">vm</span><span class="m fill">x</span>
     </a>
-    <span class="partno">AA–OVMX2–TE · V0.2</span>
-    <nav>
-      <a href="#overview">Overview</a>
-      <a href="#system">System</a>
-      <a href="#arch">Architecture</a>
-      <a href="#build">Build</a>
-      <a class="gh" href="https://github.com/3dl-dev/vms">GitHub ↗</a>
+    <span class="partno">AA–OVMX2–TE</span>
+    <nav aria-label="Primary">
+      <a class="txt" href="#overview">Overview</a>
+      <a class="txt" href="#system">System</a>
+      <a class="txt" href="#arch">Architecture</a>
+      <a class="txt" href="#build">Build</a>
+      <a class="gh" href="https://github.com/3dl-dev/vms">GitHub&nbsp;↗</a>
       <button class="tgl" id="themebtn" type="button" aria-label="Toggle color scheme">Screen</button>
     </nav>
   </div>
@@ -308,171 +311,173 @@ footer{background:var(--paper-2)}
 
 <main id="top">
 
-  <!-- ============ HERO ============ -->
+  <!-- ================= HERO ================= -->
   <div class="hero">
-    <div class="grid">
-      <div class="left">
-        <div class="wrapL">
-          <p class="eyebrow">Software Product Description · Open Source</p>
-          <h1>Computing in the<br><span class="rust">VMS tradition.</span></h1>
-          <p class="lede"><b>OpenVMX</b> brings the VMS way of working to modern
-            hardware — the DCL command language, RMS record management, system
-            services, and a real kernel <b>executive</b>. Open source, built from
-            public specifications, and packaged to boot.</p>
-          <div class="cta">
-            <a class="btn primary" href="https://github.com/3dl-dev/vms">
-              <span>▸</span> View the source</a>
-            <a class="btn" href="#build"><span>$</span> Build &amp; boot</a>
-          </div>
-          <div class="metaline">
-            <span>DCL · RMS · SYS$ services</span>
-            <span>vms.ko executive via /dev/vms</span>
-            <span>boots on QEMU</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="right">
-        <div class="console" id="console" aria-label="OpenVMX boot console" role="img">
-          <div class="bar"><span>VT · OVMX1::OPA0:</span><span>DKA0:[SYS0]</span></div>
-          <pre id="conpre"></pre>
+    <div class="reveal" id="reveal" aria-hidden="true"></div>
+    <div class="wrap inner">
+      <div class="cover">
+        <p class="pn"><b>OpenVMX</b> · Version 0.2 · Software Product Description</p>
+        <h1>Computing in the <span class="blue">VMS&nbsp;tradition.</span></h1>
+        <p class="deck"><b>OpenVMX</b> brings the VMS way of working to modern hardware: the DCL
+          command language, RMS record management, system services, and a real kernel
+          <b>executive</b>. Open source, built from public specifications, and packaged to boot.</p>
+        <div class="go">
+          <a class="golink" href="https://github.com/3dl-dev/vms">View the source on GitHub <span class="ar">→</span></a>
+          <span class="sub">or <a href="#build">build and boot it yourself</a></span>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- ============ 1.0 OVERVIEW ============ -->
+  <!-- signature module strip -->
+  <div class="modrule" aria-hidden="true">
+    <i></i><i class="f"></i><i></i><i></i><i class="f"></i><i></i><i></i><i></i><i class="f"></i>
+    <i></i><i></i><i class="f"></i><i></i><i></i><i></i><i class="f"></i><i></i><i></i>
+  </div>
+
+  <!-- ================= BLUE FEATURE BAND (thesis + wide console) ================= -->
+  <div class="feature">
+    <div class="wrap">
+      <p class="thesis-line">Every layer of the VMS environment, rebuilt as open software.</p>
+      <div class="fbody">
+        <div class="cwrap">
+          <p class="vt-cap"><span>Boot console · OpenVMX V0.2</span><span>OVMX1::OPA0:</span></p>
+          <div class="console" id="console" aria-label="OpenVMX boot console transcript" role="img">
+            <div class="cbar"><span>VT · OPA0:</span><span>DKA0:[SYS0]</span></div>
+            <pre id="conpre"></pre>
+          </div>
+        </div>
+        <div class="rail">
+          <div class="facts">
+            <div><span>Shell</span><b>DCL · RMS · SYS$</b></div>
+            <div><span>Executive</span><b>vms.ko · /dev/vms</b></div>
+            <div><span>Runtime</span><b>boots on QEMU</b></div>
+          </div>
+        </div>
+      </div>
+      <p class="sig">OpenVMX · an independent project · github.com/3dl-dev/vms</p>
+    </div>
+  </div>
+
+  <!-- ================= 1.0 OVERVIEW ================= -->
   <section id="overview">
     <div class="wrap">
-      <div class="sec-head">
-        <span class="sec-no">1.0</span>
-        <h2>A real system, not an emulator skin</h2>
-      </div>
-      <p class="sec-sub">OpenVMX rebuilds the VMS environment as its own software — the
-        command language, the file system, the system services, the executive — implemented
-        from public specifications and released as open source.</p>
+      <div class="chap"><span class="cn">1.0</span><h2>Rebuilt from the system layer up</h2></div>
+      <p class="deck2">OpenVMX rebuilds the VMS environment as its own software: the command language,
+        the file system, the system services, the executive. All of it implemented from public
+        specifications and released as open source.</p>
 
-      <div class="cols">
-        <div>
-          <p>The layers you know from VMS are here as their own libraries, built in
-            dependency order: the freestanding syscall floor, process control blocks with
-            ASTs and event flags, the SYS$ / LIB$ / STR$ run-time, logical-name management,
-            an ODS-2 file system, and Record Management Services on top.</p>
-          <p>Above them sits <b>DCL</b> — the Digital Command Language shell — matching
-            VMS behavior rather than bash, down to <span class="mono">$</span> prompts,
-            <span class="mono">SHOW</span> verbs, and VMS-format file specifications.</p>
-          <p>Underneath, a kernel module — <span class="mono">vms.ko</span> — provides the
-            VMS <b>executive</b>: locks, event flags, ASTs, and access modes as genuinely
-            shared system state, reached from userspace through
-            <span class="mono">/dev/vms</span>. When the executive isn't present, services
-            fail honestly with <span class="mono">SS$_NOSUCHDEV</span> — never a per-process
-            fake reporting success.</p>
-        </div>
-        <aside class="aside">
+      <div class="manual pad-b">
+        <div class="marg">
           <h4>How it's built</h4>
           <ul>
             <li>Implemented from <b>public documentation</b> and observed behavior.</li>
-            <li>Original, independent code — nothing borrowed.</li>
-            <li>Where the specs stop, OpenVMX makes its own choices, clearly labeled.</li>
+            <li>Original, independent code.</li>
+            <li>Where the specs stop, OpenVMX makes its own choices and labels them.</li>
             <li>Open source, readable end to end.</li>
           </ul>
-        </aside>
+        </div>
+        <div class="text">
+          <p>The layers you know from VMS are here as their own libraries, built in dependency
+            order: the freestanding syscall floor, process control blocks with ASTs and event flags,
+            the SYS$ / LIB$ / STR$ run-time, logical-name management, an ODS-2 file system, and
+            Record Management Services on top.</p>
+          <p>Above them sits <b>DCL</b>, the Digital Command Language shell. It follows VMS behavior
+            rather than bash, down to <span class="mono">$</span> prompts, <span class="mono">SHOW</span>
+            verbs, and VMS-format file specifications.</p>
+          <p>Underneath, a kernel module (<span class="mono">vms.ko</span>) provides the VMS
+            <b>executive</b>: locks, event flags, ASTs, and access modes as genuinely shared system
+            state, reached from userspace through <span class="mono">/dev/vms</span>. When the
+            executive is absent, services fail honestly with <span class="mono">SS$_NOSUCHDEV</span>.
+            They never fake per-process success.</p>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- ============ 2.0 SYSTEM ============ -->
+  <!-- ================= 2.0 SYSTEM ================= -->
   <section id="system">
     <div class="wrap">
-      <div class="sec-head">
-        <span class="sec-no">2.0</span>
-        <h2>System components</h2>
-      </div>
-      <p class="sec-sub">Each facility is a discrete library or module — you can read it,
-        build it, and test it on its own.</p>
+      <div class="chap"><span class="cn">2.0</span><h2>System components</h2></div>
+      <p class="deck2">Each facility is a discrete library or module. You can read it, build it, and
+        test it on its own.</p>
 
-      <div class="tiles">
-        <div class="tile">
-          <div class="code">SYS$ / LIB$ / STR$</div>
-          <h3>System services &amp; RTL</h3>
-          <p>VMS run-time: descriptors, condition handling, logical names, event flags,
-            ASTs. Every API returns a VMS status code — <span class="k">odd is success</span>.</p>
+      <div class="index pad-b">
+        <div class="ix">
+          <div class="ixhead"><span class="n">01</span><span class="nm">System services &amp; RTL</span>
+            <span class="dots"></span><span class="cd">SYS$ / LIB$ / STR$</span></div>
+          <p class="ds">The VMS run-time: descriptors, condition handling, logical names, event flags,
+            ASTs. Every API returns a VMS status code, where <span class="k">odd means success</span>.</p>
         </div>
-        <div class="tile">
-          <div class="code">DCL</div>
-          <h3>The DCL shell</h3>
-          <p>Lexer, parser, executor, and built-in verbs that follow VMS DCL — not a
-            bash reskin. External utilities dispatch the VMS way.</p>
+        <div class="ix">
+          <div class="ixhead"><span class="n">02</span><span class="nm">The DCL shell</span>
+            <span class="dots"></span><span class="cd">DCL</span></div>
+          <p class="ds">Lexer, parser, executor, and built-in verbs that follow VMS DCL. External
+            utilities dispatch the VMS way.</p>
         </div>
-        <div class="tile">
-          <div class="code">RMS · ODS-2</div>
-          <h3>Records &amp; files</h3>
-          <p>FAB / RAB / NAM / XAB record management over an ODS-2 volume that a real VAX
+        <div class="ix">
+          <div class="ixhead"><span class="n">03</span><span class="nm">Records &amp; files</span>
+            <span class="dots"></span><span class="cd">RMS · ODS-2</span></div>
+          <p class="ds">FAB / RAB / NAM / XAB record management over an ODS-2 volume that a real VAX
             can <span class="k">MOUNT and read</span>.</p>
         </div>
-        <div class="tile">
-          <div class="code">vms.ko</div>
-          <h3>Kernel executive</h3>
-          <p>The distributed lock manager, event flags, ASTs and access modes as shared
-            system state — reached through <span class="mono">/dev/vms</span>.</p>
+        <div class="ix">
+          <div class="ixhead"><span class="n">04</span><span class="nm">Kernel executive</span>
+            <span class="dots"></span><span class="cd">vms.ko</span></div>
+          <p class="ds">The distributed lock manager, event flags, ASTs, and access modes as shared
+            system state, reached through <span class="mono">/dev/vms</span>.</p>
         </div>
-        <div class="tile">
-          <div class="code">IMGACT · LINK</div>
-          <h3>Native toolchain</h3>
-          <p>A VMS-faithful image activator and linker with symbol-vector activation —
-            the road to building OpenVMX <span class="k">from inside OpenVMX</span>.</p>
+        <div class="ix">
+          <div class="ixhead"><span class="n">05</span><span class="nm">Native toolchain</span>
+            <span class="dots"></span><span class="cd">IMGACT · LINK</span></div>
+          <p class="ds">A VMS-faithful image activator and linker with symbol-vector activation. The
+            path to building OpenVMX <span class="k">from inside OpenVMX</span>.</p>
         </div>
-        <div class="tile">
-          <div class="code">SCS · NISCA</div>
-          <h3>Cluster interop</h3>
-          <p>An implementation of the VMScluster wire protocol, so OpenVMX nodes can join
+        <div class="ix">
+          <div class="ixhead"><span class="n">06</span><span class="nm">Cluster interop</span>
+            <span class="dots"></span><span class="cd">SCS · NISCA</span></div>
+          <p class="ds">An implementation of the VMScluster wire protocol, so OpenVMX nodes can join
             and serve storage as a cluster. In active research.</p>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ============ 3.0 ARCHITECTURE ============ -->
+  <!-- ================= 3.0 ARCHITECTURE ================= -->
   <section id="arch">
     <div class="wrap">
-      <div class="sec-head">
-        <span class="sec-no">3.0</span>
-        <h2>Supported architectures</h2>
-      </div>
-      <p class="sec-sub">Digital shipped VMS across four instruction sets in its lifetime.
-        OpenVMX is building toward the same reach — including <b>Alpha</b>, the 64-bit
-        machine Digital designed VMS's future around.</p>
+      <div class="chap"><span class="cn">3.0</span><h2>Supported architectures</h2></div>
+      <p class="deck2">Digital shipped VMS across four instruction sets in its lifetime. OpenVMX is
+        building toward the same reach, including <b>Alpha</b>, the 64-bit machine Digital designed
+        VMS's future around.</p>
 
       <table class="spec">
         <caption>Table 3–1 · Architecture support matrix</caption>
         <thead>
-          <tr><th>Architecture</th><th>Width</th><th>Lineage</th><th>Status</th></tr>
+          <tr><th scope="col">Architecture</th><th scope="col">Width</th><th scope="col">Lineage</th><th scope="col">Status</th></tr>
         </thead>
         <tbody>
-          <tr><th>x86-64</th><td class="tab">64-bit</td><td>Primary development target</td>
-            <td><span class="st ok">SUPPORTED</span></td></tr>
-          <tr><th>aarch64</th><td class="tab">64-bit</td><td>ARM · second first-class target</td>
-            <td><span class="st ok">SUPPORTED</span></td></tr>
-          <tr><th>Alpha / AXP</th><td class="tab">64-bit</td><td>DEC Alpha — first-class</td>
-            <td><span class="st dev">IN PROGRESS</span></td></tr>
-          <tr><th>VAX</th><td class="tab">32-bit</td><td>Where VMS began</td>
-            <td><span class="st plan">ASPIRATIONAL</span></td></tr>
+          <tr><th scope="row">x86-64</th><td class="tab">64-bit</td><td>Primary development target</td>
+            <td><span class="st ok">Supported</span></td></tr>
+          <tr><th scope="row">aarch64</th><td class="tab">64-bit</td><td>ARM · second first-class target</td>
+            <td><span class="st ok">Supported</span></td></tr>
+          <tr><th scope="row">Alpha / AXP</th><td class="tab">64-bit</td><td>DEC Alpha · first-class</td>
+            <td><span class="st dev">In&nbsp;progress</span></td></tr>
+          <tr><th scope="row">VAX</th><td class="tab">32-bit</td><td>Where VMS began</td>
+            <td><span class="st plan">Aspirational</span></td></tr>
         </tbody>
       </table>
-      <p class="buildnote">Itanium (IA-64) is out of scope. Alpha is where OpenVMX proves
-        its 64-bit behavior — the architecture VMS was rebuilt around when it went 64-bit.</p>
+      <p class="buildnote pad-b">Itanium (IA-64) is out of scope. Alpha is where OpenVMX proves its
+        64-bit behavior, the architecture VMS was rebuilt around when it went 64-bit.</p>
     </div>
   </section>
 
-  <!-- ============ 4.0 BUILD ============ -->
+  <!-- ================= 4.0 BUILD ================= -->
   <section id="build">
     <div class="wrap">
-      <div class="sec-head">
-        <span class="sec-no">4.0</span>
-        <h2>Build it, boot it</h2>
-      </div>
-      <p class="sec-sub">One runtime target: the real-kernel / QEMU path. Clone the source,
-        build the bootable image, and bring up an OpenVMX VM.</p>
+      <div class="chap"><span class="cn">4.0</span><h2>Build it, boot it</h2></div>
+      <p class="deck2">One runtime target: the real-kernel / QEMU path. Clone the source, build the
+        bootable image, and bring up an OpenVMX VM.</p>
 
       <div class="build">
         <div class="top"><span>terminal</span><span>sh</span></div>
@@ -482,39 +487,34 @@ footer{background:var(--paper-2)}
 <span class="c"># build the bootable distribution (all deps containerized)</span>
 <span class="d">$</span> <span class="s">docker build -f Dockerfile.bootable -o dist .</span>
 
-<span class="c"># boot OpenVMX as a QEMU VM — vms.ko is the executive via /dev/vms</span>
+<span class="c"># boot OpenVMX as a QEMU VM; vms.ko is the executive via /dev/vms</span>
 <span class="d">$</span> <span class="s">./distro/boot/run-qemu.sh dist/vmlinuz dist/initramfs-ovmx.cpio.gz</span>
 
 <span class="c"># at the login banner:  SYSTEM / MANAGER</span>
 <span class="d">$</span> <span class="s">SHOW SYSTEM</span></pre>
       </div>
       <p class="buildnote">Prefer to work at the library level? A standard
-        <span class="mono">cmake -B build -DBUILD_TESTS=ON</span> tree builds the shared
-        libraries and the test suite with <span class="mono">ctest</span>. Full instructions
-        live in <span class="mono">docs/building.md</span>.</p>
+        <span class="mono">cmake -B build -DBUILD_TESTS=ON</span> tree builds the shared libraries and
+        the test suite with <span class="mono">ctest</span>. Full instructions live in
+        <span class="mono">docs/building.md</span>.</p>
 
-      <div class="cta" style="padding-bottom:44px">
-        <a class="btn primary" href="https://github.com/3dl-dev/vms">
-          <span>▸</span> Read the source</a>
-        <a class="btn" href="https://github.com/3dl-dev/vms/blob/main/docs/architecture.md">
-          <span>§</span> Architecture notes</a>
-      </div>
+      <p class="buildnote mt pad-b"><a class="golink" href="https://github.com/3dl-dev/vms">Read the source on GitHub <span class="ar">→</span></a></p>
     </div>
   </section>
 
 </main>
 
-<!-- ============ COLOPHON ============ -->
+<!-- ================= COLOPHON ================= -->
 <footer>
   <div class="wrap">
     <div class="colo">
       <div>
-        <a href="#top" class="logo" style="text-decoration:none;margin-bottom:16px">
-          <span class="seg">open</span><span class="seg hi">vm</span><span class="seg rust">x</span>
+        <a href="#top" class="mark lg" style="text-decoration:none">
+          <span class="m">open</span><span class="m">vm</span><span class="m fill">x</span>
         </a>
-        <p>An open operating environment in the VMS tradition.</p>
+        <p style="margin-top:18px">An open operating environment in the VMS tradition.</p>
         <p>Free and open source, for the people who still love this way of working.</p>
-        <p style="margin-top:14px"><span class="badge">Free &amp; open source</span></p>
+        <p><span class="badge">Free &amp; open source</span></p>
       </div>
       <div>
         <h5>Project</h5>
@@ -531,45 +531,57 @@ footer{background:var(--paper-2)}
       </div>
     </div>
     <div class="wrap disclaim" style="padding-inline:0">
-      <span>
-        OpenVMX is an independent, open-source project. OpenVMS and VMS are trademarks of
-        their respective owners, referenced here only to describe compatibility.
-      </span>
-      <span class="partno-b">AA–OVMX2–TE<br>Printed in the open · <span id="yr"></span></span>
+      <span>OpenVMX is an independent, open-source project. OpenVMS and VMS are trademarks of their
+        respective owners, referenced here only to describe compatibility.</span>
+      <span class="r">AA–OVMX2–TE<br>Printed in the open · <span id="yr"></span></span>
     </div>
   </div>
 </footer>
 
 <script>
 (function(){
-  /* ---- theme toggle: paper <-> screen ---- */
-  var root=document.documentElement, btn=document.getElementById('themebtn');
+  var root=document.documentElement;
+
+  /* theme toggle */
+  var btn=document.getElementById('themebtn');
   try{var saved=localStorage.getItem('ovmx-theme'); if(saved)root.setAttribute('data-theme',saved);}catch(e){}
-  function label(){
-    var dark = root.getAttribute('data-theme')==='dark' ||
-      (!root.getAttribute('data-theme') && window.matchMedia('(prefers-color-scheme:dark)').matches);
-    btn.textContent = dark ? 'Paper' : 'Screen';
-  }
+  function isDark(){var t=root.getAttribute('data-theme');
+    return t==='dark' || (!t && window.matchMedia('(prefers-color-scheme:dark)').matches);}
+  function label(){btn.textContent = isDark() ? 'Paper' : 'Screen';}
   label();
   btn.addEventListener('click',function(){
-    var cur=root.getAttribute('data-theme');
-    var dark = cur==='dark' || (!cur && window.matchMedia('(prefers-color-scheme:dark)').matches);
-    var next = dark ? 'light':'dark';
-    root.setAttribute('data-theme',next);
-    try{localStorage.setItem('ovmx-theme',next);}catch(e){}
+    root.setAttribute('data-theme', isDark()?'light':'dark');
+    try{localStorage.setItem('ovmx-theme',root.getAttribute('data-theme'));}catch(e){}
     label();
   });
 
-  /* ---- year ---- */
   document.getElementById('yr').textContent = new Date().getFullYear();
+  var reduce = window.matchMedia('(prefers-reduced-motion:reduce)').matches;
 
-  /* ---- console boot animation ---- */
+  /* hero module-grid reveal */
+  var reveal=document.getElementById('reveal');
+  function buildGrid(){
+    var w=reveal.clientWidth||window.innerWidth;
+    var cols = w<560?4 : w<940?6 : 9, rows = w<940?4:5;
+    reveal.style.gridTemplateColumns='repeat('+cols+',1fr)';
+    reveal.style.gridTemplateRows='repeat('+rows+',1fr)';
+    reveal.innerHTML=''; var frag=document.createDocumentFragment(), n=cols*rows;
+    for(var i=0;i<n;i++){var c=document.createElement('div');c.className='cell';
+      c.style.setProperty('--i',(Math.floor(i/cols)+(i%cols)));frag.appendChild(c);}
+    reveal.appendChild(frag);
+  }
+  buildGrid();
+  if(reduce){root.classList.add('reveal-on');}
+  else{requestAnimationFrame(function(){requestAnimationFrame(function(){root.classList.add('reveal-on');});});}
+  var rt;window.addEventListener('resize',function(){clearTimeout(rt);rt=setTimeout(buildGrid,180);});
+
+  /* boot console transcript */
   var pre=document.getElementById('conpre');
   var lines=[
     {t:"OpenVMX V0.2   OpenVMS-compatible executive",c:""},
-    {t:"%OVMX-I-BOOT, loading vms.ko executive via /dev/vms",c:"i"},
+    {t:"%OVMX-I-BOOT, loading vms.ko via /dev/vms",c:"i"},
     {t:"%OVMX-I-SYSINIT, SYS$ services online",c:"i"},
-    {t:"%OVMX-I-MOUNT, DKA0: mounted  volume OPENVMX",c:"i"},
+    {t:"%OVMX-S-MOUNT, DKA0: mounted  vol OPENVMX",c:"ok"},
     {t:"",c:""},
     {t:"    Welcome to OpenVMX   V0.2",c:""},
     {t:"",c:""},
@@ -577,44 +589,27 @@ footer{background:var(--paper-2)}
     {t:"Password:",c:"p"},
     {t:"",c:""},
     {t:"$ SHOW SYSTEM",c:"p"},
-    {t:"OpenVMX V0.2   node OVMX1   10-AUG-2026",c:""},
-    {t:"  PID    Process name    State   Pages",c:""},
-    {t:"00000001 STARTUP         COM      412",c:""},
-    {t:"00000042 DCL             LEF      188",c:""},
-    {t:"$ ",c:"p",cur:true}
+    {t:"OpenVMX V0.2   node OVMX1",c:""},
+    {t:"  PID    Process       State",c:""},
+    {t:"00000001 STARTUP       COM",c:""},
+    {t:"00000042 DCL           LEF",c:""},
+    {t:"$ ",c:"p"}
   ];
-  var reduce = window.matchMedia('(prefers-reduced-motion:reduce)').matches;
   function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;');}
-  function render(n,partial){
-    var out="";
-    for(var i=0;i<n;i++){
-      var L=lines[i], cls=L.c?(' class="'+L.c+'"'):'';
-      out+='<span'+cls+'>'+esc(L.t)+'</span>\n';
-    }
-    if(partial!=null){
-      var L=lines[n], cls=L.c?(' class="'+L.c+'"'):'';
-      out+='<span'+cls+'>'+esc(L.t.slice(0,partial))+'</span>';
-    }
-    // trailing cursor when done
-    if(partial==null && n>=lines.length){ out+='<span class="cur"></span>'; }
-    pre.innerHTML=out;
-  }
-  if(reduce){
-    // full text, no typing
-    var out="";
-    for(var i=0;i<lines.length;i++){var L=lines[i];var cls=L.c?(' class="'+L.c+'"'):'';out+='<span'+cls+'>'+esc(L.t)+'</span>\n';}
-    out+='<span class="cur"></span>';
-    pre.innerHTML=out;
-  }else{
-    var li=0, ci=0;
-    function step(){
-      if(li>=lines.length){render(lines.length);return;}
-      var L=lines[li];
-      if(ci<=L.t.length){ render(li,ci); ci++; setTimeout(step, L.t.length? 12 : 60); }
-      else { li++; ci=0; render(li); setTimeout(step, 120); }
-    }
-    setTimeout(step,300);
-  }
+  function full(){var out="";for(var i=0;i<lines.length;i++){var L=lines[i];var cls=L.c?(' class="'+L.c+'"'):'';
+    out+='<span'+cls+'>'+esc(L.t)+'</span>\n';}return out+'<span class="cur"></span>';}
+  if(reduce){pre.innerHTML=full();return;}
+  var li=0,ci=0;
+  function render(n,partial){var out="";
+    for(var i=0;i<n;i++){var L=lines[i];var cls=L.c?(' class="'+L.c+'"'):'';out+='<span'+cls+'>'+esc(L.t)+'</span>\n';}
+    if(partial!=null){var L=lines[n];var cls=L.c?(' class="'+L.c+'"'):'';out+='<span'+cls+'>'+esc(L.t.slice(0,partial))+'</span>';}
+    if(partial==null && n>=lines.length){out+='<span class="cur"></span>';}
+    pre.innerHTML=out;}
+  function step(){if(li>=lines.length){render(lines.length);return;}
+    var L=lines[li];
+    if(ci<=L.t.length){render(li,ci);ci++;setTimeout(step,L.t.length?11:55);}
+    else{li++;ci=0;render(li);setTimeout(step,110);}}
+  setTimeout(step,420);
 })();
 </script>
 </body>
