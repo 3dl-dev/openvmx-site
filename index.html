@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>OpenVMX — a complete operating system, open source</title>
-<meta name="description" content="OpenVMX is a complete, open-source operating system for Linux: a command language, record management, system services, and a real kernel executive, packaged to boot.">
+<title>OpenVMX — an OpenVMS-compatible environment for Linux</title>
+<meta name="description" content="OpenVMX is an open-source, OpenVMS-compatible operating environment for Linux: the DCL shell, RMS, VMS system services, and a kernel executive. It boots in your browser.">
 <meta name="theme-color" content="#16359e" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0b0c11" media="(prefers-color-scheme: dark)">
-<meta property="og:title" content="OpenVMX — a complete operating system, open source">
-<meta property="og:description" content="A complete operating system for Linux, open source: a command language, record management, system services, and a real kernel executive. Built from public specifications.">
+<meta property="og:title" content="OpenVMX — an OpenVMS-compatible environment for Linux">
+<meta property="og:description" content="An open-source, OpenVMS-compatible operating environment for Linux. DCL, RMS, VMS system services, and a kernel executive, built clean-room from public specifications.">
 <meta property="og:type" content="website">
 <!-- Cross-origin isolation (SharedArrayBuffer) so the cover machine can run qemu-wasm.
      Self-hosted, same-origin (NO CDN). On a header-capable host it no-ops; on GitHub
@@ -121,43 +121,52 @@ a:hover{text-decoration:underline;text-underline-offset:3px;text-decoration-thic
   margin:0 0 clamp(22px,2.6vw,30px);letter-spacing:-.006em}
 .deck b{color:var(--ink);font-weight:600}
 
-/* the cover machine — DEC hardware plate, framed like the build terminal */
-.machine{margin:0 0 clamp(20px,2.4vw,28px);border:var(--hair) solid var(--ink);
-  background:#0b0e14;box-shadow:0 1px 0 var(--blue-line);position:relative}
+/* the cover machine — a VT-series terminal: molded greige bezel, recessed
+   amber CRT. Fixed hardware look in both page themes (a machine doesn't invert).
+   Cosmetic OVMX presentation, not asserted VMS-authentic (Rule 8). */
+.machine{margin:0 0 clamp(20px,2.4vw,28px);position:relative;
+  background:linear-gradient(180deg,#d0c9b9 0%,#bdb5a4 48%,#aca492 100%);
+  border:1px solid #948d7c;border-radius:16px;padding:12px 13px 15px;
+  box-shadow:0 1px 0 rgba(255,255,255,.55) inset,0 20px 44px -24px rgba(0,0,0,.6),0 2px 0 rgba(0,0,0,.14)}
 .machine-top{display:flex;justify-content:space-between;align-items:center;gap:12px;
-  font-family:var(--f-mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;
-  color:#8391b8;background:#091327;border-bottom:1px solid rgba(131,145,184,.3);padding:9px 14px}
-.machine-top .live{display:inline-flex;align-items:center;gap:7px;color:#e4e9f6}
-.machine-top .dot{width:7px;height:7px;background:var(--amber);
-  box-shadow:0 0 0 0 rgba(240,178,74,.6);animation:idlepulse 1.4s steps(2,end) infinite}
-@keyframes idlepulse{0%{opacity:.35}50%{opacity:1}100%{opacity:.35}}
-.machine-screen{position:relative;height:clamp(300px,46vh,520px);overflow:hidden}
-.machine-screen iframe{border:0;width:100%;height:100%;display:block;background:#0b0e14}
+  padding:2px 7px 11px;font-family:var(--f-mono)}
+.machine-top .live{display:inline-flex;align-items:center;gap:9px;
+  font-size:11px;letter-spacing:.17em;text-transform:uppercase;font-weight:700;color:#5b5546}
+.machine-top .dot{width:8px;height:8px;border-radius:50%;background:#ffb232;
+  box-shadow:0 0 8px 1px rgba(255,178,50,.7);animation:idlepulse 2.4s steps(2,end) infinite}
+.machine-top .plate{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:#7e7664}
+@keyframes idlepulse{0%,100%{opacity:.5}50%{opacity:1}}
+.machine-screen{position:relative;height:clamp(300px,46vh,520px);overflow:hidden;border-radius:7px;
+  background:#140d00;box-shadow:0 0 0 2px #4c463b,0 0 36px rgba(255,178,50,.10) inset,0 10px 30px rgba(0,0,0,.5) inset}
+.machine-screen iframe{border:0;width:100%;height:100%;display:block;background:#140d00}
+.machine-screen::after{content:"";position:absolute;inset:0;z-index:3;pointer-events:none;
+  background:repeating-linear-gradient(180deg,rgba(0,0,0,.13) 0 2px,transparent 2px 4px);
+  mix-blend-mode:multiply;opacity:.45}
 
-/* pre-boot idle: janky phosphor screen inviting the click (labelled cosmetic) */
-.idle{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;
-  justify-content:center;gap:16px;text-align:center;padding:20px;
-  background:radial-gradient(120% 90% at 50% 42%,#0d1a12 0%,#0a0e11 70%);cursor:pointer}
+/* pre-boot idle: amber phosphor screen inviting the click (labelled cosmetic) */
+.idle{position:absolute;inset:0;z-index:4;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:18px;text-align:center;padding:22px;cursor:pointer;
+  background:radial-gradient(120% 90% at 50% 42%,#1c1200 0%,#0f0a00 72%)}
 .idle .scan{position:absolute;inset:0;pointer-events:none;opacity:.5;
-  background:repeating-linear-gradient(180deg,rgba(63,185,80,.05) 0 2px,transparent 2px 4px)}
+  background:repeating-linear-gradient(180deg,rgba(255,178,50,.05) 0 2px,transparent 2px 4px)}
 .idle .sweep{position:absolute;left:0;right:0;height:80px;pointer-events:none;
-  background:linear-gradient(180deg,transparent,rgba(63,185,80,.10),transparent);
+  background:linear-gradient(180deg,transparent,rgba(255,178,50,.10),transparent);
   animation:sweep 3.2s steps(24,end) infinite}
 @keyframes sweep{0%{top:-90px}100%{top:100%}}
-.idle .rdy{font-family:var(--f-mono);font-size:13px;letter-spacing:.06em;color:#3fb950;
-  text-shadow:0 0 8px rgba(63,185,80,.35)}
-.idle .rdy .cur{display:inline-block;width:.62em;height:1.05em;vertical-align:-.16em;margin-left:2px;
-  background:#3fb950;animation:blink 1.06s steps(1,end) infinite}
+.idle .rdy{font-family:var(--f-mono);font-size:13px;letter-spacing:.1em;color:#ffb232;
+  text-shadow:0 0 10px rgba(255,178,50,.4)}
+.idle .rdy .cur{display:inline-block;width:.6em;height:1.05em;vertical-align:-.15em;margin-left:.12em;
+  background:#ffb232;animation:blink 1.06s steps(1,end) infinite}
 @keyframes blink{50%{opacity:0}}
-.bootbtn{font-family:var(--f-mono);font-weight:700;font-size:15px;letter-spacing:.02em;
-  color:#0b0e14;background:#3fb950;border:0;padding:12px 22px;cursor:pointer;
-  box-shadow:3px 3px 0 #1b6e2e;transition:transform .06s steps(2,end),box-shadow .06s steps(2,end)}
-.bootbtn:hover{transform:translate(-1px,-1px);box-shadow:4px 4px 0 #1b6e2e}
-.bootbtn:active{transform:translate(3px,3px);box-shadow:0 0 0 #1b6e2e}
-.bootmeta{font-family:var(--f-mono);font-size:11.5px;line-height:1.5;color:#7d8aa0;max-width:44ch;margin:0}
-.bootmeta b{color:#c9d6ea;font-weight:700}
+.bootbtn{font-family:var(--f-mono);font-weight:700;font-size:15px;letter-spacing:.03em;
+  color:#1a1000;background:#ffb232;border:0;padding:12px 22px;cursor:pointer;
+  box-shadow:3px 3px 0 #a6690a;transition:transform .06s steps(2,end),box-shadow .06s steps(2,end)}
+.bootbtn:hover{transform:translate(-1px,-1px);box-shadow:4px 4px 0 #a6690a}
+.bootbtn:active{transform:translate(3px,3px);box-shadow:0 0 0 #a6690a}
+.bootmeta{font-family:var(--f-mono);font-size:11.5px;line-height:1.5;color:#b58a4a;max-width:46ch;margin:0}
+.bootmeta b{color:#ffcf7a;font-weight:700}
 .machine-cap{font-family:var(--f-mono);font-size:10.5px;line-height:1.5;color:var(--ink-3);
-  margin:8px 2px 0;letter-spacing:.01em}
+  margin:9px 4px 0;letter-spacing:.01em}
 @media (prefers-reduced-motion:reduce){.idle .sweep,.machine-top .dot{animation:none}}
 
 .go{display:flex;flex-wrap:wrap;gap:10px 22px;align-items:baseline}
@@ -319,30 +328,30 @@ footer{background:var(--paper-2)}
     <div class="wrap inner">
       <div class="cover">
         <p class="pn"><b>OpenVMX</b> · Software Product Description · Version 0.2</p>
-        <h1 class="coverh">A complete operating system, open source — and it boots right here.</h1>
-        <p class="deck">A command language, record management, system services, and a real kernel
-          <b>executive</b>. The panel below boots the actual OpenVMX kernel client-side, in this tab.
-          Not a screenshot, not a video, not a server stream — the real machine.</p>
+        <h1 class="coverh">An OpenVMS-compatible operating environment for Linux.</h1>
+        <p class="deck">OpenVMX implements the DCL shell, Record Management Services, VMS system
+          services, and a kernel <b>executive</b>. The panel below is that system booting in your
+          browser. The guest runs on your machine, compiled to WebAssembly.</p>
 
         <figure class="machine" id="machine">
           <figcaption class="machine-top">
-            <span class="live"><i class="dot"></i>OpenVMX · console</span>
-            <span>ttyS0 · qemu-wasm · TCG</span>
+            <span class="live"><i class="dot"></i>OpenVMX</span>
+            <span class="plate">AA–OVMX2 · console</span>
           </figcaption>
           <div class="machine-screen" id="screen">
             <div class="idle" id="idle" role="button" tabindex="0"
-                 aria-label="Boot the real OpenVMX machine in your browser">
+                 aria-label="Boot OpenVMX in your browser">
               <div class="scan" aria-hidden="true"></div>
               <div class="sweep" aria-hidden="true"></div>
-              <p class="rdy">OVMX01 :: HALTED — READY TO BOOT<span class="cur" aria-hidden="true"></span></p>
-              <button class="bootbtn" id="bootbtn" type="button">▶ Boot the real machine</button>
-              <p class="bootmeta" id="bootmeta"><b>~60&nbsp;MB</b> one-time download · a real
-                OpenVMS-compatible kernel booted in this tab · <b>not a video</b></p>
+              <p class="rdy">OVMX01 · HALTED · READY TO BOOT<span class="cur" aria-hidden="true"></span></p>
+              <button class="bootbtn" id="bootbtn" type="button">▶ Boot OpenVMX</button>
+              <p class="bootmeta" id="bootmeta"><b>One-time ~60&nbsp;MB download.</b> A real
+                OpenVMS-compatible kernel, emulated in this tab. Boot takes tens of seconds.</p>
             </div>
           </div>
-          <figcaption class="machine-cap">Idle screen — the CRT styling is OpenVMX web presentation,
-            not asserted VMS-authentic. Boots under QEMU compiled to WebAssembly. TCG is slow: reaching
-            the login prompt takes tens of seconds.</figcaption>
+          <figcaption class="machine-cap">The amber CRT styling is OpenVMX presentation, not
+            VMS-authentic. The guest boots under QEMU compiled to WebAssembly; TCG emulation is slow.
+            Single node.</figcaption>
         </figure>
 
         <div class="go">
@@ -362,7 +371,7 @@ footer{background:var(--paper-2)}
   <!-- ================= BLUE FEATURE BAND ================= -->
   <div class="feature">
     <div class="wrap">
-      <p class="thesis-line">A whole operating system, rebuilt in the open.</p>
+      <p class="thesis-line">Built clean-room from published OpenVMS specifications.</p>
       <div class="facts">
         <div><span>Shell</span><b>DCL · RMS · SYS$</b></div>
         <div><span>Executive</span><b>vms.ko · /dev/vms</b></div>
@@ -377,7 +386,7 @@ footer{background:var(--paper-2)}
   <!-- ================= 1.0 OVERVIEW ================= -->
   <section id="overview">
     <div class="wrap">
-      <div class="chap"><span class="cn">1.0</span><h2>Rebuilt from the system layer up</h2></div>
+      <div class="chap"><span class="cn">1.0</span><h2>From the syscall layer to the shell</h2></div>
       <p class="deck2">OpenVMX rebuilds a whole operating system as its own software: the command
         language, the file system, the system services, the executive. All of it implemented from
         public specifications and released as open source.</p>
@@ -461,7 +470,7 @@ footer{background:var(--paper-2)}
   <!-- ================= 3.0 ARCHITECTURE ================= -->
   <section id="arch">
     <div class="wrap">
-      <div class="chap"><span class="cn">3.0</span><h2>Supported architectures</h2></div>
+      <div class="chap"><span class="cn">3.0</span><h2>Architectures</h2></div>
       <p class="deck2">OpenVMX runs on modern 64-bit hardware.</p>
 
       <table class="spec" style="margin-bottom:clamp(48px,6vw,88px)">
@@ -484,7 +493,7 @@ footer{background:var(--paper-2)}
   <!-- ================= 4.0 BUILD ================= -->
   <section id="build">
     <div class="wrap">
-      <div class="chap"><span class="cn">4.0</span><h2>Build it, boot it</h2></div>
+      <div class="chap"><span class="cn">4.0</span><h2>Build and boot</h2></div>
       <p class="deck2">One runtime target: the real-kernel / QEMU path. Clone the source, build the
         bootable image, and bring up an OpenVMX VM.</p>
 
@@ -521,7 +530,7 @@ footer{background:var(--paper-2)}
         <a href="#top" class="mark lg" style="text-decoration:none">
           <span class="m">Open</span><span class="m fill">VMX</span>
         </a>
-        <p style="margin-top:18px">A complete operating system, open source.</p>
+        <p style="margin-top:18px">An OpenVMS-compatible operating environment for Linux.</p>
         <p>Free to build, free to run, free to read.</p>
         <p><span class="badge">Free &amp; open source</span></p>
       </div>
@@ -581,8 +590,8 @@ footer{background:var(--paper-2)}
   var conn = navigator.connection || navigator.webkitConnection || null;
   var metered = !!(conn && (conn.saveData || /(^|-)2g$/.test(conn.effectiveType || '')));
   if (metered && meta) {
-    meta.innerHTML = '<b>Heads up:</b> you appear to be on a metered or slow connection. ' +
-      'Booting downloads <b>~60&nbsp;MB</b> and runs a CPU-heavy emulator. Tap only if you want that.';
+    meta.innerHTML = '<b>Metered or slow connection detected.</b> Booting pulls ~60&nbsp;MB once and ' +
+      'runs a heavy emulator. Start it only if you want that.';
     if (btn) btn.textContent = '▶ Boot anyway (~60 MB)';
   }
 

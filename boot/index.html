@@ -21,17 +21,46 @@
   ul { margin:.4rem 0; }
 
   /* Embed mode (?embed): frame as a bare machine for the landing-page cover.
-     Strips prose, fills the frame with the live serial console. */
-  html.embed body { padding:0; background:#0b0e14; }
+     Strips prose + ALL status plumbing; a clean amber curtain hides the boot
+     until the login prompt appears. Nobody should see "starting QEMU" or dots. */
+  html.embed body { padding:0; background:#140d00; }
   html.embed .no-embed { display:none !important; }
   html.embed main { max-width:none; margin:0; }
   html.embed #terminal { margin-top:0; }
-  html.embed #status { margin:.35rem .6rem; font-size:.72rem; opacity:.72; }
-  html.embed #banner { margin:.5rem; }
+  html.embed #status { display:none !important; }   /* never leak the plumbing */
+  html.embed #banner { margin:.5rem; }              /* real errors still surface */
+
+  /* boot curtain — amber phosphor warm-up, no debug text */
+  .curtain { display:none; }
+  html.embed .curtain {
+    display:flex; position:fixed; inset:0; z-index:50;
+    flex-direction:column; align-items:center; justify-content:center; gap:22px;
+    background:radial-gradient(120% 90% at 50% 42%, #1c1200 0%, #0f0a00 72%);
+    transition:opacity .6s ease;
+  }
+  html.embed .curtain.gone { opacity:0; pointer-events:none; }
+  .curtain .scan { position:absolute; inset:0; pointer-events:none; opacity:.5;
+    background:repeating-linear-gradient(180deg, rgba(255,178,50,.05) 0 2px, transparent 2px 4px); }
+  .curtain .cmark { font-family:"DejaVu Sans Mono",ui-monospace,Menlo,monospace;
+    font-size:clamp(22px,4vw,34px); font-weight:700; letter-spacing:.14em; color:#ffb232;
+    text-shadow:0 0 14px rgba(255,178,50,.4); }
+  .curtain .cmark .cur { display:inline-block; width:.6em; height:1.05em; vertical-align:-.14em;
+    margin-left:.12em; background:#ffb232; animation:cblink 1.06s steps(1,end) infinite; }
+  @keyframes cblink { 50% { opacity:0; } }
+  .curtain .cbar { width:min(240px,52vw); height:3px; background:rgba(255,178,50,.18); overflow:hidden; }
+  .curtain .cbar i { display:block; height:100%; width:38%; background:#ffb232;
+    box-shadow:0 0 10px rgba(255,178,50,.5); animation:cbar 1.5s steps(18,end) infinite; }
+  @keyframes cbar { 0% { transform:translateX(-100%);} 100% { transform:translateX(360%);} }
+  @media (prefers-reduced-motion:reduce){ .curtain .cbar i,.curtain .cmark .cur{animation:none} }
 </style>
 <script>if (location.search.indexOf('embed') >= 0) document.documentElement.classList.add('embed');</script>
 </head>
 <body>
+<div class="curtain" id="curtain" aria-hidden="true">
+  <div class="scan"></div>
+  <div class="cmark">OpenVMX<span class="cur"></span></div>
+  <div class="cbar"><i></i></div>
+</div>
 <main>
   <h1 class="no-embed">Boot OVMX in your browser</h1>
   <p class="muted no-embed">
@@ -101,8 +130,18 @@
     statusEl.textContent = 'cross-origin isolated OK — fetching OVMX kernel + initramfs…';
 
     // Wire the serial console: xterm.js <-> emscripten pty.
+    // Amber phosphor (VT220/VT320 register). Cosmetic OVMX presentation, not
+    // asserted VMS-authentic (Rule 8).
     const term = new Terminal({ cols: 100, rows: 34, convertEol: true,
-      theme: { background: '#0b0e14' }, fontFamily: 'ui-monospace, Menlo, monospace' });
+      fontFamily: '"DejaVu Sans Mono", ui-monospace, Menlo, monospace',
+      fontSize: 15, letterSpacing: 0, lineHeight: 1.12,
+      theme: {
+        background: '#140d00', foreground: '#ffb232', cursor: '#ffb232',
+        cursorAccent: '#140d00', selectionBackground: '#5a3d00',
+        black: '#241700', red: '#ff9a3c', green: '#ffbf47', yellow: '#ffcf5a',
+        blue: '#e6a02e', magenta: '#ffab40', cyan: '#ffc14d', white: '#ffdf9e',
+        brightBlack: '#7a5410', brightWhite: '#fff0cc'
+      } });
     term.open(document.getElementById('terminal'));
     window.__ovmxTerm = term; // debug/test handle: read the live screen buffer
     const { master, slave } = openpty();
@@ -116,19 +155,41 @@
     Module.preRun.push(function (mod) {
       mod.addRunDependency('ovmx-payload');
       const mkdir = (p) => { try { mod.FS.mkdir(p); } catch (e) {} };
+      // The disk ships gzip-compressed (~1 MB vs 64 MiB) and is inflated here
+      // with the browser-native DecompressionStream — no library, no extra weight.
+      const gunzip = async (url) => {
+        const res = await fetch(url);
+        if (!res.ok) throw new Error(url + ' → HTTP ' + res.status);
+        const stream = res.body.pipeThrough(new DecompressionStream('gzip'));
+        return new Uint8Array(await new Response(stream).arrayBuffer());
+      };
       Promise.all([
         fetch('vmlinuz').then((r) => r.arrayBuffer()),
         fetch('initramfs-ovmx.cpio.gz').then((r) => r.arrayBuffer()),
-      ]).then(([kbuf, ibuf]) => {
+        gunzip('sysdisk.img.gz'),
+      ]).then(([kbuf, ibuf, dbuf]) => {
         mkdir('/pack-kernel'); mkdir('/pack-initramfs'); mkdir('/pack-disk');
         mod.FS.writeFile('/pack-kernel/vmlinuz', new Uint8Array(kbuf));
         mod.FS.writeFile('/pack-initramfs/initramfs-ovmx.cpio.gz', new Uint8Array(ibuf));
-        // Blank 64 MiB system disk — fat initramfs INITIALIZEs + installs it.
-        mod.FS.writeFile('/pack-disk/sysdisk.img', new Uint8Array(64 * 1024 * 1024));
-        statusEl.textContent = 'payload loaded — starting QEMU (TCG). First boot INITIALIZEs + installs the disk…';
+        // PRE-INSTALLED 64 MiB system disk. PID 1 sees an installed system and
+        // boots straight to STARTUP → login — no INITIALIZE, no install, no
+        // post-install reboot (fixes the ~90s install stall + the halt, vms-250).
+        mod.FS.writeFile('/pack-disk/sysdisk.img', dbuf);
+        statusEl.textContent = 'payload loaded — starting OpenVMX…';
         mod.removeRunDependency('ovmx-payload');
       }).catch((e) => fail('Failed to fetch OVMX payload: ' + e));
     });
+
+    // Reveal the live console (lift the amber curtain). Called on login-prompt
+    // detection, or on a fallback timeout so a stall still surfaces the console
+    // rather than a frozen curtain.
+    const curtain = document.getElementById('curtain');
+    let revealed = false;
+    function revealConsole() {
+      if (revealed) return; revealed = true;
+      if (curtain) { curtain.classList.add('gone'); setTimeout(() => curtain.remove(), 700); }
+    }
+    const curtainFallback = setTimeout(revealConsole, 150000); // 150s safety net
 
     // Boot-time measurement: watch the real terminal buffer for the login prompt.
     const t0 = performance.now();
@@ -144,6 +205,8 @@
             's</span> (real client-side boot). Log in: SYSTEM / MANAGER.';
           reported = true;
           clearInterval(timer);
+          clearTimeout(curtainFallback);
+          revealConsole();
           return;
         }
       }

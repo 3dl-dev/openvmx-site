@@ -12,9 +12,10 @@
 //     a single browser tab under MTTCG. Boot-to-login does not require SMP.
 //   * -accel tcg,tb-size=500: TCG is the only accelerator in the browser (no
 //     KVM). Native uses host KVM/TCG as available.
-//   * blank 64 MiB system disk is created in-memory (see index.html preRun);
-//     the fat initramfs INITIALIZEs + installs it on first boot, exactly as a
-//     fresh native disk. It is NOT persisted across reloads (a follow-up).
+//   * a PRE-INSTALLED 64 MiB system disk is fetched (gzip'd) and written in
+//     index.html preRun; PID 1 detects the install and boots straight to
+//     STARTUP -> login (no INITIALIZE/install/reboot). Changes are NOT persisted
+//     across reloads yet (a follow-up); a booted-state snapshot is the next step.
 if (typeof Module === 'undefined') { var Module = {}; }
 
 Module['arguments'] = [
