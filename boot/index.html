@@ -145,6 +145,22 @@
       } });
     term.open(document.getElementById('terminal'));
     window.__ovmxTerm = term; // debug/test handle: read the live screen buffer
+
+    // Render gate. The snapshot resume drives the QEMU monitor over THIS same
+    // serial console, so its chatter must never reach the screen. We gate
+    // term.write: while closed, guest/monitor bytes are captured (for detecting
+    // when loadvm finishes) but NOT rendered. Input is a separate path
+    // (term.onData -> line discipline) and is completely unaffected, so nothing
+    // here can break typing. The gate opens once we've resumed cleanly.
+    const realWrite = term.write.bind(term);
+    let renderGate = false, capText = '';
+    term.write = function (data, cb) {
+      const s = (typeof data === 'string') ? data : new TextDecoder().decode(new Uint8Array(data));
+      capText += s; if (capText.length > 20000) capText = capText.slice(-8000);
+      if (!renderGate) { if (typeof cb === 'function') cb(); return; }
+      return realWrite(data, cb);
+    };
+
     const { master, slave } = openpty();
     term.loadAddon(master);
     Module.pty = slave;
@@ -199,11 +215,6 @@
     // prompt, THEN lift the curtain — the user never sees the plumbing.
     const t0 = performance.now();
     let done = false, lastFire = -1e9;
-    function bufText() {
-      const buf = term.buffer.active; let s = '';
-      for (let i = 0; i < buf.length; i++) { const l = buf.getLine(i); if (l) s += l.translateToString(true) + '\n'; }
-      return s;
-    }
     // One attempt: enter monitor, loadvm, exit monitor. Two toggles preserve
     // console/monitor parity, so we always end back on the serial console.
     function fireResume() {
@@ -211,29 +222,38 @@
       setTimeout(() => term.paste('loadvm ovmx\r'), 400);     // restore snapshot (idempotent)
       setTimeout(() => term.paste('\x01c'), 2600);            // -> serial console
     }
-    // loadvm has run: clear the monitor chatter, elicit a fresh prompt, reveal.
+    // loadvm has run. We must be back on the CONSOLE (not the monitor) before
+    // nudging, or the nudge hits the monitor and prints "(qemu)". Open the gate,
+    // wipe the display (the suppressed chatter left the xterm buffer dirty at the
+    // mux boundary), nudge a fresh prompt, reveal.
     function finishResume() {
-      try { term.reset(); } catch (e) {}
-      setTimeout(() => term.paste('\r'), 150);                // fresh, clean Username:
+      renderGate = true;
+      realWrite('\x1b[3J\x1b[2J\x1b[H');                        // clear scrollback+screen (display only)
+      const capLen = capText.length;
+      setTimeout(() => term.paste('\r'), 120);                 // console -> fresh Username:
       setTimeout(() => {
+        if (capText.length === capLen) realWrite('Username: '); // guest didn't re-emit -> synthetic
         const secs = ((performance.now() - t0) / 1000).toFixed(1);
         statusEl.innerHTML = '<span class="real">resumed in ' + secs + 's</span>. Log in: SYSTEM / MANAGER.';
         clearTimeout(curtainFallback);
         revealConsole();
-      }, 800);
+        try { term.focus(); } catch (e) {}
+      }, 700);
     }
     const timer = setInterval(() => {
       if (done) return;
-      const txt = bufText();
-      const idx = txt.lastIndexOf('loadvm ovmx');
+      const idx = capText.lastIndexOf('loadvm ovmx');
       // success = loadvm echoed in the monitor AND the (qemu) prompt returned after it
-      if (idx >= 0 && txt.slice(idx + 11).indexOf('(qemu)') >= 0) {
+      if (idx >= 0 && capText.slice(idx + 11).indexOf('(qemu)') >= 0) {
         done = true;
         clearInterval(timer);
-        setTimeout(finishResume, 1300);   // let the exit toggle land -> guaranteed on console
+        // wait until AFTER this cycle's exit toggle (lastFire + 2600ms) so we're
+        // deterministically on the console when we nudge.
+        const wait = Math.max(400, (lastFire + 2600) - Date.now() + 450);
+        setTimeout(finishResume, wait);
         return;
       }
-      if (txt.length > 0 && (Date.now() - lastFire) > 5000) { lastFire = Date.now(); fireResume(); }
+      if (capText.length > 0 && (Date.now() - lastFire) > 5000) { lastFire = Date.now(); fireResume(); }
     }, 500);
 
     // Load and start QEMU-Wasm.
