@@ -61,11 +61,13 @@
   .curtain .cmark .cur { display:inline-block; width:.6em; height:1.05em; vertical-align:-.14em;
     margin-left:.12em; background:#ffb232; animation:cblink 1.06s steps(1,end) infinite; }
   @keyframes cblink { 50% { opacity:0; } }
-  .curtain .cbar { width:min(240px,52vw); height:3px; background:rgba(255,178,50,.18); overflow:hidden; }
-  .curtain .cbar i { display:block; height:100%; width:38%; background:#ffb232;
-    box-shadow:0 0 10px rgba(255,178,50,.5); animation:cbar 1.5s steps(18,end) infinite; }
-  @keyframes cbar { 0% { transform:translateX(-100%);} 100% { transform:translateX(360%);} }
-  @media (prefers-reduced-motion:reduce){ .curtain .cbar i,.curtain .cmark .cur{animation:none} }
+  /* REAL determinate progress bar (width driven by actual bytes fetched). */
+  .curtain .cbar { width:min(320px,66vw); height:4px; background:rgba(255,178,50,.16); overflow:hidden; border-radius:2px; }
+  .curtain .cbar i { display:block; height:100%; width:0%; background:#ffb232;
+    box-shadow:0 0 10px rgba(255,178,50,.5); transition:width .25s ease; }
+  .curtain .cstage { font-family:"DejaVu Sans Mono",ui-monospace,Menlo,monospace; font-size:12px;
+    letter-spacing:.05em; color:#c98a2e; margin-top:4px; min-height:1.2em; }
+  @media (prefers-reduced-motion:reduce){ .curtain .cmark .cur{animation:none} }
 </style>
 <script>if (location.search.indexOf('embed') >= 0) document.documentElement.classList.add('embed');</script>
 </head>
@@ -73,7 +75,8 @@
 <div class="curtain" id="curtain" aria-hidden="true">
   <div class="scan"></div>
   <div class="cmark">OpenVMX<span class="cur"></span></div>
-  <div class="cbar"><i></i></div>
+  <div class="cbar"><i id="cbar"></i></div>
+  <div class="cstage" id="cstage">initializing…</div>
 </div>
 <main>
   <h1 class="no-embed">Boot OVMX in your browser</h1>
@@ -197,34 +200,54 @@
     setTimeout(fitTerm, 400); setTimeout(fitTerm, 1200);
     let _fitT; window.addEventListener('resize', () => { clearTimeout(_fitT); _fitT = setTimeout(fitTerm, 120); });
 
-    // Populate the guest's virtual FS with the REAL OVMX payload before boot.
-    // This is the same role file_packager plays for the ROMs, done at runtime
-    // so nothing but the raw kernel/initramfs needs shipping.
+    // REAL progress. The bar tracks actual bytes fetched (kernel + initramfs +
+    // snapshot). Cache-busted (?v=NN) so a redeploy never pairs new page code
+    // with a stale-cached snapshot — bump PAYLOAD_VER whenever the payload
+    // changes.
+    const PAYLOAD_VER = '0300';
+    const cbar = document.getElementById('cbar');
+    const cstage = document.getElementById('cstage');
+    let resumeShown = false;
+    function setProg(frac, label) {
+      if (cbar) cbar.style.width = Math.max(0, Math.min(1, frac)) * 100 + '%';
+      if (cstage && label != null) cstage.textContent = label;
+    }
     Module.preRun = Module.preRun || [];
     Module.preRun.push(function (mod) {
       mod.addRunDependency('ovmx-payload');
       const mkdir = (p) => { try { mod.FS.mkdir(p); } catch (e) {} };
-      // The disk ships gzip-compressed (~1 MB vs 64 MiB) and is inflated here
-      // with the browser-native DecompressionStream — no library, no extra weight.
-      const gunzip = async (url) => {
-        const res = await fetch(url);
-        if (!res.ok) throw new Error(url + ' → HTTP ' + res.status);
-        const stream = res.body.pipeThrough(new DecompressionStream('gzip'));
-        return new Uint8Array(await new Response(stream).arrayBuffer());
-      };
-      Promise.all([
-        fetch('vmlinuz').then((r) => r.arrayBuffer()),
-        fetch('initramfs-ovmx.cpio.gz').then((r) => r.arrayBuffer()),
-        gunzip('sysdisk.qcow2.gz'),
-      ]).then(([kbuf, ibuf, dbuf]) => {
-        mkdir('/pack-kernel'); mkdir('/pack-initramfs'); mkdir('/pack-disk');
-        mod.FS.writeFile('/pack-kernel/vmlinuz', new Uint8Array(kbuf));
-        mod.FS.writeFile('/pack-initramfs/initramfs-ovmx.cpio.gz', new Uint8Array(ibuf));
-        // qcow2 carrying the pre-booted 'ovmx' snapshot; we resume it via the
-        // monitor rather than cold-booting (see the auto-resume loop below).
-        mod.FS.writeFile('/pack-disk/sysdisk.qcow2', dbuf);
-        statusEl.textContent = 'payload loaded — resuming OpenVMX…';
-        mod.removeRunDependency('ovmx-payload');
+      const v = (u) => u + '?v=' + PAYLOAD_VER;
+      const files = [v('vmlinuz'), v('initramfs-ovmx.cpio.gz'), v('sysdisk.qcow2.gz')];
+      let recv = 0, grand = 0;
+      async function drain(res) {
+        const reader = res.body.getReader(); const chunks = [];
+        for (;;) {
+          const { done, value } = await reader.read(); if (done) break;
+          chunks.push(value); recv += value.length;
+          if (grand) setProg((recv / grand) * 0.85, 'Downloading OpenVMX… ' + Math.round(recv / grand * 100) + '%');
+        }
+        let len = 0; for (const c of chunks) len += c.length;
+        const out = new Uint8Array(len); let o = 0; for (const c of chunks) { out.set(c, o); o += c.length; }
+        return out;
+      }
+      setProg(0.02, 'Downloading OpenVMX…');
+      Promise.all(files.map((f) => fetch(f))).then((resps) => {
+        for (const r of resps) { if (!r.ok) throw new Error(r.url + ' → HTTP ' + r.status); }
+        grand = resps.reduce((a, r) => a + (+r.headers.get('Content-Length') || 0), 0) || (66 * 1024 * 1024);
+        return Promise.all(resps.map(drain));
+      }).then(([kbuf, ibuf, dz]) => {
+        setProg(0.88, 'Unpacking…');
+        return new Response(new Blob([dz]).stream().pipeThrough(new DecompressionStream('gzip')))
+          .arrayBuffer().then((db) => {
+            mkdir('/pack-kernel'); mkdir('/pack-initramfs'); mkdir('/pack-disk');
+            mod.FS.writeFile('/pack-kernel/vmlinuz', kbuf);
+            mod.FS.writeFile('/pack-initramfs/initramfs-ovmx.cpio.gz', ibuf);
+            // qcow2 carrying the pre-booted 'ovmx' snapshot; resumed via the monitor.
+            mod.FS.writeFile('/pack-disk/sysdisk.qcow2', new Uint8Array(db));
+            setProg(0.90, 'Starting the machine…');
+            statusEl.textContent = 'payload loaded — resuming OpenVMX…';
+            mod.removeRunDependency('ovmx-payload');
+          });
       }).catch((e) => fail('Failed to fetch OVMX payload: ' + e));
     });
 
@@ -259,6 +282,7 @@
     // wipe the display (the suppressed chatter left the xterm buffer dirty at the
     // mux boundary), nudge a fresh prompt, reveal.
     function finishResume() {
+      setProg(1, 'ready');
       renderGate = true;
       term.write = realWrite;                                   // restore stock write — nothing of ours in the hot path now
       realWrite('\x1b[3J\x1b[2J\x1b[H');                        // clear scrollback+screen (display only)
@@ -286,7 +310,11 @@
         setTimeout(finishResume, wait);
         return;
       }
-      if (capText.length > 0 && (Date.now() - lastFire) > 5000) { lastFire = Date.now(); fireResume(); }
+      if (capText.length > 0 && (Date.now() - lastFire) > 5000) {
+        lastFire = Date.now();
+        if (!resumeShown) { resumeShown = true; setProg(0.95, 'Resuming OpenVMX…'); }
+        fireResume();
+      }
     }, 500);
 
     // Load and start QEMU-Wasm.
