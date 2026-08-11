@@ -1816,408 +1816,6 @@ var stringToUTF8Array = (str, heap, outIdx, maxBytesToWrite) => {
  return u8array;
 }
 
-var LZ4 = {
- DIR_MODE: 16895,
- FILE_MODE: 33279,
- CHUNK_SIZE: -1,
- codec: null,
- init() {
-  if (LZ4.codec) return;
-  LZ4.codec = (function() {
-   /*
-  MiniLZ4: Minimal LZ4 block decoding and encoding.
-  
-  based off of node-lz4, https://github.com/pierrec/node-lz4
-  
-  ====
-  Copyright (c) 2012 Pierre Curto
-  
-  Permission is hereby granted, free of charge, to any person obtaining a copy
-  of this software and associated documentation files (the "Software"), to deal
-  in the Software without restriction, including without limitation the rights
-  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-  copies of the Software, and to permit persons to whom the Software is
-  furnished to do so, subject to the following conditions:
-  
-  The above copyright notice and this permission notice shall be included in
-  all copies or substantial portions of the Software.
-  
-  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-  THE SOFTWARE.
-  ====
-  
-  changes have the same license
-  */ var MiniLZ4 = (function() {
-    var exports = {};
-    /**
-   * Decode a block. Assumptions: input contains all sequences of a 
-   * chunk, output is large enough to receive the decoded data.
-   * If the output buffer is too small, an error will be thrown.
-   * If the returned value is negative, an error occured at the returned offset.
-   *
-   * @param {ArrayBufferView} input input data
-   * @param {ArrayBufferView} output output data
-   * @param {number=} sIdx
-   * @param {number=} eIdx
-   * @return {number} number of decoded bytes
-   * @private
-   */ exports.uncompress = function(input, output, sIdx, eIdx) {
-     sIdx = sIdx || 0;
-     eIdx = eIdx || (input.length - sIdx);
-     for (var i = sIdx, n = eIdx, j = 0; i < n; ) {
-      var token = input[i++];
-      var literals_length = (token >> 4);
-      if (literals_length > 0) {
-       var l = literals_length + 240;
-       while (l === 255) {
-        l = input[i++];
-        literals_length += l;
-       }
-       var end = i + literals_length;
-       while (i < end) output[j++] = input[i++];
-       if (i === n) return j;
-      }
-      var offset = input[i++] | (input[i++] << 8);
-      if (offset === 0) return j;
-      if (offset > j) return -(i - 2);
-      var match_length = (token & 15);
-      var l = match_length + 240;
-      while (l === 255) {
-       l = input[i++];
-       match_length += l;
-      }
-      var pos = j - offset;
-      var end = j + match_length + 4;
-      while (j < end) output[j++] = output[pos++];
-     }
-     return j;
-    };
-    var maxInputSize = 2113929216, minMatch = 4,  hashLog = 16, hashShift = (minMatch * 8) - hashLog, hashSize = 1 << hashLog, copyLength = 8, lastLiterals = 5, mfLimit = copyLength + minMatch, skipStrength = 6, mlBits = 4, mlMask = (1 << mlBits) - 1, runBits = 8 - mlBits, runMask = (1 << runBits) - 1, hasher = /* XXX uint32( */ 2654435761;
-    /* ) */ assert(hashShift === 16);
-    var hashTable = new Int16Array(1 << 16);
-    var empty = new Int16Array(hashTable.length);
-    exports.compressBound = function(isize) {
-     return isize > maxInputSize ? 0 : (isize + (isize / 255) + 16) | 0;
-    };
-    /** @param {number=} sIdx
-  	@param {number=} eIdx */ exports.compress = function(src, dst, sIdx, eIdx) {
-     hashTable.set(empty);
-     return compressBlock(src, dst, 0, sIdx || 0, eIdx || dst.length);
-    };
-    function compressBlock(src, dst, pos, sIdx, eIdx) {
-     var dpos = sIdx;
-     var dlen = eIdx - sIdx;
-     var anchor = 0;
-     if (src.length >= maxInputSize) throw new Error("input too large");
-     if (src.length > mfLimit) {
-      var n = exports.compressBound(src.length);
-      if (dlen < n) throw Error("output too small: " + dlen + " < " + n);
-      var step = 1, findMatchAttempts = (1 << skipStrength) + 3,  srcLength = src.length - mfLimit;
-      while (pos + minMatch < srcLength) {
-       var sequenceLowBits = src[pos + 1] << 8 | src[pos];
-       var sequenceHighBits = src[pos + 3] << 8 | src[pos + 2];
-       var hash = Math.imul(sequenceLowBits | (sequenceHighBits << 16), hasher) >>> hashShift;
-       var ref = hashTable[hash] - 1;
-       hashTable[hash] = pos + 1;
-       if (ref < 0 || ((pos - ref) >>> 16) > 0 || (((src[ref + 3] << 8 | src[ref + 2]) != sequenceHighBits) || ((src[ref + 1] << 8 | src[ref]) != sequenceLowBits))) {
-        step = findMatchAttempts++ >> skipStrength;
-        pos += step;
-        continue;
-       }
-       findMatchAttempts = (1 << skipStrength) + 3;
-       var literals_length = pos - anchor;
-       var offset = pos - ref;
-       pos += minMatch;
-       ref += minMatch;
-       var match_length = pos;
-       while (pos < srcLength && src[pos] == src[ref]) {
-        pos++;
-        ref++;
-       }
-       match_length = pos - match_length;
-       var token = match_length < mlMask ? match_length : mlMask;
-       if (literals_length >= runMask) {
-        dst[dpos++] = (runMask << mlBits) + token;
-        for (var len = literals_length - runMask; len > 254; len -= 255) {
-         dst[dpos++] = 255;
-        }
-        dst[dpos++] = len;
-       } else {
-        dst[dpos++] = (literals_length << mlBits) + token;
-       }
-       for (var i = 0; i < literals_length; i++) {
-        dst[dpos++] = src[anchor + i];
-       }
-       dst[dpos++] = offset;
-       dst[dpos++] = (offset >> 8);
-       if (match_length >= mlMask) {
-        match_length -= mlMask;
-        while (match_length >= 255) {
-         match_length -= 255;
-         dst[dpos++] = 255;
-        }
-        dst[dpos++] = match_length;
-       }
-       anchor = pos;
-      }
-     }
-     if (anchor == 0) return 0;
-     literals_length = src.length - anchor;
-     if (literals_length >= runMask) {
-      dst[dpos++] = (runMask << mlBits);
-      for (var ln = literals_length - runMask; ln > 254; ln -= 255) {
-       dst[dpos++] = 255;
-      }
-      dst[dpos++] = ln;
-     } else {
-      dst[dpos++] = (literals_length << mlBits);
-     }
-     pos = anchor;
-     while (pos < src.length) {
-      dst[dpos++] = src[pos++];
-     }
-     return dpos;
-    }
-    exports.CHUNK_SIZE = 2048;
-    exports.compressPackage = function(data, verify) {
-     if (verify) {
-      var temp = new Uint8Array(exports.CHUNK_SIZE);
-     }
-     assert(data instanceof ArrayBuffer);
-     data = new Uint8Array(data);
-     console.log("compressing package of size " + data.length);
-     var compressedChunks = [];
-     var successes = [];
-     var offset = 0;
-     var total = 0;
-     while (offset < data.length) {
-      var chunk = data.subarray(offset, offset + exports.CHUNK_SIZE);
-      offset += exports.CHUNK_SIZE;
-      var bound = exports.compressBound(chunk.length);
-      var compressed = new Uint8Array(bound);
-      var compressedSize = exports.compress(chunk, compressed);
-      if (compressedSize > 0) {
-       assert(compressedSize <= bound);
-       compressed = compressed.subarray(0, compressedSize);
-       compressedChunks.push(compressed);
-       total += compressedSize;
-       successes.push(1);
-       if (verify) {
-        var back = exports.uncompress(compressed, temp);
-        assert(back === chunk.length, [ back, chunk.length ]);
-        for (var i = 0; i < chunk.length; i++) {
-         assert(chunk[i] === temp[i]);
-        }
-       }
-      } else {
-       assert(compressedSize === 0);
-       compressedChunks.push(chunk);
-       total += chunk.length;
-       successes.push(0);
-      }
-     }
-     data = null;
-     var compressedData = {
-      "data": new Uint8Array(total + exports.CHUNK_SIZE * 2),
-      "cachedOffset": total,
-      "cachedIndexes": [ -1, -1 ],
-      "cachedChunks": [ null, null ],
-      "offsets": [],
-      "sizes": [],
-      "successes": successes
-     };
-     offset = 0;
-     for (var i = 0; i < compressedChunks.length; i++) {
-      compressedData["data"].set(compressedChunks[i], offset);
-      compressedData["offsets"][i] = offset;
-      compressedData["sizes"][i] = compressedChunks[i].length;
-      offset += compressedChunks[i].length;
-     }
-     console.log("compressed package into " + [ compressedData["data"].length ]);
-     assert(offset === total);
-     return compressedData;
-    };
-    assert(exports.CHUNK_SIZE < (1 << 15));
-    return exports;
-   })();
-   return MiniLZ4;
-  })();
-  LZ4.CHUNK_SIZE = LZ4.codec.CHUNK_SIZE;
- },
- loadPackage(pack, preloadPlugin) {
-  LZ4.init();
-  var compressedData = pack["compressedData"];
-  if (!compressedData) compressedData = LZ4.codec.compressPackage(pack["data"]);
-  assert(compressedData["cachedIndexes"].length === compressedData["cachedChunks"].length);
-  for (var i = 0; i < compressedData["cachedIndexes"].length; i++) {
-   compressedData["cachedIndexes"][i] = -1;
-   compressedData["cachedChunks"][i] = compressedData["data"].subarray(compressedData["cachedOffset"] + i * LZ4.CHUNK_SIZE, compressedData["cachedOffset"] + (i + 1) * LZ4.CHUNK_SIZE);
-   assert(compressedData["cachedChunks"][i].length === LZ4.CHUNK_SIZE);
-  }
-  pack["metadata"].files.forEach(file => {
-   var dir = PATH.dirname(file.filename);
-   var name = PATH.basename(file.filename);
-   FS.createPath("", dir, true, true);
-   var parent = FS.analyzePath(dir).object;
-   LZ4.createNode(parent, name, LZ4.FILE_MODE, 0, {
-    compressedData: compressedData,
-    start: file.start,
-    end: file.end
-   });
-  });
-  if (preloadPlugin) {
-   Browser.init();
-   pack["metadata"].files.forEach(file => {
-    var handled = false;
-    var fullname = file.filename;
-    preloadPlugins.forEach(plugin => {
-     if (handled) return;
-     if (plugin["canHandle"](fullname)) {
-      var dep = getUniqueRunDependency("fp " + fullname);
-      addRunDependency(dep);
-      var finish = () => removeRunDependency(dep);
-      var byteArray = FS.readFile(fullname);
-      plugin["handle"](byteArray, fullname, finish, finish);
-      handled = true;
-     }
-    });
-   });
-  }
- },
- createNode(parent, name, mode, dev, contents, mtime) {
-  var node = FS.createNode(parent, name, mode);
-  node.mode = mode;
-  node.node_ops = LZ4.node_ops;
-  node.stream_ops = LZ4.stream_ops;
-  node.timestamp = (mtime || new Date).getTime();
-  assert(LZ4.FILE_MODE !== LZ4.DIR_MODE);
-  if (mode === LZ4.FILE_MODE) {
-   node.size = contents.end - contents.start;
-   node.contents = contents;
-  } else {
-   node.size = 4096;
-   node.contents = {};
-  }
-  if (parent) {
-   parent.contents[name] = node;
-  }
-  return node;
- },
- node_ops: {
-  getattr(node) {
-   return {
-    dev: 1,
-    ino: node.id,
-    mode: node.mode,
-    nlink: 1,
-    uid: 0,
-    gid: 0,
-    rdev: 0,
-    size: node.size,
-    atime: new Date(node.timestamp),
-    mtime: new Date(node.timestamp),
-    ctime: new Date(node.timestamp),
-    blksize: 4096,
-    blocks: Math.ceil(node.size / 4096)
-   };
-  },
-  setattr(node, attr) {
-   if (attr.mode !== undefined) {
-    node.mode = attr.mode;
-   }
-   if (attr.timestamp !== undefined) {
-    node.timestamp = attr.timestamp;
-   }
-  },
-  lookup(parent, name) {
-   throw new FS.ErrnoError(44);
-  },
-  mknod(parent, name, mode, dev) {
-   throw new FS.ErrnoError(63);
-  },
-  rename(oldNode, newDir, newName) {
-   throw new FS.ErrnoError(63);
-  },
-  unlink(parent, name) {
-   throw new FS.ErrnoError(63);
-  },
-  rmdir(parent, name) {
-   throw new FS.ErrnoError(63);
-  },
-  readdir(node) {
-   throw new FS.ErrnoError(63);
-  },
-  symlink(parent, newName, oldPath) {
-   throw new FS.ErrnoError(63);
-  }
- },
- stream_ops: {
-  read(stream, buffer, offset, length, position) {
-   length = Math.min(length, stream.node.size - position);
-   if (length <= 0) return 0;
-   var contents = stream.node.contents;
-   var compressedData = contents.compressedData;
-   var written = 0;
-   while (written < length) {
-    var start = contents.start + position + written;
-    var desired = length - written;
-    var chunkIndex = Math.floor(start / LZ4.CHUNK_SIZE);
-    var compressedStart = compressedData["offsets"][chunkIndex];
-    var compressedSize = compressedData["sizes"][chunkIndex];
-    var currChunk;
-    if (compressedData["successes"][chunkIndex]) {
-     var found = compressedData["cachedIndexes"].indexOf(chunkIndex);
-     if (found >= 0) {
-      currChunk = compressedData["cachedChunks"][found];
-     } else {
-      compressedData["cachedIndexes"].pop();
-      compressedData["cachedIndexes"].unshift(chunkIndex);
-      currChunk = compressedData["cachedChunks"].pop();
-      compressedData["cachedChunks"].unshift(currChunk);
-      if (compressedData["debug"]) {
-       out("decompressing chunk " + chunkIndex);
-       Module["decompressedChunks"] = (Module["decompressedChunks"] || 0) + 1;
-      }
-      var compressed = compressedData["data"].subarray(compressedStart, compressedStart + compressedSize);
-      var originalSize = LZ4.codec.uncompress(compressed, currChunk);
-      if (chunkIndex < compressedData["successes"].length - 1) assert(originalSize === LZ4.CHUNK_SIZE);
-     }
-    } else {
-     currChunk = compressedData["data"].subarray(compressedStart, compressedStart + LZ4.CHUNK_SIZE);
-    }
-    var startInChunk = start % LZ4.CHUNK_SIZE;
-    var endInChunk = Math.min(startInChunk + desired, LZ4.CHUNK_SIZE);
-    buffer.set(currChunk.subarray(startInChunk, endInChunk), offset + written);
-    var currWritten = endInChunk - startInChunk;
-    written += currWritten;
-   }
-   return written;
-  },
-  write(stream, buffer, offset, length, position) {
-   throw new FS.ErrnoError(29);
-  },
-  llseek(stream, offset, whence) {
-   var position = offset;
-   if (whence === 1) {
-    position += stream.position;
-   } else if (whence === 2) {
-    if (FS.isFile(stream.node.mode)) {
-     position += stream.node.size;
-    }
-   }
-   if (position < 0) {
-    throw new FS.ErrnoError(28);
-   }
-   return position;
-  }
- }
-};
-
 var FS = {
  root: null,
  mounts: [],
@@ -4089,6 +3687,13 @@ var runtimeKeepalivePush = () => {
  default:
   abort(`invalid type for setValue: ${type}`);
  }
+}
+
+function ___assert_fail(condition, filename, line, func) {
+ condition >>>= 0;
+ filename >>>= 0;
+ func >>>= 0;
+ abort(`Assertion failed: ${UTF8ToString(condition)}, at: ` + [ filename ? UTF8ToString(filename) : "unknown filename", line, func ? UTF8ToString(func) : "unknown function" ]);
 }
 
 var ___call_sighandler = function(fp, sig) {
@@ -6334,6 +5939,11 @@ var warnOnce = text => {
 
 var _emscripten_check_blocking_allowed = () => {};
 
+function _emscripten_console_error(str) {
+ str >>>= 0;
+ console.error(UTF8ToString(str));
+}
+
 var _emscripten_date_now = () => Date.now();
 
 var _emscripten_exit_with_live_runtime = () => {
@@ -7037,6 +6647,13 @@ function _getaddrinfo(node, service, hint, out) {
  return 0;
 }
 
+function _getentropy(buffer, size) {
+ buffer >>>= 0;
+ size >>>= 0;
+ randomFill(HEAPU8.subarray(buffer >>> 0, buffer + size >>> 0));
+ return 0;
+}
+
 var getHostByName = name => {
  var ret = _malloc(20);
  var nameBuf = stringToNewUTF8(name);
@@ -7548,6 +7165,7 @@ Module["FS_createDevice"] = FS.createDevice;
 var proxiedFunctionTable = [ _proc_exit, exitOnMainThread, pthreadCreateProxied, ___syscall_accept4, ___syscall_bind, ___syscall_chdir, ___syscall_chmod, ___syscall_connect, ___syscall_dup3, ___syscall_faccessat, ___syscall_fallocate, ___syscall_fchmod, ___syscall_fchownat, ___syscall_fcntl64, ___syscall_fstat64, ___syscall_fstatfs64, ___syscall_statfs64, ___syscall_ftruncate64, ___syscall_getcwd, ___syscall_getdents64, ___syscall_getpeername, ___syscall_getsockname, ___syscall_getsockopt, ___syscall_ioctl, ___syscall_listen, ___syscall_lstat64, ___syscall_mkdirat, ___syscall_newfstatat, ___syscall_openat, ___syscall_pipe, xterm_pty_old_poll, PTY_waitForReadableWithAtomicImpl, ___syscall_readlinkat, ___syscall_recvfrom, ___syscall_recvmsg, ___syscall_renameat, ___syscall_rmdir, ___syscall_sendmsg, ___syscall_sendto, ___syscall_socket, ___syscall_stat64, ___syscall_symlinkat, ___syscall_unlinkat, ___syscall_utimensat, __emscripten_runtime_keepalive_clear, __mmap_js, __msync_js, __munmap_js, _environ_get, _environ_sizes_get, _fd_close, _fd_fdstat_get, _fd_pread, _fd_pwrite, xterm_pty_old_fd_read, _fd_seek, _fd_sync, _fd_write, _getaddrinfo, _gethostbyname ];
 
 var wasmImports = {
+ /** @export */ __assert_fail: ___assert_fail,
  /** @export */ __call_sighandler: ___call_sighandler,
  /** @export */ __emscripten_init_main_thread_js: ___emscripten_init_main_thread_js,
  /** @export */ __emscripten_thread_cleanup: ___emscripten_thread_cleanup,
@@ -7609,6 +7227,7 @@ var wasmImports = {
  /** @export */ _tzset_js: __tzset_js,
  /** @export */ abort: _abort,
  /** @export */ emscripten_check_blocking_allowed: _emscripten_check_blocking_allowed,
+ /** @export */ emscripten_console_error: _emscripten_console_error,
  /** @export */ emscripten_date_now: _emscripten_date_now,
  /** @export */ emscripten_exit_with_live_runtime: _emscripten_exit_with_live_runtime,
  /** @export */ emscripten_fiber_swap: _emscripten_fiber_swap,
@@ -7631,6 +7250,7 @@ var wasmImports = {
  /** @export */ fd_write: _fd_write,
  /** @export */ ffi_call_js: ffi_call_js,
  /** @export */ getaddrinfo: _getaddrinfo,
+ /** @export */ getentropy: _getentropy,
  /** @export */ gethostbyname: _gethostbyname,
  /** @export */ getnameinfo: _getnameinfo,
  /** @export */ init_wasm32_js: init_wasm32_js,
@@ -7685,6 +7305,8 @@ var _malloc = a0 => (_malloc = wasmExports["malloc"])(a0);
 
 var _free = a0 => (_free = wasmExports["free"])(a0);
 
+var _calloc = Module["_calloc"] = (a0, a1) => (_calloc = Module["_calloc"] = wasmExports["calloc"])(a0, a1);
+
 var getTempRet0 = () => (getTempRet0 = wasmExports["getTempRet0"])();
 
 var setTempRet0 = a0 => (setTempRet0 = wasmExports["setTempRet0"])(a0);
@@ -7695,11 +7317,23 @@ var _raise = a0 => (_raise = wasmExports["raise"])(a0);
 
 var _pthread_self = Module["_pthread_self"] = () => (_pthread_self = Module["_pthread_self"] = wasmExports["pthread_self"])();
 
+var _realloc = Module["_realloc"] = (a0, a1) => (_realloc = Module["_realloc"] = wasmExports["realloc"])(a0, a1);
+
+var _emscripten_builtin_free = Module["_emscripten_builtin_free"] = a0 => (_emscripten_builtin_free = Module["_emscripten_builtin_free"] = wasmExports["emscripten_builtin_free"])(a0);
+
 var __emscripten_tls_init = Module["__emscripten_tls_init"] = () => (__emscripten_tls_init = Module["__emscripten_tls_init"] = wasmExports["_emscripten_tls_init"])();
 
 var _emscripten_builtin_memalign = (a0, a1) => (_emscripten_builtin_memalign = wasmExports["emscripten_builtin_memalign"])(a0, a1);
 
 var __emscripten_proxy_main = Module["__emscripten_proxy_main"] = (a0, a1) => (__emscripten_proxy_main = Module["__emscripten_proxy_main"] = wasmExports["_emscripten_proxy_main"])(a0, a1);
+
+var _emscripten_builtin_malloc = Module["_emscripten_builtin_malloc"] = a0 => (_emscripten_builtin_malloc = Module["_emscripten_builtin_malloc"] = wasmExports["emscripten_builtin_malloc"])(a0);
+
+var ___libc_calloc = Module["___libc_calloc"] = (a0, a1) => (___libc_calloc = Module["___libc_calloc"] = wasmExports["__libc_calloc"])(a0, a1);
+
+var ___libc_free = Module["___libc_free"] = a0 => (___libc_free = Module["___libc_free"] = wasmExports["__libc_free"])(a0);
+
+var ___libc_malloc = Module["___libc_malloc"] = a0 => (___libc_malloc = Module["___libc_malloc"] = wasmExports["__libc_malloc"])(a0);
 
 var __emscripten_thread_init = Module["__emscripten_thread_init"] = (a0, a1, a2, a3, a4, a5) => (__emscripten_thread_init = Module["__emscripten_thread_init"] = wasmExports["_emscripten_thread_init"])(a0, a1, a2, a3, a4, a5);
 
@@ -7716,6 +7350,30 @@ var __emscripten_thread_free_data = a0 => (__emscripten_thread_free_data = wasmE
 var __emscripten_thread_exit = Module["__emscripten_thread_exit"] = a0 => (__emscripten_thread_exit = Module["__emscripten_thread_exit"] = wasmExports["_emscripten_thread_exit"])(a0);
 
 var __emscripten_check_mailbox = () => (__emscripten_check_mailbox = wasmExports["_emscripten_check_mailbox"])();
+
+var __ZdaPv = Module["__ZdaPv"] = a0 => (__ZdaPv = Module["__ZdaPv"] = wasmExports["_ZdaPv"])(a0);
+
+var __ZdaPvm = Module["__ZdaPvm"] = (a0, a1) => (__ZdaPvm = Module["__ZdaPvm"] = wasmExports["_ZdaPvm"])(a0, a1);
+
+var __ZdlPv = Module["__ZdlPv"] = a0 => (__ZdlPv = Module["__ZdlPv"] = wasmExports["_ZdlPv"])(a0);
+
+var __ZdlPvm = Module["__ZdlPvm"] = (a0, a1) => (__ZdlPvm = Module["__ZdlPvm"] = wasmExports["_ZdlPvm"])(a0, a1);
+
+var __Znaj = Module["__Znaj"] = a0 => (__Znaj = Module["__Znaj"] = wasmExports["_Znaj"])(a0);
+
+var __ZnajSt11align_val_t = Module["__ZnajSt11align_val_t"] = (a0, a1) => (__ZnajSt11align_val_t = Module["__ZnajSt11align_val_t"] = wasmExports["_ZnajSt11align_val_t"])(a0, a1);
+
+var __Znwj = Module["__Znwj"] = a0 => (__Znwj = Module["__Znwj"] = wasmExports["_Znwj"])(a0);
+
+var __ZnwjSt11align_val_t = Module["__ZnwjSt11align_val_t"] = (a0, a1) => (__ZnwjSt11align_val_t = Module["__ZnwjSt11align_val_t"] = wasmExports["_ZnwjSt11align_val_t"])(a0, a1);
+
+var ___libc_realloc = Module["___libc_realloc"] = (a0, a1) => (___libc_realloc = Module["___libc_realloc"] = wasmExports["__libc_realloc"])(a0, a1);
+
+var _malloc_size = Module["_malloc_size"] = a0 => (_malloc_size = Module["_malloc_size"] = wasmExports["malloc_size"])(a0);
+
+var _malloc_usable_size = Module["_malloc_usable_size"] = a0 => (_malloc_usable_size = Module["_malloc_usable_size"] = wasmExports["malloc_usable_size"])(a0);
+
+var _reallocf = Module["_reallocf"] = (a0, a1) => (_reallocf = Module["_reallocf"] = wasmExports["reallocf"])(a0, a1);
 
 var _setThrew = (a0, a1) => (_setThrew = wasmExports["setThrew"])(a0, a1);
 
@@ -7891,9 +7549,9 @@ var _asyncify_start_rewind = a0 => (_asyncify_start_rewind = wasmExports["asynci
 
 var _asyncify_stop_rewind = () => (_asyncify_stop_rewind = wasmExports["asyncify_stop_rewind"])();
 
-var ___start_em_js = Module["___start_em_js"] = 7853520;
+var ___start_em_js = Module["___start_em_js"] = 7863192;
 
-var ___stop_em_js = Module["___stop_em_js"] = 7866225;
+var ___stop_em_js = Module["___stop_em_js"] = 7875897;
 
 function invoke_ii(index, a1) {
  var sp = stackSave();
@@ -8215,6 +7873,7 @@ function applySignatureConversions(wasmExports) {
  wasmExports["malloc"] = makeWrapper_pp(wasmExports["malloc"]);
  wasmExports["pthread_self"] = makeWrapper_p(wasmExports["pthread_self"]);
  wasmExports["emscripten_builtin_memalign"] = makeWrapper_ppp(wasmExports["emscripten_builtin_memalign"]);
+ wasmExports["emscripten_builtin_malloc"] = makeWrapper_pp(wasmExports["emscripten_builtin_malloc"]);
  wasmExports["emscripten_main_runtime_thread_id"] = makeWrapper_p(wasmExports["emscripten_main_runtime_thread_id"]);
  wasmExports["stackSave"] = makeWrapper_p(wasmExports["stackSave"]);
  wasmExports["stackAlloc"] = makeWrapper_pp(wasmExports["stackAlloc"]);
@@ -8254,8 +7913,6 @@ Module["FS_createDataFile"] = FS.createDataFile;
 Module["FS_unlink"] = FS.unlink;
 
 Module["TTY"] = TTY;
-
-Module["LZ4"] = LZ4;
 
 var calledRun;
 
