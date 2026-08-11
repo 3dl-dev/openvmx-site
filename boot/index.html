@@ -30,6 +30,20 @@
   html.embed #status { display:none !important; }   /* never leak the plumbing */
   html.embed #banner { margin:.5rem; }              /* real errors still surface */
 
+  /* Terminal fit + a SINGLE tasteful scrollbar. The fixed grid used to overflow
+     the frame: the page scrolled (scrollbar #1), xterm's viewport scrolled
+     (scrollbar #2), and new output landed below the clipped fold (no auto-scroll).
+     Fill the frame, fit the grid to it, kill the page scrollbar, keep one thin
+     amber scrollbar for scrollback. */
+  #terminal { height:70vh; }
+  html.embed, html.embed body { height:100%; overflow:hidden; }
+  html.embed #terminal { position:fixed; inset:0; height:auto; }
+  #terminal .xterm, #terminal .xterm-viewport, #terminal .xterm-screen { width:100% !important; height:100% !important; }
+  .xterm-viewport { scrollbar-width:thin; scrollbar-color:rgba(255,178,50,.4) transparent; }
+  .xterm-viewport::-webkit-scrollbar { width:10px; }
+  .xterm-viewport::-webkit-scrollbar-thumb { background:rgba(255,178,50,.4); border-radius:5px; }
+  .xterm-viewport::-webkit-scrollbar-track { background:transparent; }
+
   /* boot curtain — amber phosphor warm-up, no debug text */
   .curtain { display:none; }
   html.embed .curtain {
@@ -165,6 +179,24 @@
     term.loadAddon(master);
     Module.pty = slave;
 
+    // Fit the grid to the frame so output auto-scrolls cleanly and the terminal
+    // never overflows (no page scrollbar, no clipped bottom). Recompute on resize.
+    function fitTerm() {
+      try {
+        const dims = term._core && term._core._renderService && term._core._renderService.dimensions;
+        const cw = dims && dims.css && dims.css.cell && dims.css.cell.width;
+        const ch = dims && dims.css && dims.css.cell && dims.css.cell.height;
+        const el = document.getElementById('terminal');
+        if (!cw || !ch || !el.clientWidth || !el.clientHeight) return;
+        const cols = Math.max(20, Math.floor((el.clientWidth - 14) / cw));  // -14: scrollbar
+        const rows = Math.max(6, Math.floor(el.clientHeight / ch));
+        if (cols !== term.cols || rows !== term.rows) term.resize(cols, rows);
+      } catch (e) {}
+    }
+    requestAnimationFrame(() => { fitTerm(); requestAnimationFrame(fitTerm); });
+    setTimeout(fitTerm, 400); setTimeout(fitTerm, 1200);
+    let _fitT; window.addEventListener('resize', () => { clearTimeout(_fitT); _fitT = setTimeout(fitTerm, 120); });
+
     // Populate the guest's virtual FS with the REAL OVMX payload before boot.
     // This is the same role file_packager plays for the ROMs, done at runtime
     // so nothing but the raw kernel/initramfs needs shipping.
@@ -228,6 +260,7 @@
     // mux boundary), nudge a fresh prompt, reveal.
     function finishResume() {
       renderGate = true;
+      term.write = realWrite;                                   // restore stock write — nothing of ours in the hot path now
       realWrite('\x1b[3J\x1b[2J\x1b[H');                        // clear scrollback+screen (display only)
       const capLen = capText.length;
       setTimeout(() => term.paste('\r'), 120);                 // console -> fresh Username:
