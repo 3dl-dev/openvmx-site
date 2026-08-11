@@ -262,16 +262,16 @@
       renderGate = true;
       term.write = realWrite;                                   // restore stock write — nothing of ours in the hot path now
       realWrite('\x1b[3J\x1b[2J\x1b[H');                        // clear scrollback+screen (display only)
-      const capLen = capText.length;
-      setTimeout(() => term.paste('\r'), 120);                 // console -> fresh Username:
-      setTimeout(() => {
-        if (capText.length === capLen) realWrite('Username: '); // guest didn't re-emit -> synthetic
-        const secs = ((performance.now() - t0) / 1000).toFixed(1);
-        statusEl.innerHTML = '<span class="real">resumed in ' + secs + 's</span>. Log in: SYSTEM / MANAGER.';
-        clearTimeout(curtainFallback);
-        revealConsole();
-        try { term.focus(); } catch (e) {}
-      }, 700);
+      // The resumed guest is already sitting at LOGINOUT's "Username:" prompt.
+      // Render that prompt ourselves (one clean line) rather than nudging the
+      // guest with a CR — a nudge races the mux and can double-print the prompt.
+      // Real typed input still reaches the waiting guest and echoes normally.
+      realWrite('\r\nUsername: ');
+      const secs = ((performance.now() - t0) / 1000).toFixed(1);
+      statusEl.innerHTML = '<span class="real">resumed in ' + secs + 's</span>. Log in: SYSTEM / MANAGER.';
+      clearTimeout(curtainFallback);
+      revealConsole();
+      try { term.focus(); } catch (e) {}
     }
     const timer = setInterval(() => {
       if (done) return;

@@ -331,7 +331,7 @@ footer{background:var(--paper-2)}
   <div class="hero">
     <div class="wrap inner">
       <div class="cover">
-        <p class="pn"><b>OpenVMX</b> · Software Product Description · Version 0.2</p>
+        <p class="pn"><b>OpenVMX</b> · Software Product Description · Version 0.3</p>
         <h1 class="coverh">An OpenVMS-compatible operating environment for Linux.</h1>
         <p class="deck">OpenVMX implements the DCL shell, Record Management Services, VMS system
           services, and a kernel <b>executive</b>. The panel below is that system booting in your
@@ -349,7 +349,7 @@ footer{background:var(--paper-2)}
               <div class="sweep" aria-hidden="true"></div>
               <p class="rdy">OVMX01 · HALTED · READY TO BOOT<span class="cur" aria-hidden="true"></span></p>
               <button class="bootbtn" id="bootbtn" type="button">▶ Boot OpenVMX</button>
-              <p class="bootmeta" id="bootmeta"><b>One-time ~90&nbsp;MB download</b>, cached after the
+              <p class="bootmeta" id="bootmeta"><b>One-time ~105&nbsp;MB download</b>, cached after the
                 first visit. Resumes a pre-booted OpenVMS-compatible machine in a few seconds. Emulated,
                 so interaction is slow.</p>
             </div>
@@ -597,7 +597,7 @@ footer{background:var(--paper-2)}
   var conn = navigator.connection || navigator.webkitConnection || null;
   var metered = !!(conn && (conn.saveData || /(^|-)2g$/.test(conn.effectiveType || '')));
   if (metered && meta) {
-    meta.innerHTML = '<b>Metered or slow connection detected.</b> Booting pulls ~90&nbsp;MB once and ' +
+    meta.innerHTML = '<b>Metered or slow connection detected.</b> Booting pulls ~105&nbsp;MB once and ' +
       'runs a heavy emulator. Start it only if you want that.';
     if (btn) btn.textContent = '▶ Boot anyway (~60 MB)';
   }

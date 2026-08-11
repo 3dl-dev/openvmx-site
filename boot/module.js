@@ -16,13 +16,13 @@
 //     THIS wasm binary (savevm). We do NOT cold-boot: index.html drives `loadvm`
 //     through the QEMU monitor right after SeaBIOS, resuming to the login prompt
 //     in a few seconds instead of ~70s. (-loadvm at startup is broken in this
-//     wasm build, hence the monitor route.) -m 128M matches the capture.
+//     wasm build, hence the monitor route.) -m 256M matches the 0.3 capture.
 if (typeof Module === 'undefined') { var Module = {}; }
 
 Module['arguments'] = [
     '-nographic',
     '-M', 'pc',
-    '-m', '128M',
+    '-m', '256M',
     '-accel', 'tcg,tb-size=500',
     '-L', '/pack-rom/',
     '-nic', 'none',
