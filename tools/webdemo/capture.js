@@ -65,14 +65,27 @@ const readScreen = (p) => p.evaluate(() => {
   if (!/\(qemu\)/.test(await readScreen(page))) { console.error('FAIL: monitor not reached'); process.exit(3); }
   await page.keyboard.type('savevm ovmx'); await page.keyboard.press('Enter');
 
-  let last = -1, stable = 0, size = 0;
-  for (let i = 0; i < 90; i++) {
-    size = await page.evaluate(() => { try { return window.__ovmxMod.FS.stat('/pack-disk/sysdisk.qcow2').size; } catch (e) { return -1; } });
-    if (size === last) { if (++stable >= 3) break; } else { stable = 0; last = size; }
+  // savevm is synchronous in HMP: it pauses the vcpus, writes the snapshot, and
+  // the (qemu) prompt returns only when done. Wait for that prompt AFTER our
+  // command, and inspect ONLY the text between the command and that prompt for
+  // an error — NOT the whole screen. (Once savevm resumes the guest it keeps
+  // booting, and its VERBOSE output — e.g. "module verification failed" — leaks
+  // onto the monitor screen; scanning the whole buffer false-positives on it.)
+  let ok = false, size = 0;
+  for (let i = 0; i < 120; i++) {
+    const scr = await readScreen(page);
+    const afterCmd = scr.split('savevm ovmx').pop() || '';
+    if (/\(qemu\)/.test(afterCmd)) {
+      const resp = afterCmd.split(/\(qemu\)/)[0] || '';                 // savevm's own output only
+      if (/Error|No space left|Unknown command|not found|Device/i.test(resp)) {
+        console.error('FAIL: savevm error:', resp.trim().slice(0, 160)); process.exit(4);
+      }
+      ok = true; break;
+    }
     await new Promise((r) => setTimeout(r, 1000));
   }
-  const err = (await readScreen(page)).split('savevm').pop() || '';
-  if (/Error|failed|No space/i.test(err)) { console.error('FAIL: savevm error:', err.slice(0, 160)); process.exit(4); }
+  if (!ok) { console.error('FAIL: savevm did not return to the monitor prompt in 120s'); process.exit(6); }
+  size = await page.evaluate(() => { try { return window.__ovmxMod.FS.stat('/pack-disk/sysdisk.qcow2').size; } catch (e) { return -1; } });
   console.log('savevm complete, qcow2 = ' + size + ' bytes');
 
   const [dl] = await Promise.all([
