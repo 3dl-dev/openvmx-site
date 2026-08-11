@@ -23,7 +23,7 @@ self.onmessage = (e) => {
 };
 
 // Cache-busted payload download with real byte progress (reported to the page).
-const PAYLOAD_VER = 'w0300';
+const PAYLOAD_VER = '0.3-3-3';
 function xhrGet(url, i, loaded, total, report) {
   return new Promise((res, rej) => {
     const x = new XMLHttpRequest();
