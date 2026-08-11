@@ -19,12 +19,22 @@
   .note { background:#11161f; border:1px solid #21262d; border-radius:6px; padding:.75rem 1rem; font-size:.85rem; }
   code { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; color:#e3b341; }
   ul { margin:.4rem 0; }
+
+  /* Embed mode (?embed): frame as a bare machine for the landing-page cover.
+     Strips prose, fills the frame with the live serial console. */
+  html.embed body { padding:0; background:#0b0e14; }
+  html.embed .no-embed { display:none !important; }
+  html.embed main { max-width:none; margin:0; }
+  html.embed #terminal { margin-top:0; }
+  html.embed #status { margin:.35rem .6rem; font-size:.72rem; opacity:.72; }
+  html.embed #banner { margin:.5rem; }
 </style>
+<script>if (location.search.indexOf('embed') >= 0) document.documentElement.classList.add('embed');</script>
 </head>
 <body>
 <main>
-  <h1>Boot OVMX in your browser</h1>
-  <p class="muted">
+  <h1 class="no-embed">Boot OVMX in your browser</h1>
+  <p class="muted no-embed">
     This tab boots the <span class="real">real OVMX runtime</span> — the actual OVMX Linux kernel and
     <code>initramfs-ovmx.cpio.gz</code>, which loads the <code>vms.ko</code> VMS executive, so
     <code>/dev/vms</code> is present and DCL/RMS/RTL run against it. It is the same machine
@@ -37,7 +47,7 @@
   <div id="status">initializing…</div>
   <div id="terminal"></div>
 
-  <div class="note">
+  <div class="note no-embed">
     <strong>What this is / isn't (honest limits):</strong>
     <ul>
       <li><strong>Real, not faked.</strong> Every character in the terminal is the guest's real serial console.

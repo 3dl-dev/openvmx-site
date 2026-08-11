@@ -10,6 +10,10 @@
 <meta property="og:title" content="OpenVMX — a complete operating system, open source">
 <meta property="og:description" content="A complete operating system for Linux, open source: a command language, record management, system services, and a real kernel executive. Built from public specifications.">
 <meta property="og:type" content="website">
+<!-- Cross-origin isolation (SharedArrayBuffer) so the cover machine can run qemu-wasm.
+     Self-hosted, same-origin (NO CDN). On a header-capable host it no-ops; on GitHub
+     Pages it injects COOP: same-origin + COEP: require-corp and reloads once on first visit. -->
+<script src="coi-serviceworker.js"></script>
 <style>
 /* ============================================================
    OpenVMX — Digital Equipment Corporation corporate-brochure
@@ -69,7 +73,7 @@
 html{-webkit-text-size-adjust:100%}
 body{
   margin:0;background:var(--paper);color:var(--ink);
-  font-family:var(--f-sans);font-size:17px;line-height:1.55;font-weight:400;
+  font-family:var(--f-sans);font-size:16px;line-height:1.5;font-weight:400;
   -webkit-font-smoothing:antialiased;letter-spacing:-.004em;overflow-x:hidden;
 }
 img{max-width:100%;display:block}
@@ -103,35 +107,67 @@ a:hover{text-decoration:underline;text-underline-offset:3px;text-decoration-thic
 .tgl:hover{background:var(--ink);color:var(--paper)}
 @media (max-width:860px){.mast nav a.txt{display:none}.mast .partno{display:none}}
 
-/* ============================================================ HERO (brochure cover) */
+/* ============================================================ HERO (the machine is the cover) */
 .hero{position:relative;overflow:hidden}
-.hero .reveal{position:absolute;inset:0;z-index:0;display:grid;pointer-events:none}
-.hero .reveal .cell{border-right:1px solid var(--grid-line);border-bottom:1px solid var(--grid-line);
-  opacity:0;transform:scale(.96)}
-.reveal-on .hero .reveal .cell{opacity:1;transform:none;
-  transition:opacity .55s ease,transform .55s cubic-bezier(.2,.7,.3,1);transition-delay:calc(var(--i,0)*24ms)}
-
 .hero .inner{position:relative;z-index:1}
-.cover{padding:clamp(52px,7vw,120px) 0 clamp(48px,6vw,96px)}
-.cover .pn{font-family:var(--f-mono);font-size:11.5px;letter-spacing:.14em;color:var(--ink-3);
-  margin:0 0 clamp(22px,3vw,36px)}
+.cover{padding:clamp(30px,4vw,52px) 0 clamp(34px,4vw,60px)}
+.cover .pn{font-family:var(--f-mono);font-size:11px;letter-spacing:.14em;color:var(--ink-3);
+  margin:0 0 clamp(16px,2vw,22px)}
 .cover .pn b{color:var(--blue);font-weight:700}
-.cover h1{font-weight:700;letter-spacing:-.045em;line-height:.9;
-  font-size:clamp(72px,15vw,180px);margin:0 0 .18em}
-.cover h1 .blue{color:var(--blue)}
-.tagline{font-size:clamp(23px,3vw,34px);font-weight:600;letter-spacing:-.022em;color:var(--ink);
-  margin:0 0 clamp(18px,2.2vw,26px);max-width:22ch;text-wrap:balance}
-.deck{font-size:clamp(18px,2vw,21px);line-height:1.45;color:var(--ink-2);max-width:52ch;
-  margin:0 0 clamp(30px,3.5vw,42px);letter-spacing:-.008em}
+.cover h1.coverh{font-weight:700;letter-spacing:-.028em;line-height:1.04;
+  font-size:clamp(26px,3.6vw,42px);margin:0 0 .5em;max-width:20ch;text-wrap:balance}
+.cover h1.coverh .blue{color:var(--blue)}
+.deck{font-size:clamp(15px,1.5vw,17px);line-height:1.5;color:var(--ink-2);max-width:64ch;
+  margin:0 0 clamp(22px,2.6vw,30px);letter-spacing:-.006em}
 .deck b{color:var(--ink);font-weight:600}
-.go{display:flex;flex-direction:column;gap:14px;align-items:flex-start}
-.golink{font-family:var(--f-mono);font-size:15px;font-weight:700;letter-spacing:.01em;
-  color:var(--blue);display:inline-flex;align-items:center;gap:12px;
-  border-bottom:2px solid var(--blue);padding-bottom:4px}
-.golink:hover{text-decoration:none;gap:16px}
+
+/* the cover machine — DEC hardware plate, framed like the build terminal */
+.machine{margin:0 0 clamp(20px,2.4vw,28px);border:var(--hair) solid var(--ink);
+  background:#0b0e14;box-shadow:0 1px 0 var(--blue-line);position:relative}
+.machine-top{display:flex;justify-content:space-between;align-items:center;gap:12px;
+  font-family:var(--f-mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;
+  color:#8391b8;background:#091327;border-bottom:1px solid rgba(131,145,184,.3);padding:9px 14px}
+.machine-top .live{display:inline-flex;align-items:center;gap:7px;color:#e4e9f6}
+.machine-top .dot{width:7px;height:7px;background:var(--amber);
+  box-shadow:0 0 0 0 rgba(240,178,74,.6);animation:idlepulse 1.4s steps(2,end) infinite}
+@keyframes idlepulse{0%{opacity:.35}50%{opacity:1}100%{opacity:.35}}
+.machine-screen{position:relative;height:clamp(300px,46vh,520px);overflow:hidden}
+.machine-screen iframe{border:0;width:100%;height:100%;display:block;background:#0b0e14}
+
+/* pre-boot idle: janky phosphor screen inviting the click (labelled cosmetic) */
+.idle{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:16px;text-align:center;padding:20px;
+  background:radial-gradient(120% 90% at 50% 42%,#0d1a12 0%,#0a0e11 70%);cursor:pointer}
+.idle .scan{position:absolute;inset:0;pointer-events:none;opacity:.5;
+  background:repeating-linear-gradient(180deg,rgba(63,185,80,.05) 0 2px,transparent 2px 4px)}
+.idle .sweep{position:absolute;left:0;right:0;height:80px;pointer-events:none;
+  background:linear-gradient(180deg,transparent,rgba(63,185,80,.10),transparent);
+  animation:sweep 3.2s steps(24,end) infinite}
+@keyframes sweep{0%{top:-90px}100%{top:100%}}
+.idle .rdy{font-family:var(--f-mono);font-size:13px;letter-spacing:.06em;color:#3fb950;
+  text-shadow:0 0 8px rgba(63,185,80,.35)}
+.idle .rdy .cur{display:inline-block;width:.62em;height:1.05em;vertical-align:-.16em;margin-left:2px;
+  background:#3fb950;animation:blink 1.06s steps(1,end) infinite}
+@keyframes blink{50%{opacity:0}}
+.bootbtn{font-family:var(--f-mono);font-weight:700;font-size:15px;letter-spacing:.02em;
+  color:#0b0e14;background:#3fb950;border:0;padding:12px 22px;cursor:pointer;
+  box-shadow:3px 3px 0 #1b6e2e;transition:transform .06s steps(2,end),box-shadow .06s steps(2,end)}
+.bootbtn:hover{transform:translate(-1px,-1px);box-shadow:4px 4px 0 #1b6e2e}
+.bootbtn:active{transform:translate(3px,3px);box-shadow:0 0 0 #1b6e2e}
+.bootmeta{font-family:var(--f-mono);font-size:11.5px;line-height:1.5;color:#7d8aa0;max-width:44ch;margin:0}
+.bootmeta b{color:#c9d6ea;font-weight:700}
+.machine-cap{font-family:var(--f-mono);font-size:10.5px;line-height:1.5;color:var(--ink-3);
+  margin:8px 2px 0;letter-spacing:.01em}
+@media (prefers-reduced-motion:reduce){.idle .sweep,.machine-top .dot{animation:none}}
+
+.go{display:flex;flex-wrap:wrap;gap:10px 22px;align-items:baseline}
+.golink{font-family:var(--f-mono);font-size:14px;font-weight:700;letter-spacing:.01em;
+  color:var(--blue);display:inline-flex;align-items:center;gap:10px;
+  border-bottom:2px solid var(--blue);padding-bottom:3px}
+.golink:hover{text-decoration:none;gap:14px}
 .golink .ar{transition:transform .12s ease}
 .golink:hover .ar{transform:translateX(3px)}
-.go .sub{font-family:var(--f-mono);font-size:13px;color:var(--ink-3)}
+.go .sub{font-family:var(--f-mono);font-size:12.5px;color:var(--ink-3)}
 .go .sub a{color:var(--ink-2);border-bottom:1px solid var(--blue-line)}
 .go .sub a:hover{color:var(--blue);text-decoration:none}
 
@@ -139,8 +175,8 @@ a:hover{text-decoration:underline;text-underline-offset:3px;text-decoration-thic
 .feature{background:var(--blue);color:var(--on-blue);
   border-top:var(--hair) solid var(--ink);border-bottom:var(--hair) solid var(--ink)}
 .feature .wrap{padding:clamp(48px,6.5vw,104px) var(--gutter)}
-.feature .thesis-line{font-size:clamp(30px,5.2vw,62px);font-weight:700;letter-spacing:-.034em;
-  line-height:1.0;max-width:20ch;margin:0;color:#fff;text-wrap:balance}
+.feature .thesis-line{font-size:clamp(23px,3.4vw,40px);font-weight:700;letter-spacing:-.026em;
+  line-height:1.06;max-width:24ch;margin:0;color:#fff;text-wrap:balance}
 .facts{display:grid;grid-template-columns:repeat(4,1fr);gap:0;
   margin:clamp(34px,4.5vw,56px) 0 0;border-top:1px solid rgba(255,255,255,.3)}
 .facts div{display:flex;flex-direction:column;gap:6px;padding:18px 22px 0 0;
@@ -166,10 +202,10 @@ section{border-bottom:var(--hair) solid var(--ink)}
 .chap{display:flex;align-items:baseline;gap:clamp(16px,2.2vw,30px);padding:clamp(44px,5.5vw,84px) 0 0}
 .chap .cn{flex:none;font-family:var(--f-mono);font-weight:700;font-size:clamp(13px,1.4vw,16px);
   color:var(--blue);letter-spacing:.04em}
-.chap h2{font-size:clamp(30px,4.8vw,58px);font-weight:700;letter-spacing:-.032em;line-height:1.0;
+.chap h2{font-size:clamp(23px,3.2vw,38px);font-weight:700;letter-spacing:-.026em;line-height:1.05;
   margin:0;text-wrap:balance}
-.deck2{color:var(--ink-2);max-width:62ch;margin:clamp(16px,2vw,22px) 0 0;
-  font-size:clamp(17px,1.9vw,19.5px);line-height:1.5;letter-spacing:-.006em}
+.deck2{color:var(--ink-2);max-width:66ch;margin:clamp(14px,1.7vw,20px) 0 0;
+  font-size:clamp(15px,1.5vw,17px);line-height:1.5;letter-spacing:-.006em}
 .pad-b{padding-bottom:clamp(48px,6vw,88px)}
 
 /* overview: manual marginalia */
@@ -195,7 +231,7 @@ section{border-bottom:var(--hair) solid var(--ink)}
 .ix:hover{background:var(--paper-2)}
 .ixhead{display:flex;align-items:baseline;gap:16px}
 .ix .n{flex:none;font-family:var(--f-mono);font-weight:700;font-size:13px;color:var(--blue);width:3ch}
-.ix .nm{font-weight:700;font-size:clamp(21px,2.7vw,32px);letter-spacing:-.025em;line-height:1;color:var(--ink)}
+.ix .nm{font-weight:700;font-size:clamp(18px,2.1vw,25px);letter-spacing:-.02em;line-height:1;color:var(--ink)}
 .ix .dots{flex:1;border-bottom:1.5px dotted var(--ink-3);opacity:.5;transform:translateY(-5px);min-width:24px}
 .ix .cd{flex:none;font-family:var(--f-mono);font-size:12px;color:var(--ink-3);letter-spacing:.06em;text-transform:uppercase}
 .ix .ds{margin:10px 0 0 calc(3ch + 16px);max-width:72ch;color:var(--ink-2);font-size:15.5px;line-height:1.55}
@@ -278,17 +314,37 @@ footer{background:var(--paper-2)}
 
 <main id="top">
 
-  <!-- ================= HERO ================= -->
+  <!-- ================= HERO — the machine is the cover ================= -->
   <div class="hero">
-    <div class="reveal" id="reveal" aria-hidden="true"></div>
     <div class="wrap inner">
       <div class="cover">
-        <p class="pn"><b>OpenVMX</b> · Version 0.2 · Software Product Description</p>
-        <h1>Open<span class="blue">VMX</span></h1>
-        <p class="tagline">A complete operating system, open source.</p>
+        <p class="pn"><b>OpenVMX</b> · Software Product Description · Version 0.2</p>
+        <h1 class="coverh">A complete operating system, open source — and it boots right here.</h1>
         <p class="deck">A command language, record management, system services, and a real kernel
-          <b>executive</b>, each its own readable library. Built from public specifications, and
-          packaged to boot on ordinary hardware.</p>
+          <b>executive</b>. The panel below boots the actual OpenVMX kernel client-side, in this tab.
+          Not a screenshot, not a video, not a server stream — the real machine.</p>
+
+        <figure class="machine" id="machine">
+          <figcaption class="machine-top">
+            <span class="live"><i class="dot"></i>OpenVMX · console</span>
+            <span>ttyS0 · qemu-wasm · TCG</span>
+          </figcaption>
+          <div class="machine-screen" id="screen">
+            <div class="idle" id="idle" role="button" tabindex="0"
+                 aria-label="Boot the real OpenVMX machine in your browser">
+              <div class="scan" aria-hidden="true"></div>
+              <div class="sweep" aria-hidden="true"></div>
+              <p class="rdy">OVMX01 :: HALTED — READY TO BOOT<span class="cur" aria-hidden="true"></span></p>
+              <button class="bootbtn" id="bootbtn" type="button">▶ Boot the real machine</button>
+              <p class="bootmeta" id="bootmeta"><b>~60&nbsp;MB</b> one-time download · a real
+                OpenVMS-compatible kernel booted in this tab · <b>not a video</b></p>
+            </div>
+          </div>
+          <figcaption class="machine-cap">Idle screen — the CRT styling is OpenVMX web presentation,
+            not asserted VMS-authentic. Boots under QEMU compiled to WebAssembly. TCG is slow: reaching
+            the login prompt takes tens of seconds.</figcaption>
+        </figure>
+
         <div class="go">
           <a class="golink" href="https://github.com/3dl-dev/vms">View the source on GitHub <span class="ar">→</span></a>
           <span class="sub">or <a href="#build">build and boot it yourself</a></span>
@@ -510,23 +566,44 @@ footer{background:var(--paper-2)}
 
   document.getElementById('yr').textContent = new Date().getFullYear();
 
-  /* hero module-grid reveal (brand ornament, not a fake machine) */
-  var reduce = window.matchMedia('(prefers-reduced-motion:reduce)').matches;
-  var reveal=document.getElementById('reveal');
-  function buildGrid(){
-    var w=reveal.clientWidth||window.innerWidth;
-    var cols = w<560?4 : w<940?6 : 9, rows = w<940?4:5;
-    reveal.style.gridTemplateColumns='repeat('+cols+',1fr)';
-    reveal.style.gridTemplateRows='repeat('+rows+',1fr)';
-    reveal.innerHTML=''; var frag=document.createDocumentFragment(), n=cols*rows;
-    for(var i=0;i<n;i++){var c=document.createElement('div');c.className='cell';
-      c.style.setProperty('--i',(Math.floor(i/cols)+(i%cols)));frag.appendChild(c);}
-    reveal.appendChild(frag);
+  /* ---- click-to-boot: the idle cover swaps in the real qemu-wasm machine ----
+     Nothing heavy loads until the visitor asks for it (respects metered/slow
+     connections). The machine itself is the canonical /boot/ app, framed here in
+     ?embed mode; because this page is cross-origin isolated, the same-origin
+     iframe inherits SharedArrayBuffer and boots for real. */
+  var idle   = document.getElementById('idle');
+  var btn    = document.getElementById('bootbtn');
+  var meta   = document.getElementById('bootmeta');
+  var screen = document.getElementById('screen');
+  var booted = false;
+
+  // Save-Data / slow-connection courtesy: warn louder before a 60 MB pull.
+  var conn = navigator.connection || navigator.webkitConnection || null;
+  var metered = !!(conn && (conn.saveData || /(^|-)2g$/.test(conn.effectiveType || '')));
+  if (metered && meta) {
+    meta.innerHTML = '<b>Heads up:</b> you appear to be on a metered or slow connection. ' +
+      'Booting downloads <b>~60&nbsp;MB</b> and runs a CPU-heavy emulator. Tap only if you want that.';
+    if (btn) btn.textContent = '▶ Boot anyway (~60 MB)';
   }
-  buildGrid();
-  if(reduce){root.classList.add('reveal-on');}
-  else{requestAnimationFrame(function(){requestAnimationFrame(function(){root.classList.add('reveal-on');});});}
-  var rt;window.addEventListener('resize',function(){clearTimeout(rt);rt=setTimeout(buildGrid,180);});
+
+  function boot(){
+    if (booted) return; booted = true;
+    if (!self.crossOriginIsolated) {
+      // coi-serviceworker reloads once on first visit to establish isolation;
+      // if we're here without it, let that reload happen rather than fail.
+      if (meta) meta.textContent = 'preparing a secure (cross-origin isolated) context…';
+    }
+    var f = document.createElement('iframe');
+    f.src = 'boot/?embed=1';
+    f.title = 'OpenVMX — live serial console';
+    f.setAttribute('allow', 'cross-origin-isolated');
+    if (idle) idle.remove();
+    screen.appendChild(f);
+  }
+  if (btn)  btn.addEventListener('click', boot);
+  if (idle) idle.addEventListener('keydown', function(e){
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); boot(); }
+  });
 })();
 </script>
 </body>
