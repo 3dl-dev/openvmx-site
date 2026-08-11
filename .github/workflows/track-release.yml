@@ -1,0 +1,99 @@
+name: track-release
+
+# Keep the in-browser demo tracking the latest OVMX release, with ZERO secrets:
+# this runs IN openvmx-site, reads the (public) vms + qemu-wasm releases, and
+# commits the rebuilt demo to ITS OWN repo with the built-in GITHUB_TOKEN. When
+# a new OVMX release is published (with its web assets, via tools/publish-release.sh),
+# the next run rebuilds the demo from it — download release boot assets + our
+# qemu-wasm binary, re-capture the boot snapshot, push the payload. No hand-copy.
+
+on:
+  schedule:
+    - cron: '17 */6 * * *'      # every 6h; catches new releases automatically
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: force a specific vms release tag (else latest)
+        required: false
+
+permissions:
+  contents: write
+
+concurrency: track-release
+
+jobs:
+  track:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Resolve latest release, compare to deployed
+        id: r
+        env: { GH_TOKEN: '${{ secrets.GITHUB_TOKEN }}' }
+        run: |
+          TAG='${{ github.event.inputs.tag }}'
+          [ -z "$TAG" ] && TAG=$(gh api repos/3dl-dev/vms/releases/latest --jq '.tag_name' 2>/dev/null || true)
+          if [ -z "$TAG" ]; then echo "no published vms release yet — nothing to track."; echo "skip=1" >> "$GITHUB_OUTPUT"; exit 0; fi
+          # the release must carry the web boot assets (published by cut/publish-release)
+          ASSETS=$(gh release view "$TAG" --repo 3dl-dev/vms --json assets --jq '[.assets[].name]|join(",")' 2>/dev/null || true)
+          case "$ASSETS" in
+            *ovmx-distrib.img*) : ;;
+            *) echo "release $TAG has no web assets ($ASSETS) — skipping."; echo "skip=1" >> "$GITHUB_OUTPUT"; exit 0 ;;
+          esac
+          DEPLOYED=$(cat boot/DEPLOYED_TAG 2>/dev/null || true)
+          echo "latest=$TAG  deployed=$DEPLOYED"
+          if [ "$TAG" = "$DEPLOYED" ]; then echo "already deployed $TAG."; echo "skip=1" >> "$GITHUB_OUTPUT"; exit 0; fi
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+
+      - name: Install qemu-img + Playwright
+        if: steps.r.outputs.skip != '1'
+        run: |
+          sudo apt-get update && sudo apt-get install -y qemu-utils
+          npm init -y >/dev/null 2>&1 && npm i -D playwright@1.47.0
+          npx playwright install --with-deps chromium
+
+      - name: Download release boot assets + our qemu-wasm
+        if: steps.r.outputs.skip != '1'
+        env: { GH_TOKEN: '${{ secrets.GITHUB_TOKEN }}' }
+        run: |
+          T='${{ steps.r.outputs.tag }}'; mkdir -p rel qw
+          gh release download "$T" --repo 3dl-dev/vms -D rel -p vmlinuz -p initramfs-ovmx-slim.cpio.gz -p ovmx-distrib.img
+          gh release download --repo 3dl-dev/qemu-wasm -D qw -p qemu-system-x86_64.wasm -p out.js -p qemu-system-x86_64.worker.js
+          ls -la rel qw
+
+      - name: Assemble capture harness (single-thread, classic binary)
+        if: steps.r.outputs.skip != '1'
+        run: |
+          H=cap; mkdir -p "$H/assets"
+          cp tools/webdemo/capture-index.html "$H/index.html"
+          cp qw/qemu-system-x86_64.wasm qw/out.js qw/qemu-system-x86_64.worker.js "$H/"
+          cp boot/load-rom.js boot/load-rom.data boot/coi-serviceworker.js "$H/"
+          cp boot/assets/xterm.js boot/assets/xterm.css boot/assets/xterm-pty.js "$H/assets/"
+          cp rel/vmlinuz "$H/vmlinuz"; cp rel/initramfs-ovmx-slim.cpio.gz "$H/initramfs-ovmx.cpio.gz"
+          qemu-img convert -O qcow2 rel/ovmx-distrib.img "$H/distrib.qcow2"
+          gzip -9 -c "$H/distrib.qcow2" > "$H/sysdisk.qcow2.gz"; rm -f "$H/distrib.qcow2"
+
+      - name: Capture boot snapshot
+        if: steps.r.outputs.skip != '1'
+        run: |
+          node tools/webdemo/coi-server.js cap 8099 &
+          sleep 2
+          node tools/webdemo/capture.js http://localhost:8099 snap.qcow2
+          gzip -9 -c snap.qcow2 > sysdisk.qcow2.gz && ls -la sysdisk.qcow2.gz
+
+      - name: Update boot payload + commit
+        if: steps.r.outputs.skip != '1'
+        run: |
+          cp qw/qemu-system-x86_64.wasm qw/out.js qw/qemu-system-x86_64.worker.js boot/
+          cp rel/vmlinuz boot/vmlinuz
+          cp rel/initramfs-ovmx-slim.cpio.gz boot/initramfs-ovmx.cpio.gz
+          cp sysdisk.qcow2.gz boot/sysdisk.qcow2.gz
+          echo '${{ steps.r.outputs.tag }}' > boot/DEPLOYED_TAG
+          VER='${{ steps.r.outputs.tag }}-${{ github.run_number }}'
+          sed -i "s/const PAYLOAD_VER = '[^']*'/const PAYLOAD_VER = '${VER}'/" boot/qemu-worker.js || true
+          git config user.name 'ovmx-release-bot'; git config user.email 'bot@3dl.dev'
+          git add boot
+          if git diff --cached --quiet; then echo "no change"; exit 0; fi
+          git commit -m "demo: auto-track OVMX ${{ steps.r.outputs.tag }} (release-driven)"
+          git push

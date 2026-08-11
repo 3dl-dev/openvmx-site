@@ -1,0 +1,29 @@
+<!doctype html><html><head><meta charset="utf-8">
+<link rel="stylesheet" href="assets/xterm.css">
+<script src="coi-serviceworker.js"></script>
+<script src="assets/xterm.js"></script><script src="assets/xterm-pty.js"></script>
+</head><body><div id="terminal"></div>
+<script>
+const term=new Terminal({cols:100,rows:34,convertEol:true});
+term.open(document.getElementById('terminal')); window.__ovmxTerm=term;
+const {master,slave}=openpty(); term.loadAddon(master);
+async function gz(u){const r=await fetch(u);const s=r.body.pipeThrough(new DecompressionStream('gzip'));return new Uint8Array(await new Response(s).arrayBuffer());}
+var Module={
+  arguments:['-nographic','-M','pc','-m','256M','-accel','tcg,tb-size=500','-L','/pack-rom/','-nic','none',
+    '-kernel','/pack-kernel/vmlinuz','-initrd','/pack-initramfs/initramfs-ovmx.cpio.gz','-append','console=ttyS0 loglevel=3 quiet',
+    '-drive','file=/pack-disk/sysdisk.qcow2,format=qcow2,if=virtio','-no-reboot'],
+  locateFile:p=>new URL(p,document.baseURI).href,
+  mainScriptUrlOrBlob:new URL('out.js',document.baseURI).href,
+  pty:slave,
+  preRun:[m=>{m.addRunDependency('p');const mk=p=>{try{m.FS.mkdir(p)}catch(e){}};
+    Promise.all([fetch('vmlinuz').then(r=>r.arrayBuffer()),fetch('initramfs-ovmx.cpio.gz').then(r=>r.arrayBuffer()),gz('sysdisk.qcow2.gz')])
+     .then(([k,i,d])=>{mk('/pack-kernel');mk('/pack-initramfs');mk('/pack-disk');
+       m.FS.writeFile('/pack-kernel/vmlinuz',new Uint8Array(k));m.FS.writeFile('/pack-initramfs/initramfs-ovmx.cpio.gz',new Uint8Array(i));
+       m.FS.writeFile('/pack-disk/sysdisk.qcow2',d);m.removeRunDependency('p');});}],
+  onRuntimeInitialized:()=>{window.__ovmxMod=Module;const op=Module.TTY.stream_ops.poll,pty=Module.pty;
+    Module.TTY.stream_ops.poll=function(s,t){if(!pty.readable)return (pty.readable?1:0)|(pty.writable?4:0);return op.call(s,s,t);};}
+};
+</script>
+<script src="load-rom.js"></script>
+<script src="out.js"></script>
+</body></html>
