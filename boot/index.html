@@ -21,8 +21,9 @@
   ul { margin:.4rem 0; }
 
   /* Embed mode (?embed): frame as a bare machine for the landing-page cover.
-     Strips prose + ALL status plumbing; a clean amber curtain hides the boot
-     until the login prompt appears. Nobody should see "starting QEMU" or dots. */
+     Strips prose + ALL status plumbing; a clean amber curtain hides the resume
+     plumbing until the OVMX startup replay begins. Nobody should see "starting
+     QEMU" or dots. */
   html.embed body { padding:0; background:#140d00; }
   html.embed .no-embed { display:none !important; }
   html.embed main { max-width:none; margin:0; }
@@ -98,9 +99,12 @@
     <ul>
       <li><strong>Real, not faked.</strong> Every character in the terminal is the guest's real serial console.
           Log in as <code>SYSTEM</code> / <code>MANAGER</code> (or <code>GUEST</code>/<code>GUEST</code>).</li>
-      <li><strong>Resumed, not cold-booted.</strong> Rather than a ~70s TCG boot, this resumes a pre-booted
-          machine snapshot (<code>savevm</code>/<code>loadvm</code>) to the login prompt in a few seconds. Execution
-          is still TCG, so interaction is sluggish.</li>
+      <li><strong>Resumed at the boot handoff, not cold-booted.</strong> The slow part of a cold boot is the
+          Linux kernel coming up (~70s under TCG), and it is completely silent (<code>quiet</code>). So the machine
+          snapshot (<code>savevm</code>/<code>loadvm</code>) is saved at the kernel&rarr;<code>/init</code> handoff,
+          just after that silent stretch: resuming replays the real OVMX startup live — the executive attaching on
+          <code>/dev/vms</code>, the system disk mounting, <code>STDRV</code>, the image installs, the banner — and
+          lands at <code>Username:</code> in a few seconds. Execution is still TCG, so interaction is sluggish.</li>
       <li><strong>Single node.</strong> One tab is one VM — no cluster / SCS / multi-node behaviour here.</li>
       <li><strong>Fresh each load.</strong> Every load resumes the same snapshot; changes are not yet persisted
           across reloads.</li>
@@ -215,9 +219,12 @@
     const curtainFallback = setTimeout(revealConsole, 150000);
 
     // FAST START by snapshot-resume: drive `loadvm` through the QEMU monitor
-    // (Ctrl-A c) behind the curtain, then wipe the chatter and show a clean prompt.
+    // (Ctrl-A c) behind the curtain, drop the monitor chatter, then reveal the
+    // guest's own OVMX startup replay (see finishResume + tools/webdemo/capture.js).
     const t0 = performance.now();
-    let done = false, lastFire = -1e9;
+    let done = false, resumedAt = 0, lastFire = -1e9;
+    // matches the first line the guest replays after the handoff snapshot
+    const BOOTLINE = /vms: |%OVMX-I-EXEC|%STARTUP-/;
     function fireResume() {
       postInput('\x01c');                                     // -> QEMU monitor
       setTimeout(() => postInput('loadvm ovmx\r'), 400);      // restore snapshot (idempotent)
@@ -225,11 +232,19 @@
     }
     function finishResume() {
       setProg(1, 'ready');
-      renderGate = true;
-      term.write('\x1b[3J\x1b[2J\x1b[H');                       // clear scrollback+screen
-      term.write('\r\nUsername: ');                            // one clean prompt (guest is waiting at it)
+      // Reveal the REAL OVMX startup replay. The snapshot is saved at the
+      // kernel->/init handoff, so resuming replays the executive attaching and
+      // the startup dialog live, ending at the real Username: the guest is
+      // waiting at. Drop only the monitor plumbing (Ctrl-A c, the `loadvm ovmx`
+      // echo, the (qemu) prompt), which sits BEFORE the first replayed boot line.
+      let start = -1;
+      const li = capText.lastIndexOf('loadvm ovmx');
+      if (li >= 0) { const m = capText.slice(li).search(BOOTLINE); if (m >= 0) start = li + m; }
+      term.write('\x1b[3J\x1b[2J\x1b[H');                       // wipe SeaBIOS + monitor plumbing
+      if (start >= 0) term.write(capText.slice(start));        // draw the boot dialog captured so far
+      renderGate = true;                                       // stream the rest (through Username:) live
       const secs = ((performance.now() - t0) / 1000).toFixed(1);
-      statusEl.innerHTML = '<span class="real">resumed in ' + secs + 's</span>. Log in: SYSTEM / MANAGER.';
+      statusEl.innerHTML = '<span class="real">resumed in ' + secs + 's</span>. Watch OpenVMX start, then log in: SYSTEM / MANAGER.';
       clearTimeout(curtainFallback);
       revealConsole();
       try { term.focus(); } catch (e) {}
@@ -237,10 +252,15 @@
     const timer = setInterval(() => {
       if (done) return;
       const idx = capText.lastIndexOf('loadvm ovmx');
-      if (idx >= 0 && capText.slice(idx + 11).indexOf('(qemu)') >= 0) {
-        done = true; clearInterval(timer);
-        const wait = Math.max(400, (lastFire + 2600) - Date.now() + 450);
-        setTimeout(finishResume, wait);
+      const loaded = idx >= 0 && capText.slice(idx + 11).indexOf('(qemu)') >= 0;
+      if (loaded) {
+        // loadvm done; the guest is replaying the boot. Keep the curtain up over
+        // the sub-second silent kernel tail, then reveal as soon as the startup
+        // dialog begins (or after a safety timeout, so a stall still surfaces).
+        if (!resumedAt) { resumedAt = Date.now(); if (!resumeShown) { resumeShown = true; setProg(0.95, 'Resuming OpenVMX…'); } }
+        if (BOOTLINE.test(capText.slice(idx)) || Date.now() - resumedAt > 20000) {
+          done = true; clearInterval(timer); finishResume();
+        }
         return;
       }
       if (capText.length > 0 && (Date.now() - lastFire) > 5000) {
@@ -248,7 +268,7 @@
         if (!resumeShown) { resumeShown = true; setProg(0.95, 'Resuming OpenVMX…'); }
         fireResume();
       }
-    }, 500);
+    }, 250);
 
     // Halt recovery — the worker reports a QEMU exit/abort ('halt'); show Restart.
     let haltedShown = false;

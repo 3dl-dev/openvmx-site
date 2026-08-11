@@ -15,6 +15,10 @@ on:
       tag:
         description: force a specific vms tag (else the latest release-like tag)
         required: false
+      force:
+        description: re-capture + redeploy even if DEPLOYED_TAG already matches (e.g. after a demo-harness change)
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -39,8 +43,10 @@ jobs:
           fi
           if [ -z "$TAG" ]; then echo "no release-like tag found."; echo "skip=1" >> "$GITHUB_OUTPUT"; exit 0; fi
           DEPLOYED=$(cat boot/DEPLOYED_TAG 2>/dev/null || true)
-          echo "latest=$TAG  deployed=$DEPLOYED"
-          if [ "$TAG" = "$DEPLOYED" ]; then echo "already on $TAG."; echo "skip=1" >> "$GITHUB_OUTPUT"; exit 0; fi
+          echo "latest=$TAG  deployed=$DEPLOYED  force=${{ github.event.inputs.force }}"
+          if [ "$TAG" = "$DEPLOYED" ] && [ "${{ github.event.inputs.force }}" != "true" ]; then
+            echo "already on $TAG (pass force=true to re-capture)."; echo "skip=1" >> "$GITHUB_OUTPUT"; exit 0
+          fi
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
 
       - name: Obtain boot assets (prefer published Release, else build from source)
@@ -95,6 +101,22 @@ jobs:
           sleep 2
           node tools/webdemo/capture.js http://localhost:8099 snap.qcow2
           gzip -9 -c snap.qcow2 > sysdisk.qcow2.gz && ls -la sysdisk.qcow2.gz
+
+      - name: Verify the demo resumes INTO the startup dialog (gate before commit)
+        if: steps.r.outputs.skip != '1'
+        run: |
+          # Assemble EXACTLY what would be committed: the real demo boot/ page +
+          # the fresh binaries + the just-captured snapshot. Then prove the resume
+          # replays the OVMX startup (not a snapshot stuck at Username, and that
+          # it loadvm's in wasm and the reveal works) — else fail without committing.
+          rm -rf ver; cp -r boot ver
+          cp qw/qemu-system-x86_64.wasm qw/out.js qw/qemu-system-x86_64.worker.js ver/
+          cp rel/vmlinuz ver/vmlinuz
+          cp rel/initramfs-ovmx-slim.cpio.gz ver/initramfs-ovmx.cpio.gz
+          cp sysdisk.qcow2.gz ver/sysdisk.qcow2.gz
+          node tools/webdemo/coi-server.js ver 8098 &
+          sleep 2
+          node tools/webdemo/verify.js http://localhost:8098
 
       - name: Update boot payload + commit
         if: steps.r.outputs.skip != '1'

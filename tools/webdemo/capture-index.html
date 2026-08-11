@@ -4,13 +4,13 @@
 <script src="assets/xterm.js"></script><script src="assets/xterm-pty.js"></script>
 </head><body><div id="terminal"></div>
 <script>
-const term=new Terminal({cols:100,rows:34,convertEol:true});
+const term=new Terminal({cols:100,rows:40,convertEol:true,scrollback:2000});
 term.open(document.getElementById('terminal')); window.__ovmxTerm=term;
 const {master,slave}=openpty(); term.loadAddon(master);
 async function gz(u){const r=await fetch(u);const s=r.body.pipeThrough(new DecompressionStream('gzip'));return new Uint8Array(await new Response(s).arrayBuffer());}
 var Module={
   arguments:['-nographic','-M','pc','-m','256M','-accel','tcg,tb-size=500','-L','/pack-rom/','-nic','none',
-    '-kernel','/pack-kernel/vmlinuz','-initrd','/pack-initramfs/initramfs-ovmx.cpio.gz','-append','console=ttyS0 loglevel=3 quiet',
+    '-kernel','/pack-kernel/vmlinuz','-initrd','/pack-initramfs/initramfs-ovmx.cpio.gz','-append','console=ttyS0',
     '-drive','file=/pack-disk/sysdisk.qcow2,format=qcow2,if=virtio','-no-reboot'],
   locateFile:p=>new URL(p,document.baseURI).href,
   mainScriptUrlOrBlob:new URL('out.js',document.baseURI).href,
