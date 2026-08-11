@@ -1,18 +1,4 @@
-
-var Module = (() => {
-  var _scriptDir = import.meta.url;
-  
-  return (
-async function(moduleArg = {}) {
-
-var Module = moduleArg;
-
-var readyPromiseResolve, readyPromiseReject;
-
-Module["ready"] = new Promise((resolve, reject) => {
- readyPromiseResolve = resolve;
- readyPromiseReject = reject;
-});
+var Module = typeof Module != "undefined" ? Module : {};
 
 var moduleOverrides = Object.assign({}, Module);
 
@@ -34,6 +20,14 @@ var ENVIRONMENT_IS_SHELL = !ENVIRONMENT_IS_WEB && !ENVIRONMENT_IS_NODE && !ENVIR
 
 var ENVIRONMENT_IS_PTHREAD = Module["ENVIRONMENT_IS_PTHREAD"] || false;
 
+var _scriptDir = (typeof document != "undefined" && document.currentScript) ? document.currentScript.src : undefined;
+
+if (ENVIRONMENT_IS_WORKER) {
+ _scriptDir = self.location.href;
+} else if (ENVIRONMENT_IS_NODE) {
+ _scriptDir = __filename;
+}
+
 var scriptDirectory = "";
 
 function locateFile(path) {
@@ -46,14 +40,12 @@ function locateFile(path) {
 var read_, readAsync, readBinary;
 
 if (ENVIRONMENT_IS_NODE) {
- const {createRequire: createRequire} = await import("module");
- /** @suppress{duplicate} */ var require = createRequire(import.meta.url);
  var fs = require("fs");
  var nodePath = require("path");
  if (ENVIRONMENT_IS_WORKER) {
   scriptDirectory = nodePath.dirname(scriptDirectory) + "/";
  } else {
-  scriptDirectory = require("url").fileURLToPath(new URL("./", import.meta.url));
+  scriptDirectory = __dirname + "/";
  }
  read_ = (filename, binary) => {
   filename = isFileURI(filename) ? new URL(filename) : nodePath.normalize(filename);
@@ -76,6 +68,9 @@ if (ENVIRONMENT_IS_NODE) {
   thisProgram = process.argv[1].replace(/\\/g, "/");
  }
  arguments_ = process.argv.slice(2);
+ if (typeof module != "undefined") {
+  module["exports"] = Module;
+ }
  process.on("uncaughtException", ex => {
   if (ex !== "unwind" && !(ex instanceof ExitStatus) && !(ex.context instanceof ExitStatus)) {
    throw ex;
@@ -99,9 +94,6 @@ if (ENVIRONMENT_IS_NODE) {
   scriptDirectory = self.location.href;
  } else if (typeof document != "undefined" && document.currentScript) {
   scriptDirectory = document.currentScript.src;
- }
- if (_scriptDir) {
-  scriptDirectory = _scriptDir;
  }
  if (scriptDirectory.indexOf("blob:") !== 0) {
   scriptDirectory = scriptDirectory.substr(0, scriptDirectory.replace(/[?#].*/, "").lastIndexOf("/") + 1);
@@ -373,7 +365,6 @@ function removeRunDependency(id) {
  EXITSTATUS = 1;
  what += ". Build with -sASSERTIONS for more info.";
  /** @suppress {checkTypes} */ var e = new WebAssembly.RuntimeError(what);
- readyPromiseReject(e);
  throw e;
 }
 
@@ -391,13 +382,10 @@ var dataURIPrefix = "data:application/octet-stream;base64,";
 
 var wasmBinaryFile;
 
-if (Module["locateFile"]) {
- wasmBinaryFile = "qemu-system-x86_64.wasm";
- if (!isDataURI(wasmBinaryFile)) {
-  wasmBinaryFile = locateFile(wasmBinaryFile);
- }
-} else {
- wasmBinaryFile = new URL("qemu-system-x86_64.wasm", import.meta.url).href;
+wasmBinaryFile = "qemu-system-x86_64.wasm";
+
+if (!isDataURI(wasmBinaryFile)) {
+ wasmBinaryFile = locateFile(wasmBinaryFile);
 }
 
 function getBinarySync(file) {
@@ -478,10 +466,10 @@ function createWasm() {
    return Module["instantiateWasm"](info, receiveInstance);
   } catch (e) {
    err(`Module.instantiateWasm callback failed with error: ${e}`);
-   readyPromiseReject(e);
+   return false;
   }
  }
- instantiateAsync(wasmBinary, wasmBinaryFile, info, receiveInstantiationResult).catch(readyPromiseReject);
+ instantiateAsync(wasmBinary, wasmBinaryFile, info, receiveInstantiationResult);
  return {};
 }
 
@@ -3522,7 +3510,7 @@ var PThread = {
   worker.postMessage({
    "cmd": "load",
    "handlers": handlers,
-   "urlOrBlob": Module["mainScriptUrlOrBlob"],
+   "urlOrBlob": Module["mainScriptUrlOrBlob"] || _scriptDir,
    "wasmMemory": wasmMemory,
    "wasmModule": wasmModule
   });
@@ -3536,16 +3524,8 @@ var PThread = {
  },
  allocateUnusedWorker() {
   var worker;
-  if (!Module["locateFile"]) {
-   worker = new Worker(new URL("qemu-system-x86_64.worker.js", import.meta.url), {
-    type: "module"
-   });
-  } else {
-   var pthreadMainJs = locateFile("qemu-system-x86_64.worker.js");
-   worker = new Worker(pthreadMainJs, {
-    type: "module"
-   });
-  }
+  var pthreadMainJs = locateFile("qemu-system-x86_64.worker.js");
+  worker = new Worker(pthreadMainJs);
   PThread.unusedWorkers.push(worker);
  },
  getNewWorker() {
@@ -7283,7 +7263,7 @@ var wasmImports = {
  /** @export */ invoke_viijii: invoke_viijii,
  /** @export */ invoke_vij: invoke_vij,
  /** @export */ invoke_vj: invoke_vj,
- /** @export */ memory: wasmMemory || Module["wasmMemory"],
+ /** @export */ memory: wasmMemory,
  /** @export */ proc_exit: _proc_exit,
  /** @export */ remove_module_js: remove_module_js,
  /** @export */ strftime: _strftime
@@ -7947,7 +7927,6 @@ function run(args = arguments_) {
   return;
  }
  if (ENVIRONMENT_IS_PTHREAD) {
-  readyPromiseResolve(Module);
   initRuntime();
   startWorker(Module);
   return;
@@ -7963,7 +7942,6 @@ function run(args = arguments_) {
   if (ABORT) return;
   initRuntime();
   preMain();
-  readyPromiseResolve(Module);
   if (Module["onRuntimeInitialized"]) Module["onRuntimeInitialized"]();
   if (shouldRunNow) callMain(args);
   postRun();
@@ -7993,11 +7971,3 @@ var shouldRunNow = true;
 if (Module["noInitialRun"]) shouldRunNow = false;
 
 run();
-
-
-  return moduleArg.ready
-}
-);
-})();
-;
-export default Module;
