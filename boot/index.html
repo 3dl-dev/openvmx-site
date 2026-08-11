@@ -276,6 +276,18 @@
       else if (m.t === 'err') fail('Failed to fetch OVMX payload: ' + m.m);
     };
     worker.onerror = (ev) => fail('QEMU worker failed to start: ' + (ev.message || ev));
+
+    // Backgrounded-tab recovery. Browsers throttle/freeze/discard a tab after it
+    // sits hidden for a few minutes, which can cook the emulator — so on return
+    // from a long background, offer a one-click Restart instead of a dead
+    // terminal. (Restart reloads and resumes the snapshot in a few seconds.)
+    let _hiddenAt = 0;
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) { _hiddenAt = Date.now(); return; }
+      if (_hiddenAt && Date.now() - _hiddenAt > 60000 && revealed && !haltedShown) {
+        showHalted('OpenVMX was paused while this tab sat in the background. Restart to resume.');
+      }
+    });
   }
 </script>
 </body>

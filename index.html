@@ -602,8 +602,24 @@ footer{background:var(--paper-2)}
     if (btn) btn.textContent = '▶ Boot anyway (~60 MB)';
   }
 
+  // Best-effort keepalive: an all-but-silent WebAudio tone keeps the tab
+  // "audible", which exempts it from the background throttling/freezing that
+  // otherwise cooks the emulator when you switch away for a few minutes. Started
+  // on the boot click (a valid user gesture for audio). Not guaranteed across
+  // browser versions, but it meaningfully reduces background freezes.
+  function startKeepAlive(){
+    try{
+      var AC = window.AudioContext || window.webkitAudioContext; if(!AC) return;
+      var ac = new AC(); var osc = ac.createOscillator(); var g = ac.createGain();
+      g.gain.value = 0.0008;                 // inaudible in practice, but registers as playback
+      osc.frequency.value = 440; osc.connect(g); g.connect(ac.destination); osc.start();
+      window.__ovmxKeepAlive = ac;
+    }catch(e){}
+  }
+
   function boot(){
     if (booted) return; booted = true;
+    startKeepAlive();
     if (!self.crossOriginIsolated) {
       // coi-serviceworker reloads once on first visit to establish isolation;
       // if we're here without it, let that reload happen rather than fail.
