@@ -345,13 +345,14 @@ footer{background:var(--paper-2)}
               <div class="sweep" aria-hidden="true"></div>
               <p class="rdy">OVMX01 · HALTED · READY TO BOOT<span class="cur" aria-hidden="true"></span></p>
               <button class="bootbtn" id="bootbtn" type="button">▶ Boot OpenVMX</button>
-              <p class="bootmeta" id="bootmeta"><b>One-time ~60&nbsp;MB download.</b> A real
-                OpenVMS-compatible kernel, emulated in this tab. Boot takes tens of seconds.</p>
+              <p class="bootmeta" id="bootmeta"><b>One-time ~90&nbsp;MB download</b>, cached after the
+                first visit. Resumes a pre-booted OpenVMS-compatible machine in a few seconds. Emulated,
+                so interaction is slow.</p>
             </div>
           </div>
           <figcaption class="machine-cap">The amber CRT styling is OpenVMX presentation, not
-            VMS-authentic. The guest boots under QEMU compiled to WebAssembly; TCG emulation is slow.
-            Single node.</figcaption>
+            VMS-authentic. The guest resumes from a snapshot under QEMU compiled to WebAssembly; TCG
+            emulation is slow. Single node.</figcaption>
         </figure>
 
         <div class="go">
@@ -590,7 +591,7 @@ footer{background:var(--paper-2)}
   var conn = navigator.connection || navigator.webkitConnection || null;
   var metered = !!(conn && (conn.saveData || /(^|-)2g$/.test(conn.effectiveType || '')));
   if (metered && meta) {
-    meta.innerHTML = '<b>Metered or slow connection detected.</b> Booting pulls ~60&nbsp;MB once and ' +
+    meta.innerHTML = '<b>Metered or slow connection detected.</b> Booting pulls ~90&nbsp;MB once and ' +
       'runs a heavy emulator. Start it only if you want that.';
     if (btn) btn.textContent = '▶ Boot anyway (~60 MB)';
   }

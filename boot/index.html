@@ -81,11 +81,12 @@
     <ul>
       <li><strong>Real, not faked.</strong> Every character in the terminal is the guest's real serial console.
           Log in as <code>SYSTEM</code> / <code>MANAGER</code> (or <code>GUEST</code>/<code>GUEST</code>).</li>
-      <li><strong>Slow.</strong> This is TCG (a JIT-to-WebAssembly interpreter), not KVM. Boot takes tens of seconds
-          and interaction is sluggish. The measured boot-to-<code>Username:</code> time appears above once reached.</li>
+      <li><strong>Resumed, not cold-booted.</strong> Rather than a ~70s TCG boot, this resumes a pre-booted
+          machine snapshot (<code>savevm</code>/<code>loadvm</code>) to the login prompt in a few seconds. Execution
+          is still TCG, so interaction is sluggish.</li>
       <li><strong>Single node.</strong> One tab is one VM — no cluster / SCS / multi-node behaviour here.</li>
-      <li><strong>Fresh disk each load.</strong> A blank 64&nbsp;MiB system disk is created in memory and installed on
-          first boot; it is not yet persisted across reloads.</li>
+      <li><strong>Fresh each load.</strong> Every load resumes the same snapshot; changes are not yet persisted
+          across reloads.</li>
       <li><strong>Needs cross-origin isolation</strong> (SharedArrayBuffer). On a host that can't set COOP/COEP headers
           (e.g. GitHub Pages) the self-hosted <code>coi-serviceworker.js</code> supplies them and reloads once.</li>
       <li>Terminal styling is OVMX web-demo presentation, invented for this page — not asserted to be how VMS looked
@@ -166,16 +167,15 @@
       Promise.all([
         fetch('vmlinuz').then((r) => r.arrayBuffer()),
         fetch('initramfs-ovmx.cpio.gz').then((r) => r.arrayBuffer()),
-        gunzip('sysdisk.img.gz'),
+        gunzip('sysdisk.qcow2.gz'),
       ]).then(([kbuf, ibuf, dbuf]) => {
         mkdir('/pack-kernel'); mkdir('/pack-initramfs'); mkdir('/pack-disk');
         mod.FS.writeFile('/pack-kernel/vmlinuz', new Uint8Array(kbuf));
         mod.FS.writeFile('/pack-initramfs/initramfs-ovmx.cpio.gz', new Uint8Array(ibuf));
-        // PRE-INSTALLED 64 MiB system disk. PID 1 sees an installed system and
-        // boots straight to STARTUP → login — no INITIALIZE, no install, no
-        // post-install reboot (fixes the ~90s install stall + the halt, vms-250).
-        mod.FS.writeFile('/pack-disk/sysdisk.img', dbuf);
-        statusEl.textContent = 'payload loaded — starting OpenVMX…';
+        // qcow2 carrying the pre-booted 'ovmx' snapshot; we resume it via the
+        // monitor rather than cold-booting (see the auto-resume loop below).
+        mod.FS.writeFile('/pack-disk/sysdisk.qcow2', dbuf);
+        statusEl.textContent = 'payload loaded — resuming OpenVMX…';
         mod.removeRunDependency('ovmx-payload');
       }).catch((e) => fail('Failed to fetch OVMX payload: ' + e));
     });
@@ -191,25 +191,39 @@
     }
     const curtainFallback = setTimeout(revealConsole, 150000); // 150s safety net
 
-    // Boot-time measurement: watch the real terminal buffer for the login prompt.
+    // FAST START by snapshot-resume. A cold boot is ~70s under TCG; instead the
+    // shipped qcow2 carries a pre-booted 'ovmx' snapshot and we RESUME it. This
+    // wasm build can't `-loadvm` at startup, so we drive `loadvm` through the
+    // QEMU monitor (Ctrl-A c) as soon as the machine is alive (SeaBIOS ~2s),
+    // retrying until the resumed login prompt appears — then lift the curtain.
     const t0 = performance.now();
-    let reported = false;
+    let reported = false, lastFire = 0;
+    function bufText() {
+      const buf = term.buffer.active; let s = '';
+      for (let i = 0; i < buf.length; i++) { const l = buf.getLine(i); if (l) s += l.translateToString(true) + '\n'; }
+      return s;
+    }
+    function fireResume() {
+      if (reported) return;
+      term.paste('\x01c');                                             // -> QEMU monitor
+      setTimeout(() => { if (!reported) term.paste('loadvm ovmx\r'); }, 350);
+      setTimeout(() => { if (!reported) term.paste('\x01c'); }, 2600); // -> serial console
+      setTimeout(() => { if (!reported) term.paste('\r'); }, 2950);    // surface a fresh Username:
+    }
     const timer = setInterval(() => {
       if (reported) return;
-      const buf = term.buffer.active;
-      for (let i = 0; i < buf.length; i++) {
-        const line = buf.getLine(i);
-        if (line && line.translateToString(true).indexOf('Username:') >= 0) {
-          const secs = ((performance.now() - t0) / 1000).toFixed(1);
-          statusEl.innerHTML = '<span class="real">reached the OVMX Username: prompt in ' + secs +
-            's</span> (real client-side boot). Log in: SYSTEM / MANAGER.';
-          reported = true;
-          clearInterval(timer);
-          clearTimeout(curtainFallback);
-          revealConsole();
-          return;
-        }
+      const txt = bufText();
+      if (txt.indexOf('Username:') >= 0) {                             // resume succeeded
+        const secs = ((performance.now() - t0) / 1000).toFixed(1);
+        statusEl.innerHTML = '<span class="real">resumed to the OVMX login in ' + secs +
+          's</span>. Log in: SYSTEM / MANAGER.';
+        reported = true;
+        clearInterval(timer);
+        clearTimeout(curtainFallback);
+        revealConsole();
+        return;
       }
+      if (txt.length > 0 && (Date.now() - lastFire) > 4000) { lastFire = Date.now(); fireResume(); }
     }, 500);
 
     // Load and start QEMU-Wasm.

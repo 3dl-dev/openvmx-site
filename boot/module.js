@@ -12,23 +12,24 @@
 //     a single browser tab under MTTCG. Boot-to-login does not require SMP.
 //   * -accel tcg,tb-size=500: TCG is the only accelerator in the browser (no
 //     KVM). Native uses host KVM/TCG as available.
-//   * a PRE-INSTALLED 64 MiB system disk is fetched (gzip'd) and written in
-//     index.html preRun; PID 1 detects the install and boots straight to
-//     STARTUP -> login (no INITIALIZE/install/reboot). Changes are NOT persisted
-//     across reloads yet (a follow-up); a booted-state snapshot is the next step.
+//   * the disk is a qcow2 carrying a PRE-BOOTED SNAPSHOT ('ovmx') captured with
+//     THIS wasm binary (savevm). We do NOT cold-boot: index.html drives `loadvm`
+//     through the QEMU monitor right after SeaBIOS, resuming to the login prompt
+//     in a few seconds instead of ~70s. (-loadvm at startup is broken in this
+//     wasm build, hence the monitor route.) -m 128M matches the capture.
 if (typeof Module === 'undefined') { var Module = {}; }
 
 Module['arguments'] = [
     '-nographic',
     '-M', 'pc',
-    '-m', '512M',
+    '-m', '128M',
     '-accel', 'tcg,tb-size=500',
     '-L', '/pack-rom/',
     '-nic', 'none',
     '-kernel', '/pack-kernel/vmlinuz',
     '-initrd', '/pack-initramfs/initramfs-ovmx.cpio.gz',
     '-append', 'console=ttyS0 loglevel=3 quiet',
-    '-drive', 'file=/pack-disk/sysdisk.img,format=raw,if=virtio',
+    '-drive', 'file=/pack-disk/sysdisk.qcow2,format=qcow2,if=virtio',
     '-no-reboot',
 ];
 
