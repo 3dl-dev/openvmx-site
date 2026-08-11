@@ -23,6 +23,7 @@ self.onmessage = (e) => {
 };
 
 // Cache-busted payload download with real byte progress (reported to the page).
+const ASSET_VER = 'cw1';  // bump when the qemu-wasm binary changes
 const PAYLOAD_VER = '0.3-3-3';
 function xhrGet(url, i, loaded, total, report) {
   return new Promise((res, rej) => {
@@ -46,8 +47,8 @@ self.Module = {
   arguments: ['-nographic', '-M', 'pc', '-m', '256M', '-accel', 'tcg,tb-size=500', '-L', '/pack-rom/',
     '-nic', 'none', '-kernel', '/pack-kernel/vmlinuz', '-initrd', '/pack-initramfs/initramfs-ovmx.cpio.gz',
     '-append', 'console=ttyS0 loglevel=3 quiet', '-drive', 'file=/pack-disk/sysdisk.qcow2,format=qcow2,if=virtio', '-no-reboot'],
-  locateFile: (p) => new URL(p, self.location.href).href,
-  mainScriptUrlOrBlob: new URL('out.js', self.location.href).href,
+  locateFile: (p) => new URL(p, self.location.href).href + '?v=' + ASSET_VER,
+  mainScriptUrlOrBlob: new URL('out.js', self.location.href).href + '?v=' + ASSET_VER,
   pty: slave,
   preRun: [(mod) => {
     mod.addRunDependency('ovmx');
@@ -86,4 +87,4 @@ self.Module = {
   onAbort: () => self.postMessage({ t: 'halt', m: 'OpenVMX stopped unexpectedly.' }),
 };
 importScripts('load-rom.js');   // adds the pc-bios ROM preRun (reads global Module)
-importScripts('out.js');        // runs, inits Module in THIS worker
+importScripts('out.js?v=' + ASSET_VER);        // runs, inits Module in THIS worker
