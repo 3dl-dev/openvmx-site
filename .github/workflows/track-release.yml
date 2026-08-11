@@ -109,5 +109,10 @@ jobs:
           git config user.name 'ovmx-release-bot'; git config user.email 'bot@3dl.dev'
           git add boot
           if git diff --cached --quiet; then echo "no change"; exit 0; fi
-          git commit -m "demo: auto-track OVMX ${{ steps.r.outputs.tag }} (built from tag)"
-          git push
+          git commit -m "demo: auto-track OVMX ${{ steps.r.outputs.tag }}"
+          # rebase-and-retry so a concurrent push to main doesn't lose the deploy
+          for i in 1 2 3 4 5; do
+            git pull --rebase --autostash origin main && git push origin HEAD:main && exit 0
+            echo "push $i rejected, retrying…"; sleep 5
+          done
+          echo "push failed after retries"; exit 1
