@@ -43,24 +43,27 @@ jobs:
           if [ "$TAG" = "$DEPLOYED" ]; then echo "already on $TAG."; echo "skip=1" >> "$GITHUB_OUTPUT"; exit 0; fi
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
 
-      - name: Free runner disk (for the docker build)
+      - name: Obtain boot assets (prefer published Release, else build from source)
         if: steps.r.outputs.skip != '1'
-        run: sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/lib/android /opt/hostedtoolcache/CodeQL || true
-
-      - name: Build the bootable image from source @ tag
-        if: steps.r.outputs.skip != '1'
+        env: { GH_TOKEN: '${{ secrets.GITHUB_TOKEN }}' }
         run: |
-          T='${{ steps.r.outputs.tag }}'
-          git clone --depth 1 --branch "$T" https://github.com/3dl-dev/vms vmssrc
-          cd vmssrc
-          docker build -f distro/Dockerfile.bootable -t ovmx-boot .
-          cid=$(docker create ovmx-boot)
-          mkdir -p ../rel
-          docker cp "$cid:/boot/vmlinuz" ../rel/vmlinuz
-          docker cp "$cid:/boot/initramfs-ovmx-slim.cpio.gz" ../rel/initramfs-ovmx-slim.cpio.gz
-          docker cp "$cid:/boot/ovmx-distrib.img" ../rel/ovmx-distrib.img
-          docker rm "$cid" >/dev/null
-          ls -la ../rel
+          T='${{ steps.r.outputs.tag }}'; mkdir -p rel
+          if gh release download "$T" --repo 3dl-dev/vms -D rel \
+               -p vmlinuz -p initramfs-ovmx-slim.cpio.gz -p ovmx-distrib.img 2>/dev/null \
+             && [ -f rel/ovmx-distrib.img ]; then
+            echo "using PUBLISHED release assets for $T (no build needed)"
+          else
+            echo "no release assets for $T — building the bootable image from source"
+            sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/lib/android /opt/hostedtoolcache/CodeQL || true
+            git clone --depth 1 --branch "$T" https://github.com/3dl-dev/vms vmssrc
+            ( cd vmssrc && docker build -f distro/Dockerfile.bootable -t ovmx-boot . )
+            cid=$(docker create ovmx-boot)
+            docker cp "$cid:/boot/vmlinuz" rel/vmlinuz
+            docker cp "$cid:/boot/initramfs-ovmx-slim.cpio.gz" rel/initramfs-ovmx-slim.cpio.gz
+            docker cp "$cid:/boot/ovmx-distrib.img" rel/ovmx-distrib.img
+            docker rm "$cid" >/dev/null
+          fi
+          ls -la rel
 
       - name: Install qemu-img + Playwright
         if: steps.r.outputs.skip != '1'
