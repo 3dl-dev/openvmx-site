@@ -204,7 +204,7 @@
     // snapshot). Cache-busted (?v=NN) so a redeploy never pairs new page code
     // with a stale-cached snapshot — bump PAYLOAD_VER whenever the payload
     // changes.
-    const PAYLOAD_VER = '0300';
+    const PAYLOAD_VER = '0301';
     const cbar = document.getElementById('cbar');
     const cstage = document.getElementById('cstage');
     let resumeShown = false;
@@ -217,25 +217,32 @@
       mod.addRunDependency('ovmx-payload');
       const mkdir = (p) => { try { mod.FS.mkdir(p); } catch (e) {} };
       const v = (u) => u + '?v=' + PAYLOAD_VER;
-      const files = [v('vmlinuz'), v('initramfs-ovmx.cpio.gz'), v('sysdisk.qcow2.gz')];
-      let recv = 0, grand = 0;
-      async function drain(res) {
-        const reader = res.body.getReader(); const chunks = [];
-        for (;;) {
-          const { done, value } = await reader.read(); if (done) break;
-          chunks.push(value); recv += value.length;
-          if (grand) setProg((recv / grand) * 0.85, 'Downloading OpenVMX… ' + Math.round(recv / grand * 100) + '%');
-        }
-        let len = 0; for (const c of chunks) len += c.length;
-        const out = new Uint8Array(len); let o = 0; for (const c of chunks) { out.set(c, o); o += c.length; }
-        return out;
+      const urls = [v('vmlinuz'), v('initramfs-ovmx.cpio.gz'), v('sysdisk.qcow2.gz')];
+      // XHR onprogress reports real byte progress reliably (fetch-stream progress
+      // can be swallowed by a service worker). Aggregate the three downloads.
+      const loaded = [0, 0, 0], total = [0, 0, 0];
+      function upd() {
+        const l = loaded[0] + loaded[1] + loaded[2];
+        const t = (total[0] + total[1] + total[2]) || (66 * 1024 * 1024);
+        const f = Math.min(l / t, 1);
+        setProg(f * 0.85, 'Downloading OpenVMX… ' + Math.round(f * 100) + '%');
+      }
+      function xhrGet(url, i) {
+        return new Promise((res, rej) => {
+          const x = new XMLHttpRequest();
+          x.open('GET', url); x.responseType = 'arraybuffer';
+          x.onprogress = (e) => { loaded[i] = e.loaded; if (e.lengthComputable) total[i] = e.total; upd(); };
+          x.onload = () => {
+            if (x.status && x.status >= 400) return rej(new Error(url + ' → HTTP ' + x.status));
+            const n = x.response.byteLength; loaded[i] = n; if (n > total[i]) total[i] = n; upd();
+            res(new Uint8Array(x.response));
+          };
+          x.onerror = () => rej(new Error('network error: ' + url));
+          x.send();
+        });
       }
       setProg(0.02, 'Downloading OpenVMX…');
-      Promise.all(files.map((f) => fetch(f))).then((resps) => {
-        for (const r of resps) { if (!r.ok) throw new Error(r.url + ' → HTTP ' + r.status); }
-        grand = resps.reduce((a, r) => a + (+r.headers.get('Content-Length') || 0), 0) || (66 * 1024 * 1024);
-        return Promise.all(resps.map(drain));
-      }).then(([kbuf, ibuf, dz]) => {
+      Promise.all(urls.map(xhrGet)).then(([kbuf, ibuf, dz]) => {
         setProg(0.88, 'Unpacking…');
         return new Response(new Blob([dz]).stream().pipeThrough(new DecompressionStream('gzip')))
           .arrayBuffer().then((db) => {
@@ -316,6 +323,28 @@
         fireResume();
       }
     }, 500);
+
+    // Halt recovery. -no-reboot makes QEMU EXIT when the guest resets/bugchecks,
+    // which surfaces here as an emscripten exit/abort. Rather than a silent dead
+    // tab, show a Restart affordance (reload -> resume the snapshot fresh).
+    let haltedShown = false;
+    function showHalted(msg) {
+      if (haltedShown) return; haltedShown = true;
+      try { document.getElementById('curtain')?.remove(); } catch (e) {}
+      const o = document.createElement('div');
+      o.style.cssText = 'position:fixed;inset:0;z-index:60;display:flex;flex-direction:column;align-items:center;' +
+        'justify-content:center;gap:16px;text-align:center;padding:24px;font-family:"DejaVu Sans Mono",ui-monospace,monospace;' +
+        'color:#ffb232;background:radial-gradient(120% 90% at 50% 42%,#1c1200 0%,#0f0a00 72%)';
+      o.innerHTML = '<div style="font-size:14px;letter-spacing:.05em">' + (msg || 'OpenVMX halted.') + '</div>' +
+        '<button id="ovmx-restart" style="font-family:inherit;font-weight:700;font-size:14px;color:#1a1000;' +
+        'background:#ffb232;border:0;padding:11px 22px;cursor:pointer;box-shadow:3px 3px 0 #a6690a">↻ Restart OpenVMX</button>' +
+        '<div style="font-size:11px;line-height:1.5;color:#b58a4a;max-width:42ch">This is an emulator running in your ' +
+        'browser tab and it can halt. Restart resumes the machine from the snapshot.</div>';
+      document.body.appendChild(o);
+      document.getElementById('ovmx-restart').onclick = () => location.reload();
+    }
+    Module.onExit = function (code) { showHalted('OpenVMX halted' + (code ? ' (exit ' + code + ')' : '') + '.'); };
+    Module.onAbort = function () { showHalted('OpenVMX stopped unexpectedly.'); };
 
     // Load and start QEMU-Wasm.
     import('./out.js').then((m) => {
