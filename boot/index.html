@@ -194,36 +194,46 @@
     // FAST START by snapshot-resume. A cold boot is ~70s under TCG; instead the
     // shipped qcow2 carries a pre-booted 'ovmx' snapshot and we RESUME it. This
     // wasm build can't `-loadvm` at startup, so we drive `loadvm` through the
-    // QEMU monitor (Ctrl-A c) as soon as the machine is alive (SeaBIOS ~2s),
-    // retrying until the resumed login prompt appears — then lift the curtain.
+    // QEMU monitor (Ctrl-A c). The whole exchange happens BEHIND the curtain;
+    // once loadvm has run we wipe the monitor chatter and surface a clean login
+    // prompt, THEN lift the curtain — the user never sees the plumbing.
     const t0 = performance.now();
-    let reported = false, lastFire = 0;
+    let done = false, lastFire = -1e9;
     function bufText() {
       const buf = term.buffer.active; let s = '';
       for (let i = 0; i < buf.length; i++) { const l = buf.getLine(i); if (l) s += l.translateToString(true) + '\n'; }
       return s;
     }
+    // One attempt: enter monitor, loadvm, exit monitor. Two toggles preserve
+    // console/monitor parity, so we always end back on the serial console.
     function fireResume() {
-      if (reported) return;
-      term.paste('\x01c');                                             // -> QEMU monitor
-      setTimeout(() => { if (!reported) term.paste('loadvm ovmx\r'); }, 350);
-      setTimeout(() => { if (!reported) term.paste('\x01c'); }, 2600); // -> serial console
-      setTimeout(() => { if (!reported) term.paste('\r'); }, 2950);    // surface a fresh Username:
+      term.paste('\x01c');                                    // -> QEMU monitor
+      setTimeout(() => term.paste('loadvm ovmx\r'), 400);     // restore snapshot (idempotent)
+      setTimeout(() => term.paste('\x01c'), 2600);            // -> serial console
     }
-    const timer = setInterval(() => {
-      if (reported) return;
-      const txt = bufText();
-      if (txt.indexOf('Username:') >= 0) {                             // resume succeeded
+    // loadvm has run: clear the monitor chatter, elicit a fresh prompt, reveal.
+    function finishResume() {
+      try { term.reset(); } catch (e) {}
+      setTimeout(() => term.paste('\r'), 150);                // fresh, clean Username:
+      setTimeout(() => {
         const secs = ((performance.now() - t0) / 1000).toFixed(1);
-        statusEl.innerHTML = '<span class="real">resumed to the OVMX login in ' + secs +
-          's</span>. Log in: SYSTEM / MANAGER.';
-        reported = true;
-        clearInterval(timer);
+        statusEl.innerHTML = '<span class="real">resumed in ' + secs + 's</span>. Log in: SYSTEM / MANAGER.';
         clearTimeout(curtainFallback);
         revealConsole();
+      }, 800);
+    }
+    const timer = setInterval(() => {
+      if (done) return;
+      const txt = bufText();
+      const idx = txt.lastIndexOf('loadvm ovmx');
+      // success = loadvm echoed in the monitor AND the (qemu) prompt returned after it
+      if (idx >= 0 && txt.slice(idx + 11).indexOf('(qemu)') >= 0) {
+        done = true;
+        clearInterval(timer);
+        setTimeout(finishResume, 1300);   // let the exit toggle land -> guaranteed on console
         return;
       }
-      if (txt.length > 0 && (Date.now() - lastFire) > 4000) { lastFire = Date.now(); fireResume(); }
+      if (txt.length > 0 && (Date.now() - lastFire) > 5000) { lastFire = Date.now(); fireResume(); }
     }, 500);
 
     // Load and start QEMU-Wasm.
