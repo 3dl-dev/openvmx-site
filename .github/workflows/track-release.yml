@@ -55,6 +55,22 @@ jobs:
           fi
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
 
+      - name: Gate — public manuals must not lie about the commands (drift check at the tag)
+        if: steps.r.outputs.skip != '1'
+        run: |
+          # Before deploying anything for this tag, prove the Installation Guide's
+          # machine-checkable command block still matches the '# GUIDE-STEP'
+          # commands in the vms install gate AT THIS TAG. Reuse the vms comparator
+          # verbatim (do not fork it) so both repos agree on the check. Drift here
+          # fails the cut: a release can never ship a public guide whose install
+          # commands disagree with the gate that proves them.
+          T='${{ steps.r.outputs.tag }}'
+          rm -rf vmsdrift
+          git clone --depth 1 --branch "$T" https://github.com/3dl-dev/vms vmsdrift
+          python3 vmsdrift/tools/check_guide_drift.py \
+            --gate  vmsdrift/tests/qemu/test_product_install_e2e.sh \
+            --guide docs/installation/index.html
+
       - name: Obtain boot assets (prefer published Release, else build from source)
         if: steps.r.outputs.skip != '1'
         env: { GH_TOKEN: '${{ secrets.GITHUB_TOKEN }}' }
@@ -139,8 +155,14 @@ jobs:
           # same way we rewrite PAYLOAD_VER above, so the SPD line never drifts.
           TAG=$(cat boot/DEPLOYED_TAG)
           sed -i "s#\(data-ovmx-version>\)[^<]*\(</span>\)#\1${TAG}\2#" index.html || true
+          # Stamp the same version token into the documentation-set manuals, so a
+          # manual's "Applies to" line can never silently claim a stale release.
+          # Every data-ovmx-version span in every docs manual follows DEPLOYED_TAG.
+          for m in docs/installation/index.html; do
+            [ -f "$m" ] && sed -i "s#\(data-ovmx-version>\)[^<]*\(</span>\)#\1${TAG}\2#g" "$m" || true
+          done
           git config user.name 'ovmx-release-bot'; git config user.email 'bot@3dl.dev'
-          git add boot index.html
+          git add boot index.html docs/installation/index.html
           if git diff --cached --quiet; then echo "no change"; exit 0; fi
           git commit -m "demo: auto-track OVMX ${{ steps.r.outputs.tag }}"
           # rebase-and-retry so a concurrent push to main doesn't lose the deploy
