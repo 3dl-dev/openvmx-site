@@ -234,9 +234,9 @@
       setProg(1, 'ready');
       // Reveal the REAL OVMX startup replay. The snapshot is saved at the
       // kernel->/init handoff, so resuming replays the executive attaching and
-      // the startup dialog live, ending at the real Username: the guest is
-      // waiting at. Drop only the monitor plumbing (Ctrl-A c, the `loadvm ovmx`
-      // echo, the (qemu) prompt), which sits BEFORE the first replayed boot line.
+      // the startup dialog live, up to the operator-console login gate. Drop
+      // only the monitor plumbing (Ctrl-A c, the `loadvm ovmx` echo, the (qemu)
+      // prompt), which sits BEFORE the first replayed boot line.
       let start = -1;
       const li = capText.lastIndexOf('loadvm ovmx');
       if (li >= 0) { const m = capText.slice(li).search(BOOTLINE); if (m >= 0) start = li + m; }
@@ -248,6 +248,23 @@
       clearTimeout(curtainFallback);
       revealConsole();
       try { term.focus(); } catch (e) {}
+
+      // OPA0: operator-console wake (OVMX vms-2213). On the operator console,
+      // LOGINOUT does not print "Username:" the instant it starts -- it blocks
+      // until the operator strikes RETURN (the classic "press RETURN to log in"
+      // console behaviour), which also guarantees the boot banner finished
+      // first. So after the startup dialog replays the guest sits SILENT at
+      // that RETURN gate; without a keystroke "Username:" never appears and the
+      // console looks stuck. The demo is that operator: nudge RETURN once a
+      // second (idempotent -- an extra RETURN at the prompt just re-shows a
+      // blank "Username:") until the prompt actually streams in, then stop.
+      // Input still flows through term.onData(postInput), so a visitor can also
+      // press RETURN themselves; this only spares them a mystery silent screen.
+      let woke = 0;
+      const wakeTimer = setInterval(() => {
+        if (/Username:/.test(capText) || ++woke > 20) { clearInterval(wakeTimer); return; }
+        postInput('\r');
+      }, 1000);
     }
     const timer = setInterval(() => {
       if (done) return;
