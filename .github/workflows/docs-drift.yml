@@ -1,0 +1,43 @@
+name: docs-drift
+
+# Catch public-manual command drift BEFORE merge, as a companion to the per-cut
+# gate in track-release.yml. On any PR that touches docs/**, clone the vms repo
+# and assert the Installation Guide's machine-checkable command block still
+# matches the '# GUIDE-STEP' commands in the vms install gate. The comparator is
+# vms/tools/check_guide_drift.py, reused verbatim (never forked here) so both
+# repos agree on the check. Drift fails the PR, so a manual can never merge
+# telling a reader to type a command the gate does not actually run.
+
+on:
+  pull_request:
+    paths:
+      - 'docs/**'
+      - '.github/workflows/docs-drift.yml'
+
+jobs:
+  installation-guide-drift:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Resolve the vms ref to check against (latest release tag, else main)
+        id: t
+        run: |
+          # Prefer the latest release-like tag (bare 0.3-8 or V-prefixed V0.4),
+          # the same ref track-release.yml deploys from; fall back to main so the
+          # check still runs before the first tag exists.
+          TAG=$(git ls-remote --tags https://github.com/3dl-dev/vms 'refs/tags/*' \
+            | sed 's#.*refs/tags/##; s/\^{}//' \
+            | grep -E '^V?[0-9]+\.[0-9]+(-[0-9]+)?$' | sort -V | tail -1)
+          [ -n "$TAG" ] || TAG=main
+          echo "ref=$TAG" >> "$GITHUB_OUTPUT"
+          echo "checking against vms ref: $TAG"
+
+      - name: Clone vms at that ref (comparator + install gate only needed)
+        run: git clone --depth 1 --branch "${{ steps.t.outputs.ref }}" https://github.com/3dl-dev/vms vmsdrift
+
+      - name: Installation Guide must not drift from the vms install gate
+        run: |
+          python3 vmsdrift/tools/check_guide_drift.py \
+            --gate  vmsdrift/tests/qemu/test_product_install_e2e.sh \
+            --guide docs/installation/index.html
