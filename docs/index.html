@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OpenVMX Documentation Set</title>
+<meta name="description" content="The OpenVMX manual set: the Installation Guide, the System Manager's Guide, and Cluster Systems. A Digital-style documentation contents page with part numbers and status.">
+<meta name="theme-color" content="#16359e" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0b0c11" media="(prefers-color-scheme: dark)">
+<style>
+/* ============================================================
+   OpenVMX Documentation Set. Same design language as the landing
+   and compatibility pages: blue as a field, Helvetica and one
+   Digital blue, the doc-set as structure.
+   ============================================================ */
+:root{
+  --paper:#ffffff;
+  --paper-2:#f2f3f7;
+  --paper-3:#e7e9f0;
+  --ink:#0f1013;
+  --ink-2:#3a3d47;
+  --ink-3:#6b6f7d;
+
+  --blue:#16359e;
+  --blue-2:#26439f;
+  --blue-deep:#0d2260;
+  --blue-line:#c7cde6;
+  --on-blue:#ffffff;
+  --on-blue-2:#c4ccec;
+  --link:#16359e;
+
+  --amber:#b8730f;
+  --ok:#1f7a4d;
+
+  --f-sans:"Helvetica Neue",Helvetica,Arial,"Liberation Sans",system-ui,sans-serif;
+  --f-mono:"SFMono-Regular",Menlo,Consolas,"DejaVu Sans Mono","Liberation Mono",monospace;
+
+  --maxw:1000px;
+  --gutter:clamp(20px,5vw,64px);
+  --hair:1.5px;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#0b0c11;--paper-2:#12141c;--paper-3:#181b25;
+    --ink:#eef0f6;--ink-2:#b7bccb;--ink-3:#868da0;
+    --blue:#3a55d6;--blue-2:#4d67e6;--blue-deep:#1b2f8f;--blue-line:#2a3350;
+    --on-blue:#ffffff;--on-blue-2:#c7cff2;--link:#8ea3ff;
+    --amber:#f0b24a;--ok:#5fc491;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0b0c11;--paper-2:#12141c;--paper-3:#181b25;
+  --ink:#eef0f6;--ink-2:#b7bccb;--ink-3:#868da0;
+  --blue:#3a55d6;--blue-2:#4d67e6;--blue-deep:#1b2f8f;--blue-line:#2a3350;
+  --on-blue:#ffffff;--on-blue-2:#c7cff2;--link:#8ea3ff;
+  --amber:#f0b24a;--ok:#5fc491;
+}
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:var(--f-sans);font-size:16px;line-height:1.55;font-weight:400;
+  -webkit-font-smoothing:antialiased;letter-spacing:-.004em;overflow-x:hidden}
+a{color:var(--link);text-decoration:none}
+a:hover{text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1.5px}
+:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+::selection{background:var(--blue);color:var(--on-blue)}
+.wrap{max-width:var(--maxw);margin-inline:auto;padding-inline:var(--gutter);width:100%}
+.mono{font-family:var(--f-mono);font-size:.92em}
+
+/* wordmark */
+.mark{display:inline-flex;align-items:stretch;border:var(--hair) solid var(--ink);
+  background:var(--paper);line-height:1;user-select:none}
+.mark .m{font-weight:700;font-size:15px;letter-spacing:-.01em;
+  padding:.42em .6em;border-right:1px solid var(--ink);color:var(--ink);display:flex;align-items:center}
+.mark .m:last-child{border-right:0}
+.mark .m.fill{background:var(--blue);color:var(--on-blue);border-right-color:var(--blue-deep)}
+.mark.lg .m{font-size:20px;padding:.5em .74em}
+
+/* masthead */
+.mast{position:sticky;top:0;z-index:40;background:var(--paper);border-bottom:var(--hair) solid var(--ink)}
+.mast .row{display:flex;align-items:center;gap:22px;height:62px}
+.mast .partno{font-family:var(--f-mono);font-size:11px;color:var(--ink-3);letter-spacing:.1em}
+.mast nav{margin-left:auto;display:flex;gap:24px;align-items:center}
+.mast nav a{font-family:var(--f-mono);font-size:12.5px;color:var(--ink);letter-spacing:.02em}
+.mast nav a:hover{color:var(--blue);text-decoration:none}
+.mast nav a.gh{color:var(--blue)}
+.tgl{font-family:var(--f-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+  background:transparent;border:1px solid var(--ink);color:var(--ink);padding:7px 10px;cursor:pointer;line-height:1}
+.tgl:hover{background:var(--ink);color:var(--paper)}
+@media (max-width:820px){.mast nav a.txt{display:none}.mast .partno{display:none}}
+
+/* front block */
+.front{border-bottom:var(--hair) solid var(--ink);padding:clamp(36px,6vw,72px) 0 clamp(30px,5vw,56px)}
+.front .kick{font-family:var(--f-mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--blue);font-weight:700;margin:0 0 clamp(14px,2vw,20px)}
+.front h1{font-weight:700;letter-spacing:-.028em;line-height:1.05;
+  font-size:clamp(28px,4.4vw,46px);margin:0 0 .5em;max-width:18ch}
+.front .abstract{font-size:clamp(15px,1.6vw,17.5px);color:var(--ink-2);max-width:62ch;margin:0 0 clamp(20px,3vw,28px);line-height:1.6}
+.front .meta{display:flex;flex-wrap:wrap;gap:8px 40px;border-top:var(--hair) solid var(--ink);padding-top:18px;
+  font-family:var(--f-mono);font-size:12px}
+.front .meta div{display:flex;flex-direction:column;gap:4px}
+.front .meta span{font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3)}
+.front .meta b{color:var(--ink);font-weight:700;font-size:13px;letter-spacing:.02em}
+
+/* documentation contents table */
+section{border-bottom:var(--hair) solid var(--ink)}
+.sec{padding:clamp(40px,5.5vw,76px) 0}
+.sec h2{font-size:clamp(20px,2.6vw,30px);font-weight:700;letter-spacing:-.02em;margin:0 0 8px;line-height:1.1}
+.sec .lead{color:var(--ink-2);max-width:64ch;margin:0 0 clamp(26px,3.5vw,40px);font-size:clamp(15px,1.5vw,16.5px)}
+
+.set{border-top:var(--hair) solid var(--ink)}
+.man{display:grid;grid-template-columns:1fr auto;gap:6px 24px;align-items:start;
+  padding:clamp(22px,3vw,30px) 0;border-bottom:1px solid var(--blue-line);transition:background .12s ease}
+.man:last-child{border-bottom:var(--hair) solid var(--ink)}
+.man.live:hover{background:var(--paper-2)}
+.man .num{grid-row:1;grid-column:1;font-family:var(--f-mono);font-size:11px;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--ink-3);margin:0 0 8px}
+.man .num b{color:var(--blue);font-weight:700}
+.man .ttl{grid-row:2;grid-column:1;font-weight:700;font-size:clamp(19px,2.4vw,27px);
+  letter-spacing:-.02em;line-height:1.1;color:var(--ink);margin:0}
+.man.live:hover .ttl a{color:var(--blue)}
+.man .ttl a{color:inherit}
+.man .ttl a:hover{text-decoration:none}
+.man .desc{grid-row:3;grid-column:1;color:var(--ink-2);max-width:66ch;margin:10px 0 0;font-size:15px;line-height:1.55}
+.man .stat{grid-row:2;grid-column:2;align-self:center;justify-self:end;
+  font-family:var(--f-mono);font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+  border:1.5px solid currentColor;padding:5px 10px;white-space:nowrap}
+.man .stat.avail{color:var(--blue)}
+.man .stat.prep{color:var(--ink-3)}
+@media (max-width:620px){
+  .man{grid-template-columns:1fr}
+  .man .stat{grid-row:4;grid-column:1;justify-self:start;margin-top:14px}
+}
+
+.note{border-left:3px solid var(--blue);background:var(--paper-2);
+  padding:16px 20px;margin:clamp(28px,4vw,40px) 0 0;font-size:14.5px;line-height:1.6;color:var(--ink-2);max-width:70ch}
+.note b{color:var(--ink);font-weight:600}
+
+/* colophon */
+footer{background:var(--paper-2)}
+.colo{display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:0;border-top:var(--hair) solid var(--ink)}
+@media (max-width:760px){.colo{grid-template-columns:1fr 1fr}}
+@media (max-width:480px){.colo{grid-template-columns:1fr}}
+.colo>div{padding:clamp(28px,3.4vw,42px) clamp(20px,2.4vw,30px);border-right:var(--hair) solid var(--ink)}
+.colo>div:first-child{padding-left:0}
+.colo>div:last-child{border-right:0}
+@media (max-width:760px){.colo>div{border-right:0;border-bottom:1px solid var(--blue-line)}
+  .colo>div:first-child{padding-left:clamp(20px,2.4vw,30px)}}
+.colo p{margin:.5em 0;font-size:14px;color:var(--ink-2);line-height:1.5;max-width:36ch}
+.colo h5{font-family:var(--f-mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);margin:0 0 14px}
+.colo a{display:block;color:var(--ink);font-size:15px;margin:.55em 0}
+.colo a:hover{color:var(--blue);text-decoration:none}
+.badge{display:inline-block;border:1.5px solid var(--blue);color:var(--blue);padding:4px 10px;
+  letter-spacing:.06em;font-family:var(--f-mono);font-size:11px;text-transform:uppercase;font-weight:700;margin-top:10px}
+.disclaim{display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;
+  padding:22px 0 clamp(36px,5vw,56px);font-family:var(--f-mono);font-size:12px;color:var(--ink-3);
+  line-height:1.7;border-top:var(--hair) solid var(--ink)}
+.disclaim .r{text-align:right;color:var(--ink-2)}
+@media (max-width:560px){.disclaim .r{text-align:left}}
+</style>
+</head>
+<body>
+
+<header class="mast">
+  <div class="wrap row">
+    <a href="/" aria-label="OpenVMX home" class="mark" style="text-decoration:none">
+      <span class="m">Open</span><span class="m fill">VMX</span>
+    </a>
+    <span class="partno">AA&ndash;OVMX3&ndash;DS</span>
+    <nav aria-label="Primary">
+      <a class="txt" href="/">Home</a>
+      <a class="txt" href="/docs/installation/">Installation</a>
+      <a class="gh" href="https://github.com/3dl-dev/vms">GitHub&nbsp;&#8599;</a>
+      <button class="tgl" id="themebtn" type="button" aria-label="Toggle color scheme">Screen</button>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+    <div class="front">
+      <p class="kick">Documentation set</p>
+      <h1>OpenVMX manuals</h1>
+      <p class="abstract">This set describes how to build, install, and run OpenVMX. Each
+        manual covers one task and states what the current release does. Where a facility is
+        not implemented yet, the text says so rather than describing it as working.</p>
+      <div class="meta">
+        <div><span>Order number</span><b>AA&ndash;OVMX3&ndash;DS</b></div>
+        <div><span>Applies to</span><b>OpenVMX V0.4</b></div>
+        <div><span>Edition</span><b>First, August 2026</b></div>
+      </div>
+    </div>
+  </div>
+
+  <section>
+    <div class="wrap sec">
+      <h2>Contents</h2>
+      <p class="lead">Three manuals are planned. One is available now; the other two are in
+        preparation and will be added as the facilities they cover are checked in continuous
+        integration.</p>
+
+      <div class="set">
+        <div class="man live">
+          <p class="num">Installation Guide &middot; Order number <b>AA&ndash;OVMX3&ndash;IN</b></p>
+          <p class="ttl"><a href="/docs/installation/">Installation Guide</a></p>
+          <p class="desc">Build the bootable image, boot it under QEMU, install the product kit
+            onto a system disk, and log in. Every command is checked against the continuous-integration
+            gate that boots OpenVMX and runs it.</p>
+          <span class="stat avail">Available</span>
+        </div>
+
+        <div class="man">
+          <p class="num">System Manager's Guide &middot; Order number <b>AA&ndash;OVMX3&ndash;SG</b></p>
+          <p class="ttl">System Manager's Guide</p>
+          <p class="desc">Day-to-day operation of an installed system: accounts and the user
+            authorization file, logical names, devices and volumes, and the startup sequence.</p>
+          <span class="stat prep">In preparation</span>
+        </div>
+
+        <div class="man">
+          <p class="num">Cluster Systems &middot; Order number <b>AA&ndash;OVMX3&ndash;CL</b></p>
+          <p class="ttl">Cluster Systems</p>
+          <p class="desc">Joining a VMS-family cluster over the interconnect, serving an ODS-2
+            volume, and the state OpenVMX reports through SHOW CLUSTER. This work is in active
+            research.</p>
+          <span class="stat prep">In preparation</span>
+        </div>
+      </div>
+
+      <div class="note">Order numbers follow the same pattern as the rest of the OpenVMX
+        publication set. They name a manual; they are not a purchase reference. OpenVMX is free
+        and open source.</div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="colo">
+      <div>
+        <a href="/" class="mark lg" style="text-decoration:none">
+          <span class="m">Open</span><span class="m fill">VMX</span>
+        </a>
+        <p style="margin-top:18px">A DCL and RMS operating environment on the Linux and NetBSD kernels.</p>
+        <p><span class="badge">Free &amp; open source</span></p>
+      </div>
+      <div>
+        <h5>Manuals</h5>
+        <a href="/docs/installation/">Installation Guide</a>
+        <a href="/">Home</a>
+        <a href="/compat/">Compatibility surface</a>
+      </div>
+      <div>
+        <h5>Project</h5>
+        <a href="https://github.com/3dl-dev/vms">Source repository &#8599;</a>
+        <a href="https://github.com/3dl-dev/vms/blob/main/docs/install-guide.md">Install guide (source) &#8599;</a>
+        <a href="https://github.com/3dl-dev/vms/issues">Issues &#8599;</a>
+      </div>
+    </div>
+    <div class="wrap disclaim" style="padding-inline:0">
+      <span>OpenVMX is an independent, open-source project. VMS is a trademark of its respective
+        owner, referenced here only to describe compatibility.</span>
+      <span class="r">AA&ndash;OVMX3&ndash;DS<br>Printed in the open &middot; <span id="yr"></span></span>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var root=document.documentElement;
+  var btn=document.getElementById('themebtn');
+  try{var saved=localStorage.getItem('ovmx-theme'); if(saved)root.setAttribute('data-theme',saved);}catch(e){}
+  function isDark(){var t=root.getAttribute('data-theme');
+    return t==='dark' || (!t && window.matchMedia('(prefers-color-scheme:dark)').matches);}
+  function label(){btn.textContent = isDark() ? 'Paper' : 'Screen';}
+  label();
+  btn.addEventListener('click',function(){
+    root.setAttribute('data-theme', isDark()?'light':'dark');
+    try{localStorage.setItem('ovmx-theme',root.getAttribute('data-theme'));}catch(e){}
+    label();
+  });
+  document.getElementById('yr').textContent = new Date().getFullYear();
+})();
+</script>
+</body>
+</html>
