@@ -1,0 +1,737 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OpenVMX — Compatibility Surface</title>
+<meta name="description" content="The OpenVMX compatibility surface: every catalogued VMS facility and item, with its implementation status and authenticity. A self-reported map of what is real, what is partial, and what is still a gap.">
+<meta name="theme-color" content="#16359e" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0b0c11" media="(prefers-color-scheme: dark)">
+<style>
+/* ============================================================
+   OpenVMX — Compatibility Surface. Same design language as the
+   landing page: blue as a field, Helvetica + one Digital blue,
+   the doc-set as structure. Status is an ordinal ladder rendered
+   as a single-hue blue ramp (worst→best); facade-risk is a
+   reserved warning colour that must never blend in.
+   ============================================================ */
+:root{
+  --paper:#ffffff;
+  --paper-2:#f2f3f7;
+  --paper-3:#e7e9f0;
+  --ink:#0f1013;
+  --ink-2:#3a3d47;
+  --ink-3:#6b6f7d;
+
+  --blue:#16359e;         /* DIGITAL BLUE — the brand */
+  --blue-2:#26439f;
+  --blue-deep:#0d2260;
+  --blue-line:#c7cde6;
+  --on-blue:#ffffff;
+  --on-blue-2:#c4ccec;
+  --link:#16359e;
+
+  --amber:#b8730f;
+  --ok:#1f7a4d;
+
+  --grid-line:rgba(22,53,158,.13);
+
+  /* status ladder — ordinal single-hue ramp, validated (dataviz).
+     absent is the "empty / zero" state, deliberately outside the
+     ramp: a pale hatched cell so the gap reads as a gap. */
+  --s-absent:#e4e7f0;
+  --s-absent-hatch:#c9cee0;
+  --s-designed:#9aabe0;
+  --s-stub:#7386cf;
+  --s-partial:#5069c1;
+  --s-implemented:#314d9c;
+  --s-verified:#1b356f;
+  --s-ink-on:#ffffff;      /* text on the darker ramp steps */
+
+  /* authenticity — reserved status colours (icon + label, never colour alone) */
+  --warn:#b8730f;          /* facade-risk — a bug class the project hunts (INV-6) */
+  --warn-bg:rgba(184,115,15,.10);
+  --warn-line:rgba(184,115,15,.42);
+  --adv:#6b6f7d;           /* advisory */
+
+  --f-sans:"Helvetica Neue",Helvetica,Arial,"Liberation Sans",system-ui,sans-serif;
+  --f-mono:"SFMono-Regular",Menlo,Consolas,"DejaVu Sans Mono","Liberation Mono",monospace;
+
+  --maxw:1220px;
+  --gutter:clamp(20px,5vw,76px);
+  --hair:1.5px;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#0b0c11;--paper-2:#12141c;--paper-3:#181b25;
+    --ink:#eef0f6;--ink-2:#b7bccb;--ink-3:#868da0;
+    --blue:#3a55d6;--blue-2:#4d67e6;--blue-deep:#1b2f8f;--blue-line:#2a3350;
+    --on-blue:#ffffff;--on-blue-2:#c7cff2;--link:#8ea3ff;
+    --amber:#f0b24a;--ok:#5fc491;
+    --grid-line:rgba(120,142,255,.15);
+    /* dark ramp: anchor flips — verified is the lightest step */
+    --s-absent:#20242f;--s-absent-hatch:#333a4d;
+    --s-designed:#3a4e86;--s-stub:#4a63bd;--s-partial:#6c85dc;
+    --s-implemented:#96abee;--s-verified:#bccaf4;--s-ink-on:#0b0c11;
+    --warn:#f0b24a;--warn-bg:rgba(240,178,74,.12);--warn-line:rgba(240,178,74,.42);
+    --adv:#868da0;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0b0c11;--paper-2:#12141c;--paper-3:#181b25;
+  --ink:#eef0f6;--ink-2:#b7bccb;--ink-3:#868da0;
+  --blue:#3a55d6;--blue-2:#4d67e6;--blue-deep:#1b2f8f;--blue-line:#2a3350;
+  --on-blue:#ffffff;--on-blue-2:#c7cff2;--link:#8ea3ff;
+  --amber:#f0b24a;--ok:#5fc491;
+  --grid-line:rgba(120,142,255,.15);
+  --s-absent:#20242f;--s-absent-hatch:#333a4d;
+  --s-designed:#3a4e86;--s-stub:#4a63bd;--s-partial:#6c85dc;
+  --s-implemented:#96abee;--s-verified:#bccaf4;--s-ink-on:#0b0c11;
+  --warn:#f0b24a;--warn-bg:rgba(240,178,74,.12);--warn-line:rgba(240,178,74,.42);
+  --adv:#868da0;
+}
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--paper);color:var(--ink);
+  font-family:var(--f-sans);font-size:16px;line-height:1.5;font-weight:400;
+  -webkit-font-smoothing:antialiased;letter-spacing:-.004em;overflow-x:hidden;
+}
+a{color:var(--link);text-decoration:none}
+a:hover{text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1.5px}
+:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+::selection{background:var(--blue);color:var(--on-blue)}
+.wrap{max-width:var(--maxw);margin-inline:auto;padding-inline:var(--gutter);width:100%}
+.mono{font-family:var(--f-mono);font-size:.92em}
+
+/* ---- wordmark ---- */
+.mark{display:inline-flex;align-items:stretch;border:var(--hair) solid var(--ink);
+  background:var(--paper);line-height:1;user-select:none}
+.mark .m{font-weight:700;font-size:15px;letter-spacing:-.01em;
+  padding:.42em .6em;border-right:1px solid var(--ink);color:var(--ink);display:flex;align-items:center}
+.mark .m:last-child{border-right:0}
+.mark .m.fill{background:var(--blue);color:var(--on-blue);border-right-color:var(--blue-deep)}
+.mark.lg .m{font-size:20px;padding:.5em .74em}
+
+/* ---- masthead (reused) ---- */
+.mast{position:sticky;top:0;z-index:40;background:var(--paper);border-bottom:var(--hair) solid var(--ink)}
+.mast .row{display:flex;align-items:center;gap:22px;height:62px}
+.mast .partno{font-family:var(--f-mono);font-size:11px;color:var(--ink-3);letter-spacing:.1em}
+.mast nav{margin-left:auto;display:flex;gap:26px;align-items:center}
+.mast nav a{font-family:var(--f-mono);font-size:12.5px;color:var(--ink);letter-spacing:.02em}
+.mast nav a:hover{color:var(--blue);text-decoration:none}
+.mast nav a.gh{color:var(--blue)}
+.tgl{font-family:var(--f-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+  background:transparent;border:1px solid var(--ink);color:var(--ink);padding:7px 10px;cursor:pointer;line-height:1}
+.tgl:hover{background:var(--ink);color:var(--paper)}
+@media (max-width:860px){.mast nav a.txt{display:none}.mast .partno{display:none}}
+
+/* ---- chapter scaffold (reused) ---- */
+section{border-bottom:var(--hair) solid var(--ink)}
+.chap{display:flex;align-items:baseline;gap:clamp(16px,2.2vw,30px);padding:clamp(40px,5vw,72px) 0 0}
+.chap .cn{flex:none;font-family:var(--f-mono);font-weight:700;font-size:clamp(13px,1.4vw,16px);
+  color:var(--blue);letter-spacing:.04em}
+.chap h2{font-size:clamp(23px,3.2vw,38px);font-weight:700;letter-spacing:-.026em;line-height:1.05;margin:0;text-wrap:balance}
+.chap h1{font-size:clamp(26px,3.6vw,44px);font-weight:700;letter-spacing:-.028em;line-height:1.03;margin:0;text-wrap:balance}
+.deck2{color:var(--ink-2);max-width:74ch;margin:clamp(14px,1.7vw,20px) 0 0;
+  font-size:clamp(15px,1.5vw,17px);line-height:1.55;letter-spacing:-.006em}
+.deck2 b{color:var(--ink);font-weight:600}
+.deck2 a{border-bottom:1px solid var(--blue-line)}
+.pad-b{padding-bottom:clamp(40px,5vw,80px)}
+.pad-t{padding-top:clamp(28px,3vw,40px)}
+
+/* ---- honest-header note strip ---- */
+.note{margin:clamp(22px,2.6vw,30px) 0 0;border-left:3px solid var(--blue);background:var(--paper-2);
+  padding:16px 20px;font-size:14.5px;line-height:1.6;color:var(--ink-2);max-width:82ch}
+.note b{color:var(--ink);font-weight:600}
+.note .mono{font-size:.86em;color:var(--ink-2)}
+
+/* ---- KPI row ---- */
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-top:clamp(30px,3.6vw,46px);
+  border:var(--hair) solid var(--ink)}
+.kpis div{padding:20px 22px;border-right:1px solid var(--blue-line);display:flex;flex-direction:column;gap:6px}
+.kpis div:last-child{border-right:0}
+.kpis .k{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3)}
+.kpis .v{font-weight:700;font-size:clamp(24px,3vw,34px);letter-spacing:-.02em;line-height:1;color:var(--ink);font-variant-numeric:tabular-nums}
+.kpis .v small{font-size:14px;color:var(--ink-3);font-weight:400;letter-spacing:0}
+.kpis .v.warn{color:var(--warn)}
+@media (max-width:720px){.kpis{grid-template-columns:1fr 1fr}.kpis div:nth-child(2){border-right:0}
+  .kpis div:nth-child(1),.kpis div:nth-child(2){border-bottom:1px solid var(--blue-line)}}
+
+/* ---- stacked ladder bar ---- */
+.stack{display:flex;width:100%;height:26px;border:1px solid var(--ink);overflow:hidden;background:var(--paper)}
+.stack.sm{height:16px}
+.seg{position:relative;min-width:0;transition:filter .1s ease}
+.seg + .seg{border-left:2px solid var(--paper)}
+.seg:hover{filter:brightness(1.06)}
+.seg.s-verified{background:var(--s-verified)}
+.seg.s-implemented{background:var(--s-implemented)}
+.seg.s-partial{background:var(--s-partial)}
+.seg.s-stub{background:var(--s-stub)}
+.seg.s-designed{background:var(--s-designed)}
+.seg.s-absent{background:var(--s-absent);
+  background-image:repeating-linear-gradient(45deg,var(--s-absent-hatch) 0 1.5px,transparent 1.5px 6px)}
+.seg .lab{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-family:var(--f-mono);font-size:11px;font-weight:700;color:var(--s-ink-on);letter-spacing:.02em}
+.seg.s-designed .lab,.seg.s-stub .lab,.seg.s-absent .lab{color:var(--ink)}
+.seg.s-absent .lab{color:var(--ink-3)}
+
+/* ---- legend ---- */
+.legend{display:flex;flex-wrap:wrap;gap:10px 20px;margin-top:16px;font-family:var(--f-mono);font-size:12px}
+.legend .li{display:inline-flex;align-items:center;gap:8px;color:var(--ink-2);cursor:help}
+.legend .sw{width:14px;height:14px;border:1px solid var(--ink);flex:none}
+.legend .sw.s-verified{background:var(--s-verified)}
+.legend .sw.s-implemented{background:var(--s-implemented)}
+.legend .sw.s-partial{background:var(--s-partial)}
+.legend .sw.s-stub{background:var(--s-stub)}
+.legend .sw.s-designed{background:var(--s-designed)}
+.legend .sw.s-absent{background:var(--s-absent);
+  background-image:repeating-linear-gradient(45deg,var(--s-absent-hatch) 0 1.5px,transparent 1.5px 6px)}
+.legend .li b{color:var(--ink);font-weight:700;font-variant-numeric:tabular-nums}
+
+/* ---- authenticity callout ---- */
+.auth-row{display:grid;grid-template-columns:1.3fr 1fr;gap:clamp(20px,3vw,40px);
+  margin-top:clamp(30px,3.6vw,46px);align-items:start}
+@media (max-width:820px){.auth-row{grid-template-columns:1fr;gap:26px}}
+.warnbox{border:var(--hair) solid var(--warn-line);background:var(--warn-bg);padding:18px 20px}
+.warnbox h4{margin:0 0 8px;font-family:var(--f-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--warn);display:flex;align-items:center;gap:8px}
+.warnbox .big{font-weight:700;font-size:clamp(26px,3.4vw,38px);color:var(--warn);line-height:1;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.warnbox p{margin:10px 0 0;font-size:14px;line-height:1.55;color:var(--ink-2)}
+.warnbox p a{color:var(--warn);border-bottom:1px solid var(--warn-line)}
+.authbars{display:flex;flex-direction:column;gap:12px}
+.authbars .ab{display:grid;grid-template-columns:9ch 1fr 5ch;gap:12px;align-items:center;font-family:var(--f-mono);font-size:12px}
+.authbars .ab .nm{color:var(--ink-2);text-align:right}
+.authbars .ab .track{height:12px;background:var(--paper-3)}
+.authbars .ab .fill{height:100%;background:var(--blue)}
+.authbars .ab.facade .fill{background:var(--warn)}
+.authbars .ab .ct{color:var(--ink);font-weight:700;font-variant-numeric:tabular-nums}
+
+/* ---- domain small multiples ---- */
+.domlist{margin-top:clamp(28px,3.4vw,44px);border-top:var(--hair) solid var(--ink)}
+.domrow{display:block;padding:18px 0;border-bottom:1px solid var(--blue-line);cursor:pointer;
+  transition:background .1s ease;text-decoration:none;color:inherit}
+.domrow:hover{background:var(--paper-2);text-decoration:none}
+.domrow .dhead{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+.domrow .dnm{font-weight:700;font-size:clamp(16px,1.9vw,20px);letter-spacing:-.02em;color:var(--ink)}
+.domrow:hover .dnm{color:var(--blue)}
+.domrow .dmeta{font-family:var(--f-mono);font-size:11.5px;color:var(--ink-3);margin-left:auto;letter-spacing:.02em}
+.domrow .dmeta .cov{color:var(--blue);font-weight:700}
+.domrow .dmeta .fr{color:var(--warn);font-weight:700}
+.domrow .dblurb{margin:6px 0 12px;font-size:14px;color:var(--ink-2);line-height:1.5;max-width:88ch}
+
+/* ---- filters ---- */
+.filters{position:sticky;top:62px;z-index:30;background:var(--paper);border-bottom:var(--hair) solid var(--ink);
+  padding:14px 0;margin-top:0}
+.filters .fwrap{display:flex;flex-wrap:wrap;gap:12px 16px;align-items:center}
+.filters label{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);display:flex;flex-direction:column;gap:4px}
+.filters select,.filters input[type=search]{font-family:var(--f-sans);font-size:14px;color:var(--ink);
+  background:var(--paper);border:1px solid var(--ink);padding:7px 9px;min-width:150px;border-radius:0}
+.filters input[type=search]{min-width:200px}
+.filters .count{margin-left:auto;font-family:var(--f-mono);font-size:12px;color:var(--ink-2);align-self:flex-end;padding-bottom:2px}
+.filters .count b{color:var(--blue);font-weight:700;font-variant-numeric:tabular-nums}
+.filters .clr{font-family:var(--f-mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;
+  background:transparent;border:1px solid var(--ink-3);color:var(--ink-2);padding:8px 11px;cursor:pointer;align-self:flex-end}
+.filters .clr:hover{border-color:var(--ink);color:var(--ink)}
+
+/* ---- drill-down ---- */
+.drill{padding:clamp(30px,4vw,56px) 0 clamp(48px,6vw,88px)}
+.dom{margin-top:clamp(34px,4vw,56px);scroll-margin-top:150px}
+.dom:first-child{margin-top:clamp(10px,1.5vw,20px)}
+.dom > h3{font-size:clamp(20px,2.4vw,28px);font-weight:700;letter-spacing:-.024em;margin:0 0 4px;
+  display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.dom > h3 .did{font-family:var(--f-mono);font-size:12px;color:var(--ink-3);font-weight:400}
+.dom > .dsum{font-family:var(--f-mono);font-size:12px;color:var(--ink-3);margin:0 0 14px}
+.dom > .dsum .cov{color:var(--blue);font-weight:700}
+.dom > .dsum .fr{color:var(--warn);font-weight:700}
+
+.fac{border-top:var(--hair) solid var(--ink);padding:18px 0 6px}
+.fac h4{margin:0;font-size:clamp(16px,1.8vw,19px);font-weight:700;letter-spacing:-.018em;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.fac h4 .fid{font-family:var(--f-mono);font-size:12px;color:var(--blue);font-weight:700}
+.fac .fmeta{font-family:var(--f-mono);font-size:11px;color:var(--ink-3);margin:5px 0 12px;letter-spacing:.02em;line-height:1.7}
+.fac .fmeta .tag{border:1px solid var(--blue-line);padding:2px 7px;margin-right:2px;white-space:nowrap}
+.fac .fmeta .tag.fr{border-color:var(--warn-line);color:var(--warn);font-weight:700}
+
+.tblwrap{overflow-x:auto;border:1px solid var(--blue-line);margin-bottom:10px}
+table.items{width:100%;border-collapse:collapse;font-size:14px;min-width:720px}
+table.items th,table.items td{padding:10px 12px;border-bottom:1px solid var(--blue-line);text-align:left;vertical-align:top}
+table.items thead th{position:sticky;top:0;background:var(--blue);color:var(--on-blue);font-family:var(--f-mono);
+  font-size:10px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;white-space:nowrap;z-index:1}
+table.items tbody tr:last-child td{border-bottom:0}
+table.items tbody tr.facade{background:var(--warn-bg)}
+table.items tbody tr:hover td{background:var(--paper-2)}
+table.items tbody tr.facade:hover td{background:var(--warn-bg)}
+table.items td.surf{font-weight:600;color:var(--ink)}
+table.items td.surf .iid{font-family:var(--f-mono);font-size:11px;color:var(--ink-3);font-weight:400;display:block;margin-top:2px}
+table.items td.desc{color:var(--ink-2);max-width:34ch}
+table.items td.desc .ev{font-family:var(--f-mono);font-size:11px;color:var(--ink-3);display:block;margin-top:3px;word-break:break-word}
+table.items td.kind{font-family:var(--f-mono);font-size:12px;color:var(--ink-3)}
+
+/* status chip: swatch (colour) + label (ink token) */
+.sc{display:inline-flex;align-items:center;gap:7px;white-space:nowrap;font-family:var(--f-mono);font-size:12px;color:var(--ink)}
+.sc .dot{width:11px;height:11px;border:1px solid var(--ink);flex:none}
+.sc .dot.s-verified{background:var(--s-verified)}
+.sc .dot.s-implemented{background:var(--s-implemented)}
+.sc .dot.s-partial{background:var(--s-partial)}
+.sc .dot.s-stub{background:var(--s-stub)}
+.sc .dot.s-designed{background:var(--s-designed)}
+.sc .dot.s-absent{background:var(--s-absent);background-image:repeating-linear-gradient(45deg,var(--s-absent-hatch) 0 1.5px,transparent 1.5px 5px)}
+
+/* authenticity chip */
+.ac{display:inline-flex;align-items:center;gap:6px;white-space:nowrap;font-family:var(--f-mono);font-size:11.5px;color:var(--ink-3)}
+.ac.real{color:var(--ok)}
+.ac.advisory{color:var(--adv)}
+.ac.facade{color:var(--warn);font-weight:700}
+.ac .ico{font-weight:700}
+
+.scope{font-family:var(--f-mono);font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-3)}
+.scope.in{color:var(--blue)}
+.empty{padding:40px 0;text-align:center;color:var(--ink-3);font-family:var(--f-mono);font-size:13px}
+
+/* ---- facade index section ---- */
+.facidx{padding:clamp(34px,4.5vw,72px) 0 clamp(48px,6vw,88px)}
+.facidx .lead{max-width:80ch;color:var(--ink-2);font-size:15.5px;line-height:1.6;margin:clamp(14px,1.7vw,20px) 0 0}
+.facidx .lead b{color:var(--ink);font-weight:600}
+
+/* ---- colophon (reused) ---- */
+footer{background:var(--paper-2)}
+.colo{display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:0;border-top:var(--hair) solid var(--ink)}
+@media (max-width:760px){.colo{grid-template-columns:1fr 1fr}}
+@media (max-width:480px){.colo{grid-template-columns:1fr}}
+.colo>div{padding:clamp(30px,3.4vw,46px) clamp(22px,2.4vw,34px);border-right:var(--hair) solid var(--ink)}
+.colo>div:first-child{padding-left:0}
+.colo>div:last-child{border-right:0}
+@media (max-width:760px){.colo>div{border-right:0;border-bottom:1px solid var(--blue-line)}
+  .colo>div:first-child{padding-left:clamp(22px,2.4vw,34px)}}
+.colo p{margin:.5em 0;font-size:14.5px;color:var(--ink-2);line-height:1.5;max-width:38ch}
+.colo h5{font-family:var(--f-mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);margin:0 0 15px}
+.colo a{display:block;color:var(--ink);font-size:15px;margin:.55em 0}
+.colo a:hover{color:var(--blue);text-decoration:none}
+.badge{display:inline-block;border:1.5px solid var(--blue);color:var(--blue);padding:4px 10px;
+  letter-spacing:.06em;font-family:var(--f-mono);font-size:11px;text-transform:uppercase;font-weight:700;margin-top:10px}
+.disclaim{display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;
+  padding:22px 0 clamp(40px,5vw,64px);font-family:var(--f-mono);font-size:12px;color:var(--ink-3);line-height:1.7;border-top:var(--hair) solid var(--ink)}
+.disclaim .r{text-align:right;color:var(--ink-2)}
+@media (max-width:560px){.disclaim .r{text-align:left}}
+
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body data-palette="#9aabe0,#7386cf,#5069c1,#314d9c,#1b356f">
+
+<!-- ================= MASTHEAD ================= -->
+<header class="mast">
+  <div class="wrap row">
+    <a href="/" aria-label="OpenVMX home" class="mark" style="text-decoration:none">
+      <span class="m">Open</span><span class="m fill">VMX</span>
+    </a>
+    <span class="partno">AA–OVMX2–CS</span>
+    <nav aria-label="Primary">
+      <a class="txt" href="/">Home</a>
+      <a class="txt" href="#shape">Coverage</a>
+      <a class="txt" href="#surface">Surface</a>
+      <a class="txt" href="#facade">Facade-risk</a>
+      <a class="gh" href="https://github.com/3dl-dev/vms/tree/main/docs/compat">Register&nbsp;↗</a>
+      <button class="tgl" id="themebtn" type="button" aria-label="Toggle color scheme">Screen</button>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+
+  <!-- ================= HEADER ================= -->
+  <section>
+    <div class="wrap">
+      <div class="chap"><span class="cn">CS</span><h1>The compatibility surface</h1></div>
+      <p class="deck2">A catalogue of every VMS facility OpenVMX has taken on, item by item, with two
+        honest axes: <b>how far it is built</b> (from absent, through stub and partial, to implemented
+        and oracle-verified) and <b>whether it does the real thing</b> or only reports success. This is
+        the shape of the gap, not a wall of green.</p>
+
+      <div class="note">
+        This is a <b>self-reported map</b>. Status and authenticity are the project's own assessment,
+        catalogued in <span class="mono">docs/compat/</span> and regenerated from that source on each
+        release &mdash; not an independent audit. <b>Facade-risk</b> marks a surface that returns
+        plausible success without doing the work, or fakes shared state per process; these are bugs the
+        project actively hunts (invariant INV-6), and they are shown here on purpose.
+        Source of truth: <a href="https://github.com/3dl-dev/vms/tree/main/docs/compat">the register on GitHub</a>.
+        <span id="gen-stamp" class="mono"></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= COVERAGE SHAPE ================= -->
+  <section id="shape">
+    <div class="wrap pad-b">
+      <div class="chap"><span class="cn">1</span><h2>Coverage shape</h2></div>
+      <p class="deck2">The whole surface at a glance. The bar is an <b>ordinal ladder</b> &mdash; worst
+        to best, left to right &mdash; so the pale hatched band on the right is exactly the work not yet
+        done.</p>
+
+      <div class="kpis" id="kpis"></div>
+
+      <div style="margin-top:clamp(30px,3.6vw,46px)">
+        <div class="stack" id="overall-bar" role="img" aria-label="Overall status distribution"></div>
+        <div class="legend" id="overall-legend"></div>
+      </div>
+
+      <div class="auth-row">
+        <div class="authbars" id="auth-bars"></div>
+        <div class="warnbox">
+          <h4><span aria-hidden="true">&#9888;</span> Facade-risk</h4>
+          <div class="big" id="facade-count">—</div>
+          <p>Surfaces that report success without doing the real work, or fake per-process copies of
+            shared state. Tracked as a bug class (INV-6) and cross-referenced to the Draper faithfulness
+            register. <a href="#facade">See the full index &rarr;</a></p>
+        </div>
+      </div>
+
+      <div class="domlist" id="domlist"></div>
+    </div>
+  </section>
+
+  <!-- ================= FILTERS ================= -->
+  <div class="filters" id="filters">
+    <div class="wrap fwrap">
+      <label>Domain
+        <select id="f-domain"><option value="">All domains</option></select>
+      </label>
+      <label>Status
+        <select id="f-status"><option value="">All statuses</option></select>
+      </label>
+      <label>Authenticity
+        <select id="f-auth">
+          <option value="">All</option>
+          <option value="real">real</option>
+          <option value="advisory">advisory</option>
+          <option value="facade-risk">facade-risk</option>
+          <option value="n/a">n/a</option>
+        </select>
+      </label>
+      <label>1.0 scope
+        <select id="f-scope">
+          <option value="">Any scope</option>
+          <option value="in">in</option>
+          <option value="stretch">stretch</option>
+          <option value="out">out</option>
+          <option value="undecided">undecided</option>
+        </select>
+      </label>
+      <label>Search
+        <input type="search" id="f-search" placeholder="id, surface, notes…">
+      </label>
+      <button class="clr" id="f-clear" type="button">Reset</button>
+      <span class="count">Showing <b id="match-count">0</b> of <span id="total-count">0</span> items</span>
+    </div>
+  </div>
+
+  <!-- ================= DRILL-DOWN ================= -->
+  <section id="surface">
+    <div class="wrap drill">
+      <div id="drilldown"></div>
+    </div>
+  </section>
+
+  <!-- ================= FACADE INDEX ================= -->
+  <section id="facade">
+    <div class="wrap facidx">
+      <div class="chap"><span class="cn">2</span><h2>Facade-risk index</h2></div>
+      <p class="lead">Every surface currently flagged <b>facade-risk</b>. Publishing them is the point:
+        an honest map names its own soft spots. Each is a candidate bug &mdash; a routine that answers
+        without doing the work, or per-process state pretending to be shared.</p>
+      <div id="facade-list" style="margin-top:clamp(24px,3vw,40px)"></div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ================= COLOPHON ================= -->
+<footer>
+  <div class="wrap">
+    <div class="colo">
+      <div>
+        <a href="/" class="mark lg" style="text-decoration:none">
+          <span class="m">Open</span><span class="m fill">VMX</span>
+        </a>
+        <p style="margin-top:18px">A VMS-compatible operating environment for Linux.</p>
+        <p>The compatibility surface is regenerated from the project's own register each release.</p>
+        <p><span class="badge">Self-reported map</span></p>
+      </div>
+      <div>
+        <h5>Register</h5>
+        <a href="https://github.com/3dl-dev/vms/tree/main/docs/compat">Source register ↗</a>
+        <a href="https://github.com/3dl-dev/vms/blob/main/docs/compat/domains.yaml">Domains &amp; vocab</a>
+        <a href="https://github.com/3dl-dev/vms/blob/main/docs/draper-faithfulness-register.md">Faithfulness register ↗</a>
+        <a href="https://github.com/3dl-dev/vms">Source repository ↗</a>
+      </div>
+      <div>
+        <h5>Reference</h5>
+        <a href="/">Home</a>
+        <a href="#shape">Coverage shape</a>
+        <a href="#surface">The full surface</a>
+        <a href="#facade">Facade-risk index</a>
+      </div>
+    </div>
+    <div class="wrap disclaim" style="padding-inline:0">
+      <span>OpenVMX is an independent, open-source project. VMS is a trademark of its respective owner,
+        referenced here only to describe compatibility.</span>
+      <span class="r">AA–OVMX2–CS<br>Printed in the open · <span id="yr"></span></span>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var root=document.documentElement;
+
+  /* theme toggle — same contract as the landing page */
+  var btn=document.getElementById('themebtn');
+  try{var saved=localStorage.getItem('ovmx-theme'); if(saved)root.setAttribute('data-theme',saved);}catch(e){}
+  try{var qt=new URLSearchParams(location.search).get('theme');
+    if(qt==='dark'||qt==='light')root.setAttribute('data-theme',qt);}catch(e){}
+  function isDark(){var t=root.getAttribute('data-theme');
+    return t==='dark' || (!t && window.matchMedia('(prefers-color-scheme:dark)').matches);}
+  function label(){btn.textContent = isDark() ? 'Paper' : 'Screen';}
+  label();
+  btn.addEventListener('click',function(){
+    root.setAttribute('data-theme', isDark()?'light':'dark');
+    try{localStorage.setItem('ovmx-theme',root.getAttribute('data-theme'));}catch(e){}
+    label();
+  });
+  document.getElementById('yr').textContent = new Date().getFullYear();
+
+  /* ---- config ---- */
+  var STATUS_ORDER = ['verified','implemented','partial','stub','designed','absent']; // best -> worst
+  var STATUS_LABEL = {verified:'verified',implemented:'implemented',partial:'partial',stub:'stub',designed:'designed',absent:'absent'};
+  var AUTH_LABEL = {real:'real',advisory:'advisory','facade-risk':'facade-risk','n/a':'n/a'};
+  var esc = function(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});};
+
+  var el = function(id){return document.getElementById(id);};
+
+  fetch('/data/compat-surface.json').then(function(r){
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    return r.json();
+  }).then(render).catch(function(e){
+    el('drilldown').innerHTML = '<div class="empty">Could not load the compatibility data ('+esc(e.message)+').</div>';
+  });
+
+  function bar(byStatus, small){
+    var total = 0; STATUS_ORDER.forEach(function(s){total += (byStatus[s]||0);});
+    total = total || 1;
+    var h = '';
+    STATUS_ORDER.forEach(function(s){
+      var n = byStatus[s]||0; if(!n) return;
+      var pct = (100*n/total);
+      var showLab = pct >= 7;
+      h += '<div class="seg s-'+s+'" style="flex:'+n+' '+n+' 0%" '+
+           'title="'+STATUS_LABEL[s]+': '+n+' ('+pct.toFixed(1)+'%)">'+
+           (showLab && !small ? '<span class="lab">'+n+'</span>' : '')+'</div>';
+    });
+    return h;
+  }
+
+  function render(data){
+    var items = data.items || [];
+    var domains = data.domains || [];
+    var facilities = data.facilities || [];
+    var overall = data.overall || {};
+    var vocab = data.vocab || {};
+
+    // generation stamp
+    if(data.meta && data.meta.generated){
+      el('gen-stamp').textContent = ' Generated ' + data.meta.generated + ' from ' + (data.meta.source||'docs/compat/') + '.';
+    }
+
+    // ---- KPIs ----
+    var cov = overall.coverage_index;
+    var doneish = (overall.by_status.verified||0)+(overall.by_status.implemented||0);
+    el('kpis').innerHTML =
+      kpi('Surfaces catalogued', overall.count) +
+      kpi('Domains · facilities', domains.length + ' <small>· '+facilities.length+'</small>') +
+      kpi('Implemented or verified', doneish + ' <small>of '+overall.count+'</small>') +
+      kpi('Facade-risk (INV-6)', (overall.facade_risk||0), true);
+    function kpi(k,v,warn){return '<div><span class="k">'+k+'</span><span class="v'+(warn?' warn':'')+'">'+v+'</span></div>';}
+
+    // ---- overall bar + legend ----
+    el('overall-bar').innerHTML = bar(overall.by_status, false);
+    el('overall-legend').innerHTML = STATUS_ORDER.map(function(s){
+      var n = overall.by_status[s]||0;
+      var desc = (vocab.status && vocab.status[s]) ? vocab.status[s] : '';
+      return '<span class="li" title="'+esc(desc)+'"><span class="sw s-'+s+'"></span>'+
+             STATUS_LABEL[s]+' <b>'+n+'</b></span>';
+    }).join('') +
+    '<span class="li" title="rough weighted index; not a score to optimise"><span class="sw" style="background:var(--blue);border-color:var(--blue-deep)"></span>coverage index <b>'+cov+'%</b></span>';
+
+    // ---- authenticity bars ----
+    el('facade-count').textContent = overall.facade_risk || 0;
+    var authOrder = ['real','advisory','facade-risk','n/a'];
+    var authMax = 0; authOrder.forEach(function(a){authMax = Math.max(authMax, overall.by_authenticity[a]||0);});
+    authMax = authMax || 1;
+    el('auth-bars').innerHTML = '<div style="font-family:var(--f-mono);font-size:10.5px;letter-spacing:.13em;'+
+      'text-transform:uppercase;color:var(--ink-3);margin-bottom:2px">Authenticity of the '+overall.count+' surfaces</div>' +
+      authOrder.map(function(a){
+      var n = overall.by_authenticity[a]||0;
+      var desc = (vocab.authenticity && vocab.authenticity[a]) ? vocab.authenticity[a] : '';
+      return '<div class="ab'+(a==='facade-risk'?' facade':'')+'" title="'+esc(desc)+'">'+
+        '<span class="nm">'+AUTH_LABEL[a]+'</span>'+
+        '<span class="track"><span class="fill" style="width:'+(100*n/authMax)+'%"></span></span>'+
+        '<span class="ct">'+n+'</span></div>';
+    }).join('');
+
+    // ---- domain small multiples ----
+    var domById = {}; domains.forEach(function(d){domById[d.id]=d;});
+    var itemsByDomain = {};
+    items.forEach(function(it){ (itemsByDomain[it.domain] = itemsByDomain[it.domain]||[]).push(it); });
+    function rollup(list){
+      var by = {}; STATUS_ORDER.forEach(function(s){by[s]=0;});
+      var fr=0, w=0; var W={absent:0,designed:.1,stub:.2,partial:.5,implemented:.85,verified:1};
+      list.forEach(function(it){ by[it.status]=(by[it.status]||0)+1; w+=W[it.status]||0;
+        if(it.authenticity==='facade-risk')fr++; });
+      return {by_status:by, count:list.length, facade_risk:fr,
+        coverage_index: list.length? Math.round(1000*w/list.length)/10 : 0};
+    }
+    el('domlist').innerHTML = domains.map(function(d){
+      var list = itemsByDomain[d.id]||[]; if(!list.length) return '';
+      var ru = rollup(list);
+      return '<a class="domrow" href="#surface" data-domain="'+esc(d.id)+'">'+
+        '<div class="dhead"><span class="dnm">'+esc(d.name)+'</span>'+
+        '<span class="dmeta">'+ru.count+' surfaces · <span class="cov">'+ru.coverage_index+'%</span> coverage'+
+        (ru.facade_risk?' · <span class="fr">&#9888; '+ru.facade_risk+' facade-risk</span>':'')+'</span></div>'+
+        '<div class="dblurb">'+esc(d.blurb)+'</div>'+
+        '<div class="stack sm">'+bar(ru.by_status,true)+'</div></a>';
+    }).join('');
+    // domain card click -> set filter + scroll
+    Array.prototype.forEach.call(document.querySelectorAll('.domrow'), function(a){
+      a.addEventListener('click', function(e){
+        e.preventDefault();
+        el('f-domain').value = a.getAttribute('data-domain');
+        apply();
+        document.getElementById('surface').scrollIntoView({behavior:'smooth', block:'start'});
+      });
+    });
+
+    // ---- populate filter selects ----
+    var fDom = el('f-domain');
+    domains.forEach(function(d){ if((itemsByDomain[d.id]||[]).length){
+      var o=document.createElement('option'); o.value=d.id; o.textContent=d.name; fDom.appendChild(o);} });
+    var fStat = el('f-status');
+    STATUS_ORDER.forEach(function(s){ var o=document.createElement('option'); o.value=s; o.textContent=s; fStat.appendChild(o); });
+
+    el('total-count').textContent = items.length;
+
+    // ---- facility metadata lookup ----
+    var facById = {}; facilities.forEach(function(f){facById[f.facility]=f;});
+
+    // ---- drill-down render ----
+    function itemRow(it){
+      var isF = it.authenticity==='facade-risk';
+      var ev = it.evidence ? '<span class="ev">'+esc(it.evidence)+'</span>' : '';
+      var note = it.notes ? esc(it.notes) : '';
+      var va = it.verified_against ? '<span class="ev">verified vs '+esc(it.verified_against)+'</span>' : '';
+      var authIco = isF ? '&#9888; ' : (it.authenticity==='real'?'&#10003; ':'');
+      return '<tr'+(isF?' class="facade"':'')+'>'+
+        '<td class="surf">'+esc(it.vms||it.id)+'<span class="iid">'+esc(it.id)+'</span></td>'+
+        '<td class="kind">'+esc(it.kind||'')+'</td>'+
+        '<td><span class="sc"><span class="dot s-'+it.status+'"></span>'+STATUS_LABEL[it.status]+'</span></td>'+
+        '<td><span class="ac '+(isF?'facade':esc(it.authenticity).replace('/','')+'')+'">'+
+            '<span class="ico">'+authIco+'</span>'+AUTH_LABEL[it.authenticity]+'</span></td>'+
+        '<td><span class="scope '+esc(it.scope_1_0)+'">'+esc(it.scope_1_0)+'</span></td>'+
+        '<td class="desc">'+note+va+ev+'</td>'+
+      '</tr>';
+    }
+
+    function draw(list){
+      el('match-count').textContent = list.length;
+      if(!list.length){ el('drilldown').innerHTML = '<div class="empty">No items match these filters.</div>'; return; }
+      // group by domain -> facility, in canonical order
+      var byDom = {}; list.forEach(function(it){
+        (byDom[it.domain]=byDom[it.domain]||{})[it.facility] = (byDom[it.domain][it.facility]||[]);
+        byDom[it.domain][it.facility].push(it);
+      });
+      var html = '';
+      domains.forEach(function(d){
+        var facs = byDom[d.id]; if(!facs) return;
+        var domItems = []; Object.keys(facs).forEach(function(k){domItems = domItems.concat(facs[k]);});
+        var ru = rollup(domItems);
+        html += '<div class="dom" id="dom-'+esc(d.id)+'">'+
+          '<h3>'+esc(d.name)+' <span class="did">'+esc(d.id)+'</span></h3>'+
+          '<p class="dsum">'+ru.count+' matching surfaces · <span class="cov">'+ru.coverage_index+'%</span> coverage'+
+          (ru.facade_risk?' · <span class="fr">&#9888; '+ru.facade_risk+' facade-risk</span>':'')+'</p>';
+        // facilities in the order they appear in the register
+        var facOrder = facilities.filter(function(f){return f.domain===d.id && facs[f.facility];})
+          .map(function(f){return f.facility;});
+        // include any facility present in data but not in facilities list (safety)
+        Object.keys(facs).forEach(function(k){ if(facOrder.indexOf(k)<0) facOrder.push(k); });
+        facOrder.forEach(function(fk){
+          var list2 = facs[fk]; var meta = facById[fk] || {};
+          var frn = list2.filter(function(x){return x.authenticity==='facade-risk';}).length;
+          var tags = '';
+          if(meta.scope_1_0) tags += '<span class="tag">scope: '+esc(meta.scope_1_0)+'</span>';
+          if(meta.tier) tags += '<span class="tag">tier '+esc(meta.tier)+'</span>';
+          if(meta.plan_ref) tags += '<span class="tag">'+esc(meta.plan_ref)+'</span>';
+          if(meta.vms_ref) tags += '<span class="tag">ref: '+esc(meta.vms_ref)+'</span>';
+          if(frn) tags += '<span class="tag fr">&#9888; '+frn+' facade-risk</span>';
+          html += '<div class="fac">'+
+            '<h4><span class="fid">'+esc(fk)+'</span>'+esc(meta.name||list2[0].facility_name||'')+'</h4>'+
+            (tags?'<div class="fmeta">'+tags+'</div>':'')+
+            '<div class="tblwrap"><table class="items"><thead><tr>'+
+            '<th>Surface</th><th>Kind</th><th>Status</th><th>Authenticity</th><th>1.0</th><th>Evidence / notes</th>'+
+            '</tr></thead><tbody>'+ list2.map(itemRow).join('') +'</tbody></table></div>';
+          html += '</div>';
+        });
+        html += '</div>';
+      });
+      el('drilldown').innerHTML = html;
+    }
+
+    // ---- filtering ----
+    function apply(){
+      var dv = el('f-domain').value, sv = el('f-status').value,
+          av = el('f-auth').value, cv = el('f-scope').value,
+          q = el('f-search').value.trim().toLowerCase();
+      var out = items.filter(function(it){
+        if(dv && it.domain!==dv) return false;
+        if(sv && it.status!==sv) return false;
+        if(av && it.authenticity!==av) return false;
+        if(cv && it.scope_1_0!==cv) return false;
+        if(q){
+          var hay = (it.id+' '+(it.vms||'')+' '+(it.notes||'')+' '+(it.facility||'')+' '+(it.kind||'')+' '+(it.evidence||'')).toLowerCase();
+          if(hay.indexOf(q)<0) return false;
+        }
+        return true;
+      });
+      draw(out);
+    }
+    ['f-domain','f-status','f-auth','f-scope'].forEach(function(id){ el(id).addEventListener('change', apply); });
+    el('f-search').addEventListener('input', apply);
+    el('f-clear').addEventListener('click', function(){
+      el('f-domain').value=''; el('f-status').value=''; el('f-auth').value='';
+      el('f-scope').value=''; el('f-search').value=''; apply();
+    });
+
+    // ---- facade-risk index ----
+    var facades = items.filter(function(it){return it.authenticity==='facade-risk';});
+    facades.sort(function(a,b){ return (a.domain+a.facility).localeCompare(b.domain+b.facility); });
+    el('facade-list').innerHTML =
+      '<div class="tblwrap"><table class="items"><thead><tr>'+
+      '<th>Surface</th><th>Facility</th><th>Domain</th><th>Status</th><th>Notes</th>'+
+      '</tr></thead><tbody>'+
+      facades.map(function(it){
+        return '<tr class="facade">'+
+          '<td class="surf">'+esc(it.vms||it.id)+'<span class="iid">'+esc(it.id)+'</span></td>'+
+          '<td class="kind">'+esc(it.facility)+'</td>'+
+          '<td class="kind">'+esc((domById[it.domain]||{}).name||it.domain)+'</td>'+
+          '<td><span class="sc"><span class="dot s-'+it.status+'"></span>'+STATUS_LABEL[it.status]+'</span></td>'+
+          '<td class="desc">'+esc(it.notes||'')+(it.evidence?'<span class="ev">'+esc(it.evidence)+'</span>':'')+'</td>'+
+        '</tr>';
+      }).join('') +
+      '</tbody></table></div>';
+
+    // first paint
+    apply();
+  }
+})();
+</script>
+</body>
+</html>
