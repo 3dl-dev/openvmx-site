@@ -12,6 +12,7 @@ on:
   pull_request:
     paths:
       - 'docs/**'
+      - 'tools/**'
       - '.github/workflows/docs-drift.yml'
 
 jobs:
@@ -41,3 +42,52 @@ jobs:
           python3 vmsdrift/tools/check_guide_drift.py \
             --gate  vmsdrift/tests/qemu/test_product_install_e2e.sh \
             --guide docs/installation/index.html
+
+  installation-guide-grounding:
+    # Catch manual GROUNDING drift before merge, the companion to the major/minor
+    # gate in track-release.yml: a manual's capability claims are checked against
+    # the Compatibility Surface Register (vms docs/compat/), so a docs PR can
+    # never merge documenting a facility the register marks absent/facade-risk as
+    # working, or deferring one that already graduated to implemented/verified.
+    # No cut version exists at PR time, so the edition check is not run here.
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Resolve the vms ref to ground against (latest release tag, else main)
+        id: t
+        run: |
+          # Ground against the register at the latest release-like tag — the same
+          # ref track-release.yml deploys from — falling back to main before the
+          # first tag exists. Accept both bare (0.3-8) and V-prefixed (V0.4) tags.
+          TAG=$(git ls-remote --tags https://github.com/3dl-dev/vms 'refs/tags/*' \
+            | sed 's#.*refs/tags/##; s/\^{}//' \
+            | grep -E '^V?[0-9]+\.[0-9]+(-[0-9]+)?$' | sort -V | tail -1)
+          [ -n "$TAG" ] || TAG=main
+          echo "ref=$TAG" >> "$GITHUB_OUTPUT"
+          echo "grounding against vms ref: $TAG"
+
+      - name: Clone vms at that ref (register + generator), falling back to main
+        run: |
+          git clone --depth 1 --branch "${{ steps.t.outputs.ref }}" https://github.com/3dl-dev/vms vmsground
+          # The Compatibility Surface Register post-dates some early release tags.
+          # If the resolved tag has no register, ground against main instead, so
+          # the PR is still checked against the live source of truth.
+          if [ ! -f vmsground/tools/compat/render_compat.py ]; then
+            echo "no compat register at ${{ steps.t.outputs.ref }} — falling back to main."
+            rm -rf vmsground
+            git clone --depth 1 --branch main https://github.com/3dl-dev/vms vmsground
+          fi
+
+      - name: Installation Guide capability claims must be grounded in the compat register
+        run: |
+          # Render compat-surface.json from the register, in a python container
+          # (no host installs), then check the manuals' covers/not-yet manifests
+          # against it. No --version: grounding is checked on every docs PR,
+          # independent of release type.
+          docker run --rm -v "$PWD/vmsground:/w" -w /w python:3.12-slim \
+            sh -c 'pip install --quiet pyyaml && python3 tools/compat/render_compat.py'
+          docker run --rm -v "$PWD:/site" -w /site python:3.12-slim \
+            python3 tools/check_manual_grounding.py \
+              --surface vmsground/build/compat-surface.json \
+              --manual  docs/installation/index.html

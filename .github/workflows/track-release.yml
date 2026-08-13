@@ -71,6 +71,49 @@ jobs:
             --gate  vmsdrift/tests/qemu/test_product_install_e2e.sh \
             --guide docs/installation/index.html
 
+      - name: Gate — public manuals must be GROUNDED in the compat register (major/minor cuts only)
+        if: steps.r.outputs.skip != '1'
+        run: |
+          # A MAJOR/MINOR cut carries a doc-authoring obligation (docs/releasing.md):
+          # the manuals must describe what actually shipped. This gate is the
+          # mechanical backstop for that — it proves every capability claim in a
+          # manual matches the Compatibility Surface Register at the release tag,
+          # so a cut can never ship a guide that calls a facility "not yet
+          # available" after it graduated to implemented/verified, or documents a
+          # facility the register marks absent/facade-risk as if it worked.
+          #
+          # MAJOR/MINOR vs POINT split: release tags come in two shapes. Point
+          # releases carry a -N suffix (0.3-4, V0.3-9) and are maintenance-only,
+          # with NO doc-authoring obligation, so they SKIP this gate. Major/minor
+          # tags have no suffix (0.4, V0.4, 1.0) and MUST pass it.
+          T='${{ steps.r.outputs.tag }}'
+          if echo "$T" | grep -qE '^V?[0-9]+\.[0-9]+-[0-9]+$'; then
+            echo "point release $T — manual-grounding gate SKIPPED (major/minor cuts only)."
+            exit 0
+          fi
+          if ! echo "$T" | grep -qE '^V?[0-9]+\.[0-9]+$'; then
+            echo "tag $T is not a bare major/minor tag — skipping manual-grounding."
+            exit 0
+          fi
+          echo "major/minor cut $T — running the manual-grounding gate."
+          # Render compat-surface.json from the register AT THIS TAG, in a python
+          # container (no host installs), then check the site manuals against it.
+          [ -d vmsdrift ] || git clone --depth 1 --branch "$T" https://github.com/3dl-dev/vms vmsdrift
+          # The Compatibility Surface Register post-dates some early tags. You
+          # cannot ground a manual against a register that did not exist at the
+          # cut, so if the generator is absent at this tag, skip rather than fail.
+          if [ ! -f vmsdrift/tools/compat/render_compat.py ]; then
+            echo "no compat register at $T (predates docs/compat/) — grounding SKIPPED."
+            exit 0
+          fi
+          docker run --rm -v "$PWD/vmsdrift:/w" -w /w python:3.12-slim \
+            sh -c 'pip install --quiet pyyaml && python3 tools/compat/render_compat.py'
+          docker run --rm -v "$PWD:/site" -w /site python:3.12-slim \
+            python3 tools/check_manual_grounding.py \
+              --surface vmsdrift/build/compat-surface.json \
+              --manual  docs/installation/index.html \
+              --version "$T"
+
       - name: Obtain boot assets (prefer published Release, else build from source)
         if: steps.r.outputs.skip != '1'
         env: { GH_TOKEN: '${{ secrets.GITHUB_TOKEN }}' }

@@ -573,6 +573,52 @@ DISMOUNT DKA100:
 <!-- ovmx:guide-steps:end -->
     </div>
 
+    <!-- ===================================================================
+         MANUAL-GROUNDING MANIFEST. tools/check_manual_grounding.py checks the
+         two token lists below against the OVMX Compatibility Surface Register
+         (vms docs/compat/ -> build/compat-surface.json). Tokens are facility
+         keys from vms docs/compat/domains.yaml. It runs on every MAJOR/MINOR
+         release cut (track-release.yml, skipped for point releases) and on every
+         docs PR (docs-drift.yml).
+           ovmx:covers  = facilities this guide asserts as WORKING. Each must
+                          have a real implemented/verified item in the register,
+                          or the cut fails as an over-claim.
+           ovmx:not-yet = facilities this guide DEFERS in Appendix C. Each must
+                          still be not-yet-shipped (not implemented/verified with
+                          a real item), or the cut fails as a stale manual --
+                          that capability graduated and must be documented.
+         MAPPING of Appendix C to register tokens:
+           * "Networking as a VMS device" -> tcpip-services, decnet.
+           * "Cluster membership / joining and serving a cluster" -> the
+             user-facing cluster capabilities that are genuinely absent:
+             cluster-dlm, cluster-logicals. NOTE: the lower-level cluster
+             transport (scs, nisca, connection-manager, mscp-serve) already
+             carries implemented/verified items in the register at the protocol
+             level; those are deliberately NOT listed here because this guide
+             speaks to the install/user-facing flow, not the SCS wire protocol.
+             That protocol-vs-install-flow gap is a known grounding disagreement
+             (see docs/releasing.md) and is surfaced, not silently absorbed.
+           * "Menu-driven install" and "first-boot configuration pass" are
+             sub-features of the install/boot facilities, which the register
+             marks implemented as a whole; there is no distinct not-yet token to
+             map them to, so they are documented in prose only, not listed here.
+         The block is hidden from the rendered page but present in the file the
+         checker reads.
+         ================================================================== -->
+    <div hidden aria-hidden="true">
+<!-- ovmx:covers:begin -->
+install
+devices
+boot
+<!-- ovmx:covers:end -->
+<!-- ovmx:not-yet:begin -->
+tcpip-services
+decnet
+cluster-dlm
+cluster-logicals
+<!-- ovmx:not-yet:end -->
+    </div>
+
     <!-- ============ CHAPTER 5 ============ -->
     <h2 class="chap" id="c5"><span class="cn">5</span>First boot and login</h2>
 
