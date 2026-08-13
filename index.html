@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>OpenVMX — an OpenVMS-compatible environment for Linux</title>
-<meta name="description" content="OpenVMX is an open-source, OpenVMS-compatible operating environment for Linux: the DCL shell, RMS, VMS system services, and a kernel executive. It boots in your browser.">
+<title>OpenVMX — clean-room DCL, RMS &amp; system services for Linux</title>
+<meta name="description" content="OpenVMX is an open-source rebuild of the classic DEC operating environment for Linux: the DCL command language, Record Management Services, the system services, and a real kernel executive. It boots in your browser.">
 <meta name="theme-color" content="#16359e" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0b0c11" media="(prefers-color-scheme: dark)">
-<meta property="og:title" content="OpenVMX — an OpenVMS-compatible environment for Linux">
-<meta property="og:description" content="An open-source, OpenVMS-compatible operating environment for Linux. DCL, RMS, VMS system services, and a kernel executive, built clean-room from public specifications.">
+<meta property="og:title" content="OpenVMX — the classic DEC operating environment, rebuilt in the open">
+<meta property="og:description" content="An open-source rebuild of the DCL command language, Record Management Services, the system services, and a kernel executive. Written clean-room from published specifications and observed behavior. Boots in your browser.">
 <meta property="og:type" content="website">
 <!-- Cross-origin isolation (SharedArrayBuffer) so the cover machine can run qemu-wasm.
      Self-hosted, same-origin (NO CDN). On a header-capable host it no-ops; on GitHub
@@ -256,6 +256,7 @@ section{border-bottom:var(--hair) solid var(--ink)}
 }
 
 /* architecture: data sheet */
+.spec-wrap{overflow-x:auto;max-width:100%;-webkit-overflow-scrolling:touch}
 .spec{width:100%;border-collapse:collapse;font-size:15.5px;
   margin-top:clamp(28px,3.5vw,44px);border-top:var(--hair) solid var(--ink);border-bottom:var(--hair) solid var(--ink)}
 .spec caption{caption-side:top;text-align:left;font-family:var(--f-mono);font-size:11px;
@@ -270,7 +271,7 @@ section{border-bottom:var(--hair) solid var(--ink)}
 .tab{font-variant-numeric:tabular-nums;font-family:var(--f-mono);font-size:13px}
 .st{font-family:var(--f-mono);font-size:11px;padding:5px 10px;letter-spacing:.08em;display:inline-block;
   font-weight:700;border:1.5px solid currentColor}
-.st.ok{color:var(--blue)}.st.dev{color:var(--amber)}.st.plan{color:var(--ink-3)}
+.st.ok{color:var(--blue)}.st.dev{color:var(--amber)}.st.plan{color:var(--ink-3)}.st.ref{color:var(--ok)}
 
 /* build */
 .build{background:#091327;color:#e4e9f6;font-family:var(--f-mono);font-size:13px;line-height:1.75;
@@ -317,8 +318,9 @@ footer{background:var(--paper-2)}
     <nav aria-label="Primary">
       <a class="txt" href="#overview">Overview</a>
       <a class="txt" href="#system">System</a>
-      <a class="txt" href="#arch">Architecture</a>
-      <a class="txt" href="#build">Build</a>
+      <a class="txt" href="#clusters">Clusters</a>
+      <a class="txt" href="#roadmap">Roadmap</a>
+      <a class="txt" href="#compat">Compatibility</a>
       <a class="gh" href="https://github.com/3dl-dev/vms">GitHub&nbsp;↗</a>
       <button class="tgl" id="themebtn" type="button" aria-label="Toggle color scheme">Screen</button>
     </nav>
@@ -331,11 +333,11 @@ footer{background:var(--paper-2)}
   <div class="hero">
     <div class="wrap inner">
       <div class="cover">
-        <p class="pn"><b>OpenVMX</b> · Software Product Description · Version 0.3</p>
-        <h1 class="coverh">An OpenVMS-compatible operating environment for Linux.</h1>
-        <p class="deck">OpenVMX implements the DCL shell, Record Management Services, VMS system
-          services, and a kernel <b>executive</b>. The panel below is that system booting in your
-          browser. The guest runs on your machine, compiled to WebAssembly.</p>
+        <p class="pn"><b>OpenVMX</b> · Software Product Description · Version <span data-ovmx-version>V0.4</span></p>
+        <h1 class="coverh">The classic DEC operating environment, rebuilt in the open.</h1>
+        <p class="deck">DCL, Record Management Services, the system services, and a real kernel
+          <b>executive</b>, written clean-room as code you can read end to end. The panel below is
+          OpenVMX booting in your browser, on your machine, compiled to WebAssembly.</p>
 
         <figure class="machine" id="machine">
           <figcaption class="machine-top">
@@ -350,7 +352,7 @@ footer{background:var(--paper-2)}
               <p class="rdy">OVMX01 · HALTED · READY TO BOOT<span class="cur" aria-hidden="true"></span></p>
               <button class="bootbtn" id="bootbtn" type="button">▶ Boot OpenVMX</button>
               <p class="bootmeta" id="bootmeta"><b>One-time ~105&nbsp;MB download</b>, cached after the
-                first visit. Resumes a pre-booted OpenVMS-compatible machine in a few seconds. Emulated,
+                first visit. Resumes a pre-booted OpenVMX machine in a few seconds. Emulated,
                 so interaction is slow.</p>
             </div>
           </div>
@@ -378,7 +380,7 @@ footer{background:var(--paper-2)}
   <!-- ================= BLUE FEATURE BAND ================= -->
   <div class="feature">
     <div class="wrap">
-      <p class="thesis-line">Built clean-room from published OpenVMS specifications.</p>
+      <p class="thesis-line">Built clean-room from published specifications and observed behavior.</p>
       <div class="facts">
         <div><span>Shell</span><b>DCL · RMS · SYS$</b></div>
         <div><span>Executive</span><b>vms.ko · /dev/vms</b></div>
@@ -477,30 +479,130 @@ footer{background:var(--paper-2)}
   <!-- ================= 3.0 ARCHITECTURE ================= -->
   <section id="arch">
     <div class="wrap">
-      <div class="chap"><span class="cn">3.0</span><h2>Architectures</h2></div>
-      <p class="deck2">OpenVMX runs on modern 64-bit hardware.</p>
+      <div class="chap"><span class="cn">3.0</span><h2>Architectures, and the cluster world</h2></div>
+      <p class="deck2">OpenVMX the node runs on modern 64-bit silicon. VAX is a different row: it is the
+        world OpenVMX interoperates with, the reference cluster it is validated against and the
+        machines it serves storage to. Read the axis as a role, not just a chip.</p>
 
-      <table class="spec" style="margin-bottom:clamp(48px,6vw,88px)">
-        <caption>Table 3–1 · Architecture support matrix</caption>
+      <div class="spec-wrap" style="margin-bottom:clamp(48px,6vw,88px)">
+      <table class="spec">
+        <caption>Table 3–1 · Architecture &amp; interoperability matrix</caption>
         <thead>
-          <tr><th scope="col">Architecture</th><th scope="col">Width</th><th scope="col">Notes</th><th scope="col">Status</th></tr>
+          <tr><th scope="col">Architecture</th><th scope="col">Role</th><th scope="col">Notes</th><th scope="col">Status</th></tr>
         </thead>
         <tbody>
-          <tr><th scope="row">x86-64</th><td class="tab">64-bit</td><td>Primary development target</td>
+          <tr><th scope="row">x86-64</th><td>Node · primary target</td><td class="tab">64-bit · dev host</td>
             <td><span class="st ok">Supported</span></td></tr>
-          <tr><th scope="row">aarch64</th><td class="tab">64-bit</td><td>ARM · second first-class target</td>
+          <tr><th scope="row">aarch64</th><td>Node · first-class</td><td class="tab">64-bit ARM</td>
             <td><span class="st ok">Supported</span></td></tr>
-          <tr><th scope="row">Alpha / AXP</th><td class="tab">64-bit</td><td>DEC Alpha · first-class</td>
+          <tr><th scope="row">Alpha / AXP</th><td>Node · first-class</td><td class="tab">64-bit DEC Alpha</td>
             <td><span class="st dev">In&nbsp;progress</span></td></tr>
+          <tr><th scope="row">VAX</th><td>Interop peer &amp; oracle</td><td>The VMS-family cluster OpenVMX joins and serves</td>
+            <td><span class="st ref">Interop&nbsp;/&nbsp;reference</span></td></tr>
         </tbody>
       </table>
+      </div>
     </div>
   </section>
 
-  <!-- ================= 4.0 BUILD ================= -->
+  <!-- ================= 4.0 CLUSTERS & INTEROP ================= -->
+  <section id="clusters">
+    <div class="wrap">
+      <div class="chap"><span class="cn">4.0</span><h2>Clusters &amp; interoperability</h2></div>
+      <p class="deck2">A genuine VAX MOUNTs an OpenVMX disk and reads it. That is the claim, and it is
+        the thing that makes OpenVMX unlike any other retro-OS project: it does not emulate a cluster,
+        it joins one.</p>
+
+      <div class="manual pad-b">
+        <div class="marg">
+          <h4>What's proven</h4>
+          <ul>
+            <li>MSCP-serves a <b>real ODS-2 volume</b>, the node's actual disk.</li>
+            <li>A genuine VAX <b>MOUNTs and reads</b> it over the interconnect.</li>
+            <li>Speaks the cluster wire protocol <b>(SCS / NISCA)</b>.</li>
+            <li>Joins and appears in <b>SHOW CLUSTER</b>.</li>
+            <li>Every wire field is clean-room.</li>
+          </ul>
+        </div>
+        <div class="text">
+          <p>OpenVMX MSCP-serves a real ODS-2 volume. A VAX running the VMS-family operating system
+            mounts that volume across the cluster interconnect and reads files off it. The disk it reads
+            is the node's actual storage, not a placeholder image staged to look served.</p>
+          <p>It speaks enough of the <b>VMScluster wire protocol</b>, SCS and NISCA, to join a running
+            cluster and show up in <span class="mono">SHOW CLUSTER</span> as a member that serves and
+            consumes storage.</p>
+          <p>All of it is built clean-room. Every wire field comes from watching a reference VAX and
+            Alpha cluster on the wire and from public documentation, never from vendor source. The
+            clean-room constraint is deliberate: it is what keeps the interoperability legally clean, and
+            it is the reason the work is hard.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 5.0 COMPATIBILITY SURFACE ================= -->
+  <section id="compat">
+    <div class="wrap">
+      <div class="chap"><span class="cn">5.0</span><h2>The compatibility surface</h2></div>
+      <p class="deck2 pad-b">Every VMS surface, and exactly how far OpenVMX has got with it, honestly,
+        including the gaps. The surface tracks each facility, the DCL verbs, RMS, the system services,
+        the executive, clustering, and marks where OpenVMX is complete, where it is partial, and where
+        it is not there yet. No green-washing.
+        <br><br>
+        <a class="golink" href="/compat/">Open the compatibility surface <span class="ar">→</span></a>
+      </p>
+    </div>
+  </section>
+
+  <!-- ================= 6.0 ROADMAP & RELEASES ================= -->
+  <section id="roadmap">
+    <div class="wrap">
+      <div class="chap"><span class="cn">6.0</span><h2>Roadmap &amp; releases</h2></div>
+      <p class="deck2">OpenVMX ships on a tag cadence. Each milestone is a verifiable end state, not a
+        wish list.</p>
+
+      <div class="manual pad-b">
+        <div class="marg">
+          <h4>Recent releases</h4>
+          <!-- WS-6: this list is static for now. The release tracker
+               (track-release.yml) can regenerate it from git tags on deploy,
+               the same way it rewrites the version token above. -->
+          <ul>
+            <li><b>V0.4</b> — installs to a target disk and reboots into a login.</li>
+            <li><b>V0.3-9</b> — executive-backed DCL, cluster rejoin, OPCOM messages.</li>
+            <li><b>0.3-4</b> — SET&nbsp;ACCOUNTING / SET&nbsp;VOLUME, clean cluster leave.</li>
+            <li><b>0.3-3</b> — conversational boot, DCL parser fidelity.</li>
+            <li><b>0.3-1</b> — clean-room rebrand, single QEMU runtime.</li>
+          </ul>
+        </div>
+        <div class="text">
+          <div class="spec-wrap">
+          <table class="spec" style="margin-top:0">
+            <caption>Table 6–1 · Milestone ladder</caption>
+            <thead>
+              <tr><th scope="col">Release</th><th scope="col">Theme</th><th scope="col">State</th></tr>
+            </thead>
+            <tbody>
+              <tr><th scope="row">0.3</th><td>A real system: command language, file system, system services, and kernel executive standing on their own</td>
+                <td><span class="st ok">Shipped</span></td></tr>
+              <tr><th scope="row">0.4</th><td>Installs and boots faithfully: the product installs to a target disk and reboots into a login</td>
+                <td><span class="st ok">Current</span></td></tr>
+              <tr><th scope="row">0.5</th><td>Networking as a layered product, a self-hosting toolchain, and its own kernel build</td>
+                <td><span class="st dev">Planned</span></td></tr>
+              <tr><th scope="row">1.0</th><td>Joins and serves a cluster, and runs the software: a voting member that serves and consumes storage, participates in the lock manager, and runs unmodified applications</td>
+                <td><span class="st plan">Goal</span></td></tr>
+            </tbody>
+          </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 7.0 BUILD ================= -->
   <section id="build">
     <div class="wrap">
-      <div class="chap"><span class="cn">4.0</span><h2>Build and boot</h2></div>
+      <div class="chap"><span class="cn">7.0</span><h2>Build and boot</h2></div>
       <p class="deck2">One runtime target: the real-kernel / QEMU path. Clone the source, build the
         bootable image, and bring up an OpenVMX VM.</p>
 
@@ -537,7 +639,7 @@ footer{background:var(--paper-2)}
         <a href="#top" class="mark lg" style="text-decoration:none">
           <span class="m">Open</span><span class="m fill">VMX</span>
         </a>
-        <p style="margin-top:18px">An OpenVMS-compatible operating environment for Linux.</p>
+        <p style="margin-top:18px">The classic DEC operating environment, rebuilt in the open.</p>
         <p>Free to build, free to run, free to read.</p>
         <p><span class="badge">Free &amp; open source</span></p>
       </div>
@@ -552,12 +654,15 @@ footer{background:var(--paper-2)}
         <h5>Reference</h5>
         <a href="#system">System components</a>
         <a href="#arch">Architecture matrix</a>
+        <a href="#clusters">Clusters &amp; interop</a>
+        <a href="/compat/">Compatibility surface</a>
+        <a href="#roadmap">Roadmap &amp; releases</a>
         <a href="#build">Build &amp; boot</a>
       </div>
     </div>
     <div class="wrap disclaim" style="padding-inline:0">
-      <span>OpenVMX is an independent, open-source project. OpenVMS and VMS are trademarks of their
-        respective owners, referenced here only to describe compatibility.</span>
+      <span>OpenVMX is an independent, open-source project. DEC, VAX, Alpha, and related names are
+        used only to describe compatibility and heritage.</span>
       <span class="r">AA–OVMX2–TE<br>Printed in the open · <span id="yr"></span></span>
     </div>
   </div>
