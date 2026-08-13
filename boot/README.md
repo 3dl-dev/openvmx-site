@@ -23,9 +23,23 @@ this task's evidence.
 | `coi-serviceworker.js` | upstream (self-hosted) | COOP/COEP shim for header-less hosts |
 | `assets/xterm.js`, `xterm.css`, `xterm-pty.js` | self-hosted (no CDN) | serial console |
 | `vmlinuz` (15 MB), `initramfs-ovmx.cpio.gz` (2 MB) | **ours** | fetched in `Module.preRun` and written into the guest FS |
+| `sysdisk.qcow2.gz` | **ours** | the pre-installed distribution system disk (`ovmx-distrib.img`) with a `savevm` snapshot baked in at the kernel&rarr;`/init` handoff |
 
-Total ~57 MB. A blank 64 MiB system disk is created in memory at boot; the fat
-initramfs `INITIALIZE`s + installs it (first-boot install, exactly as native).
+Total ~57 MB. The demo ships a **pre-installed** distribution system disk
+(`ovmx-distrib.img`, mastered at build by `vmsfs_master`); the single
+bootstrap-only initramfs (`STARTUP.EXE` = `/init` + `vms.ko`/`vmsfs.ko`) mounts
+it at `/vms` and finds the full system — `DCL.EXE`, `LOGINOUT.EXE`, `IMGACT.EXE`
+and the SYSLIB shareables all come off the disk. Installation is no longer done
+by PID 1 (vms-96ec/vms-2f0): the disk arrives already installed, so the boot is
+"mount-or-halt", not "first-boot install". The `track-release` CI captures a
+`savevm` snapshot at the kernel&rarr;`/init` handoff, so each load **resumes**
+into the real OVMX startup dialog (executive attach, `DKA0:` mount, STDRV) and
+then the login prompt, instead of a ~70&ndash;90 s cold boot. On the operator
+console `LOGINOUT` waits for the operator to strike **RETURN** before it
+presents `Username:` (vms-2213) — the classic "press RETURN to log in" console
+behaviour; the demo page (`finishResume`) sends that RETURN so the resume lands
+at `Username:`, and `tools/webdemo/verify.js` gates each deploy on the startup
+dialog actually replaying and reaching `Username:`.
 **Provenance note:** the wasm QEMU is reused from upstream rather than compiled
 here — productionizing means building it ourselves from `ktock/qemu-wasm` (see
 that repo's Dockerfiles) so the whole chain is ours. Reuse is legitimate: it is
