@@ -334,11 +334,11 @@ footer{background:var(--paper-2)}
     <div class="wrap inner">
       <div class="cover">
         <p class="pn"><b>OpenVMX</b> · Software Product Description · Version <span data-ovmx-version>V0.4</span></p>
-        <h1 class="coverh">OpenVMX keeps the Linux or NetBSD kernel and drops the Unix userland:
-          <span class="blue">no libc, no ld.so.</span></h1>
-        <p class="deck">Above the kernel it is all OpenVMX: a freestanding syscall floor, its own image
-          activator and linker, then DCL, Record Management Services, the system services, and a kernel
-          <b>executive</b>. The panel below is it booting in your browser, compiled to WebAssembly.</p>
+        <h1 class="coverh">OpenVMX reimplements DCL, RMS, and the VMS system services on the Linux
+          and NetBSD kernels.</h1>
+        <p class="deck">A command language, a record file system, the system services, and a kernel
+          <b>executive</b>. Independent, open-source code. The panel below is OpenVMX booting in your
+          browser, compiled to WebAssembly.</p>
 
         <figure class="machine" id="machine">
           <figcaption class="machine-top">
@@ -381,7 +381,7 @@ footer{background:var(--paper-2)}
   <!-- ================= BLUE FEATURE BAND ================= -->
   <div class="feature">
     <div class="wrap">
-      <p class="thesis-line">No glibc. No dynamic linker. Its own userland, from the syscall floor up.</p>
+      <p class="thesis-line">Built from the published specifications and observed behavior.</p>
       <div class="facts">
         <div><span>Shell</span><b>DCL · RMS · SYS$</b></div>
         <div><span>Executive</span><b>vms.ko · /dev/vms</b></div>
@@ -407,6 +407,7 @@ footer{background:var(--paper-2)}
           <ul>
             <li>Implemented from <b>public documentation</b> and observed behavior.</li>
             <li>Original, independent code.</li>
+            <li>Its own userland: <b>no libc, no ld.so</b>.</li>
             <li>Where the specs stop, OpenVMX makes its own choices and labels them.</li>
             <li>Open source, readable end to end.</li>
           </ul>
