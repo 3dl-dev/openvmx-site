@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>OpenVMX — clean-room DCL, RMS &amp; system services for Linux</title>
-<meta name="description" content="OpenVMX is an open-source rebuild of the classic DEC operating environment for Linux: the DCL command language, Record Management Services, the system services, and a real kernel executive. It boots in your browser.">
+<title>OpenVMX — a DCL and RMS operating environment on the Linux and NetBSD kernels</title>
+<meta name="description" content="OpenVMX runs on the Linux and NetBSD kernels with its own userland (no libc, no ld.so): the DCL command language, Record Management Services, the system services, and a kernel executive. Open source. It boots in your browser.">
 <meta name="theme-color" content="#16359e" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0b0c11" media="(prefers-color-scheme: dark)">
-<meta property="og:title" content="OpenVMX — the classic DEC operating environment, rebuilt in the open">
-<meta property="og:description" content="An open-source rebuild of the DCL command language, Record Management Services, the system services, and a kernel executive. Written clean-room from published specifications and observed behavior. Boots in your browser.">
+<meta property="og:title" content="OpenVMX — a DCL and RMS operating environment on a bare kernel">
+<meta property="og:description" content="An open-source build of the DCL command language, Record Management Services, the system services, and a kernel executive, with its own userland above the Linux or NetBSD kernel. Boots in your browser.">
 <meta property="og:type" content="website">
 <!-- Cross-origin isolation (SharedArrayBuffer) so the cover machine can run qemu-wasm.
      Self-hosted, same-origin (NO CDN). On a header-capable host it no-ops; on GitHub
@@ -334,10 +334,11 @@ footer{background:var(--paper-2)}
     <div class="wrap inner">
       <div class="cover">
         <p class="pn"><b>OpenVMX</b> · Software Product Description · Version <span data-ovmx-version>V0.4</span></p>
-        <h1 class="coverh">The classic DEC operating environment, rebuilt in the open.</h1>
-        <p class="deck">DCL, Record Management Services, the system services, and a real kernel
-          <b>executive</b>, written clean-room as code you can read end to end. The panel below is
-          OpenVMX booting in your browser, on your machine, compiled to WebAssembly.</p>
+        <h1 class="coverh">OpenVMX reimplements DCL, RMS, and the VMS system services on the Linux
+          and NetBSD kernels.</h1>
+        <p class="deck">A command language, a record file system, the system services, and a kernel
+          <b>executive</b>. Independent, open-source code. The panel below is OpenVMX booting in your
+          browser, compiled to WebAssembly.</p>
 
         <figure class="machine" id="machine">
           <figcaption class="machine-top">
@@ -356,7 +357,7 @@ footer{background:var(--paper-2)}
                 so interaction is slow.</p>
             </div>
           </div>
-          <figcaption class="logintip">Log in — username <b>SYSTEM</b>, password <b>MANAGER</b>
+          <figcaption class="logintip">Log in with username <b>SYSTEM</b>, password <b>MANAGER</b>
             <span class="alt">(or <b>GUEST</b> / <b>GUEST</b>)</span></figcaption>
           <figcaption class="machine-cap">The amber CRT styling is OpenVMX presentation, not
             VMS-authentic. The guest resumes from a snapshot under QEMU compiled to WebAssembly; TCG
@@ -380,7 +381,7 @@ footer{background:var(--paper-2)}
   <!-- ================= BLUE FEATURE BAND ================= -->
   <div class="feature">
     <div class="wrap">
-      <p class="thesis-line">Built clean-room from published specifications and observed behavior.</p>
+      <p class="thesis-line">Built from the published specifications and observed behavior.</p>
       <div class="facts">
         <div><span>Shell</span><b>DCL · RMS · SYS$</b></div>
         <div><span>Executive</span><b>vms.ko · /dev/vms</b></div>
@@ -406,6 +407,7 @@ footer{background:var(--paper-2)}
           <ul>
             <li>Implemented from <b>public documentation</b> and observed behavior.</li>
             <li>Original, independent code.</li>
+            <li>Its own userland: <b>no libc, no ld.so</b>.</li>
             <li>Where the specs stop, OpenVMX makes its own choices and labels them.</li>
             <li>Open source, readable end to end.</li>
           </ul>
@@ -419,7 +421,7 @@ footer{background:var(--paper-2)}
             longtime users expect rather than like bash, down to <span class="mono">$</span>
             prompts, <span class="mono">SHOW</span> verbs, and structured file specifications.</p>
           <p>Underneath, a kernel module (<span class="mono">vms.ko</span>) provides the
-            <b>executive</b>: locks, event flags, ASTs, and access modes as genuinely shared system
+            <b>executive</b>: locks, event flags, ASTs, and access modes as shared system
             state, reached from userspace through <span class="mono">/dev/vms</span>. When the
             executive is absent, services fail honestly with <span class="mono">SS$_NOSUCHDEV</span>.
             They never fake per-process success.</p>
@@ -509,19 +511,18 @@ footer{background:var(--paper-2)}
   <section id="clusters">
     <div class="wrap">
       <div class="chap"><span class="cn">4.0</span><h2>Clusters &amp; interoperability</h2></div>
-      <p class="deck2">A genuine VAX MOUNTs an OpenVMX disk and reads it. That is the claim, and it is
-        the thing that makes OpenVMX unlike any other retro-OS project: it does not emulate a cluster,
-        it joins one.</p>
+      <p class="deck2">A VAX running the VMS-family operating system MOUNTs an OpenVMX disk and reads
+        it. OpenVMX does not emulate a cluster; it joins one.</p>
 
       <div class="manual pad-b">
         <div class="marg">
           <h4>What's proven</h4>
           <ul>
             <li>MSCP-serves a <b>real ODS-2 volume</b>, the node's actual disk.</li>
-            <li>A genuine VAX <b>MOUNTs and reads</b> it over the interconnect.</li>
+            <li>A real VAX <b>MOUNTs and reads</b> it over the interconnect.</li>
             <li>Speaks the cluster wire protocol <b>(SCS / NISCA)</b>.</li>
             <li>Joins and appears in <b>SHOW CLUSTER</b>.</li>
-            <li>Every wire field is clean-room.</li>
+            <li>Wire formats read off the wire, not vendor source.</li>
           </ul>
         </div>
         <div class="text">
@@ -531,10 +532,8 @@ footer{background:var(--paper-2)}
           <p>It speaks enough of the <b>VMScluster wire protocol</b>, SCS and NISCA, to join a running
             cluster and show up in <span class="mono">SHOW CLUSTER</span> as a member that serves and
             consumes storage.</p>
-          <p>All of it is built clean-room. Every wire field comes from watching a reference VAX and
-            Alpha cluster on the wire and from public documentation, never from vendor source. The
-            clean-room constraint is deliberate: it is what keeps the interoperability legally clean, and
-            it is the reason the work is hard.</p>
+          <p>The wire formats were worked out by watching a reference VAX and Alpha cluster and reading
+            the public documentation, never from vendor source.</p>
         </div>
       </div>
     </div>
@@ -544,10 +543,10 @@ footer{background:var(--paper-2)}
   <section id="compat">
     <div class="wrap">
       <div class="chap"><span class="cn">5.0</span><h2>The compatibility surface</h2></div>
-      <p class="deck2 pad-b">Every VMS surface, and exactly how far OpenVMX has got with it, honestly,
-        including the gaps. The surface tracks each facility, the DCL verbs, RMS, the system services,
-        the executive, clustering, and marks where OpenVMX is complete, where it is partial, and where
-        it is not there yet. No green-washing.
+      <p class="deck2 pad-b">Every VMS surface, and how far OpenVMX has got with each one, including the
+        gaps. It tracks each facility (the DCL verbs, RMS, the system services, the executive,
+        clustering) and marks where OpenVMX is complete, where it is partial, and where it is not there
+        yet.
         <br><br>
         <a class="golink" href="/compat/">Open the compatibility surface <span class="ar">→</span></a>
       </p>
@@ -572,7 +571,7 @@ footer{background:var(--paper-2)}
             <li><b>V0.3-9</b> — executive-backed DCL, cluster rejoin, OPCOM messages.</li>
             <li><b>0.3-4</b> — SET&nbsp;ACCOUNTING / SET&nbsp;VOLUME, clean cluster leave.</li>
             <li><b>0.3-3</b> — conversational boot, DCL parser fidelity.</li>
-            <li><b>0.3-1</b> — clean-room rebrand, single QEMU runtime.</li>
+            <li><b>0.3-1</b> — rebrand, single QEMU runtime.</li>
           </ul>
         </div>
         <div class="text">
@@ -639,7 +638,7 @@ footer{background:var(--paper-2)}
         <a href="#top" class="mark lg" style="text-decoration:none">
           <span class="m">Open</span><span class="m fill">VMX</span>
         </a>
-        <p style="margin-top:18px">The classic DEC operating environment, rebuilt in the open.</p>
+        <p style="margin-top:18px">The DEC operating environment, rebuilt from the syscall floor up.</p>
         <p>Free to build, free to run, free to read.</p>
         <p><span class="badge">Free &amp; open source</span></p>
       </div>
@@ -663,7 +662,7 @@ footer{background:var(--paper-2)}
     <div class="wrap disclaim" style="padding-inline:0">
       <span>OpenVMX is an independent, open-source project. DEC, VAX, Alpha, and related names are
         used only to describe compatibility and heritage.</span>
-      <span class="r">AA–OVMX2–TE<br>Printed in the open · <span id="yr"></span></span>
+      <span class="r">AA–OVMX2–TE<br>Open source · <span id="yr"></span></span>
     </div>
   </div>
 </footer>
