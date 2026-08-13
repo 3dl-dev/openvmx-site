@@ -134,8 +134,13 @@ jobs:
           echo '${{ steps.r.outputs.tag }}' > boot/DEPLOYED_TAG
           VER='${{ steps.r.outputs.tag }}-${{ github.run_number }}'
           sed -i "s/const PAYLOAD_VER = '[^']*'/const PAYLOAD_VER = '${VER}'/" boot/qemu-worker.js || true
+          # Follow the deployed release on the landing page too: rewrite the
+          # version token in index.html from the just-written DEPLOYED_TAG, the
+          # same way we rewrite PAYLOAD_VER above, so the SPD line never drifts.
+          TAG=$(cat boot/DEPLOYED_TAG)
+          sed -i "s#\(data-ovmx-version>\)[^<]*\(</span>\)#\1${TAG}\2#" index.html || true
           git config user.name 'ovmx-release-bot'; git config user.email 'bot@3dl.dev'
-          git add boot
+          git add boot index.html
           if git diff --cached --quiet; then echo "no change"; exit 0; fi
           git commit -m "demo: auto-track OVMX ${{ steps.r.outputs.tag }}"
           # rebase-and-retry so a concurrent push to main doesn't lose the deploy

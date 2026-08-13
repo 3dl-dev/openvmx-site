@@ -1,0 +1,38 @@
+name: trademark-gate
+
+# Trademark hygiene gate (operator ruling 2026-08-13). The string "OpenVMS"
+# must NOT appear in any tracked *.html outside docs/ — not in the <title>,
+# meta tags, headings, or body copy. Compatibility is carried through DCL / RMS
+# / VAX / Alpha / DECnet vocabulary and DEC heritage framing, never by leading
+# with a mark we do not own. This job FAILS the build if the term regresses,
+# so the site can never silently drift back to naming it.
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  no-openvms:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fail if "OpenVMS" appears in any tracked *.html (excluding docs/)
+        run: |
+          # All tracked HTML except under docs/ (docs may quote the term in prose).
+          FILES=$(git ls-files '*.html' ':!:docs/**')
+          echo "scanning:"; echo "$FILES"
+          bad=0
+          for f in $FILES; do
+            n=$(grep -c 'OpenVMS' "$f" || true)
+            if [ "$n" -gt 0 ]; then
+              echo "::error file=$f::found $n occurrence(s) of 'OpenVMS' — banned as identity/copy (see trademark-gate.yml)"
+              grep -n 'OpenVMS' "$f" || true
+              bad=1
+            fi
+          done
+          if [ "$bad" -ne 0 ]; then
+            echo "trademark-gate FAILED: strip 'OpenVMS' from the flagged file(s)."
+            exit 1
+          fi
+          echo "trademark-gate PASSED: no 'OpenVMS' in tracked *.html outside docs/."
