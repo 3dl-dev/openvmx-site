@@ -44,7 +44,28 @@ a{color:var(--link);text-decoration:none}
 a:hover{text-decoration:underline;text-underline-offset:3px}
 :focus-visible{outline:3px solid var(--blue);outline-offset:2px}
 ::selection{background:var(--blue);color:var(--on-blue)}
-.wrap{max-width:var(--maxw);margin-inline:auto;padding-inline:var(--gutter);width:100%}
+.wrap{max-width:var(--maxw);margin-inline:0;padding-inline:var(--gutter);width:100%}
+
+/* ---- floating context rail (wide viewports only) ---- */
+.rail{display:none}
+@media (min-width:1500px){
+  .rail{display:flex;flex-direction:column;position:fixed;top:88px;
+    left:calc(min(100%,var(--maxw)) + clamp(18px,3vw,48px));
+    width:clamp(190px,13vw,264px);max-height:calc(100vh - 112px);
+    overflow:auto;overscroll-behavior:contain;z-index:30}
+}
+.rail-h{font-family:var(--f-mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ink-3);margin:0 0 11px}
+.rail-nav{display:flex;flex-direction:column;gap:1px;margin:0}
+.rail-nav a{font-size:13.5px;line-height:1.35;color:var(--ink-2);text-decoration:none;
+  border-left:2px solid var(--blue-line);padding:5px 0 5px 13px}
+.rail-nav a:hover{color:var(--blue);border-left-color:var(--blue);text-decoration:none}
+.rail-div{height:1px;background:var(--blue-line);border:0;margin:20px 0}
+.rail-meta{font-size:13px;color:var(--ink-2);line-height:1.6;margin:0 0 12px}
+.rail-meta b{color:var(--ink);font-weight:600}
+.rail-link{display:block;font-family:var(--f-mono);font-size:12px;color:var(--link);
+  text-decoration:none;margin-top:7px}
+.rail-link:hover{text-decoration:underline;text-underline-offset:3px}
 .mono{font-family:var(--f-mono);font-size:.92em}
 .mark{display:inline-flex;align-items:stretch;border:var(--hair) solid var(--ink);background:var(--paper);line-height:1;user-select:none}
 .mark .m{font-weight:700;font-size:15px;padding:.42em .6em;border-right:1px solid var(--ink);color:var(--ink);display:flex;align-items:center}
@@ -135,6 +156,20 @@ footer{border-top:var(--hair) solid var(--ink);background:var(--paper-2);padding
     </nav>
   </div>
 </header>
+
+<aside class="rail" aria-label="Page contents">
+  <p class="rail-h">On this page</p>
+  <nav class="rail-nav" aria-label="Sections">
+    <a href="#milestones">Milestones</a>
+    <a href="#streams">Workstreams to 1.0</a>
+    <a href="#releases">Recent releases</a>
+  </nav>
+  <hr class="rail-div">
+  <p class="rail-h">Related</p>
+  <a class="rail-link" href="/roadmap/">Roadmap to 1.0 &rarr;</a>
+  <a class="rail-link" href="/compat/">Compatibility surface &rarr;</a>
+  <a class="rail-link" href="/">Home &rarr;</a>
+</aside>
 
 <main id="top">
   <section>
