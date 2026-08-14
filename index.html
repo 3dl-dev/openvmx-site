@@ -84,25 +84,25 @@ a:hover{text-decoration:underline;text-underline-offset:3px;text-decoration-thic
 .wrap{max-width:var(--maxw);margin-inline:0;padding-inline:var(--gutter);width:100%}
 .mono{font-family:var(--f-mono);font-size:.92em}
 
-/* ---- floating context rail (wide viewports only) ---- */
+/* ---- floating right column (wide viewports only; scrolls with the page) ---- */
 .rail{display:none}
 @media (min-width:1500px){
-  .rail{display:flex;flex-direction:column;position:fixed;top:88px;
+  main{position:relative}
+  .rail{display:block;position:absolute;top:34px;
     left:calc(min(100%,var(--maxw)) + clamp(18px,3vw,48px));
-    width:clamp(190px,13vw,264px);max-height:calc(100vh - 112px);
-    overflow:auto;overscroll-behavior:contain;z-index:30}
+    width:clamp(190px,13vw,264px)}
 }
 .rail-h{font-family:var(--f-mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;
-  color:var(--ink-3);margin:0 0 11px}
-.rail-nav{display:flex;flex-direction:column;gap:1px;margin:0}
-.rail-nav a{font-size:13.5px;line-height:1.35;color:var(--ink-2);text-decoration:none;
-  border-left:2px solid var(--blue-line);padding:5px 0 5px 13px}
-.rail-nav a:hover{color:var(--blue);border-left-color:var(--blue);text-decoration:none}
-.rail-div{height:1px;background:var(--blue-line);border:0;margin:20px 0}
-.rail-meta{font-size:13px;color:var(--ink-2);line-height:1.6;margin:0 0 12px}
+  color:var(--ink-3);margin:0 0 12px}
+.rail-card{border-top:2px solid var(--blue);padding-top:14px}
+.rail-rel{list-style:none;margin:0;padding:0}
+.rail-rel li{font-size:13px;line-height:1.45;color:var(--ink-2);margin:0 0 10px}
+.rail-rel li:last-child{margin-bottom:0}
+.rail-rel b{color:var(--ink);font-weight:600;font-family:var(--f-mono);font-size:12px}
+.rail-meta{font-size:13px;color:var(--ink-2);line-height:1.55;margin:14px 0 12px}
 .rail-meta b{color:var(--ink);font-weight:600}
 .rail-link{display:block;font-family:var(--f-mono);font-size:12px;color:var(--link);
-  text-decoration:none;margin-top:7px}
+  text-decoration:none;margin-top:6px}
 .rail-link:hover{text-decoration:underline;text-underline-offset:3px}
 
 /* ---- the atom: segmented "digital"-style wordmark, reads OpenVMX ---- */
@@ -349,21 +349,17 @@ footer{background:var(--paper-2)}
   </div>
 </header>
 
-<aside class="rail" aria-label="Page contents">
-  <p class="rail-h">On this page</p>
-  <nav class="rail-nav" aria-label="Sections">
-    <a href="#overview">From syscall to shell</a>
-    <a href="#system">System components</a>
-    <a href="#arch">Architectures</a>
-    <a href="#clusters">Clusters &amp; interop</a>
-    <a href="#compat">Compatibility surface</a>
-    <a href="#roadmap">Roadmap &amp; releases</a>
-    <a href="#build">Build &amp; boot</a>
-  </nav>
-  <hr class="rail-div">
-  <p class="rail-h">Where it stands</p>
-  <p class="rail-meta">Latest release <b><span data-ovmx-version>V0.4-4</span></b><br>
-    Next milestone <b>0.5</b> — network &amp; toolchain foundations</p>
+<aside class="rail" aria-label="Roadmap and releases">
+  <p class="rail-h">Recent releases</p>
+  <div class="rail-card">
+    <ul class="rail-rel">
+      <li><b>V0.4</b> — installs to a target disk and reboots into a login.</li>
+      <li><b>V0.3-9</b> — executive-backed DCL, cluster rejoin, OPCOM.</li>
+      <li><b>0.3-4</b> — SET&nbsp;ACCOUNTING / SET&nbsp;VOLUME, clean cluster leave.</li>
+    </ul>
+  </div>
+  <p class="rail-meta">Now on <b><span data-ovmx-version>V0.4-4</span></b>. Next milestone
+    <b>0.5</b> — the network and the self-hosting toolchain.</p>
   <a class="rail-link" href="/roadmap/">Full roadmap &rarr;</a>
   <a class="rail-link" href="/status/">Live release status &rarr;</a>
 </aside>
