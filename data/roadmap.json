@@ -44,11 +44,11 @@
    "theme": "Foundations for the network and the toolchain — a shared-state executive, VMS-faithful cluster configuration, a self-hosting toolchain, and a self-built kernel.",
    "status": "in_progress",
    "progress": {
-    "done": 4,
-    "open": 11,
+    "done": 5,
+    "open": 13,
     "blocked": 2,
-    "total": 15,
-    "pct": 27
+    "total": 18,
+    "pct": 28
    }
   },
   {
@@ -93,9 +93,9 @@
    "status": "goal",
    "progress": {
     "done": 0,
-    "open": 6,
+    "open": 7,
     "blocked": 4,
-    "total": 6,
+    "total": 7,
     "pct": 0
    }
   }
@@ -129,9 +129,9 @@
    "lands_by": "0.5-1.0",
    "status": "in_progress",
    "progress": {
-    "done": 13,
+    "done": 15,
     "total": 23,
-    "pct": 57
+    "pct": 65
    }
   },
   {
@@ -141,7 +141,7 @@
    "status": "planned",
    "progress": {
     "done": 0,
-    "total": 5,
+    "total": 6,
     "pct": 0
    }
   },
@@ -173,9 +173,9 @@
    "lands_by": "0.5",
    "status": "in_progress",
    "progress": {
-    "done": 1,
+    "done": 2,
     "total": 8,
-    "pct": 12
+    "pct": 25
    }
   }
  ],
