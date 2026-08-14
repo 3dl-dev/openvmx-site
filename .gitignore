@@ -1,0 +1,6 @@
+# local capture scratch (CI installs Playwright into its own workspace)
+node_modules/
+package.json
+package-lock.json
+# intermediate capture; only the composed card (og-demo.png) is committed
+og-terminal.png

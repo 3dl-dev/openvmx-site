@@ -1,0 +1,58 @@
+<!doctype html><html><head><meta charset="utf-8">
+<!-- glamor-index.html — capture harness for the social unfurl. Cold-boots the
+     REAL OVMX guest under our qemu-wasm (same as capture-index.html) but into a
+     FIXED, big-font amber terminal so the screenshot is legible at social-card
+     sizes (the live demo fits-to-frame, which makes font size unpredictable).
+     glamor.js drives this: waits for boot, wakes the console, logs in, runs the
+     showcase command, and screenshots #terminal. Nothing is mocked — the text
+     is the guest's real output. Geometry (cols/rows/fontSize) is read from the
+     URL query so glamor.js owns the shot dimensions. -->
+<link rel="stylesheet" href="assets/xterm.css">
+<script src="coi-serviceworker.js"></script>
+<script src="assets/xterm.js"></script><script src="assets/xterm-pty.js"></script>
+<style>
+  html,body{margin:0;background:#140d00}
+  /* size the page to the terminal so #terminal screenshots edge-to-edge */
+  #terminal{padding:18px 20px;background:#140d00;display:inline-block}
+  .xterm{background:#140d00 !important}
+</style>
+</head><body><div id="terminal"></div>
+<script>
+const q = new URLSearchParams(location.search);
+const COLS = +(q.get('cols') || 88);
+const ROWS = +(q.get('rows') || 11);
+const FSIZE = +(q.get('fs')  || 26);
+const term = new Terminal({
+  cols: COLS, rows: ROWS, convertEol: true, scrollback: 400, cursorBlink: false,
+  fontFamily: '"DejaVu Sans Mono", ui-monospace, Menlo, monospace',
+  fontSize: FSIZE, lineHeight: 1.18, letterSpacing: 0,
+  theme: {
+    background: '#140d00', foreground: '#ffb232', cursor: '#ffb232',
+    cursorAccent: '#140d00', selectionBackground: '#5a3d00',
+    black: '#241700', red: '#ff9a3c', green: '#ffbf47', yellow: '#ffcf5a',
+    blue: '#e6a02e', magenta: '#ffab40', cyan: '#ffc14d', white: '#ffdf9e',
+    brightBlack: '#7a5410', brightWhite: '#fff0cc',
+  },
+});
+term.open(document.getElementById('terminal')); window.__ovmxTerm = term;
+const { master, slave } = openpty(); term.loadAddon(master);
+async function gz(u){const r=await fetch(u);const s=r.body.pipeThrough(new DecompressionStream('gzip'));return new Uint8Array(await new Response(s).arrayBuffer());}
+var Module={
+  arguments:['-nographic','-M','pc','-m','256M','-accel','tcg,tb-size=500','-L','/pack-rom/','-nic','none',
+    '-kernel','/pack-kernel/vmlinuz','-initrd','/pack-initramfs/initramfs-ovmx.cpio.gz','-append','console=ttyS0 loglevel=3 quiet',
+    '-drive','file=/pack-disk/sysdisk.qcow2,format=qcow2,if=virtio','-no-reboot'],
+  locateFile:p=>new URL(p,document.baseURI).href,
+  mainScriptUrlOrBlob:new URL('out.js',document.baseURI).href,
+  pty:slave,
+  preRun:[m=>{m.addRunDependency('p');const mk=p=>{try{m.FS.mkdir(p)}catch(e){}};
+    Promise.all([fetch('vmlinuz').then(r=>r.arrayBuffer()),fetch('initramfs-ovmx.cpio.gz').then(r=>r.arrayBuffer()),gz('sysdisk.qcow2.gz')])
+     .then(([k,i,d])=>{mk('/pack-kernel');mk('/pack-initramfs');mk('/pack-disk');
+       m.FS.writeFile('/pack-kernel/vmlinuz',new Uint8Array(k));m.FS.writeFile('/pack-initramfs/initramfs-ovmx.cpio.gz',new Uint8Array(i));
+       m.FS.writeFile('/pack-disk/sysdisk.qcow2',d);m.removeRunDependency('p');});}],
+  onRuntimeInitialized:()=>{window.__ovmxMod=Module;const op=Module.TTY.stream_ops.poll,pty=Module.pty;
+    Module.TTY.stream_ops.poll=function(s,t){if(!pty.readable)return (pty.readable?1:0)|(pty.writable?4:0);return op.call(s,s,t);};}
+};
+</script>
+<script src="load-rom.js"></script>
+<script src="out.js"></script>
+</body></html>

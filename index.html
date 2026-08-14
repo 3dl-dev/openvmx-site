@@ -10,6 +10,22 @@
 <meta property="og:title" content="OpenVMX — a DCL and RMS operating environment on a bare kernel">
 <meta property="og:description" content="An open-source build of the DCL command language, Record Management Services, the system services, and a kernel executive, with its own userland above the Linux or NetBSD kernel. Boots in your browser.">
 <meta property="og:type" content="website">
+<meta property="og:url" content="https://openvmx.3dl.dev/">
+<meta property="og:site_name" content="OpenVMX">
+<!-- Social card: a REAL screenshot of the running demo console (the live
+     SHOW USERS view), framed as a branded 1200x630 card. Regenerated each
+     release by tools/webdemo/glamor.js in the track-release workflow, so the
+     unfurl always shows the current release actually running (nothing mocked). -->
+<meta property="og:image" content="https://openvmx.3dl.dev/og-demo.png">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="OpenVMX booted in a browser: the amber console showing the SHOW USERS output — SYSTEM logged in on OPA0:, node OVMX.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="OpenVMX — the classic operating environment, on a modern kernel">
+<meta name="twitter:description" content="DCL, RMS, the system services and a kernel executive, with its own userland (no libc, no ld.so) over the Linux or NetBSD kernel. Open source. Boots in your browser.">
+<meta name="twitter:image" content="https://openvmx.3dl.dev/og-demo.png">
+<meta name="twitter:image:alt" content="OpenVMX booted in a browser: the amber console showing the SHOW USERS output — SYSTEM logged in on OPA0:, node OVMX.">
 <!-- Cross-origin isolation (SharedArrayBuffer) so the cover machine can run qemu-wasm.
      Self-hosted, same-origin (NO CDN). On a header-capable host it no-ops; on GitHub
      Pages it injects COOP: same-origin + COEP: require-corp and reloads once on first visit. -->
@@ -186,6 +202,13 @@ a:hover{text-decoration:underline;text-underline-offset:3px;text-decoration-thic
   background:linear-gradient(180deg,transparent,rgba(255,178,50,.10),transparent);
   animation:sweep 3.2s steps(24,end) infinite}
 @keyframes sweep{0%{top:-90px}100%{top:100%}}
+/* looping boot teaser video, dimmed behind the CTA; scrim keeps text legible */
+.idle .idlevid{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+  z-index:0;opacity:.5;pointer-events:none;filter:saturate(1.05)}
+.idle::before{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:radial-gradient(120% 92% at 50% 44%,rgba(15,10,0,.28) 0%,rgba(15,10,0,.86) 82%)}
+.idle .scan,.idle .sweep{z-index:1}
+.idle .rdy,.idle .bootbtn,.idle .bootmeta{position:relative;z-index:2}
 .idle .rdy{font-family:var(--f-mono);font-size:13px;letter-spacing:.1em;color:#ffb232;
   text-shadow:0 0 10px rgba(255,178,50,.4)}
 .idle .rdy .cur{display:inline-block;width:.6em;height:1.05em;vertical-align:-.15em;margin-left:.12em;
@@ -204,7 +227,7 @@ a:hover{text-decoration:underline;text-underline-offset:3px;text-decoration-thic
 .logintip .alt{color:#7e7664}
 .machine-cap{font-family:var(--f-mono);font-size:10.5px;line-height:1.5;color:var(--ink-3);
   margin:6px 4px 0;letter-spacing:.01em}
-@media (prefers-reduced-motion:reduce){.idle .sweep,.machine-top .dot{animation:none}}
+@media (prefers-reduced-motion:reduce){.idle .sweep,.machine-top .dot{animation:none}.idle .idlevid{display:none}}
 
 .go{display:flex;flex-wrap:wrap;gap:10px 22px;align-items:baseline}
 .golink{font-family:var(--f-mono);font-size:14px;font-weight:700;letter-spacing:.01em;
@@ -394,6 +417,14 @@ footer{background:var(--paper-2)}
           <div class="machine-screen" id="screen">
             <div class="idle" id="idle" role="button" tabindex="0"
                  aria-label="Boot OpenVMX in your browser">
+              <!-- Looping teaser: the REAL boot -> login -> SHOW USERS capture
+                   (tools/webdemo/glamor-anim.js), dimmed behind the CTA. Swapped
+                   for the live QEMU-wasm iframe when you click Boot. -->
+              <video class="idlevid" autoplay loop muted playsinline aria-hidden="true"
+                     poster="og-demo.png">
+                <source src="ovmx-boot.webm" type="video/webm">
+                <source src="ovmx-boot.mp4" type="video/mp4">
+              </video>
               <div class="scan" aria-hidden="true"></div>
               <div class="sweep" aria-hidden="true"></div>
               <p class="rdy">OVMX01 · HALTED · READY TO BOOT<span class="cur" aria-hidden="true"></span></p>

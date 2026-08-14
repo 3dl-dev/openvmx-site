@@ -1,0 +1,58 @@
+<!doctype html><html><head><meta charset="utf-8">
+<!-- glamor-card.html — the 1200x630 social-unfurl card. The terminal (#shot) is
+     a REAL screenshot of the running demo console, injected by glamor.js; the
+     brand bar around it is chrome. Version + node are the running guest's real
+     values. Full-width terminal so the amber text is as large as possible. -->
+<style>
+  :root{--amber:#ffb232;--dim:#c98a2e;--deep:#7a5410;--ink:#0b0a06;--panel:#140d00;--line:#3a2708;--text:#ffd98a}
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{width:1200px;height:630px;overflow:hidden}
+  body{background:radial-gradient(130% 120% at 22% 0%,#241704 0%,#140c02 52%,#0b0a06 100%);
+    color:var(--amber);font-family:"DejaVu Sans","Liberation Sans",system-ui,Arial,sans-serif;position:relative}
+  body::after{content:"";position:absolute;inset:0;pointer-events:none;
+    background:repeating-linear-gradient(180deg,rgba(255,178,50,.03) 0 2px,transparent 2px 4px);mix-blend-mode:screen}
+  .wrap{position:absolute;inset:0;display:flex;flex-direction:column;padding:40px 48px 44px;gap:22px}
+
+  .top{display:flex;align-items:flex-end;justify-content:space-between;gap:24px}
+  .mark{font-family:"DejaVu Sans Mono",ui-monospace,Menlo,monospace;font-weight:700;font-size:56px;
+    letter-spacing:.02em;color:var(--amber);text-shadow:0 0 26px rgba(255,178,50,.32);line-height:1}
+  .mark .x{color:#fff0cc}
+  .tag{margin-top:12px;font-size:22px;font-weight:600;color:var(--text);max-width:640px}
+  .tag b{color:var(--amber)}
+  .meta{display:flex;flex-direction:column;align-items:flex-end;gap:10px;flex:none;padding-bottom:4px}
+  .ver{font-family:"DejaVu Sans Mono",ui-monospace,monospace;font-weight:700;font-size:20px;
+    color:var(--ink);background:var(--amber);padding:6px 14px;border-radius:7px;letter-spacing:.02em}
+  .url{font-family:"DejaVu Sans Mono",ui-monospace,monospace;font-size:19px;color:#ffd98a}
+
+  .win{flex:1;min-height:0;display:flex;flex-direction:column;border-radius:12px;overflow:hidden;
+    background:var(--panel);border:1px solid var(--line);
+    box-shadow:0 26px 60px -22px rgba(0,0,0,.85),0 0 0 1px rgba(255,178,50,.05),0 0 50px rgba(255,178,50,.09)}
+  .bar{height:40px;flex:none;display:flex;align-items:center;gap:11px;padding:0 16px;
+    background:linear-gradient(#221704,#180f01);border-bottom:1px solid var(--line)}
+  .dot{width:12px;height:12px;border-radius:50%}
+  .dot:nth-child(1){background:#ff9a3c}.dot:nth-child(2){background:#ffbf47}.dot:nth-child(3){background:#ffcf5a}
+  .title{margin-left:8px;font-family:"DejaVu Sans Mono",ui-monospace,monospace;font-size:15px;color:var(--dim);letter-spacing:.05em}
+  .screen{flex:1;min-height:0;background:var(--panel);display:flex;align-items:flex-start;justify-content:flex-start;overflow:hidden;padding:6px 0 0}
+  #shot{max-width:100%;max-height:100%;display:block;background:var(--panel)}
+</style></head>
+<body>
+  <div class="wrap">
+    <div class="top">
+      <div class="brand">
+        <div class="mark">OpenVM<span class="x">X</span></div>
+        <div class="tag">The classic operating environment, on a modern kernel. <b>Boots in your browser.</b></div>
+      </div>
+      <div class="meta">
+        <span class="ver" id="ver">V0.4-4</span>
+        <span class="url">openvmx.3dl.dev</span>
+      </div>
+    </div>
+    <div class="win">
+      <div class="bar">
+        <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+        <span class="title">OPA0:  &mdash;  <span id="node">OVMX</span>::SYSTEM</span>
+      </div>
+      <div class="screen"><img id="shot" alt="OpenVMX console"></div>
+    </div>
+  </div>
+</body></html>

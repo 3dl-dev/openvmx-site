@@ -183,6 +183,20 @@ jobs:
           sleep 2
           node tools/webdemo/verify.js http://localhost:8098
 
+      - name: Regenerate the social unfurl from THIS release's live console
+        if: steps.r.outputs.skip != '1'
+        run: |
+          # Frame a REAL screenshot of this release's running console (the live
+          # SHOW USERS view) into the 1200x630 social card. Drives the SAME
+          # assembled 'ver/' demo the verify step just proved boots, so the
+          # unfurl always shows exactly what deploys — nothing mocked. Version and
+          # node in the card are read off the running guest.
+          cp tools/webdemo/glamor-index.html ver/glamor-index.html
+          node tools/webdemo/coi-server.js ver 8097 &
+          sleep 2
+          node tools/webdemo/glamor.js http://localhost:8097 og-demo.png
+          ls -la og-demo.png
+
       - name: Update boot payload + commit
         if: steps.r.outputs.skip != '1'
         run: |
@@ -205,7 +219,7 @@ jobs:
             [ -f "$m" ] && sed -i "s#\(data-ovmx-version>\)[^<]*\(</span>\)#\1${TAG}\2#g" "$m" || true
           done
           git config user.name 'ovmx-release-bot'; git config user.email 'bot@3dl.dev'
-          git add boot index.html docs/installation/index.html
+          git add boot index.html docs/installation/index.html og-demo.png
           if git diff --cached --quiet; then echo "no change"; exit 0; fi
           git commit -m "demo: auto-track OVMX ${{ steps.r.outputs.tag }}"
           # rebase-and-retry so a concurrent push to main doesn't lose the deploy
