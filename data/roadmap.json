@@ -1,0 +1,216 @@
+{
+ "meta": {
+  "generated": "2026-08-14",
+  "source": "OVMX release board (rd)",
+  "note": "Derived, milestone-level public view. Regenerated each checkpoint; do not hand-edit.",
+  "scrubbed": "trademark scrub applied on render (public site)"
+ },
+ "vocab": {
+  "status": {
+   "shipped": "Released as a tag.",
+   "in_progress": "Actively landing.",
+   "complete": "All tracked work done; not yet cut.",
+   "planned": "Scoped, not started.",
+   "goal": "The 1.0 objective."
+  }
+ },
+ "milestones": [
+  {
+   "version": "0.3",
+   "theme": "A real system — the command language, file system, system services, and kernel executive stand on their own.",
+   "status": "shipped",
+   "progress": {
+    "done": 0,
+    "open": 0,
+    "blocked": 0,
+    "total": 0,
+    "pct": 0
+   }
+  },
+  {
+   "version": "0.4",
+   "theme": "Installs and boots faithfully — the product installs to a target disk and reboots into a login.",
+   "status": "shipped",
+   "progress": {
+    "done": 0,
+    "open": 0,
+    "blocked": 0,
+    "total": 0,
+    "pct": 0
+   }
+  },
+  {
+   "version": "0.5",
+   "theme": "Foundations for the network and the toolchain — a shared-state executive, VMS-faithful cluster configuration, a self-hosting toolchain, and a self-built kernel.",
+   "status": "in_progress",
+   "progress": {
+    "done": 4,
+    "open": 11,
+    "blocked": 2,
+    "total": 15,
+    "pct": 27
+   }
+  },
+  {
+   "version": "0.6",
+   "theme": "Cluster correctness — quorum and reconfiguration, a real distributed lock manager, and cluster membership resident in the executive.",
+   "status": "planned",
+   "progress": {
+    "done": 0,
+    "open": 4,
+    "blocked": 0,
+    "total": 4,
+    "pct": 0
+   }
+  },
+  {
+   "version": "0.7",
+   "theme": "Cluster wire fidelity — the SCS/MSCP connection manager answers a real VAX byte-for-byte.",
+   "status": "planned",
+   "progress": {
+    "done": 0,
+    "open": 6,
+    "blocked": 0,
+    "total": 6,
+    "pct": 0
+   }
+  },
+  {
+   "version": "0.8",
+   "theme": "Rejoin and satellite boot — a removed node rejoins under its own identity; diskless satellites boot from a served disk.",
+   "status": "planned",
+   "progress": {
+    "done": 0,
+    "open": 4,
+    "blocked": 1,
+    "total": 4,
+    "pct": 0
+   }
+  },
+  {
+   "version": "1.0",
+   "theme": "Joins and serves a real cluster, and runs the software — a voting member that serves genuine ODS-2 storage, holds locks, and evacuates a live node.",
+   "status": "goal",
+   "progress": {
+    "done": 0,
+    "open": 6,
+    "blocked": 4,
+    "total": 6,
+    "pct": 0
+   }
+  }
+ ],
+ "workstreams": [
+  {
+   "name": "Executive substrate",
+   "summary": "Shared system state owned by the kernel executive: logical names, processes, locks, event flags, and devices survive across processes.",
+   "lands_by": "0.5",
+   "status": "in_progress",
+   "progress": {
+    "done": 17,
+    "total": 22,
+    "pct": 77
+   }
+  },
+  {
+   "name": "Command-surface parity",
+   "summary": "Real breadth and depth across the DCL command set and system utilities — no facades.",
+   "lands_by": "continuous",
+   "status": "in_progress",
+   "progress": {
+    "done": 37,
+    "total": 73,
+    "pct": 51
+   }
+  },
+  {
+   "name": "Self-hosting toolchain",
+   "summary": "OVMX builds OVMX from within: compiler, librarian, and linker run as native images with no host tools in the build path.",
+   "lands_by": "0.5-1.0",
+   "status": "in_progress",
+   "progress": {
+    "done": 13,
+    "total": 23,
+    "pct": 57
+   }
+  },
+  {
+   "name": "Cluster configuration",
+   "summary": "Provision a node into a cluster the VMS way: SYSGEN parameters, AUTOGEN, CLUSTER_AUTHORIZE, and CLUSTER_CONFIG.",
+   "lands_by": "0.5-1.0",
+   "status": "planned",
+   "progress": {
+    "done": 0,
+    "total": 5,
+    "pct": 0
+   }
+  },
+  {
+   "name": "TCP/IP networking",
+   "summary": "A VMS-faithful IP layered product: the network device, sockets, the resolver, and the client tools.",
+   "lands_by": "0.5-1.0",
+   "status": "in_progress",
+   "progress": {
+    "done": 4,
+    "total": 9,
+    "pct": 44
+   }
+  },
+  {
+   "name": "DECnet Phase IV",
+   "summary": "Clean-room DECnet: SET HOST and file transfer to and from a lab node.",
+   "lands_by": "1.0",
+   "status": "in_progress",
+   "progress": {
+    "done": 4,
+    "total": 11,
+    "pct": 36
+   }
+  },
+  {
+   "name": "Owns its kernel",
+   "summary": "A kernel built from pinned source with the VMS modules in-tree, curated per architecture, and signed.",
+   "lands_by": "0.5",
+   "status": "in_progress",
+   "progress": {
+    "done": 1,
+    "total": 8,
+    "pct": 12
+   }
+  }
+ ],
+ "releases": [
+  {
+   "tag": "V0.4-4",
+   "note": "Feature pack marching toward 0.5."
+  },
+  {
+   "tag": "V0.4-3",
+   "note": "Feature pack marching toward 0.5."
+  },
+  {
+   "tag": "V0.4-2",
+   "note": "Feature pack marching toward 0.5."
+  },
+  {
+   "tag": "V0.4-1",
+   "note": "Dense feature pack toward 0.5."
+  },
+  {
+   "tag": "V0.4",
+   "note": "Installs to a target disk and reboots into a login."
+  },
+  {
+   "tag": "V0.3-9",
+   "note": "Executive-backed DCL, cluster rejoin, OPCOM messages."
+  },
+  {
+   "tag": "0.3-8",
+   "note": "Point release."
+  },
+  {
+   "tag": "0.3-7",
+   "note": "Point release."
+  }
+ ]
+}
