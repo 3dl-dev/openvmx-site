@@ -41,14 +41,14 @@
   },
   {
    "version": "0.5",
-   "theme": "Foundations for the network and the toolchain — a shared-state executive, VMS-faithful cluster configuration, a self-hosting toolchain, and a self-built kernel.",
+   "theme": "Foundations for the network and the toolchain — a shared-state executive, VMS-faithful cluster configuration, a self-hosting toolchain, and a kernel substrate of its own.",
    "status": "in_progress",
    "progress": {
-    "done": 5,
-    "open": 13,
+    "done": 9,
+    "open": 16,
     "blocked": 2,
-    "total": 18,
-    "pct": 28
+    "total": 25,
+    "pct": 36
    }
   },
   {
@@ -92,11 +92,11 @@
    "theme": "Joins and serves a real cluster, and runs the software — a voting member that serves genuine ODS-2 storage, holds locks, and evacuates a live node.",
    "status": "goal",
    "progress": {
-    "done": 0,
-    "open": 7,
-    "blocked": 4,
-    "total": 7,
-    "pct": 0
+    "done": 1,
+    "open": 15,
+    "blocked": 8,
+    "total": 16,
+    "pct": 6
    }
   }
  ],
@@ -138,11 +138,11 @@
    "name": "Cluster configuration",
    "summary": "Provision a node into a cluster the VMS way: SYSGEN parameters, AUTOGEN, CLUSTER_AUTHORIZE, and CLUSTER_CONFIG.",
    "lands_by": "0.5-1.0",
-   "status": "planned",
+   "status": "in_progress",
    "progress": {
-    "done": 0,
+    "done": 1,
     "total": 6,
-    "pct": 0
+    "pct": 17
    }
   },
   {
@@ -151,9 +151,9 @@
    "lands_by": "0.5-1.0",
    "status": "in_progress",
    "progress": {
-    "done": 4,
+    "done": 5,
     "total": 9,
-    "pct": 44
+    "pct": 56
    }
   },
   {
@@ -168,14 +168,14 @@
    }
   },
   {
-   "name": "Owns its kernel",
-   "summary": "A kernel built from pinned source with the VMS modules in-tree, curated per architecture, and signed.",
+   "name": "Kernel substrate",
+   "summary": "SYSKRNL: the OVMX executive layered over the Linux and NetBSD kernels — not a kernel of its own. Built from pinned upstream source with the VMS modules in-tree, curated per architecture.",
    "lands_by": "0.5",
    "status": "in_progress",
    "progress": {
-    "done": 2,
+    "done": 4,
     "total": 8,
-    "pct": 25
+    "pct": 50
    }
   }
  ],
