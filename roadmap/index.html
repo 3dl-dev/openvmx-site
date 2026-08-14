@@ -184,10 +184,8 @@ footer{border-top:var(--hair) solid var(--ink);background:var(--paper-2);padding
 <aside class="rail" aria-label="Release snapshot">
   <p class="rail-h">Latest releases</p>
   <div class="rail-card">
-    <ul class="rail-rel">
-      <li><b>V0.4</b> — installs and boots faithfully.</li>
-      <li><b>V0.3-9</b> — executive-backed DCL, cluster rejoin.</li>
-      <li><b>0.3-4</b> — accounting, volumes, clean cluster leave.</li>
+    <ul class="rail-rel" id="rail-rel-list">
+      <li>Loading…</li>
     </ul>
   </div>
   <p class="rail-meta">Milestones ship on a tag cadence, regenerated from the project's own work
@@ -288,12 +286,18 @@ footer{border-top:var(--hair) solid var(--ink);background:var(--paper-2);padding
     if(!r.ok) throw new Error('HTTP '+r.status); return r.json();
   }).then(render).catch(function(e){
     el('ladder-list').innerHTML='<div class="empty">Could not load the roadmap data ('+esc(e.message)+').</div>';
+    el('rail-rel-list').innerHTML='<li>Releases unavailable. See <a href="/status/">release status</a>.</li>';
   });
 
   function render(data){
     if(data.meta&&data.meta.generated){
       el('gen-stamp').textContent='Generated '+data.meta.generated+' from the OpenVMX release board.';
     }
+    var rels=data.releases||[];
+    el('rail-rel-list').innerHTML = rels.slice(0,3).map(function(r){
+      return '<li><b>'+esc(r.tag)+'</b> — '+esc(r.note)+'</li>';
+    }).join('') || '<li>No releases yet.</li>';
+
     var ms=data.milestones||[];
     el('ladder-list').innerHTML=ms.map(function(m){
       var p=m.progress||{};

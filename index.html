@@ -293,6 +293,7 @@ section{border-bottom:var(--hair) solid var(--ink)}
 .st{font-family:var(--f-mono);font-size:11px;padding:5px 10px;letter-spacing:.08em;display:inline-block;
   font-weight:700;border:1.5px solid currentColor}
 .st.ok{color:var(--blue)}.st.dev{color:var(--amber)}.st.plan{color:var(--ink-3)}.st.ref{color:var(--ok)}
+.empty{padding:40px;border:1px dashed var(--blue-line);color:var(--ink-3);font-family:var(--f-mono);font-size:13px}
 
 /* build */
 .build{background:#091327;color:#e4e9f6;font-family:var(--f-mono);font-size:13px;line-height:1.75;
@@ -352,14 +353,11 @@ footer{background:var(--paper-2)}
 <aside class="rail" aria-label="Roadmap and releases">
   <p class="rail-h">Recent releases</p>
   <div class="rail-card">
-    <ul class="rail-rel">
-      <li><b>V0.4</b> — installs to a target disk and reboots into a login.</li>
-      <li><b>V0.3-9</b> — executive-backed DCL, cluster rejoin, OPCOM.</li>
-      <li><b>0.3-4</b> — SET&nbsp;ACCOUNTING / SET&nbsp;VOLUME, clean cluster leave.</li>
+    <ul class="rail-rel" id="rail-rel-list">
+      <li>Loading…</li>
     </ul>
   </div>
-  <p class="rail-meta">Now on <b><span data-ovmx-version>V0.4-4</span></b>. Next milestone
-    <b>0.5</b> — the network and the self-hosting toolchain.</p>
+  <p class="rail-meta">Now on <b><span data-ovmx-version>V0.4-4</span></b>. <span id="rail-next"></span></p>
   <a class="rail-link" href="/roadmap/">Full roadmap &rarr;</a>
   <a class="rail-link" href="/status/">Live release status &rarr;</a>
 </aside>
@@ -600,15 +598,10 @@ footer{background:var(--paper-2)}
       <div class="manual pad-b">
         <div class="marg">
           <h4>Recent releases</h4>
-          <!-- WS-6: this list is static for now. The release tracker
-               (track-release.yml) can regenerate it from git tags on deploy,
-               the same way it rewrites the version token above. -->
-          <ul>
-            <li><b>V0.4</b> — installs to a target disk and reboots into a login.</li>
-            <li><b>V0.3-9</b> — executive-backed DCL, cluster rejoin, OPCOM messages.</li>
-            <li><b>0.3-4</b> — SET&nbsp;ACCOUNTING / SET&nbsp;VOLUME, clean cluster leave.</li>
-            <li><b>0.3-3</b> — conversational boot, DCL parser fidelity.</li>
-            <li><b>0.3-1</b> — rebrand, single QEMU runtime.</li>
+          <!-- data-driven from /data/roadmap.json; see the render() call in the
+               page script below. -->
+          <ul id="rel-list-home">
+            <li>Loading recent releases&hellip;</li>
           </ul>
         </div>
         <div class="text">
@@ -618,15 +611,8 @@ footer{background:var(--paper-2)}
             <thead>
               <tr><th scope="col">Release</th><th scope="col">Theme</th><th scope="col">State</th></tr>
             </thead>
-            <tbody>
-              <tr><th scope="row">0.3</th><td>A real system: command language, file system, system services, and kernel executive standing on their own</td>
-                <td><span class="st ok">Shipped</span></td></tr>
-              <tr><th scope="row">0.4</th><td>Installs and boots faithfully: the product installs to a target disk and reboots into a login</td>
-                <td><span class="st ok">Current</span></td></tr>
-              <tr><th scope="row">0.5</th><td>Networking as a layered product, a self-hosting toolchain, and its own kernel build</td>
-                <td><span class="st dev">Planned</span></td></tr>
-              <tr><th scope="row">1.0</th><td>Joins and serves a cluster, and runs the software: a voting member that serves and consumes storage, participates in the lock manager, and runs unmodified applications</td>
-                <td><span class="st plan">Goal</span></td></tr>
+            <tbody id="ladder-body-home">
+              <tr><td colspan="3" class="empty">Loading the milestone ladder&hellip;</td></tr>
             </tbody>
           </table>
           </div>
@@ -723,6 +709,52 @@ footer{background:var(--paper-2)}
   });
 
   document.getElementById('yr').textContent = new Date().getFullYear();
+
+  /* ---- roadmap & releases: rendered from /data/roadmap.json (rail, the
+     "Recent releases" list, and the milestone ladder table). Same fetch/
+     render pattern as /roadmap/ and /status/. ---- */
+  (function(){
+    var esc=function(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});};
+    var el=function(id){return document.getElementById(id);};
+    var STLABEL={shipped:'Shipped',in_progress:'In progress',complete:'Complete',planned:'Planned',goal:'Goal'};
+    var STCLASS={shipped:'ok',in_progress:'dev',complete:'ok',planned:'plan',goal:'plan'};
+
+    fetch('/data/roadmap.json').then(function(r){
+      if(!r.ok) throw new Error('HTTP '+r.status); return r.json();
+    }).then(render).catch(function(e){
+      el('rail-rel-list').innerHTML='<li>Releases unavailable. See the <a href="/status/">release status</a>.</li>';
+      el('rail-next').innerHTML='See the <a href="/roadmap/">full roadmap</a>.';
+      el('rel-list-home').innerHTML='<li>Could not load recent releases ('+esc(e.message)+'). See the '+
+        '<a href="/status/">release status</a>.</li>';
+      el('ladder-body-home').innerHTML='<tr><td colspan="3" class="empty">Could not load the milestone '+
+        'ladder. See the <a href="/roadmap/">full roadmap</a>.</td></tr>';
+    });
+
+    function render(data){
+      var rels=data.releases||[];
+      var ms=data.milestones||[];
+
+      el('rail-rel-list').innerHTML = rels.slice(0,3).map(function(r){
+        return '<li><b>'+esc(r.tag)+'</b> — '+esc(r.note)+'</li>';
+      }).join('') || '<li>No releases yet.</li>';
+
+      var next=null;
+      for(var i=0;i<ms.length;i++){ if(ms[i].status==='in_progress'){next=ms[i];break;} }
+      if(!next){ for(var j=0;j<ms.length;j++){ if(ms[j].status!=='shipped'){next=ms[j];break;} } }
+      el('rail-next').innerHTML = next ? 'Next milestone <b>'+esc(next.version)+'</b> — '+esc(next.theme) : '';
+
+      el('rel-list-home').innerHTML = rels.slice(0,5).map(function(r){
+        return '<li><b>'+esc(r.tag)+'</b> — '+esc(r.note)+'</li>';
+      }).join('') || '<li>No releases yet.</li>';
+
+      el('ladder-body-home').innerHTML = ms.map(function(m){
+        var cls=STCLASS[m.status]||'plan', lab=STLABEL[m.status]||m.status;
+        return '<tr><th scope="row">'+esc(m.version)+'</th><td>'+esc(m.theme)+'</td>'+
+          '<td><span class="st '+cls+'">'+lab+'</span></td></tr>';
+      }).join('') || '<tr><td colspan="3" class="empty">No milestones yet.</td></tr>';
+    }
+  })();
 
   /* ---- click-to-boot: the idle cover swaps in the real qemu-wasm machine ----
      Nothing heavy loads until the visitor asks for it (respects metered/slow

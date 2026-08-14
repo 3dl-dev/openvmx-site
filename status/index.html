@@ -160,11 +160,8 @@ footer{border-top:var(--hair) solid var(--ink);background:var(--paper-2);padding
 <aside class="rail" aria-label="Milestone snapshot">
   <p class="rail-h">Milestones to 1.0</p>
   <div class="rail-card">
-    <ul class="rail-rel">
-      <li><b>0.3 · 0.4</b> — shipped.</li>
-      <li><b>0.5</b> — in progress: the network and the toolchain.</li>
-      <li><b>0.6–0.8</b> — cluster correctness, wire fidelity, rejoin.</li>
-      <li><b>1.0</b> — joins and serves a real cluster.</li>
+    <ul class="rail-rel" id="rail-rel-list">
+      <li>Loading…</li>
     </ul>
   </div>
   <p class="rail-meta">The full ladder, with every workstream and its progress, lives on the roadmap.</p>
@@ -268,6 +265,7 @@ footer{border-top:var(--hair) solid var(--ink);background:var(--paper-2);padding
     if(!r.ok) throw new Error('HTTP '+r.status); return r.json();
   }).then(render).catch(function(e){
     el('now').innerHTML='<div class="empty" style="border:0">Could not load the status data ('+esc(e.message)+').</div>';
+    el('rail-rel-list').innerHTML='<li>Milestones unavailable. See the <a href="/roadmap/">roadmap</a>.</li>';
   });
 
   function barRow(nm, sub, status, done, total){
@@ -283,6 +281,11 @@ footer{border-top:var(--hair) solid var(--ink);background:var(--paper-2);padding
       el('gen-stamp').textContent='Generated '+data.meta.generated+' from the OpenVMX release board.';
     }
     var ms=data.milestones||[];
+    el('rail-rel-list').innerHTML = ms.map(function(m){
+      var lab = m.status==='goal' ? 'the goal' : (STLABEL[m.status]||m.status).toLowerCase();
+      return '<li><b>'+esc(m.version)+'</b> — '+lab+'.</li>';
+    }).join('') || '<li>No milestones yet.</li>';
+
     // current = first in_progress milestone, else first goal
     var cur=null;
     for(var i=0;i<ms.length;i++){ if(ms[i].status==='in_progress'){cur=ms[i];break;} }
