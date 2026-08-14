@@ -104,6 +104,18 @@ a:hover{text-decoration:underline;text-underline-offset:3px;text-decoration-thic
 .rail-link{display:block;font-family:var(--f-mono);font-size:12px;color:var(--link);
   text-decoration:none;margin-top:6px}
 .rail-link:hover{text-decoration:underline;text-underline-offset:3px}
+/* workstream telemetry in the rail — mirrors the roadmap page's bar language */
+.rail-ws{list-style:none;margin:0;padding:0}
+.rail-ws li{margin:0 0 15px}
+.rail-ws li:last-child{margin-bottom:0}
+.ws-top{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:6px}
+.ws-name{font-size:12.5px;font-weight:600;color:var(--ink);line-height:1.25}
+.ws-n{font-family:var(--f-mono);font-size:10.5px;color:var(--ink-3);white-space:nowrap;font-variant-numeric:tabular-nums}
+.ws-track{display:block;height:5px;background:var(--paper-3);border:1px solid var(--blue-line);position:relative;overflow:hidden}
+.ws-track i{position:absolute;inset:0 auto 0 0;background:var(--blue)}
+.ws-track i.dev{background:var(--amber)}
+.ws-track i.plan{background:var(--blue-line)}
+.ws-lands{font-family:var(--f-mono);font-size:9.5px;letter-spacing:.05em;color:var(--ink-3);text-transform:uppercase;margin-top:5px;display:block}
 
 /* ---- the atom: segmented "digital"-style wordmark, reads OpenVMX ---- */
 .mark{display:inline-flex;align-items:stretch;border:var(--hair) solid var(--ink);
@@ -350,10 +362,10 @@ footer{background:var(--paper-2)}
   </div>
 </header>
 
-<aside class="rail" aria-label="Roadmap and releases">
-  <p class="rail-h">Recent releases</p>
+<aside class="rail" aria-label="Where the work stands">
+  <p class="rail-h">Where the work stands</p>
   <div class="rail-card">
-    <ul class="rail-rel" id="rail-rel-list">
+    <ul class="rail-ws" id="rail-ws-list">
       <li>Loading…</li>
     </ul>
   </div>
@@ -723,7 +735,7 @@ footer{background:var(--paper-2)}
     fetch('/data/roadmap.json').then(function(r){
       if(!r.ok) throw new Error('HTTP '+r.status); return r.json();
     }).then(render).catch(function(e){
-      el('rail-rel-list').innerHTML='<li>Releases unavailable. See the <a href="/status/">release status</a>.</li>';
+      el('rail-ws-list').innerHTML='<li>Status unavailable. See the <a href="/roadmap/">roadmap</a>.</li>';
       el('rail-next').innerHTML='See the <a href="/roadmap/">full roadmap</a>.';
       el('rel-list-home').innerHTML='<li>Could not load recent releases ('+esc(e.message)+'). See the '+
         '<a href="/status/">release status</a>.</li>';
@@ -734,10 +746,19 @@ footer{background:var(--paper-2)}
     function render(data){
       var rels=data.releases||[];
       var ms=data.milestones||[];
+      var ws=data.workstreams||[];
+      var BARCLASS={shipped:'',complete:'',in_progress:'',planned:'plan',goal:'plan'};
 
-      el('rail-rel-list').innerHTML = rels.slice(0,3).map(function(r){
-        return '<li><b>'+esc(r.tag)+'</b> — '+esc(r.note)+'</li>';
-      }).join('') || '<li>No releases yet.</li>';
+      el('rail-ws-list').innerHTML = ws.map(function(w){
+        var p=w.progress||{}, pct=p.total?p.pct:0;
+        var bc=BARCLASS[w.status]||'', land=w.lands_by==='continuous'?'continuous':'lands '+w.lands_by;
+        return '<li class="ws">'+
+          '<div class="ws-top"><span class="ws-name">'+esc(w.name)+'</span>'+
+            '<span class="ws-n">'+(p.total?p.done+'/'+p.total:'—')+'</span></div>'+
+          '<span class="ws-track"><i class="'+bc+'" style="width:'+pct+'%"></i></span>'+
+          '<span class="ws-lands">'+esc(land)+'</span>'+
+        '</li>';
+      }).join('') || '<li>No workstreams yet.</li>';
 
       var next=null;
       for(var i=0;i<ms.length;i++){ if(ms[i].status==='in_progress'){next=ms[i];break;} }

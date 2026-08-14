@@ -72,6 +72,14 @@ a:hover{text-decoration:underline;text-underline-offset:3px}
 .rail-link{display:block;font-family:var(--f-mono);font-size:12px;color:var(--link);
   text-decoration:none;margin-top:6px}
 .rail-link:hover{text-decoration:underline;text-underline-offset:3px}
+/* current-milestone spotlight in the rail */
+.rail-cur .cv{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.rail-cur .ver{font-size:24px;font-weight:700;letter-spacing:-.02em;color:var(--ink);line-height:1}
+.rail-cur .pct{font-family:var(--f-mono);font-size:13px;color:var(--blue);font-variant-numeric:tabular-nums}
+.rail-cur .thm{font-size:12.5px;color:var(--ink-2);line-height:1.5;margin:10px 0 12px}
+.rail-cur .track{display:block;height:6px;background:var(--paper-3);border:1px solid var(--blue-line);position:relative;overflow:hidden}
+.rail-cur .track i{position:absolute;inset:0 auto 0 0;background:var(--blue)}
+.rail-cur .n{font-family:var(--f-mono);font-size:10.5px;color:var(--ink-3);margin-top:6px;display:block}
 .mono{font-family:var(--f-mono);font-size:.92em}
 
 /* wordmark + masthead (same as other pages) */
@@ -181,12 +189,10 @@ footer{border-top:var(--hair) solid var(--ink);background:var(--paper-2);padding
   </div>
 </header>
 
-<aside class="rail" aria-label="Release snapshot">
-  <p class="rail-h">Latest releases</p>
-  <div class="rail-card">
-    <ul class="rail-rel" id="rail-rel-list">
-      <li>Loading…</li>
-    </ul>
+<aside class="rail" aria-label="Current milestone">
+  <p class="rail-h">Current milestone</p>
+  <div class="rail-card rail-cur" id="rail-cur">
+    <p>Loading…</p>
   </div>
   <p class="rail-meta">Milestones ship on a tag cadence, regenerated from the project's own work
     board each checkpoint.</p>
@@ -286,19 +292,29 @@ footer{border-top:var(--hair) solid var(--ink);background:var(--paper-2);padding
     if(!r.ok) throw new Error('HTTP '+r.status); return r.json();
   }).then(render).catch(function(e){
     el('ladder-list').innerHTML='<div class="empty">Could not load the roadmap data ('+esc(e.message)+').</div>';
-    el('rail-rel-list').innerHTML='<li>Releases unavailable. See <a href="/status/">release status</a>.</li>';
+    el('rail-cur').innerHTML='<p>Milestone status unavailable. See <a href="/status/">release status</a>.</p>';
   });
 
   function render(data){
     if(data.meta&&data.meta.generated){
       el('gen-stamp').textContent='Generated '+data.meta.generated+' from the OpenVMX release board.';
     }
-    var rels=data.releases||[];
-    el('rail-rel-list').innerHTML = rels.slice(0,3).map(function(r){
-      return '<li><b>'+esc(r.tag)+'</b> — '+esc(r.note)+'</li>';
-    }).join('') || '<li>No releases yet.</li>';
-
     var ms=data.milestones||[];
+
+    // rail spotlight: the current milestone (first in_progress, else first goal)
+    var cur=null;
+    for(var ci=0;ci<ms.length;ci++){ if(ms[ci].status==='in_progress'){cur=ms[ci];break;} }
+    if(!cur){ for(var cj=0;cj<ms.length;cj++){ if(ms[cj].status==='goal'){cur=ms[cj];break;} } }
+    if(cur){
+      var cp=cur.progress||{}, cpct=cp.total?cp.pct:0;
+      el('rail-cur').innerHTML=
+        '<div class="cv"><span class="ver">'+esc(cur.version)+'</span><span class="pct">'+cpct+'%</span></div>'+
+        '<p class="thm">'+esc(cur.theme)+'</p>'+
+        '<span class="track"><i style="width:'+cpct+'%"></i></span>'+
+        '<span class="n">'+(cp.total?cp.done+' of '+cp.total+' items done':'')+'</span>';
+    } else {
+      el('rail-cur').innerHTML='<p>All milestones shipped.</p>';
+    }
     el('ladder-list').innerHTML=ms.map(function(m){
       var p=m.progress||{};
       var pct=p.total?p.pct:0;
