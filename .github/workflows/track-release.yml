@@ -197,6 +197,21 @@ jobs:
           node tools/webdemo/glamor.js http://localhost:8097 og-demo.png
           ls -la og-demo.png
 
+      - name: Refresh the Atom release feed from vms git tags
+        if: steps.r.outputs.skip != '1'
+        run: |
+          # The public release feed (/atom.xml) is DERIVED from the vms git tags
+          # by tools/roadmap/reconcile.py --feed-only — no rd relay needed, and it
+          # cannot touch the rd-derived data/roadmap.json. Regenerate it here so a
+          # new tag refreshes the feed as part of the release train (was previously
+          # only ever written by a manual conductor reconcile run). A blobless
+          # clone carries every tag + commit date; blobs are not needed.
+          rm -rf vmsfeed
+          git clone --quiet --filter=blob:none https://github.com/3dl-dev/vms vmsfeed
+          git -C vmsfeed fetch --tags --quiet
+          python3 vmsfeed/tools/roadmap/reconcile.py --feed-only --site-dir "$PWD"
+          rm -rf vmsfeed
+
       - name: Update boot payload + commit
         if: steps.r.outputs.skip != '1'
         run: |
@@ -219,7 +234,7 @@ jobs:
             [ -f "$m" ] && sed -i "s#\(data-ovmx-version>\)[^<]*\(</span>\)#\1${TAG}\2#g" "$m" || true
           done
           git config user.name 'ovmx-release-bot'; git config user.email 'bot@3dl.dev'
-          git add boot index.html docs/installation/index.html og-demo.png
+          git add boot index.html docs/installation/index.html og-demo.png atom.xml
           if git diff --cached --quiet; then echo "no change"; exit 0; fi
           git commit -m "demo: auto-track OVMX ${{ steps.r.outputs.tag }}"
           # rebase-and-retry so a concurrent push to main doesn't lose the deploy
