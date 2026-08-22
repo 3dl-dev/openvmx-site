@@ -54,6 +54,18 @@ jobs:
             echo "already on $TAG (pass force=true to re-capture)."; echo "skip=1" >> "$GITHUB_OUTPUT"; exit 0
           fi
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          # Demo capture can be DELIBERATELY blocked for this tag (e.g. a cut whose
+          # install-reboot the snapshot can't cleanly capture). boot/DEMO_PIN.json
+          # is the explicit, tracked acknowledgment. When it validly pins the
+          # current demo image (pinned_to == DEPLOYED) against THIS tag
+          # (blocked_from == TAG), skip the expensive build+capture (still cascade
+          # the version labels + feed below) so the job is green and cheap instead
+          # of rebuilding + failing verify every 3h. force=true overrides the pin.
+          if [ "${{ github.event.inputs.force }}" != "true" ] \
+             && python3 -c "import json,sys; p=json.load(open('boot/DEMO_PIN.json')); sys.exit(0 if p.get('pinned_to')=='$DEPLOYED' and p.get('blocked_from')=='$TAG' else 1)" 2>/dev/null; then
+            echo "demo capture is pinned/blocked for $TAG (boot/DEMO_PIN.json) — labels+feed only, capture skipped."
+            echo "capture_skip=1" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Gate — public manuals must not lie about the commands (drift check at the tag)
         if: steps.r.outputs.skip != '1'
@@ -149,7 +161,7 @@ jobs:
           echo "push failed after retries"; exit 1
 
       - name: Obtain boot assets (prefer published Release, else build from source)
-        if: steps.r.outputs.skip != '1'
+        if: steps.r.outputs.skip != '1' && steps.r.outputs.capture_skip != '1'
         env: { GH_TOKEN: '${{ secrets.GITHUB_TOKEN }}' }
         run: |
           T='${{ steps.r.outputs.tag }}'; mkdir -p rel
@@ -171,14 +183,14 @@ jobs:
           ls -la rel
 
       - name: Install qemu-img + Playwright
-        if: steps.r.outputs.skip != '1'
+        if: steps.r.outputs.skip != '1' && steps.r.outputs.capture_skip != '1'
         run: |
           sudo apt-get update && sudo apt-get install -y qemu-utils
           npm init -y >/dev/null 2>&1 && npm i -D playwright@1.47.0
           npx playwright install --with-deps chromium
 
       - name: Download our qemu-wasm binary (fork Release)
-        if: steps.r.outputs.skip != '1'
+        if: steps.r.outputs.skip != '1' && steps.r.outputs.capture_skip != '1'
         env: { GH_TOKEN: '${{ secrets.GITHUB_TOKEN }}' }
         run: |
           mkdir -p qw
@@ -186,7 +198,7 @@ jobs:
             -p qemu-system-x86_64.wasm -p out.js -p qemu-system-x86_64.worker.js
 
       - name: Assemble capture harness + capture snapshot
-        if: steps.r.outputs.skip != '1'
+        if: steps.r.outputs.skip != '1' && steps.r.outputs.capture_skip != '1'
         run: |
           H=cap; mkdir -p "$H/assets"
           cp tools/webdemo/capture-index.html "$H/index.html"
@@ -202,7 +214,7 @@ jobs:
           gzip -9 -c snap.qcow2 > sysdisk.qcow2.gz && ls -la sysdisk.qcow2.gz
 
       - name: Verify the demo resumes INTO the startup dialog (gate before commit)
-        if: steps.r.outputs.skip != '1'
+        if: steps.r.outputs.skip != '1' && steps.r.outputs.capture_skip != '1'
         run: |
           # Assemble EXACTLY what would be committed: the real demo boot/ page +
           # the fresh binaries + the just-captured snapshot. Then prove the resume
@@ -218,7 +230,7 @@ jobs:
           node tools/webdemo/verify.js http://localhost:8098
 
       - name: Regenerate the social unfurl from THIS release's live console
-        if: steps.r.outputs.skip != '1'
+        if: steps.r.outputs.skip != '1' && steps.r.outputs.capture_skip != '1'
         run: |
           # Frame a REAL screenshot of this release's running console (the live
           # SHOW USERS view) into the 1200x630 social card. Drives the SAME
@@ -232,7 +244,7 @@ jobs:
           ls -la og-demo.png
 
       - name: Update boot payload + commit
-        if: steps.r.outputs.skip != '1'
+        if: steps.r.outputs.skip != '1' && steps.r.outputs.capture_skip != '1'
         run: |
           cp qw/qemu-system-x86_64.wasm qw/out.js qw/qemu-system-x86_64.worker.js boot/
           cp rel/vmlinuz boot/vmlinuz
