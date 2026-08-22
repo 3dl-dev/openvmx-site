@@ -83,6 +83,17 @@ self.Module = {
     };
     self.postMessage({ t: 'ready' });
   },
+  // Halt detection. `-no-reboot` makes QEMU EXIT (via exit()) when the guest
+  // resets/bugchecks — but this emscripten build hardcodes noExitRuntime=true
+  // (out.js: `Module["noExitRuntime"] || true`), so Module.onExit is gated OFF
+  // and never fires on a clean exit. `quit_` (out.js _proc_exit) IS called
+  // unconditionally, and Module.quit overrides it — so hook that. Re-throw
+  // toThrow to preserve emscripten's exit-unwind. onAbort still catches hard
+  // wasm traps; onExit kept in case a future build ships EXIT_RUNTIME=1.
+  quit: (code, toThrow) => {
+    self.postMessage({ t: 'halt', m: 'OpenVMX halted' + (code ? ' (exit ' + code + ')' : '') + '.' });
+    throw toThrow;
+  },
   onExit: (c) => self.postMessage({ t: 'halt', m: 'OpenVMX halted' + (c ? ' (exit ' + c + ')' : '') + '.' }),
   onAbort: () => self.postMessage({ t: 'halt', m: 'OpenVMX stopped unexpectedly.' }),
 };
