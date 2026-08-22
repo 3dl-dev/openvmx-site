@@ -255,16 +255,48 @@
       // console behaviour), which also guarantees the boot banner finished
       // first. So after the startup dialog replays the guest sits SILENT at
       // that RETURN gate; without a keystroke "Username:" never appears and the
-      // console looks stuck. The demo is that operator: nudge RETURN once a
-      // second (idempotent -- an extra RETURN at the prompt just re-shows a
-      // blank "Username:") until the prompt actually streams in, then stop.
+      // console looks stuck. The demo is that operator, striking RETURN for the
+      // visitor -- but it must strike it ONCE, and only when the guest is truly
+      // at the gate.
+      //
+      // vms-6d78: finishResume() fires at the FIRST replayed boot line, i.e. at
+      // the very START of the ~15-24s startup-dialog replay, long before the
+      // login gate. The old nudge sprayed a RETURN every second from here on;
+      // the guest console is in COOKED mode with ECHO ON during boot, so every
+      // premature RETURN was echoed as a blank line -- ~two dozen of them dumped
+      // into the middle of the dialog. Fix: don't nudge blind. Wait until the
+      // guest is actually AT the login gate -- the last startup-dialog line is
+      // the JOB_CONTROL process creation (%RUN-S-PROC_ID) -- AND the console has
+      // fallen SILENT (no new output for ~1.5s), meaning the dialog finished and
+      // the guest is now blocked on the RETURN gate. THEN send exactly ONE
+      // RETURN. OVMX wakes on that single keystroke; the only blank it can print
+      // is the echo of that one deliberate RETURN -- exactly what a visitor
+      // pressing RETURN themselves would see -- not the old two-dozen spray.
+      // The re-nudge below is last-resort insurance for a genuinely lost
+      // keystroke only: LOGINOUT can take ~10s of wall time to wake and print
+      // "Username:" under the slow wasm TCG, and that whole stretch is SILENT,
+      // so the re-nudge quiet threshold is set well above that wake latency --
+      // a single keystroke wins the race and no extra RETURN is ever echoed.
       // Input still flows through term.onData(postInput), so a visitor can also
       // press RETURN themselves; this only spares them a mystery silent screen.
-      let woke = 0;
+      const LOGIN_READY = /%RUN-S-PROC_ID|JOB_CONTROL/;   // last startup-dialog line before the gate
+      const SILENT_MS = 1500;                             // dialog gone quiet == guest is at the gate
+      const RENUDGE_MS = 30000;                           // >> LOGINOUT's silent TCG wake latency; lost-keystroke insurance only
+      let lastLen = capText.length, lastChange = performance.now(), nudged = false;
       const wakeTimer = setInterval(() => {
-        if (/Username:/.test(capText) || ++woke > 20) { clearInterval(wakeTimer); return; }
-        postInput('\r');
-      }, 1000);
+        if (/Username:/.test(capText)) { clearInterval(wakeTimer); return; }
+        if (capText.length !== lastLen) { lastLen = capText.length; lastChange = performance.now(); }
+        const quiet = performance.now() - lastChange;
+        if (!nudged) {
+          // First keystroke: only once the dialog reached the login gate AND
+          // went quiet -- i.e. the guest is genuinely blocked waiting for RETURN.
+          if (LOGIN_READY.test(capText) && quiet >= SILENT_MS) { postInput('\r'); nudged = true; lastChange = performance.now(); }
+          return;
+        }
+        // Already nudged but "Username:" still absent: re-nudge only after a long
+        // continued silence (lost-keystroke insurance), never into a live stream.
+        if (quiet >= RENUDGE_MS) { postInput('\r'); lastChange = performance.now(); }
+      }, 500);
     }
     const timer = setInterval(() => {
       if (done) return;
