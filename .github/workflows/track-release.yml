@@ -54,6 +54,18 @@ jobs:
             echo "already on $TAG (pass force=true to re-capture)."; echo "skip=1" >> "$GITHUB_OUTPUT"; exit 0
           fi
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          # Demo capture can be DELIBERATELY blocked for this tag (e.g. a cut whose
+          # install-reboot the snapshot can't cleanly capture). boot/DEMO_PIN.json
+          # is the explicit, tracked acknowledgment. When it validly pins the
+          # current demo image (pinned_to == DEPLOYED) against THIS tag
+          # (blocked_from == TAG), skip the expensive build+capture (still cascade
+          # the version labels + feed below) so the job is green and cheap instead
+          # of rebuilding + failing verify every 3h. force=true overrides the pin.
+          if [ "${{ github.event.inputs.force }}" != "true" ] \
+             && python3 -c "import json,sys; p=json.load(open('boot/DEMO_PIN.json')); sys.exit(0 if p.get('pinned_to')=='$DEPLOYED' and p.get('blocked_from')=='$TAG' else 1)" 2>/dev/null; then
+            echo "demo capture is pinned/blocked for $TAG (boot/DEMO_PIN.json) — labels+feed only, capture skipped."
+            echo "capture_skip=1" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Gate — public manuals must not lie about the commands (drift check at the tag)
         if: steps.r.outputs.skip != '1'
@@ -114,8 +126,42 @@ jobs:
               --manual  docs/installation/index.html \
               --version "$T"
 
-      - name: Obtain boot assets (prefer published Release, else build from source)
+      - name: Cascade the version labels + release feed (INDEPENDENT of the demo capture)
         if: steps.r.outputs.skip != '1'
+        run: |
+          # The product-edition version shown on the site (SPD line, "Now on …")
+          # and the Atom release feed follow the RELEASE TAG, not the demo image.
+          # These are cheap text/data regens and MUST advance the moment a release
+          # ships — even when the expensive, fragile demo capture is blocked (e.g.
+          # a cut whose first boot install-reboots and can't be cleanly snapshot-
+          # ted). Keeping this OUT of the capture-gated commit below is what stops
+          # the "site still says V0.5 because the demo couldn't be captured" drift.
+          # The demo's OWN badge (data-demo-version) tracks DEPLOYED_TAG and is
+          # rewritten only when a clean capture actually advances the demo.
+          T='${{ steps.r.outputs.tag }}'
+          # Atom feed — derived from vms git tags (reuse reconcile.py, do not fork).
+          rm -rf vmsfeed
+          git clone --quiet --filter=blob:none https://github.com/3dl-dev/vms vmsfeed
+          git -C vmsfeed fetch --tags --quiet
+          python3 vmsfeed/tools/roadmap/reconcile.py --feed-only --site-dir "$PWD"
+          rm -rf vmsfeed
+          # Product-edition spans in the landing page + the documentation-set manuals.
+          sed -i "s#\(data-ovmx-version>\)[^<]*\(</span>\)#\1${T}\2#g" index.html || true
+          for m in docs/installation/index.html; do
+            [ -f "$m" ] && sed -i "s#\(data-ovmx-version>\)[^<]*\(</span>\)#\1${T}\2#g" "$m" || true
+          done
+          git config user.name 'ovmx-release-bot'; git config user.email 'bot@3dl.dev'
+          git add index.html docs/installation/index.html atom.xml
+          if git diff --cached --quiet; then echo "labels/feed already current for $T"; exit 0; fi
+          git commit -m "site: track OVMX ${T} — version labels + release feed"
+          for i in 1 2 3 4 5; do
+            git pull --rebase --autostash origin main && git push origin HEAD:main && exit 0
+            echo "push $i rejected, retrying…"; sleep 5
+          done
+          echo "push failed after retries"; exit 1
+
+      - name: Obtain boot assets (prefer published Release, else build from source)
+        if: steps.r.outputs.skip != '1' && steps.r.outputs.capture_skip != '1'
         env: { GH_TOKEN: '${{ secrets.GITHUB_TOKEN }}' }
         run: |
           T='${{ steps.r.outputs.tag }}'; mkdir -p rel
@@ -137,14 +183,14 @@ jobs:
           ls -la rel
 
       - name: Install qemu-img + Playwright
-        if: steps.r.outputs.skip != '1'
+        if: steps.r.outputs.skip != '1' && steps.r.outputs.capture_skip != '1'
         run: |
           sudo apt-get update && sudo apt-get install -y qemu-utils
           npm init -y >/dev/null 2>&1 && npm i -D playwright@1.47.0
           npx playwright install --with-deps chromium
 
       - name: Download our qemu-wasm binary (fork Release)
-        if: steps.r.outputs.skip != '1'
+        if: steps.r.outputs.skip != '1' && steps.r.outputs.capture_skip != '1'
         env: { GH_TOKEN: '${{ secrets.GITHUB_TOKEN }}' }
         run: |
           mkdir -p qw
@@ -152,7 +198,7 @@ jobs:
             -p qemu-system-x86_64.wasm -p out.js -p qemu-system-x86_64.worker.js
 
       - name: Assemble capture harness + capture snapshot
-        if: steps.r.outputs.skip != '1'
+        if: steps.r.outputs.skip != '1' && steps.r.outputs.capture_skip != '1'
         run: |
           H=cap; mkdir -p "$H/assets"
           cp tools/webdemo/capture-index.html "$H/index.html"
@@ -168,7 +214,7 @@ jobs:
           gzip -9 -c snap.qcow2 > sysdisk.qcow2.gz && ls -la sysdisk.qcow2.gz
 
       - name: Verify the demo resumes INTO the startup dialog (gate before commit)
-        if: steps.r.outputs.skip != '1'
+        if: steps.r.outputs.skip != '1' && steps.r.outputs.capture_skip != '1'
         run: |
           # Assemble EXACTLY what would be committed: the real demo boot/ page +
           # the fresh binaries + the just-captured snapshot. Then prove the resume
@@ -184,7 +230,7 @@ jobs:
           node tools/webdemo/verify.js http://localhost:8098
 
       - name: Regenerate the social unfurl from THIS release's live console
-        if: steps.r.outputs.skip != '1'
+        if: steps.r.outputs.skip != '1' && steps.r.outputs.capture_skip != '1'
         run: |
           # Frame a REAL screenshot of this release's running console (the live
           # SHOW USERS view) into the 1200x630 social card. Drives the SAME
@@ -197,44 +243,32 @@ jobs:
           node tools/webdemo/glamor.js http://localhost:8097 og-demo.png
           ls -la og-demo.png
 
-      - name: Refresh the Atom release feed from vms git tags
-        if: steps.r.outputs.skip != '1'
-        run: |
-          # The public release feed (/atom.xml) is DERIVED from the vms git tags
-          # by tools/roadmap/reconcile.py --feed-only — no rd relay needed, and it
-          # cannot touch the rd-derived data/roadmap.json. Regenerate it here so a
-          # new tag refreshes the feed as part of the release train (was previously
-          # only ever written by a manual conductor reconcile run). A blobless
-          # clone carries every tag + commit date; blobs are not needed.
-          rm -rf vmsfeed
-          git clone --quiet --filter=blob:none https://github.com/3dl-dev/vms vmsfeed
-          git -C vmsfeed fetch --tags --quiet
-          python3 vmsfeed/tools/roadmap/reconcile.py --feed-only --site-dir "$PWD"
-          rm -rf vmsfeed
-
       - name: Update boot payload + commit
-        if: steps.r.outputs.skip != '1'
+        if: steps.r.outputs.skip != '1' && steps.r.outputs.capture_skip != '1'
         run: |
           cp qw/qemu-system-x86_64.wasm qw/out.js qw/qemu-system-x86_64.worker.js boot/
           cp rel/vmlinuz boot/vmlinuz
           cp rel/initramfs-ovmx-slim.cpio.gz boot/initramfs-ovmx.cpio.gz
           cp sysdisk.qcow2.gz boot/sysdisk.qcow2.gz
+          # This step is reached only after verify.js proved the fresh capture
+          # resumes into the startup dialog AND the Username: prompt — so the demo
+          # image now genuinely boots this tag. Advance DEPLOYED_TAG accordingly.
           echo '${{ steps.r.outputs.tag }}' > boot/DEPLOYED_TAG
-          VER='${{ steps.r.outputs.tag }}-${{ github.run_number }}'
-          sed -i "s/const PAYLOAD_VER = '[^']*'/const PAYLOAD_VER = '${VER}'/" boot/qemu-worker.js || true
-          # Follow the deployed release on the landing page too: rewrite the
-          # version token in index.html from the just-written DEPLOYED_TAG, the
-          # same way we rewrite PAYLOAD_VER above, so the SPD line never drifts.
           TAG=$(cat boot/DEPLOYED_TAG)
-          sed -i "s#\(data-ovmx-version>\)[^<]*\(</span>\)#\1${TAG}\2#" index.html || true
-          # Stamp the same version token into the documentation-set manuals, so a
-          # manual's "Applies to" line can never silently claim a stale release.
-          # Every data-ovmx-version span in every docs manual follows DEPLOYED_TAG.
-          for m in docs/installation/index.html; do
-            [ -f "$m" ] && sed -i "s#\(data-ovmx-version>\)[^<]*\(</span>\)#\1${TAG}\2#g" "$m" || true
-          done
+          # PAYLOAD_VER is the cache-buster for the demo PAYLOAD, so it is keyed to
+          # DEPLOYED_TAG (the image just captured), not the product edition.
+          VER="${TAG}-${{ github.run_number }}"
+          sed -i "s/const PAYLOAD_VER = '[^']*'/const PAYLOAD_VER = '${VER}'/" boot/qemu-worker.js || true
+          # The VISIBLE demo badge on the landing page states what the demo really
+          # boots (distinct from the product-edition data-ovmx-version, cascaded
+          # earlier). It follows DEPLOYED_TAG so it can never overstate the demo.
+          sed -i "s#\(data-demo-version>\)[^<]*\(</span>\)#\1${TAG}\2#g" index.html || true
+          # The demo now matches this release, so any deliberate demo-lag pin no
+          # longer applies — remove it (cascade-verify treats deployed==latest as
+          # current regardless, and a stale pin would only confuse a later reader).
+          git rm -q --ignore-unmatch boot/DEMO_PIN.json || rm -f boot/DEMO_PIN.json
           git config user.name 'ovmx-release-bot'; git config user.email 'bot@3dl.dev'
-          git add boot index.html docs/installation/index.html og-demo.png atom.xml
+          git add boot index.html og-demo.png
           if git diff --cached --quiet; then echo "no change"; exit 0; fi
           git commit -m "demo: auto-track OVMX ${{ steps.r.outputs.tag }}"
           # rebase-and-retry so a concurrent push to main doesn't lose the deploy

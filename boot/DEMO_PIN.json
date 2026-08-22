@@ -1,0 +1,8 @@
+{
+  "_comment": "EXPLICIT, tracked pin for the in-browser demo. The demo image is re-captured by .github/workflows/track-release.yml, which savevm-snapshots the guest at the kernel->/init handoff so the tab resumes in ~2s. When a release cannot be cleanly captured, the demo stays on the last-good snapshot and THIS FILE acknowledges the lag so it is not a silent stale. Checked by `reconcile.py --check-cascade` and cascade-verify.yml: while boot/DEPLOYED_TAG != the latest release tag, pinned_to must equal DEPLOYED_TAG and blocked_from must equal the latest tag, or the cascade gate fails. Delete this file (or update both fields) once a clean capture of the latest release lands.",
+  "pinned_to": "V0.5",
+  "blocked_from": "V0.5-1",
+  "reason": "V0.5-1's first-boot performs an install that ends in a reboot; the handoff-point snapshot resumes into startup, hits the install-reboot, and the second full ~70-90s wasm kernel boot does not reach the Username: prompt within the verify budget (verify.js fails 'reached startup but never Username:'). The verify gate correctly refuses to ship a broken capture. A clean V0.5-1 capture needs a stable POST-reboot login snapshot (capture after the install-reboot settles at login) or a demo image with the install-machinery stripped (vms-250).",
+  "tracking": "vms-c48",
+  "acknowledged": "2026-08-22"
+}
