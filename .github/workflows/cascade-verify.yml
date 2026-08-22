@@ -1,0 +1,43 @@
+name: cascade-verify
+
+# Loud, cheap backstop for the release cascade: assert every public downstream
+# surface on THIS site reflects the latest OVMX release tag (or, for the demo,
+# carries an explicit tracked pin). Unlike track-release (which builds + captures
+# the demo and can legitimately fail on a demo-capture race), this job does no
+# build — it just reads the site's surfaces and the vms git tags — so a red here
+# means a real, visible cascade drift ("demo shows V0.5 while V0.5-1 shipped"),
+# not a flaky capture. Runs on every push/PR to the site AND on a schedule so a
+# new upstream release that leaves a surface behind turns a commit status red.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: '11 */3 * * *'      # shortly before track-release's :23 cron
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency: cascade-verify-${{ github.ref }}
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Clone vms for the release tags (source of truth)
+        run: |
+          # Blobless clone carries every tag + commit date; blobs aren't needed.
+          # The cascade check reuses vms's reconcile.py verbatim (do NOT fork the
+          # check) so both repos agree on what "current" means.
+          rm -rf vmssrc
+          git clone --quiet --filter=blob:none https://github.com/3dl-dev/vms vmssrc
+          git -C vmssrc fetch --tags --quiet
+
+      - name: Verify the release cascade
+        run: |
+          python3 vmssrc/tools/roadmap/reconcile.py --check-cascade --site-dir "$PWD"
