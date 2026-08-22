@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>OpenVMX releases</title>
+  <subtitle>Shipped releases of OpenVMX — the DCL and RMS operating environment on the Linux and NetBSD kernels.</subtitle>
+  <link href="https://openvmx.3dl.dev/atom.xml" rel="self"/>
+  <link href="https://openvmx.3dl.dev/" rel="alternate"/>
+  <id>tag:openvmx.3dl.dev,2026:releases</id>
+  <updated>2026-08-21T20:03:35-04:00</updated>
+  <author><name>OpenVMX</name></author>
+  <entry>
+    <title>V0.5-1</title>
+    <id>tag:openvmx.3dl.dev,2026:release/V0.5-1</id>
+    <updated>2026-08-21T20:03:35-04:00</updated>
+    <link href="https://openvmx.3dl.dev/roadmap/" rel="alternate"/>
+    <summary>Hardens the Alpha authentic-login gate and lands C++ first-light. The ODS-2 executive ACP is proven on x86_64 and Alpha LP64 (which boot and run RMS over the executive ACP); on NetBSD/VAX the ACP codec is built and unit-proven but is NOT yet wired into the runtime — the VAX image set builds with OVMX_HAVE_ACP undefined and boots via the Files-11 VFS/POSIX path (converting the VAX runtime onto the ACP is tracked as vms-d5d/vms-049, V0.5-2+; the vms-d9c VAX-boot gate is green to PROVISION.EXE via that path). Alpha authentic binary-SYSUAF login carries a standing green-by-SHA CI gate, and C++ first-light — a real C++ program (constructors, std::string/iostream, throw/catch) runs to exit-0 as an OVMX image, proven across x86_64, Alpha LP64, and VAX ILP32.</summary>
+  </entry>
+  <entry>
+    <title>V0.5</title>
+    <id>tag:openvmx.3dl.dev,2026:release/V0.5</id>
+    <updated>2026-08-21T15:29:57-04:00</updated>
+    <link href="https://openvmx.3dl.dev/roadmap/" rel="alternate"/>
+    <summary>The authenticity flip: RMS reads and writes genuine Files-11 ODS-2 over the executive ACP (the /vms passthrough retired on the runtime path); binary $UAFDEF SYSUAF + Purdy login proven on x86_64 and Alpha LP64; and the shipped MMK.EXE self-hosts the userland in-guest (TCC-&gt;LIBRARIAN-&gt;LINK-&gt;activate, zero bash, byte-identical). The NetBSD/VAX substrate runs on the Files-11 VFS/POSIX path; wiring the VAX runtime onto the executive ACP is tracked as vms-d5d/vms-049 (V0.5-2+).</summary>
+  </entry>
+  <entry>
+    <title>V0.4-6</title>
+    <id>tag:openvmx.3dl.dev,2026:release/V0.4-6</id>
+    <updated>2026-08-15T11:45:43-04:00</updated>
+    <link href="https://openvmx.3dl.dev/roadmap/" rel="alternate"/>
+    <summary>Real OpenSSH key exchange over the executive network path, genuine ODS-2 read/write/INITIALIZE foundations, cluster rejoin proof, VAX co-release, and a sharded kernel-executive gate.</summary>
+  </entry>
+  <entry>
+    <title>V0.4-5</title>
+    <id>tag:openvmx.3dl.dev,2026:release/V0.4-5</id>
+    <updated>2026-08-14T18:46:28-04:00</updated>
+    <link href="https://openvmx.3dl.dev/roadmap/" rel="alternate"/>
+    <summary>Feature pack marching toward 0.5.</summary>
+  </entry>
+  <entry>
+    <title>V0.4-4</title>
+    <id>tag:openvmx.3dl.dev,2026:release/V0.4-4</id>
+    <updated>2026-08-13T15:45:36-04:00</updated>
+    <link href="https://openvmx.3dl.dev/roadmap/" rel="alternate"/>
+    <summary>Feature pack marching toward 0.5.</summary>
+  </entry>
+  <entry>
+    <title>V0.4-3</title>
+    <id>tag:openvmx.3dl.dev,2026:release/V0.4-3</id>
+    <updated>2026-08-13T10:13:31-04:00</updated>
+    <link href="https://openvmx.3dl.dev/roadmap/" rel="alternate"/>
+    <summary>Feature pack marching toward 0.5.</summary>
+  </entry>
+  <entry>
+    <title>V0.4-2</title>
+    <id>tag:openvmx.3dl.dev,2026:release/V0.4-2</id>
+    <updated>2026-08-13T04:21:42-04:00</updated>
+    <link href="https://openvmx.3dl.dev/roadmap/" rel="alternate"/>
+    <summary>Feature pack marching toward 0.5.</summary>
+  </entry>
+  <entry>
+    <title>V0.4-1</title>
+    <id>tag:openvmx.3dl.dev,2026:release/V0.4-1</id>
+    <updated>2026-08-13T01:19:35-04:00</updated>
+    <link href="https://openvmx.3dl.dev/roadmap/" rel="alternate"/>
+    <summary>Dense feature pack toward 0.5.</summary>
+  </entry>
+</feed>
