@@ -5,8 +5,15 @@
   <link href="https://openvmx.3dl.dev/atom.xml" rel="self"/>
   <link href="https://openvmx.3dl.dev/" rel="alternate"/>
   <id>tag:openvmx.3dl.dev,2026:releases</id>
-  <updated>2026-08-22T19:13:08-04:00</updated>
+  <updated>2026-08-23T01:01:33-04:00</updated>
   <author><name>OpenVMX</name></author>
+  <entry>
+    <title>V0.5-3</title>
+    <id>tag:openvmx.3dl.dev,2026:release/V0.5-3</id>
+    <updated>2026-08-23T01:01:33-04:00</updated>
+    <link href="https://openvmx.3dl.dev/roadmap/" rel="alternate"/>
+    <summary>QA-remediation, acceptance-gate-proven. Fixes the basic-command breakage that shipped in V0.5-2 and installs a standing boot-and-run DCL/SHOW acceptance gate so it cannot recur — the gate boots the real image, logs in, runs the commands a user types, and asserts VMS-faithful output. SHOW USERS lists real interactive and spawned processes (was empty); WRITE F$GETSYI and other lexical functions evaluate rather than printing literal tokens; SHOW DEVICE shows mount state, volume label, and free blocks; SHOW QUOTA is de-fabricated to an honest %SYSTEM-F-NODISKQUOTA (no invented UIC/blocks, INV-6); SHOW DEVICES/SYMBOL wildcard/STATUS real $GETJPI accounting; bare DIRECTORY resolves the rooted login default (was %DIRECT-W-NOFILES); DIRECTORY header/columns and the SPAWN /PROCESS= qualifier. Also: os-release VERSION_ID SSOT guard, the roadmap Ledger reconcile, and the alpha-dec-vms cc1 entry-label decoration up the do-it-like-VMS ladder.</summary>
+  </entry>
   <entry>
     <title>V0.5-2</title>
     <id>tag:openvmx.3dl.dev,2026:release/V0.5-2</id>
@@ -53,13 +60,6 @@
     <title>V0.4-3</title>
     <id>tag:openvmx.3dl.dev,2026:release/V0.4-3</id>
     <updated>2026-08-13T10:13:31-04:00</updated>
-    <link href="https://openvmx.3dl.dev/roadmap/" rel="alternate"/>
-    <summary>Feature pack marching toward 0.5.</summary>
-  </entry>
-  <entry>
-    <title>V0.4-2</title>
-    <id>tag:openvmx.3dl.dev,2026:release/V0.4-2</id>
-    <updated>2026-08-13T04:21:42-04:00</updated>
     <link href="https://openvmx.3dl.dev/roadmap/" rel="alternate"/>
     <summary>Feature pack marching toward 0.5.</summary>
   </entry>
