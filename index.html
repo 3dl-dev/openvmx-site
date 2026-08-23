@@ -171,6 +171,12 @@ a:hover{text-decoration:underline;text-underline-offset:3px;text-decoration-thic
   margin:0 0 clamp(22px,2.6vw,30px);letter-spacing:-.006em}
 .deck b{color:var(--ink);font-weight:600}
 
+/* two machines side by side: same OS, two architectures. Stacks below 900px.
+   Stays within the .cover column (never exceeds --maxw). */
+.machines{display:grid;grid-template-columns:1fr 1fr;gap:clamp(14px,2vw,26px);
+  align-items:start}
+@media (max-width:900px){.machines{grid-template-columns:1fr}}
+
 /* the cover machine — a VT-series terminal: molded greige bezel, recessed
    amber CRT. Fixed hardware look in both page themes (a machine doesn't invert).
    Cosmetic OVMX presentation, not asserted VMS-authentic (Rule 8). */
@@ -406,14 +412,15 @@ footer{background:var(--paper-2)}
       <div class="cover">
         <p class="pn"><b>OpenVMX</b> · Software Product Description · Version <span data-ovmx-version>V0.5-4</span></p>
         <h1 class="coverh">DCL, RMS, and VMS from scratch on the Linux and NetBSD kernels.</h1>
-        <p class="deck">A command language, a record file system, the system services, and a kernel
-          <b>executive</b>. Independent, open-source code. The panel below is OpenVMX booting in your
-          browser, compiled to WebAssembly.</p>
+        <p class="deck">The two panels below are OpenVMX booting in your browser on the architectures
+          VSI abandoned — modern <b>x86_64</b> (compiled to WebAssembly) and a 1977-era <b>VAX</b> (a
+          MicroVAX 3900). Same DCL, same RMS, same executive. Two machines, one OS.</p>
 
+        <div class="machines">
         <figure class="machine" id="machine">
           <figcaption class="machine-top">
             <span class="live"><i class="dot"></i>OpenVMX</span>
-            <span class="plate">AA–OVMX2 · console · snapshot <span data-demo-version>V0.5-4</span></span>
+            <span class="plate">OVMX · x86_64 · console · snapshot <span data-demo-version>V0.5-4</span></span>
           </figcaption>
           <div class="machine-screen" id="screen">
             <div class="idle" id="idle" role="button" tabindex="0"
@@ -441,6 +448,33 @@ footer{background:var(--paper-2)}
             VMS-authentic. The guest resumes from a snapshot under QEMU compiled to WebAssembly; TCG
             emulation is slow. Single node.</figcaption>
         </figure>
+
+        <figure class="machine" id="machine-vax">
+          <figcaption class="machine-top">
+            <span class="live"><i class="dot"></i>OpenVMX</span>
+            <span class="plate">OVMX/VAX · MicroVAX 3900 · console</span>
+          </figcaption>
+          <div class="machine-screen" id="screen-vax">
+            <div class="idle" id="idle-vax" role="button" tabindex="0"
+                 aria-label="Boot OpenVMX on an emulated VAX in your browser">
+              <!-- No teaser video for the VAX pane: a CRT-styled HALTED panel,
+                   matching the .rdy line, invites the click. The live PCjs KA655
+                   iframe is swapped in on click. -->
+              <div class="scan" aria-hidden="true"></div>
+              <div class="sweep" aria-hidden="true"></div>
+              <p class="rdy">OVMX/VAX · HALTED · READY TO BOOT<span class="cur" aria-hidden="true"></span></p>
+              <button class="bootbtn" id="bootbtn-vax" type="button">▶ Boot the VAX</button>
+              <p class="bootmeta" id="bootmeta-vax">A real MicroVAX 3900 (KA655) emulated in your
+                browser, booting the <b>same OpenVMX</b>. Cold boot to login takes ~4 minutes — it's
+                the 1977 ISA, live. ~9&nbsp;MB streamed.</p>
+            </div>
+          </div>
+          <figcaption class="logintip">Log in with username <b>SYSTEM</b>, password <b>MANAGER</b></figcaption>
+          <figcaption class="machine-cap">PCjs KA655 emulator (JS), booting OpenVMX/VAX over a
+            NetBSD-VAX kernel substrate. The same OS as the x86_64 panel, on the architecture VSI
+            abandoned. Emulated, so it's slow. Single node.</figcaption>
+        </figure>
+        </div>
 
         <div class="go">
           <a class="golink" href="https://github.com/3dl-dev/vms">View the source on GitHub <span class="ar">→</span></a>
@@ -862,6 +896,32 @@ footer{background:var(--paper-2)}
   if (btn)  btn.addEventListener('click', boot);
   if (idle) idle.addEventListener('keydown', function(e){
     if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); boot(); }
+  });
+
+  /* ---- click-to-boot: the VAX pane. Mirrors boot() above, but swaps in a
+     cross-origin PCjs KA655 emulator (JS, no cross-origin isolation needed).
+     Both panes require a click; neither auto-boots — running two emulators at
+     once is heavy, so we never start either one unasked. Double-injection is
+     guarded by bootedVax, exactly like boot()'s `booted` flag. */
+  var idleVax   = document.getElementById('idle-vax');
+  var btnVax    = document.getElementById('bootbtn-vax');
+  var screenVax = document.getElementById('screen-vax');
+  var bootedVax = false;
+
+  function bootVax(){
+    if (bootedVax) return; bootedVax = true;
+    var f = document.createElement('iframe');
+    f.src = 'https://vax.3dl.network/machines/dec/vax/browser/ovmx.html' +
+      '?rom=https://do6xafl18swnu.cloudfront.net/vaxdisks/ka655x.bin' +
+      '&image=https://do6xafl18swnu.cloudfront.net/vaxdisks/ovmx-vax-demo.img' +
+      '&mem=32';
+    f.title = 'OpenVMX/VAX — live serial console (MicroVAX 3900)';
+    if (idleVax) idleVax.remove();
+    screenVax.appendChild(f);
+  }
+  if (btnVax)  btnVax.addEventListener('click', bootVax);
+  if (idleVax) idleVax.addEventListener('keydown', function(e){
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); bootVax(); }
   });
 })();
 </script>
