@@ -799,6 +799,15 @@ footer{background:var(--paper-2)}
     var STLABEL={shipped:'Shipped',in_progress:'In progress',complete:'Complete',planned:'Planned',goal:'Goal'};
     var STCLASS={shipped:'ok',in_progress:'dev',complete:'ok',planned:'plan',goal:'plan'};
 
+    /* The x86_64 demo badge tracks what the demo actually BOOTS — boot/DEPLOYED_TAG,
+       the tag of the captured snapshot — independent of roadmap.json, so it can never
+       overstate the demo even when a newer product release has shipped. */
+    fetch('/boot/DEPLOYED_TAG').then(function(r){return r.ok?r.text():null;}).then(function(t){
+      if(!t) return; t=t.trim(); if(!t) return;
+      var dnodes=document.querySelectorAll('[data-demo-version]');
+      for(var i=0;i<dnodes.length;i++){ dnodes[i].textContent=t; }
+    }).catch(function(){});
+
     fetch('/data/roadmap.json').then(function(r){
       if(!r.ok) throw new Error('HTTP '+r.status); return r.json();
     }).then(render).catch(function(e){
@@ -827,13 +836,14 @@ footer{background:var(--paper-2)}
         '</li>';
       }).join('') || '<li>No workstreams yet.</li>';
 
-      /* single-source the version: fill every [data-ovmx-version] / [data-demo-version]
-         from the current shipped release (newest tag in roadmap.json), so a release cut
-         → reconcile → the whole page + the demo plate auto-track, no hand-edited literals. */
+      /* single-source the PRODUCT version: [data-ovmx-version] = the current shipped
+         release (newest tag in roadmap.json). NOT [data-demo-version] — that badge must
+         state what the demo actually BOOTS (DEPLOYED_TAG), never the latest release, so
+         the snapshot badge can't overstate what's captured (handled separately below). */
       var cur = (data.meta && data.meta.currentVersion) || (rels[0] && rels[0].tag) || '';
       if(cur){
-        var vnodes=document.querySelectorAll('[data-ovmx-version],[data-demo-version]');
-        for(var v=0; v<vnodes.length; v++){ vnodes[v].textContent = cur; }
+        var pnodes=document.querySelectorAll('[data-ovmx-version]');
+        for(var v=0; v<pnodes.length; v++){ pnodes[v].textContent = cur; }
       }
 
       /* "next up": prefer the next in-progress POINT release (e.g. V0.5-5) when reconcile
