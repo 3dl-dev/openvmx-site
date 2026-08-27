@@ -912,6 +912,16 @@ footer{background:var(--paper-2)}
   function bootVax(){
     if (bootedVax) return; bootedVax = true;
     var f = document.createElement('iframe');
+    /* This top page is cross-origin isolated (COEP: require-corp) so the x86_64 pane's
+       qemu-wasm can use SharedArrayBuffer. A require-corp document CANNOT embed a plain
+       cross-origin iframe that doesn't itself send COEP (GitHub Pages / vax.3dl.network
+       can't) — the load is blocked with ERR_BLOCKED_BY_RESPONSE ("refused to connect").
+       An anonymous/`credentialless` iframe is the standard escape hatch: it loads the
+       cross-origin embed in a credentials-less, ephemeral partition, which require-corp
+       permits. The embed needs no cookies (its ROM+disk are public CORS fetches from
+       CloudFront), so credentialless mode is transparent to it. */
+    f.credentialless = true;
+    f.setAttribute('credentialless', '');
     f.src = 'https://vax.3dl.network/machines/dec/vax/browser/ovmx.html' +
       '?rom=https://do6xafl18swnu.cloudfront.net/vaxdisks/ka655x.bin' +
       '&image=https://do6xafl18swnu.cloudfront.net/vaxdisks/ovmx-vax-demo.img' +
