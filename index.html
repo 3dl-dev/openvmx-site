@@ -148,14 +148,14 @@ a:hover{text-decoration:underline;text-underline-offset:3px;text-decoration-thic
   border-bottom:var(--hair) solid var(--ink)}
 .mast .row{display:flex;align-items:center;gap:22px;height:62px}
 .mast .partno{font-family:var(--f-mono);font-size:11px;color:var(--ink-3);letter-spacing:.1em}
-.mast nav{margin-left:auto;display:flex;gap:26px;align-items:center}
+.mast nav{margin-left:auto;display:flex;gap:20px;align-items:center}
 .mast nav a{font-family:var(--f-mono);font-size:12.5px;color:var(--ink);letter-spacing:.02em}
 .mast nav a:hover{color:var(--blue);text-decoration:none}
 .mast nav a.gh{color:var(--blue)}
 .tgl{font-family:var(--f-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;
   background:transparent;border:1px solid var(--ink);color:var(--ink);padding:7px 10px;cursor:pointer;line-height:1}
 .tgl:hover{background:var(--ink);color:var(--paper)}
-@media (max-width:860px){.mast nav a.txt{display:none}.mast .partno{display:none}}
+@media (max-width:960px){.mast nav a.txt{display:none}.mast .partno{display:none}}
 
 /* ============================================================ HERO (the machine is the cover) */
 .hero{position:relative;overflow:hidden}
@@ -413,8 +413,8 @@ footer{background:var(--paper-2)}
         <p class="pn"><b>OpenVMX</b> · Software Product Description · Version <span data-ovmx-version>V0.5-4</span></p>
         <h1 class="coverh">DCL, RMS, and VMS from scratch on the Linux and NetBSD kernels.</h1>
         <p class="deck">The two panels below are OpenVMX booting in your browser on the architectures
-          VSI abandoned — modern <b>x86_64</b> (compiled to WebAssembly) and a 1977-era <b>VAX</b> (a
-          MicroVAX 3900). Same DCL, same RMS, same executive. Two machines, one OS.</p>
+          the industry left behind — modern <b>x86_64</b> (compiled to WebAssembly) and a 1977-era
+          <b>VAX</b> (a MicroVAX 3900). Same DCL, same RMS, same executive. Two machines, one OS.</p>
 
         <div class="machines">
         <figure class="machine" id="machine">
@@ -472,8 +472,8 @@ footer{background:var(--paper-2)}
           <figcaption class="logintip">Boots OpenVMX to the DCL login prompt on a real VAX.
             <span class="alt">Interactive login on the VAX is still in progress.</span></figcaption>
           <figcaption class="machine-cap">PCjs KA655 emulator (JS), booting OpenVMX/VAX over a
-            NetBSD-VAX kernel substrate — the same OS as the x86_64 panel, on the architecture VSI
-            abandoned. Watch it come up to <code>Username:</code>. Emulated, so it's slow. Single node.</figcaption>
+            NetBSD-VAX kernel substrate — the same OS as the x86_64 panel, on an architecture the
+            industry left behind. Watch it come up to <code>Username:</code>. Emulated, so it's slow. Single node.</figcaption>
         </figure>
         </div>
 
