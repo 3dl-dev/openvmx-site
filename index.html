@@ -827,10 +827,27 @@ footer{background:var(--paper-2)}
         '</li>';
       }).join('') || '<li>No workstreams yet.</li>';
 
-      var next=null;
-      for(var i=0;i<ms.length;i++){ if(ms[i].status==='in_progress'){next=ms[i];break;} }
-      if(!next){ for(var j=0;j<ms.length;j++){ if(ms[j].status!=='shipped'){next=ms[j];break;} } }
-      el('rail-next').innerHTML = next ? 'Next milestone <b>'+esc(next.version)+'</b> — '+esc(next.theme) : '';
+      /* single-source the version: fill every [data-ovmx-version] / [data-demo-version]
+         from the current shipped release (newest tag in roadmap.json), so a release cut
+         → reconcile → the whole page + the demo plate auto-track, no hand-edited literals. */
+      var cur = (data.meta && data.meta.currentVersion) || (rels[0] && rels[0].tag) || '';
+      if(cur){
+        var vnodes=document.querySelectorAll('[data-ovmx-version],[data-demo-version]');
+        for(var v=0; v<vnodes.length; v++){ vnodes[v].textContent = cur; }
+      }
+
+      /* "next up": prefer the next in-progress POINT release (e.g. V0.5-5) when reconcile
+         emits it; otherwise fall back to the next milestone. This is the fix for the rail
+         jumping straight to the 0.6 milestone and hiding the next point release. */
+      var npr = data.meta && data.meta.nextPointRelease;
+      if(npr && npr.version){
+        el('rail-next').innerHTML = 'Next release <b>'+esc(npr.version)+'</b>'+(npr.theme?' — '+esc(npr.theme):'');
+      } else {
+        var next=null;
+        for(var i=0;i<ms.length;i++){ if(ms[i].status==='in_progress'){next=ms[i];break;} }
+        if(!next){ for(var j=0;j<ms.length;j++){ if(ms[j].status!=='shipped'){next=ms[j];break;} } }
+        el('rail-next').innerHTML = next ? 'Next milestone <b>'+esc(next.version)+'</b> — '+esc(next.theme) : '';
+      }
 
       el('rel-list-home').innerHTML = rels.slice(0,5).map(function(r){
         return '<li><b>'+esc(r.tag)+'</b> — '+esc(r.note)+'</li>';

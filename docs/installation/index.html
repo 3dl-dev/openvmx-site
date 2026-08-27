@@ -800,6 +800,14 @@ cluster-logicals
     label();
   });
   document.getElementById('yr').textContent = new Date().getFullYear();
+
+  /* single-source the version from the roadmap ledger (same source as the homepage),
+     so this page's "applies to" tracks the current release instead of a hand-edited literal */
+  fetch('/data/roadmap.json').then(function(r){return r.ok?r.json():null;}).then(function(d){
+    if(!d) return;
+    var cur=(d.meta&&d.meta.currentVersion)||(d.releases&&d.releases[0]&&d.releases[0].tag);
+    if(cur){ var ns=document.querySelectorAll('[data-ovmx-version]'); for(var i=0;i<ns.length;i++) ns[i].textContent=cur; }
+  }).catch(function(){});
 })();
 </script>
 </body>
