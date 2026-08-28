@@ -469,11 +469,11 @@ footer{background:var(--paper-2)}
                 the 1977 ISA, live. ~9&nbsp;MB streamed.</p>
             </div>
           </div>
-          <figcaption class="logintip">Boots OpenVMX to the DCL login prompt on a real VAX.
-            <span class="alt">Interactive login on the VAX is still in progress.</span></figcaption>
+          <figcaption class="logintip">Boots and logs in to a live DCL <code>$</code> on a real VAX —
+            it signs in as <b>SYSTEM</b>, then the prompt is yours to drive.</figcaption>
           <figcaption class="machine-cap">PCjs KA655 emulator (JS), booting OpenVMX/VAX over a
             NetBSD-VAX kernel substrate — the same OS as the x86_64 panel, on an architecture the
-            industry left behind. Watch it come up to <code>Username:</code>. Emulated, so it's slow. Single node.</figcaption>
+            industry left behind. Watch it boot and log in to the DCL <code>$</code>. Emulated, so it's slow. Single node.</figcaption>
         </figure>
         </div>
 
@@ -954,8 +954,8 @@ footer{background:var(--paper-2)}
        it in-browser (no ranged host needed). Versioned filename = cache-busting. */
     f.src = 'https://vax.3dl.network/machines/dec/vax/browser/ovmx.html' +
       '?rom=https://vax.3dl.network/machines/dec/vax/browser/ka655x.bin' +
-      '&diskgz=https://vax.3dl.network/machines/dec/vax/browser/ovmx-vax-v052.img.gz' +
-      '&mem=32';
+      '&diskgz=https://vax.3dl.network/machines/dec/vax/browser/ovmx-vax-v0.5-7.img.gz' +
+      '&drive=login&mem=32';
     f.title = 'OpenVMX/VAX — live serial console (MicroVAX 3900)';
     if (idleVax) idleVax.remove();
     screenVax.appendChild(f);
