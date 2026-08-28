@@ -9,7 +9,12 @@ name: track-release
 
 on:
   schedule:
-    - cron: '23 */3 * * *'      # every 3h; catches new tags automatically
+    - cron: '7-59/10 * * * *'   # every 10 min (:07,:17,…): a tag cut auto-cascades
+                                # within ~10 min, zero-touch (no PAT/dispatch needed —
+                                # the repository_dispatch receiver below stays inert as
+                                # an opt-in fast path if a token is ever provisioned).
+                                # ~10 min is the safe floor (GitHub throttles tighter);
+                                # concurrency: track-release below serialises overlaps.
   workflow_dispatch:
     inputs:
       tag:

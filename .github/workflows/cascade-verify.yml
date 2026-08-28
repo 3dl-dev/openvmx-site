@@ -14,7 +14,8 @@ on:
     branches: [main]
   pull_request:
   schedule:
-    - cron: '11 */3 * * *'      # shortly before track-release's :23 cron
+    - cron: '2-59/10 * * * *'   # every 10 min (:02,:12,…), ~5 min before track-release's
+                                # :07 cron — matches the tightened tag→cascade cadence.
   workflow_dispatch:
 
 permissions:
