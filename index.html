@@ -945,13 +945,16 @@ footer{background:var(--paper-2)}
        can't) — the load is blocked with ERR_BLOCKED_BY_RESPONSE ("refused to connect").
        An anonymous/`credentialless` iframe is the standard escape hatch: it loads the
        cross-origin embed in a credentials-less, ephemeral partition, which require-corp
-       permits. The embed needs no cookies (its ROM+disk are public CORS fetches from
-       CloudFront), so credentialless mode is transparent to it. */
+       permits. The embed needs no cookies (its ROM+disk are same-origin GitHub
+       Pages fetches), so credentialless mode is transparent to it. */
     f.credentialless = true;
     f.setAttribute('credentialless', '');
+    /* AWS-free: ROM + disk are hosted on GitHub Pages (the pcjs repo), same origin
+       as the embed — no S3/CloudFront. ?diskgz= pulls one gzip (~53MB) and inflates
+       it in-browser (no ranged host needed). Versioned filename = cache-busting. */
     f.src = 'https://vax.3dl.network/machines/dec/vax/browser/ovmx.html' +
-      '?rom=https://do6xafl18swnu.cloudfront.net/vaxdisks/ka655x.bin' +
-      '&image=https://do6xafl18swnu.cloudfront.net/vaxdisks/ovmx-vax-demo.img' +
+      '?rom=https://vax.3dl.network/machines/dec/vax/browser/ka655x.bin' +
+      '&diskgz=https://vax.3dl.network/machines/dec/vax/browser/ovmx-vax-v052.img.gz' +
       '&mem=32';
     f.title = 'OpenVMX/VAX — live serial console (MicroVAX 3900)';
     if (idleVax) idleVax.remove();
