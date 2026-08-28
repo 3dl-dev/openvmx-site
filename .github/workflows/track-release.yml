@@ -19,6 +19,11 @@ on:
         description: re-capture + redeploy even if DEPLOYED_TAG already matches (e.g. after a demo-harness change)
         type: boolean
         default: false
+  # Fired immediately by the vms release.yml on a tag cut (client_payload.tag), so
+  # the demo/site cascade runs ON the tag instead of waiting for the 3h poll. The
+  # schedule above stays as a backstop. INERT until release.yml sends the dispatch.
+  repository_dispatch:
+    types: [release-tagged]
 
 permissions:
   contents: write
@@ -35,7 +40,9 @@ jobs:
       - name: Resolve latest release tag, compare to deployed
         id: r
         run: |
-          TAG='${{ github.event.inputs.tag }}'
+          # workflow_dispatch input, else the repository_dispatch payload tag (tag
+          # cut), else (schedule) resolve the newest release-like tag by polling.
+          TAG='${{ github.event.inputs.tag || github.event.client_payload.tag }}'
           if [ -z "$TAG" ]; then
             # Release tags come in two flavours: bare (0.3-8) and V-prefixed
             # (V0.3-9, V0.4). Accept an OPTIONAL leading V so the tracker
@@ -213,13 +220,22 @@ jobs:
           node tools/webdemo/capture.js http://localhost:8099 snap.qcow2
           gzip -9 -c snap.qcow2 > sysdisk.qcow2.gz && ls -la sysdisk.qcow2.gz
 
-      - name: Verify the demo resumes INTO the startup dialog (gate before commit)
+      - name: Verify the demo resumes INTO the startup dialog — else auto-pin (try-then-honestly-pin)
+        id: gate
         if: steps.r.outputs.skip != '1' && steps.r.outputs.capture_skip != '1'
         run: |
           # Assemble EXACTLY what would be committed: the real demo boot/ page +
           # the fresh binaries + the just-captured snapshot. Then prove the resume
           # replays the OVMX startup (not a snapshot stuck at Username, and that
-          # it loadvm's in wasm and the reveal works) — else fail without committing.
+          # it loadvm's in wasm and the reveal works).
+          #
+          # TRY-THEN-HONESTLY-PIN: if the gate FAILS, this tag genuinely can't be
+          # captured — so instead of failing red every 3h (or a human preemptively
+          # hand-pinning, which silently froze the demo at V0.5-5 for two releases),
+          # AUTO-WRITE an honest boot/DEMO_PIN.json (demo stays at DEPLOYED, this tag
+          # blocked, with the REAL gate error as the reason) and commit it. The pin
+          # is thus only ever a CONSEQUENCE of a real failure, never preemptive; a
+          # later passing capture removes it (see the commit step).
           rm -rf ver; cp -r boot ver
           cp qw/qemu-system-x86_64.wasm qw/out.js qw/qemu-system-x86_64.worker.js ver/
           cp rel/vmlinuz ver/vmlinuz
@@ -227,10 +243,27 @@ jobs:
           cp sysdisk.qcow2.gz ver/sysdisk.qcow2.gz
           node tools/webdemo/coi-server.js ver 8098 &
           sleep 2
-          node tools/webdemo/verify.js http://localhost:8098
+          if node tools/webdemo/verify.js http://localhost:8098 2>gate.err; then
+            echo "resume-gate PASSED"; echo "gate_ok=1" >> "$GITHUB_OUTPUT"
+          else
+            DEPLOYED=$(cat boot/DEPLOYED_TAG 2>/dev/null || echo unknown)
+            TAG='${{ steps.r.outputs.tag }}'
+            REASON="Capture resume-gate failed $(date -u +%Y-%m-%d): the qemu-wasm demo did not resume into the OVMX startup/Username: from a fresh ${TAG} capture. Last error: $(tail -c 240 gate.err | tr '\n"' '  ')"
+            TRACK="Auto-written by track-release.yml on a REAL resume-gate failure. The demo honestly stays at ${DEPLOYED} until ${TAG} is capturable. Do NOT hand-add a pin preemptively — only an actual failure writes this; a passing capture removes it."
+            python3 -c 'import json,sys; json.dump({"pinned_to":sys.argv[1],"blocked_from":sys.argv[2],"reason":sys.argv[3],"tracking":sys.argv[4]}, open("boot/DEMO_PIN.json","w"), indent=2)' "$DEPLOYED" "$TAG" "$REASON" "$TRACK"
+            git config user.name 'ovmx-release-bot'; git config user.email 'bot@3dl.dev'
+            git add boot/DEMO_PIN.json
+            git commit -m "demo: auto-pin at ${DEPLOYED} — ${TAG} capture failed the resume-gate (honest try-then-pin)"
+            for i in 1 2 3 4 5; do
+              git pull --rebase --autostash origin main && git push origin HEAD:main && break
+              echo "pin push $i rejected, retrying…"; sleep 5
+            done
+            echo "gate_ok=0" >> "$GITHUB_OUTPUT"
+            echo "::warning::resume-gate FAILED for ${TAG}; demo auto-pinned at ${DEPLOYED} (honest). See boot/DEMO_PIN.json."
+          fi
 
       - name: Regenerate the social unfurl from THIS release's live console
-        if: steps.r.outputs.skip != '1' && steps.r.outputs.capture_skip != '1'
+        if: steps.r.outputs.skip != '1' && steps.r.outputs.capture_skip != '1' && steps.gate.outputs.gate_ok == '1'
         run: |
           # Frame a REAL screenshot of this release's running console (the live
           # SHOW USERS view) into the 1200x630 social card. Drives the SAME
@@ -244,7 +277,7 @@ jobs:
           ls -la og-demo.png
 
       - name: Update boot payload + commit
-        if: steps.r.outputs.skip != '1' && steps.r.outputs.capture_skip != '1'
+        if: steps.r.outputs.skip != '1' && steps.r.outputs.capture_skip != '1' && steps.gate.outputs.gate_ok == '1'
         run: |
           cp qw/qemu-system-x86_64.wasm qw/out.js qw/qemu-system-x86_64.worker.js boot/
           cp rel/vmlinuz boot/vmlinuz
