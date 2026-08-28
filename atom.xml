@@ -5,12 +5,12 @@
   <link href="https://openvmx.3dl.dev/atom.xml" rel="self"/>
   <link href="https://openvmx.3dl.dev/" rel="alternate"/>
   <id>tag:openvmx.3dl.dev,2026:releases</id>
-  <updated>2026-08-28T06:18:52+00:00</updated>
+  <updated>2026-08-28T06:18:52Z</updated>
   <author><name>OpenVMX</name></author>
   <entry>
     <title>V0.5-6</title>
     <id>tag:openvmx.3dl.dev,2026:release/V0.5-6</id>
-    <updated>2026-08-28T06:18:52+00:00</updated>
+    <updated>2026-08-28T06:18:52Z</updated>
     <link href="https://openvmx.3dl.dev/roadmap/" rel="alternate"/>
     <summary>Image activation proven end-to-end, and the filesystem converges on a single executive path. The do-it-like-VMS image activation now runs end-to-end against a real /dev/vms — a VMS-standard activation context on the live executive, not a userspace stand-in — the Tier-1 flagship for the runtime. Filesystem convergence: the legacy ODS-2 VFS driver is atomically retired across Linux, NetBSD, and the shared core (~16k lines removed), leaving a single Files-11 ACP executive path. Toolchain hardening up the do-it-like-VMS ladder: the Alpha and VAX cross toolchains now pull source-hash-keyed prebuilt images from ghcr (killing the ftp.gnu.org build flake), the Alpha DECC$SHR vector is enumerated from the linker's own EVAX read view, and the multi-TU LINK.EXE self-host fixpoint is ported from BUILD.COM to MMK (additive, gen2==gen3 proven). VAX substrate: the exec_socket_* seam moves BGn: networking into kernel-core with Linux and NetBSD backends, and vms_stdio/vms_futex build on VAX to close the freestanding-facility gap. Cut through the all-architectures gate (x86_64, aarch64, VAX, and Alpha green-by-SHA on the tagged commit).</summary>
   </entry>
