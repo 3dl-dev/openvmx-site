@@ -269,6 +269,18 @@ jobs:
 
       - name: Regenerate the social unfurl from THIS release's live console
         if: steps.r.outputs.skip != '1' && steps.r.outputs.capture_skip != '1' && steps.gate.outputs.gate_ok == '1'
+        # The social card is COSMETIC and must never gate the demo deploy. It is a
+        # fresh COLD boot (no snapshot), so a slow release's STARTUP.COM can trip
+        # glamor's timeout even though the demo the visitor sees — a RESUME the
+        # verify gate already proved reaches Username: — is fine. Without this, a
+        # bare `if:` is implicitly `success() && …`, so a failed card here poisons
+        # success() and SKIPS the independent commit step below (which shares the
+        # same gate_ok guard, not this step's outcome). Decouple it: a stale/absent
+        # card is acceptable; a demo stuck a release behind for a cosmetic reason is
+        # not. Give the cold boot generous headroom too, so the card usually lands.
+        continue-on-error: true
+        env:
+          GLAMOR_TIMEOUT_S: '600'
         run: |
           # Frame a REAL screenshot of this release's running console (the live
           # SHOW USERS view) into the 1200x630 social card. Drives the SAME
