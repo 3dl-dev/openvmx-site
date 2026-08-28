@@ -1,6 +1,0 @@
-{
-  "pinned_to": "V0.5-7",
-  "blocked_from": "V0.5-8",
-  "reason": "The in-browser x86_64 demo boots a prebuilt bootable snapshot (boot/DEPLOYED_TAG). Rebuilding that wasm demo image to a newer release is a separate build step, not part of the roadmap reconcile — so the demo honestly continues to boot V0.5-7 while the product is at V0.5-8.",
-  "tracking": "Refresh the demo snapshot to the current release as part of the browser-demo build lane."
-}
