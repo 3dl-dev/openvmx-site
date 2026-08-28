@@ -173,9 +173,11 @@ a:hover{text-decoration:underline;text-underline-offset:3px;text-decoration-thic
 
 /* two machines side by side: same OS, two architectures. Stacks below 900px.
    Stays within the .cover column (never exceeds --maxw). */
-.machines{display:grid;grid-template-columns:1fr 1fr;gap:clamp(14px,2vw,26px);
-  align-items:start}
-@media (max-width:900px){.machines{grid-template-columns:1fr}}
+/* Stacked (top/bottom), not side-by-side: an 80-column VMS console needs ~600px,
+   so halving the width forced the terminals to overflow (compressed + h-scroll).
+   Full-width panes, capped + centered so each is a proper ~80-col terminal. */
+.machines{display:grid;grid-template-columns:1fr;gap:clamp(24px,3.5vw,40px);
+  max-width:900px;margin-inline:auto}
 
 /* the cover machine — a VT-series terminal: molded greige bezel, recessed
    amber CRT. Fixed hardware look in both page themes (a machine doesn't invert).
