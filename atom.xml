@@ -5,8 +5,15 @@
   <link href="https://openvmx.3dl.dev/atom.xml" rel="self"/>
   <link href="https://openvmx.3dl.dev/" rel="alternate"/>
   <id>tag:openvmx.3dl.dev,2026:releases</id>
-  <updated>2026-08-29T02:17:38-04:00</updated>
+  <updated>2026-08-29T07:56:26-04:00</updated>
   <author><name>OpenVMX</name></author>
+  <entry>
+    <title>V0.5-11</title>
+    <id>tag:openvmx.3dl.dev,2026:release/V0.5-11</id>
+    <updated>2026-08-29T07:56:26-04:00</updated>
+    <link href="https://openvmx.3dl.dev/roadmap/" rel="alternate"/>
+    <summary>Point release.</summary>
+  </entry>
   <entry>
     <title>V0.5-10</title>
     <id>tag:openvmx.3dl.dev,2026:release/V0.5-10</id>
@@ -55,12 +62,5 @@
     <updated>2026-08-26T17:11:22-04:00</updated>
     <link href="https://openvmx.3dl.dev/roadmap/" rel="alternate"/>
     <summary>VAX authentication reaches DCL. The VAX login chain lands end-to-end: the Purdy-S hash defeats a gcc-vax DImode miscompile by construction so it matches the real binary SYSUAF, JOB_CONTROL establishes SYSTEM identity at startup, and $CREPRC stamps executive identity with RUN /UIC//PRIVILEGES honored. Alpha becomes a co-release peer with a genuine C runtime: a wiring gate reds the cut on any broken Alpha build, the Alpha C-RTL shareables (DECC$SHR's 538 universals and LIBOTS$SHR's 11 OTS$ routines) are built from real musl and libgcc with zero undefined, the GCC port's crt0 links zero-deferred against them, and an FP divide-by-zero raises SS$_HPARITH through the condition handler into $STATUS. Toolchain and faithfulness hardening: a standing shell-portability lint gate, LINK.EXE hard-errors a strong-vs-strong multiple definition (%LINK-F-MULDEF), and the executive-boundary audit tracer (seccomp user-notification, observe-only) makes every raw syscall an image issues visible as a finding — the Phase-A instrument under the executive-boundary program.</summary>
-  </entry>
-  <entry>
-    <title>V0.5-3</title>
-    <id>tag:openvmx.3dl.dev,2026:release/V0.5-3</id>
-    <updated>2026-08-23T01:01:33-04:00</updated>
-    <link href="https://openvmx.3dl.dev/roadmap/" rel="alternate"/>
-    <summary>QA-remediation, acceptance-gate-proven. Fixes the basic-command breakage that shipped in V0.5-2 and installs a standing boot-and-run DCL/SHOW acceptance gate so it cannot recur — the gate boots the real image, logs in, runs the commands a user types, and asserts VMS-faithful output. SHOW USERS lists real interactive and spawned processes (was empty); WRITE F$GETSYI and other lexical functions evaluate rather than printing literal tokens; SHOW DEVICE shows mount state, volume label, and free blocks; SHOW QUOTA is de-fabricated to an honest %SYSTEM-F-NODISKQUOTA (no invented UIC/blocks, INV-6); SHOW DEVICES/SYMBOL wildcard/STATUS real $GETJPI accounting; bare DIRECTORY resolves the rooted login default (was %DIRECT-W-NOFILES); DIRECTORY header/columns and the SPAWN /PROCESS= qualifier. Also: os-release VERSION_ID SSOT guard, the roadmap Ledger reconcile, and the alpha-dec-vms cc1 entry-label decoration up the do-it-like-VMS ladder.</summary>
   </entry>
 </feed>
