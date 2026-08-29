@@ -5,8 +5,15 @@
   <link href="https://openvmx.3dl.dev/atom.xml" rel="self"/>
   <link href="https://openvmx.3dl.dev/" rel="alternate"/>
   <id>tag:openvmx.3dl.dev,2026:releases</id>
-  <updated>2026-08-28T14:04:18-04:00</updated>
+  <updated>2026-08-28T22:49:18-04:00</updated>
   <author><name>OpenVMX</name></author>
+  <entry>
+    <title>V0.5-9</title>
+    <id>tag:openvmx.3dl.dev,2026:release/V0.5-9</id>
+    <updated>2026-08-28T22:49:18-04:00</updated>
+    <link href="https://openvmx.3dl.dev/roadmap/" rel="alternate"/>
+    <summary>Point release.</summary>
+  </entry>
   <entry>
     <title>V0.5-8</title>
     <id>tag:openvmx.3dl.dev,2026:release/V0.5-8</id>
@@ -55,12 +62,5 @@
     <updated>2026-08-22T19:13:08-04:00</updated>
     <link href="https://openvmx.3dl.dev/roadmap/" rel="alternate"/>
     <summary>Restores x86_64 boot-to-login (vms-656): a native-link build-flag drift had dropped the shipped RMS's ODS-2 ACP arm, so STARTUP.COM could not resolve SYS$STARTUP:VMS$PHASES.DAT over the executive ACP — genuine Files-11 ACP search-list resolution is restored (the POSIX fallback removed) with a drift-catching guard, and x86_64 boots to the Username: prompt again. Builds the VMS GCC-port crt0 surface up the do-it-like-VMS ladder: IMGACT presents a genuine VMS image-activation context (Alpha standard call), decc$main produces argc/argv/envp, C$_EXIT1 is a C-RTL globalvalue, and LINK.EXE reads the alpha-dec-vms port's native EVAX object (cross-image SYMG import binding, dsc$descriptor_s canonical binding) with no ELF force-down. Also: vmssshd fail-honest on executive identity refusal (INV-6), the vms-040 executive-boundary audit, genuine $ALLOC/$DALLOC over a NetBSD executive device table, the vms-329 VAX-runtime ACP cutover work, RMS multiblock ACP read-ahead, and SPAWN visibility in SHOW USERS/SYSTEM.</summary>
-  </entry>
-  <entry>
-    <title>V0.5-1</title>
-    <id>tag:openvmx.3dl.dev,2026:release/V0.5-1</id>
-    <updated>2026-08-21T20:03:35-04:00</updated>
-    <link href="https://openvmx.3dl.dev/roadmap/" rel="alternate"/>
-    <summary>Hardens the Alpha authentic-login gate and lands C++ first-light. The ODS-2 executive ACP is proven on x86_64 and Alpha LP64 (which boot and run RMS over the executive ACP); on NetBSD/VAX the ACP codec is built and unit-proven but is NOT yet wired into the runtime — the VAX image set builds with OVMX_HAVE_ACP undefined and boots via the Files-11 VFS/POSIX path (converting the VAX runtime onto the ACP is tracked as vms-d5d/vms-049, V0.5-2+; the vms-d9c VAX-boot gate is green to PROVISION.EXE via that path). Alpha authentic binary-SYSUAF login carries a standing green-by-SHA CI gate, and C++ first-light — a real C++ program (constructors, std::string/iostream, throw/catch) runs to exit-0 as an OVMX image, proven across x86_64, Alpha LP64, and VAX ILP32.</summary>
   </entry>
 </feed>
