@@ -230,8 +230,8 @@ footer{background:var(--paper-2);margin-top:clamp(46px,6vw,84px)}
         system disk, and log in to the installed system.</p>
       <div class="plate">
         <div><span>Order number</span><b>AA&ndash;OVMX3&ndash;IN</b></div>
-        <div><span>Applies to</span><b>OpenVMX <span data-ovmx-version>V0.5-11</span></b></div>
-        <div><span>Edition</span><b>First</b></div>
+        <div><span>Applies to</span><b>OpenVMX <span data-ovmx-version>V0.6</span></b></div>
+        <div><span>Edition</span><b>Second</b></div>
         <div><span>Date</span><b>August 2026</b></div>
       </div>
     </div>
@@ -245,7 +245,7 @@ footer{background:var(--paper-2);margin-top:clamp(46px,6vw,84px)}
 
     <div class="call">
       <span class="lab">About this manual</span>
-      This edition applies to OpenVMX <span data-ovmx-version>V0.5-11</span>. OpenVMX is under development. Steps that are not
+      This edition applies to OpenVMX <span data-ovmx-version>V0.6</span>. OpenVMX is under development. Steps that are not
       implemented yet are marked in the text and listed in Appendix C. If a command here and the
       project's own test scripts disagree, the test scripts are correct. Report the difference as a
       documentation bug.
@@ -260,6 +260,8 @@ footer{background:var(--paper-2);margin-top:clamp(46px,6vw,84px)}
         <tbody>
           <tr><th scope="row">First</th><td class="m">August 2026</td><td class="m">V0.4</td>
             <td>First edition. Documents the <code>PRODUCT INSTALL</code> path to a rooted system disk.</td></tr>
+          <tr><th scope="row">Second</th><td class="m">August 2026</td><td class="m">V0.6</td>
+            <td>Reissued for V0.6 (cluster correctness). TCP/IP Services and cluster participation shipped; Appendix C and the grounding manifest updated to match the compatibility register.</td></tr>
         </tbody>
       </table>
       </div>
@@ -612,9 +614,7 @@ devices
 boot
 <!-- ovmx:covers:end -->
 <!-- ovmx:not-yet:begin -->
-tcpip-services
 decnet
-cluster-dlm
 cluster-logicals
 <!-- ovmx:not-yet:end -->
     </div>
@@ -732,7 +732,7 @@ cluster-logicals
 
     <!-- ============ APPENDIX C ============ -->
     <h2 class="chap" id="cc"><span class="cn">C</span>Appendix C. Not yet available</h2>
-    <p>OpenVMX is under development. These parts of a VMS install are not implemented in V0.4. This
+    <p>OpenVMX is under development. These parts of a VMS install are not implemented in V0.6. This
       guide does not use them.</p>
     <ul class="body">
       <li><b>A menu-driven install from boot media.</b> The numbered install menu is not wired for
@@ -741,11 +741,14 @@ cluster-logicals
       <li><b>A first-boot configuration pass.</b> There is no separate reconfiguration boot: no
         parameter-feedback pass, no page or swap file sizing, and no security, audit, or ACME
         server bring-up. The install produces a directly bootable disk.</li>
-      <li><b>Networking as a VMS device.</b> The virtual machine has a network interface at the
-        Linux layer, but the VMS device face (<code>EWA0:</code>), a TCP/IP stack, and DECnet are
-        not wired yet.</li>
-      <li><b>Cluster membership.</b> Joining and serving a cluster is separate work. It will be
-        described in <em>Cluster Systems</em>.</li>
+      <li><b>Networking as a VMS device.</b> TCP/IP Services ships as a layered product in V0.6
+        (configuration plane, <code>TCPIP$</code> logicals, <code>PING</code>) &mdash; see the
+        <em>TCP/IP Configuration Guide</em>. The install itself does not configure networking, and
+        the VMS network device face (<code>EWA0:</code>) and DECnet are not wired yet.</li>
+      <li><b>Cluster membership.</b> V0.6 makes OpenVMX a cluster participant (distributed lock
+        manager over the interconnect, membership in the executive, <code>SHOW CLUSTER</code>).
+        Standing up and configuring a cluster is described in <em>Cluster Systems</em>. Quorum/votes
+        and MSCP-served volumes are not yet enforced.</li>
     </ul>
     <p class="spacer-b">For the current status of every facility, see the
       <a href="/compat/">compatibility surface</a>.</p>
