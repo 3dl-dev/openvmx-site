@@ -49,21 +49,21 @@
    "status": "shipped",
    "progress": {
     "done": 14,
-    "open": 18,
+    "open": 15,
     "blocked": 5,
-    "total": 32,
-    "pct": 44
+    "total": 29,
+    "pct": 48
    }
   },
   {
    "version": "0.6",
-   "theme": "Cluster correctness — quorum and reconfiguration, a real distributed lock manager, and cluster membership resident in the executive.",
-   "status": "complete",
+   "theme": "Cluster correctness — a real distributed lock manager over the SCS wire, RMS behind the DLM, and cluster membership resident in the executive.",
+   "status": "shipped",
    "progress": {
-    "done": 5,
+    "done": 11,
     "open": 0,
     "blocked": 0,
-    "total": 5,
+    "total": 11,
     "pct": 100
    }
   },
@@ -82,13 +82,13 @@
   {
    "version": "0.8",
    "theme": "Rejoin and satellite boot — a removed node rejoins under its own identity; diskless satellites boot from a served disk.",
-   "status": "in_progress",
+   "status": "planned",
    "progress": {
-    "done": 1,
+    "done": 0,
     "open": 3,
     "blocked": 0,
-    "total": 4,
-    "pct": 25
+    "total": 3,
+    "pct": 0
    }
   },
   {
@@ -109,10 +109,10 @@
    "status": "goal",
    "progress": {
     "done": 24,
-    "open": 12,
+    "open": 15,
     "blocked": 4,
-    "total": 36,
-    "pct": 67
+    "total": 39,
+    "pct": 62
    }
   }
  ],
@@ -209,7 +209,7 @@
  "releases": [
   {
    "tag": "V0.6",
-   "note": "Point release."
+   "note": "Cluster correctness, complete: OVMX is now a genuine VMScluster participant. The distributed lock manager runs the full H0–H11 ladder on the real executive over the SCS wire — cross-node $ENQ grant, contention and block-then-grant, BLKAST delivery, resource mastering and remastering, LVB replication, and distributed deadlock detection — and RMS file-share and record locking reach the real DLM arbitrator on real /dev/vms (INV-6, no flock fallback). Cluster membership now lives in the executive: SHOW CLUSTER and $GETSYI read the real member block and the userspace file-facade is fully excised, with rejoin and parameter adoption proven. Plus the oracle-driven UX-fidelity gate: a continuous, structure-tolerant golden-diff of DCL/SHOW output against byte-exact real-VMS captures, with the SHOW family proven fabrication-free and real structural gaps tracked as an honest, gated backlog. (Quorum, votes, and MSCP-served volumes remain post-0.6.)"
   },
   {
    "tag": "V0.5-11",

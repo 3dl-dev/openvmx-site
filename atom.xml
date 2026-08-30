@@ -12,7 +12,7 @@
     <id>tag:openvmx.3dl.dev,2026:release/V0.6</id>
     <updated>2026-08-30T09:54:58-04:00</updated>
     <link href="https://openvmx.3dl.dev/roadmap/" rel="alternate"/>
-    <summary>Point release.</summary>
+    <summary>Cluster correctness, complete: OVMX is now a genuine VMScluster participant. The distributed lock manager runs the full H0–H11 ladder on the real executive over the SCS wire — cross-node $ENQ grant, contention and block-then-grant, BLKAST delivery, resource mastering and remastering, LVB replication, and distributed deadlock detection — and RMS file-share and record locking reach the real DLM arbitrator on real /dev/vms (INV-6, no flock fallback). Cluster membership now lives in the executive: SHOW CLUSTER and $GETSYI read the real member block and the userspace file-facade is fully excised, with rejoin and parameter adoption proven. Plus the oracle-driven UX-fidelity gate: a continuous, structure-tolerant golden-diff of DCL/SHOW output against byte-exact real-VMS captures, with the SHOW family proven fabrication-free and real structural gaps tracked as an honest, gated backlog. (Quorum, votes, and MSCP-served volumes remain post-0.6.)</summary>
   </entry>
   <entry>
     <title>V0.5-11</title>
