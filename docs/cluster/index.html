@@ -1,0 +1,740 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OpenVMX Cluster Systems</title>
+<meta name="description" content="Stand up an OpenVMX node in a VMS-family cluster: the identity parameters, forming a two-node cluster, reading membership with SHOW CLUSTER, and cross-node locking with the distributed lock manager. States plainly what V0.6 does not do.">
+<meta name="theme-color" content="#16359e" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0b0c11" media="(prefers-color-scheme: dark)">
+<style>
+/* ============================================================
+   OpenVMX Cluster Systems. Same design language as the landing,
+   compatibility, and Installation Guide pages, set as a manual:
+   front matter, numbered chapters and sections, console blocks,
+   note and caution callouts.
+   ============================================================ */
+:root{
+  --paper:#ffffff;
+  --paper-2:#f2f3f7;
+  --paper-3:#e7e9f0;
+  --ink:#0f1013;
+  --ink-2:#3a3d47;
+  --ink-3:#6b6f7d;
+
+  --blue:#16359e;
+  --blue-2:#26439f;
+  --blue-deep:#0d2260;
+  --blue-line:#c7cde6;
+  --on-blue:#ffffff;
+  --on-blue-2:#c4ccec;
+  --link:#16359e;
+
+  --amber:#b8730f;
+  --ok:#1f7a4d;
+
+  --f-sans:"Helvetica Neue",Helvetica,Arial,"Liberation Sans",system-ui,sans-serif;
+  --f-mono:"SFMono-Regular",Menlo,Consolas,"DejaVu Sans Mono","Liberation Mono",monospace;
+
+  --maxw:1000px;
+  --measure:70ch;
+  --gutter:clamp(20px,5vw,64px);
+  --hair:1.5px;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#0b0c11;--paper-2:#12141c;--paper-3:#181b25;
+    --ink:#eef0f6;--ink-2:#b7bccb;--ink-3:#868da0;
+    --blue:#3a55d6;--blue-2:#4d67e6;--blue-deep:#1b2f8f;--blue-line:#2a3350;
+    --on-blue:#ffffff;--on-blue-2:#c7cff2;--link:#8ea3ff;
+    --amber:#f0b24a;--ok:#5fc491;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0b0c11;--paper-2:#12141c;--paper-3:#181b25;
+  --ink:#eef0f6;--ink-2:#b7bccb;--ink-3:#868da0;
+  --blue:#3a55d6;--blue-2:#4d67e6;--blue-deep:#1b2f8f;--blue-line:#2a3350;
+  --on-blue:#ffffff;--on-blue-2:#c7cff2;--link:#8ea3ff;
+  --amber:#f0b24a;--ok:#5fc491;
+}
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:var(--f-sans);font-size:16px;line-height:1.6;font-weight:400;
+  -webkit-font-smoothing:antialiased;letter-spacing:-.004em;overflow-x:hidden}
+a{color:var(--link);text-decoration:none}
+a:hover{text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1.5px}
+:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+::selection{background:var(--blue);color:var(--on-blue)}
+.wrap{max-width:var(--maxw);margin-inline:auto;padding-inline:var(--gutter);width:100%}
+.mono{font-family:var(--f-mono);font-size:.9em}
+code{font-family:var(--f-mono);font-size:.88em;background:var(--paper-2);
+  border:1px solid var(--blue-line);border-radius:3px;padding:.06em .35em;color:var(--ink)}
+
+/* wordmark */
+.mark{display:inline-flex;align-items:stretch;border:var(--hair) solid var(--ink);
+  background:var(--paper);line-height:1;user-select:none}
+.mark .m{font-weight:700;font-size:15px;letter-spacing:-.01em;
+  padding:.42em .6em;border-right:1px solid var(--ink);color:var(--ink);display:flex;align-items:center}
+.mark .m:last-child{border-right:0}
+.mark .m.fill{background:var(--blue);color:var(--on-blue);border-right-color:var(--blue-deep)}
+.mark.lg .m{font-size:20px;padding:.5em .74em}
+
+/* masthead */
+.mast{position:sticky;top:0;z-index:40;background:var(--paper);border-bottom:var(--hair) solid var(--ink)}
+.mast .row{display:flex;align-items:center;gap:20px;height:62px}
+.mast .partno{font-family:var(--f-mono);font-size:11px;color:var(--ink-3);letter-spacing:.1em}
+.mast nav{margin-left:auto;display:flex;gap:22px;align-items:center}
+.mast nav a{font-family:var(--f-mono);font-size:12.5px;color:var(--ink);letter-spacing:.02em}
+.mast nav a:hover{color:var(--blue);text-decoration:none}
+.mast nav a.gh{color:var(--blue)}
+.tgl{font-family:var(--f-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+  background:transparent;border:1px solid var(--ink);color:var(--ink);padding:7px 10px;cursor:pointer;line-height:1}
+.tgl:hover{background:var(--ink);color:var(--paper)}
+@media (max-width:820px){.mast nav a.txt{display:none}.mast .partno{display:none}}
+
+/* ---------------- title page / front matter ---------------- */
+.title{border-bottom:var(--hair) solid var(--ink);padding:clamp(40px,7vw,88px) 0 clamp(30px,5vw,52px)}
+.title .kick{font-family:var(--f-mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--blue);font-weight:700;margin:0 0 clamp(16px,2.4vw,24px)}
+.title h1{font-weight:700;letter-spacing:-.03em;line-height:1.02;
+  font-size:clamp(32px,6vw,60px);margin:0 0 .35em;max-width:16ch}
+.title .sub{font-size:clamp(16px,1.8vw,19px);color:var(--ink-2);max-width:60ch;margin:0 0 clamp(26px,4vw,38px);line-height:1.55}
+.title .plate{display:flex;flex-wrap:wrap;gap:14px 44px;border-top:var(--hair) solid var(--ink);
+  border-bottom:var(--hair) solid var(--ink);padding:20px 0;font-family:var(--f-mono);font-size:12px}
+.title .plate div{display:flex;flex-direction:column;gap:5px}
+.title .plate span{font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3)}
+.title .plate b{color:var(--ink);font-weight:700;font-size:13.5px;letter-spacing:.02em}
+
+/* generic manual section frame */
+h2.chap{font-size:clamp(23px,3.2vw,34px);font-weight:700;letter-spacing:-.024em;line-height:1.08;
+  margin:clamp(46px,6vw,80px) 0 0;padding-top:clamp(30px,4vw,44px);border-top:var(--hair) solid var(--ink);
+  display:flex;gap:16px;align-items:baseline;scroll-margin-top:78px}
+h2.chap .cn{flex:none;font-family:var(--f-mono);font-weight:700;font-size:clamp(14px,1.6vw,18px);color:var(--blue)}
+h3.sec{font-size:clamp(17px,1.9vw,20px);font-weight:700;letter-spacing:-.012em;line-height:1.2;
+  margin:clamp(30px,4vw,44px) 0 0;color:var(--ink);scroll-margin-top:78px}
+h3.sec .sn{font-family:var(--f-mono);color:var(--blue);font-weight:700;font-size:.82em;margin-right:.5em}
+p{max-width:var(--measure);margin:1em 0 0;color:var(--ink)}
+p.abstract-intro{font-size:clamp(16px,1.7vw,18px);color:var(--ink-2)}
+ul.body,ol.body{max-width:var(--measure);margin:1em 0 0;padding-left:1.3em;color:var(--ink)}
+ul.body li,ol.body li{margin:.5em 0;line-height:1.55}
+ul.body li b,ol.body li b{color:var(--ink);font-weight:600}
+strong{font-weight:600}
+.spacer-b{padding-bottom:clamp(30px,5vw,56px)}
+
+/* table of contents */
+.toc{border-top:var(--hair) solid var(--ink);border-bottom:var(--hair) solid var(--ink);
+  padding:clamp(28px,4vw,44px) 0;margin-top:clamp(30px,4vw,44px)}
+.toc h4,.rev h4{font-family:var(--f-mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--blue);border-top:2px solid var(--blue);padding-top:12px;margin:0 0 18px;display:inline-block}
+.toc ol{list-style:none;margin:0;padding:0;max-width:var(--measure)}
+.toc>ol>li{padding:9px 0;border-bottom:1px solid var(--blue-line)}
+.toc>ol>li:last-child{border-bottom:0}
+.toc .row{display:flex;align-items:baseline;gap:14px}
+.toc .cn{flex:none;font-family:var(--f-mono);font-weight:700;font-size:12.5px;color:var(--blue);width:2.4ch}
+.toc a{color:var(--ink);font-weight:600;font-size:16px}
+.toc a:hover{color:var(--blue);text-decoration:none}
+.toc .dots{flex:1;border-bottom:1.5px dotted var(--ink-3);opacity:.45;transform:translateY(-4px);min-width:18px}
+.toc ul.subs{list-style:none;margin:6px 0 2px;padding:0 0 0 calc(2.4ch + 14px)}
+.toc ul.subs li{padding:3px 0}
+.toc ul.subs a{font-weight:400;font-size:14px;color:var(--ink-2);font-family:var(--f-mono)}
+@media (max-width:560px){.toc .dots{display:none}}
+
+/* revision history */
+.rev{margin-top:clamp(30px,4vw,44px)}
+.tbl-wrap{overflow-x:auto;max-width:100%;-webkit-overflow-scrolling:touch}
+table.data{width:100%;border-collapse:collapse;font-size:15px;max-width:var(--measure);
+  border-top:var(--hair) solid var(--ink);border-bottom:var(--hair) solid var(--ink)}
+table.data caption{caption-side:top;text-align:left;font-family:var(--f-mono);font-size:11px;
+  color:var(--ink-3);letter-spacing:.12em;text-transform:uppercase;padding:0 0 12px}
+table.data th,table.data td{padding:12px 16px;border-bottom:1px solid var(--blue-line);text-align:left;vertical-align:top}
+table.data thead th{background:var(--blue);color:var(--on-blue);font-family:var(--f-mono);font-size:11px;
+  letter-spacing:.09em;text-transform:uppercase;font-weight:700;border-bottom:var(--hair) solid var(--ink)}
+table.data tbody th{font-weight:700;color:var(--ink);white-space:nowrap}
+table.data tbody td{color:var(--ink-2)}
+table.data tbody tr:last-child th,table.data tbody tr:last-child td{border-bottom:0}
+table.data tbody tr:hover th,table.data tbody tr:hover td{background:var(--paper-2)}
+table.data .m{font-family:var(--f-mono);font-size:13px;white-space:nowrap}
+
+/* console blocks */
+.term{background:#091327;color:#e4e9f6;font-family:var(--f-mono);font-size:13px;line-height:1.75;
+  border:var(--hair) solid var(--ink);margin-top:clamp(18px,2.4vw,26px);overflow-x:auto;max-width:var(--measure)}
+.term .top{display:flex;justify-content:space-between;color:#8391b8;
+  border-bottom:1px solid rgba(131,145,184,.3);padding:10px 16px;font-size:10px;letter-spacing:.12em;text-transform:uppercase}
+.term pre{margin:0;padding:18px 16px;white-space:pre;min-width:520px}
+.term .c{color:#8391b8}          /* comment */
+.term .p{color:#f4b13a}          /* prompt sigil */
+.term .i{color:#e4e9f6}          /* typed input */
+.term .o{color:#9fb0d6}          /* system output */
+.term .k{color:#7fd0a6}          /* status keyword in output */
+.caption-h{font-family:var(--f-mono);font-size:11px;letter-spacing:.06em;color:var(--ink-3);margin:8px 0 0}
+
+/* callouts */
+.call{border-left:3px solid var(--blue);background:var(--paper-2);
+  padding:15px 20px;margin:clamp(20px,2.6vw,28px) 0 0;font-size:14.5px;line-height:1.6;color:var(--ink-2);max-width:var(--measure)}
+.call .lab{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;
+  font-weight:700;color:var(--blue);display:block;margin:0 0 6px}
+.call b{color:var(--ink);font-weight:600}
+.call.caution{border-left-color:var(--amber);background:rgba(184,115,15,.07)}
+.call.caution .lab{color:var(--amber)}
+
+/* colophon */
+footer{background:var(--paper-2);margin-top:clamp(46px,6vw,84px)}
+.colo{display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:0;border-top:var(--hair) solid var(--ink)}
+@media (max-width:760px){.colo{grid-template-columns:1fr 1fr}}
+@media (max-width:480px){.colo{grid-template-columns:1fr}}
+.colo>div{padding:clamp(28px,3.4vw,42px) clamp(20px,2.4vw,30px);border-right:var(--hair) solid var(--ink)}
+.colo>div:first-child{padding-left:0}
+.colo>div:last-child{border-right:0}
+@media (max-width:760px){.colo>div{border-right:0;border-bottom:1px solid var(--blue-line)}
+  .colo>div:first-child{padding-left:clamp(20px,2.4vw,30px)}}
+.colo p{margin:.5em 0;font-size:14px;color:var(--ink-2);line-height:1.5;max-width:36ch}
+.colo h5{font-family:var(--f-mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);margin:0 0 14px}
+.colo a{display:block;color:var(--ink);font-size:15px;margin:.55em 0}
+.colo a:hover{color:var(--blue);text-decoration:none}
+.badge{display:inline-block;border:1.5px solid var(--blue);color:var(--blue);padding:4px 10px;
+  letter-spacing:.06em;font-family:var(--f-mono);font-size:11px;text-transform:uppercase;font-weight:700;margin-top:10px}
+.disclaim{display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;
+  padding:22px 0 clamp(36px,5vw,56px);font-family:var(--f-mono);font-size:12px;color:var(--ink-3);
+  line-height:1.7;border-top:var(--hair) solid var(--ink)}
+.disclaim .r{text-align:right;color:var(--ink-2)}
+@media (max-width:560px){.disclaim .r{text-align:left}}
+</style>
+</head>
+<body>
+
+<header class="mast">
+  <div class="wrap row">
+    <a href="/" aria-label="OpenVMX home" class="mark" style="text-decoration:none">
+      <span class="m">Open</span><span class="m fill">VMX</span>
+    </a>
+    <span class="partno">AA&ndash;OVMX3&ndash;CL</span>
+    <nav aria-label="Primary">
+      <a class="txt" href="/docs/">Manuals</a>
+      <a class="txt" href="#contents">Contents</a>
+      <a class="txt" href="/">Home</a>
+      <a class="gh" href="https://github.com/3dl-dev/vms">GitHub&nbsp;&#8599;</a>
+      <button class="tgl" id="themebtn" type="button" aria-label="Toggle color scheme">Screen</button>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+
+    <!-- title page -->
+    <div class="title">
+      <p class="kick"><a href="/docs/" style="color:inherit">OpenVMX documentation set</a></p>
+      <h1>Cluster Systems</h1>
+      <p class="sub">Stand up an OpenVMX node in a VMS-family cluster: carry its identity, form a
+        two-node cluster, read membership with <code>SHOW CLUSTER</code>, and lock across nodes
+        with the distributed lock manager. What is not implemented yet is stated plainly.</p>
+      <div class="plate">
+        <div><span>Order number</span><b>AA&ndash;OVMX3&ndash;CL</b></div>
+        <div><span>Applies to</span><b>OpenVMX <span data-ovmx-version>V0.6</span></b></div>
+        <div><span>Edition</span><b>First</b></div>
+        <div><span>Date</span><b>August 2026</b></div>
+      </div>
+    </div>
+
+    <!-- front matter abstract -->
+    <p class="abstract-intro">This manual is for an operator standing up an OpenVMX node in a
+      VMScluster. V0.6 is the cluster-correctness release: an OpenVMX node forms a cluster over the
+      real interconnect, reports its membership from the executive, and takes part in a cross-node
+      distributed lock manager. This manual covers exactly what ships &mdash; the cluster identity
+      parameters, how a two-node cluster forms, what <code>SHOW CLUSTER</code> and
+      <code>$GETSYI</code> report, and what cross-node locking does for applications. It is just as
+      explicit about what a real VMScluster does that OpenVMX does <b>not</b> do yet; those gaps are
+      listed in Appendix B.</p>
+
+    <div class="call">
+      <span class="lab">About this manual</span>
+      This edition applies to OpenVMX <span data-ovmx-version>V0.6</span>. Nothing here is described
+      as working unless a real code path ships it over the real executive at <code>/dev/vms</code>
+      (Rule&nbsp;9 / INV-6). OpenVMX is under development; parts of a VMScluster that are not
+      implemented yet are marked in the text and listed in Appendix&nbsp;B. The operator content of
+      this manual tracks the repository's <a
+      href="https://github.com/3dl-dev/vms/blob/main/docs/cluster-configuration-guide.md">Cluster
+      Configuration Guide</a>; if the two disagree, the repository is correct and the difference is a
+      documentation bug.
+    </div>
+
+    <!-- revision history -->
+    <div class="rev">
+      <h4>Revision history</h4>
+      <div class="tbl-wrap">
+      <table class="data">
+        <thead><tr><th scope="col">Edition</th><th scope="col">Date</th><th scope="col">Applies to</th><th scope="col">Summary</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">First</th><td class="m">August 2026</td><td class="m">V0.6</td>
+            <td>First edition. Documents the V0.6 cluster-correctness milestone: pre-seeded cluster
+              identity, two-node formation over the real interconnect, executive-backed
+              <code>SHOW CLUSTER</code>, and the cross-node distributed lock manager. Appendix&nbsp;B
+              and the grounding manifest match the compatibility register.</td></tr>
+        </tbody>
+      </table>
+      </div>
+    </div>
+
+    <!-- table of contents -->
+    <nav class="toc" id="contents" aria-label="Contents">
+      <h4>Contents</h4>
+      <ol>
+        <li>
+          <div class="row"><span class="cn">1</span><a href="#c1">Before you begin</a><span class="dots"></span></div>
+          <ul class="subs">
+            <li><a href="#s1-1">1.1 What this manual covers</a></li>
+            <li><a href="#s1-2">1.2 What V0.6 gives you</a></li>
+            <li><a href="#s1-3">1.3 The reference lab</a></li>
+          </ul>
+        </li>
+        <li>
+          <div class="row"><span class="cn">2</span><a href="#c2">Cluster identity parameters</a><span class="dots"></span></div>
+          <ul class="subs">
+            <li><a href="#s2-1">2.1 The identity parameters</a></li>
+            <li><a href="#s2-2">2.2 Authoring identity at V0.6</a></li>
+          </ul>
+        </li>
+        <li>
+          <div class="row"><span class="cn">3</span><a href="#c3">Standing up a two-node cluster</a><span class="dots"></span></div>
+          <ul class="subs">
+            <li><a href="#s3-1">3.1 Give each node a unique identity</a></li>
+            <li><a href="#s3-2">3.2 Match the cluster group</a></li>
+            <li><a href="#s3-3">3.3 Boot both nodes</a></li>
+          </ul>
+        </li>
+        <li>
+          <div class="row"><span class="cn">4</span><a href="#c4">Reading cluster state</a><span class="dots"></span></div>
+          <ul class="subs">
+            <li><a href="#s4-1">4.1 SHOW CLUSTER</a></li>
+            <li><a href="#s4-2">4.2 The three outcomes</a></li>
+            <li><a href="#s4-3">4.3 $GETSYI agrees with SHOW CLUSTER</a></li>
+          </ul>
+        </li>
+        <li>
+          <div class="row"><span class="cn">5</span><a href="#c5">Cross-node locking ($ENQ / DLM)</a><span class="dots"></span></div>
+          <ul class="subs">
+            <li><a href="#s5-1">5.1 What the DLM does between nodes</a></li>
+            <li><a href="#s5-2">5.2 How applications reach it</a></li>
+            <li><a href="#s5-3">5.3 The DLM wire is an OVMX design choice</a></li>
+          </ul>
+        </li>
+        <li>
+          <div class="row"><span class="cn">A</span><a href="#ca">Appendix A. Clean-room provenance</a><span class="dots"></span></div>
+        </li>
+        <li>
+          <div class="row"><span class="cn">B</span><a href="#cb">Appendix B. Not yet available at V0.6</a><span class="dots"></span></div>
+        </li>
+      </ol>
+    </nav>
+
+    <!-- ============ CHAPTER 1 ============ -->
+    <h2 class="chap" id="c1"><span class="cn">1</span>Before you begin</h2>
+
+    <h3 class="sec" id="s1-1"><span class="sn">1.1</span>What this manual covers</h3>
+    <p>A VMScluster is a set of systems that share resources and coordinate through a common lock
+      manager. V0.6 makes an OpenVMX node a cluster participant: it carries a cluster identity, forms
+      a cluster with a peer over the real interconnect, reports its membership from the executive, and
+      takes part in a cross-node distributed lock manager (DLM). This manual is the operator view of
+      that. The wire-protocol reverse engineering and the clean-room provenance of every frame live in
+      the repository's cluster protocol specification (see Appendix&nbsp;A).</p>
+    <p>Everything described as working here runs over the real executive at <code>/dev/vms</code>.
+      There is no per-process fake behind any cluster fact this manual shows: where a facility is
+      absent, the system returns an honest error, not a fabricated success (INV-6).</p>
+
+    <h3 class="sec" id="s1-2"><span class="sn">1.2</span>What V0.6 gives you</h3>
+    <p>V0.6 is the cluster-correctness milestone. It gives you the following, all real:</p>
+    <ul class="body">
+      <li><b>A cluster identity</b> carried in the SYSGEN parameter store and read by the cluster
+        daemon at boot (Chapter&nbsp;2).</li>
+      <li><b>Two-node cluster formation</b> over genuine raw-Ethernet SCA transport, not a tunnel
+        (Chapter&nbsp;3).</li>
+      <li><b>Executive-backed membership</b>, read by <code>SHOW CLUSTER</code> and
+        <code>$GETSYI</code> from the real executive membership block (Chapter&nbsp;4).</li>
+      <li><b>A cross-node distributed lock manager</b>: grant, block-then-grant, blocking ASTs, lock
+        value blocks, mastering and remastering, directory-ownership refusal, and distributed
+        deadlock detection (Chapter&nbsp;5).</li>
+    </ul>
+    <p>What it does <b>not</b> give you matters just as much, so no one designs against a capability
+      that is not there. In particular, <b>there is no quorum enforcement and no split-brain
+      protection at V0.6</b>, MSCP-served volumes are absent, and cluster-wide logical names degrade
+      to system-wide. These and the rest are listed in Appendix&nbsp;B.</p>
+
+    <div class="call caution">
+      <span class="lab">Caution</span>
+      Do not rely on OpenVMX V0.6 for quorum arbitration or split-brain avoidance. A quorum model is
+      computed and logged, but its result is <b>never wired to suspend I/O or reconfigure</b> the
+      cluster (Appendix&nbsp;B). Quorum loss does not block anything.
+    </div>
+
+    <h3 class="sec" id="s1-3"><span class="sn">1.3</span>The reference lab</h3>
+    <p>The cluster behaviour OpenVMX reproduces is grounded against a reference lab of genuine
+      OpenVMS VAX systems that the project operates. That lab is an observation oracle only. Nothing
+      OpenVMX ships is copied from VMS: see the clean-room statement in Appendix&nbsp;A.</p>
+
+    <!-- ============ CHAPTER 2 ============ -->
+    <h2 class="chap" id="c2"><span class="cn">2</span>Cluster identity parameters</h2>
+    <p>An OpenVMX node's cluster identity lives in the SYSGEN parameter store,
+      <code>SYS$SYSTEM:OVMXVMSSYS.PAR</code> &mdash; the OpenVMX analogue of the VMS
+      <code>VAXVMSSYS.PAR</code>. The cluster daemon reads it at boot.</p>
+
+    <h3 class="sec" id="s2-1"><span class="sn">2.1</span>The identity parameters</h3>
+    <p>Table&nbsp;2&ndash;1 lists the parameters that carry cluster identity, and states honestly
+      which ones the cluster daemon reads at V0.6. Two of them &mdash; <code>SCSNODE</code> and
+      <code>SCSSYSTEMID</code> &mdash; are the fatal identity pair and must be cluster-wide unique.</p>
+    <div class="tbl-wrap">
+    <table class="data">
+      <caption>Table 2&ndash;1 &middot; Cluster identity parameters in OVMXVMSSYS.PAR</caption>
+      <thead><tr><th scope="col">Parameter</th><th scope="col">Meaning</th><th scope="col">Read at V0.6?</th><th scope="col">Notes</th></tr></thead>
+      <tbody>
+        <tr><th scope="row" class="m">SCSNODE</th><td>Cluster node name (max 6 characters).</td><td>Yes</td>
+          <td>Half of the identity pair. Falls back to <code>OVMX</code> only if the store is unreadable.</td></tr>
+        <tr><th scope="row" class="m">SCSSYSTEMID</th><td>Cluster system ID.</td><td>Yes</td>
+          <td>The other half. Falls back to <code>1030</code>. <code>SCSNODE</code>+<code>SCSSYSTEMID</code> must be cluster-wide unique.</td></tr>
+        <tr><th scope="row" class="m">ALLOCLASS</th><td>Allocation class for shared cluster devices.</td><td>Yes</td>
+          <td>Read and reported only; <code>0</code> is the documented default. Does not touch any wire frame.</td></tr>
+        <tr><th scope="row" class="m">RECNXINTERVAL</th><td>Reconnection interval, seconds.</td><td>Yes</td>
+          <td>Sizes the reconnect period after a virtual-circuit break. Default <code>20</code>.</td></tr>
+        <tr><th scope="row" class="m">VAXCLUSTER</th><td>Cluster participation (0/1/2).</td><td>No</td>
+          <td>Pre-seeded in the <code>.PAR</code> but <b>not currently consulted</b>; participation is not gated on it at V0.6.</td></tr>
+        <tr><th scope="row" class="m">VOTES</th><td>Votes this node contributes.</td><td>No</td>
+          <td>Pre-seeded, but the local value is not read or advertised &mdash; OpenVMX always joins <b>non-voting</b> (Appendix&nbsp;B).</td></tr>
+        <tr><th scope="row" class="m">EXPECTED_VOTES</th><td>Expected total cluster votes.</td><td>No</td>
+          <td>Pre-seeded, but not reconciled &mdash; an open wire reverse-engineering gap (Appendix&nbsp;B).</td></tr>
+      </tbody>
+    </table>
+    </div>
+
+    <h3 class="sec" id="s2-2"><span class="sn">2.2</span>Authoring identity at V0.6</h3>
+    <p>The identity parameters are <b>pre-seeded</b> in the shipped <code>OVMXVMSSYS.PAR</code>. To
+      configure a node, you edit that pre-seeded store. That is the only authoring path at V0.6. You
+      set identity by editing the pre-seeded <code>.PAR</code> (or by pointing
+      <code>OVMX_SYSGEN_PATH</code> at a store you have prepared), and the cluster daemon adopts it
+      on the next boot.</p>
+    <div class="call caution">
+      <span class="lab">Caution</span>
+      The VMS-way authoring surface is <b>not</b> shipped at V0.6. There is no
+      <code>SYSMAN PARAMETERS</code> for string parameters, no <code>.PAR</code> write mechanism or
+      conversational <code>SYSBOOT</code>, no AUTOGEN / <code>MODPARAMS.DAT</code> feedback, and no
+      <code>CLUSTER_CONFIG(_LAN).COM</code>. You cannot yet author cluster identity &ldquo;the VMS
+      way&rdquo; and reboot into it. See Appendix&nbsp;B.
+    </div>
+
+    <!-- ============ CHAPTER 3 ============ -->
+    <h2 class="chap" id="c3"><span class="cn">3</span>Standing up a two-node cluster</h2>
+    <p>Forming a cluster at V0.6 is three steps: give each node a unique identity, put both nodes on
+      the same cluster group and LAN segment, and boot them. As the cluster forms, the cluster daemon
+      on each node populates the executive membership block, which you then read with
+      <code>SHOW CLUSTER</code> (Chapter&nbsp;4).</p>
+
+    <h3 class="sec" id="s3-1"><span class="sn">3.1</span>Give each node a unique identity</h3>
+    <p>In each node's pre-seeded <code>OVMXVMSSYS.PAR</code>, set a distinct <code>SCSNODE</code>
+      (six characters or fewer) and a distinct <code>SCSSYSTEMID</code>.</p>
+    <div class="call caution">
+      <span class="lab">Caution</span>
+      Reusing an <code>SCSNODE</code>/<code>SCSSYSTEMID</code> that a peer has recently seen on
+      another system causes the join to be refused outright. The lab documents this as
+      <code>%PEA0, Remote System Conflicts with Known System</code>.
+    </div>
+
+    <h3 class="sec" id="s3-2"><span class="sn">3.2</span>Match the cluster group</h3>
+    <p>OpenVMX joins the reference lab's <b>group&nbsp;1</b> by default
+      (<code>CLUSTER_AUTHORIZE</code> is a minimal stand-in &mdash; see Appendix&nbsp;B). Both nodes
+      must be on the same LAN segment carrying the LAVC/SCA ethertype. The transport is genuine raw
+      Ethernet, not a UDP tunnel, so the cluster daemon needs the <code>CAP_NET_RAW</code>
+      capability.</p>
+
+    <h3 class="sec" id="s3-3"><span class="sn">3.3</span>Boot both nodes</h3>
+    <p>Boot both nodes (see the <a href="/docs/installation/">Installation Guide</a>). As the cluster
+      forms, the cluster daemon on each node populates the executive membership block. Formation takes
+      on the order of a minute. Confirm membership with <code>SHOW CLUSTER</code>, in Chapter&nbsp;4.</p>
+
+    <!-- ============ CHAPTER 4 ============ -->
+    <h2 class="chap" id="c4"><span class="cn">4</span>Reading cluster state</h2>
+    <p>Cluster state is read from the real executive, not from a file or a per-process flag. Every
+      process that reads <code>/dev/vms</code> sees the same member set (INV-6).</p>
+
+    <h3 class="sec" id="s4-1"><span class="sn">4.1</span>SHOW CLUSTER</h3>
+    <p><code>SHOW CLUSTER</code> reads the executive membership block through <code>/dev/vms</code>,
+      which the cluster daemon populates as members join and depart. When the cluster has formed, it
+      shows the cluster view: a banner naming the system the view is taken from, and a table of the
+      member systems with their software family and status.</p>
+    <div class="term">
+      <div class="top"><span>OpenVMX console</span><span>DCL</span></div>
+<pre><span class="p">$</span> <span class="i">SHOW CLUSTER</span>
+<span class="o">View of Cluster from system ID 1030 node: OVMXA</span>
+
+<span class="o">  SYSTEMS                    MEMBERS</span>
+<span class="o">  NODE     SOFTWARE          STATUS</span>
+<span class="o">  OVMXA    VMS               <span class="k">MEMBER</span></span>
+<span class="o">  OVMXB    VMS               <span class="k">MEMBER</span></span></pre>
+    </div>
+    <p class="caption-h">Node names and system IDs are the ones you set in each node's
+      <code>OVMXVMSSYS.PAR</code> (Chapter&nbsp;2); the values above are illustrative. A peer whose
+      <code>SCSNODE</code> name has not yet been learned is shown by its <code>SCSSYSTEMID</code>.
+      Peer <code>SOFTWARE</code> shows the family <code>VMS</code> without a version OpenVMX cannot
+      vouch for.</p>
+
+    <h3 class="sec" id="s4-2"><span class="sn">4.2</span>The three outcomes</h3>
+    <p><code>SHOW CLUSTER</code> gives one of three distinct outcomes, never conflated:</p>
+    <ul class="body">
+      <li><b>Members present</b> &rarr; the cluster view above.</li>
+      <li><b>Executive reachable, no cluster</b> &rarr; the genuine standalone-node answer:
+        <code>%SYSTEM-I-NOTMEMBER, this system is not a member of a VMScluster</code>
+        (status <code>SS$_NORMAL</code>).</li>
+      <li><b>Executive unreachable</b> (no <code>/dev/vms</code>) &rarr;
+        <code>%SYSTEM-W-NOSUCHDEV</code> (status <code>SS$_NOSUCHDEV</code>). This is a transport
+        failure, <b>not</b> a cluster fact. On the real runtime <code>/dev/vms</code> is always
+        present.</li>
+    </ul>
+    <div class="term">
+      <div class="top"><span>OpenVMX console</span><span>DCL</span></div>
+<pre><span class="c">! a standalone node -- executive reachable, not clustered</span>
+<span class="p">$</span> <span class="i">SHOW CLUSTER</span>
+<span class="o">%SYSTEM-I-NOTMEMBER, this system is not a member of a VMScluster</span></pre>
+    </div>
+    <div class="call">
+      <span class="lab">Note</span>
+      The distinction between <code>NOTMEMBER</code> and <code>NOSUCHDEV</code> is load-bearing. A
+      not-a-member answer is a real cluster fact from a reachable executive; a no-such-device answer
+      means the executive could not be reached at all. OpenVMX never reports one as the other, and
+      never answers a cluster question from a fabricated flag.
+    </div>
+
+    <h3 class="sec" id="s4-3"><span class="sn">4.3</span>$GETSYI agrees with SHOW CLUSTER</h3>
+    <p>The <code>$GETSYI</code> system service reads the same executive membership block through
+      <code>/dev/vms</code>. <code>SYI$_CLUSTER_MEMBER</code> and <code>SYI$_CLUSTER_NODES</code>
+      agree with <code>SHOW CLUSTER</code> item for item. If the executive is unreachable, the item
+      is left honestly unretrieved rather than answered from a file or a fabricated flag.</p>
+
+    <!-- ============ CHAPTER 5 ============ -->
+    <h2 class="chap" id="c5"><span class="cn">5</span>Cross-node locking ($ENQ / DLM)</h2>
+    <p>The ENQ-class distributed lock manager is real and complete on a real <code>/dev/vms</code>
+      executive. Between OpenVMX nodes it does, today, over the SCS wire, everything in
+      Section&nbsp;5.1. There is one important limitation in how an ordinary application reaches it,
+      in Section&nbsp;5.2.</p>
+
+    <h3 class="sec" id="s5-1"><span class="sn">5.1</span>What the DLM does between nodes</h3>
+    <ul class="body">
+      <li><b>Cross-node <code>$ENQ</code> grant</b> on the mastering node, held for the remote
+        requester's CSID.</li>
+      <li><b>Block-then-grant</b>: an incompatible request queues on the real waiting queue and
+        grants on a real <code>$DEQ</code>.</li>
+      <li><b>Blocking AST (BLKAST)</b> delivered over the wire, firing a genuine user-mode AST on the
+        remote holder.</li>
+      <li><b>Lock value block</b> replication both ways, on write and read crossings.</li>
+      <li><b>Mastering and remastering</b> to a survivor on graceful departure, rebuilding lock state
+        from the survivors' real origin records.</li>
+      <li><b>Directory-ownership refusal</b>: a node will not master a resource it is not the
+        directory for.</li>
+      <li><b>Distributed deadlock detection</b> by edge-chasing the real distributed wait-for graph,
+        aborting a single globally-deterministic victim with <code>SS$_DEADLOCK</code>.</li>
+    </ul>
+    <p>All of this is real executive state &mdash; resource blocks, granted and waiting queues, origin
+      records. No per-process fake ever answers; absence is always an honest
+      <code>SS$_UNSUPPORTED</code> (INV-6).</p>
+
+    <h3 class="sec" id="s5-2"><span class="sn">5.2</span>How applications reach it</h3>
+    <p>Cross-node locking today is <b>daemon-choreographed and CSID-keyed</b>. The DLM engine and its
+      wire are proven between nodes, but a general application does not yet transparently acquire a
+      remotely-mastered lock the way it would on VMS.</p>
+    <div class="call caution">
+      <span class="lab">Caution</span>
+      An ordinary application process that issues <code>$ENQ</code> for a resource mastered on a
+      <b>remote</b> node still receives an honest <code>SS$_UNSUPPORTED</code>. A real application-
+      process cross-node lock <b>acquisition</b> path is post-1.0 work. In other words: the DLM works
+      between nodes, but a general application cannot yet transparently lock a remotely-mastered
+      resource.
+    </div>
+
+    <h3 class="sec" id="s5-3"><span class="sn">5.3</span>The DLM wire is an OVMX design choice</h3>
+    <p>The <em>semantic</em> field values the DLM carries are authentic <code>$LCKDEF</code> &mdash;
+      the grant modes, the <code>$ENQ</code> flags, and the 16-byte lock value block &mdash; and the
+      routing algorithm is the documented directory/master resolution. But the <b>on-wire lock-manager
+      SCS opcodes and body byte offsets are an OpenVMX design choice</b>, not VMS-authentic: VSI/HPE
+      do not publish the lock manager's SCS byte layout, so OpenVMX defines its own and labels it as
+      such. They will be replaced with the authentic layout once a real VAX DLM capture grounds it.
+      Every byte-level detail, and the GROUNDED / inferred / unknown labeling of each field, is in the
+      cluster protocol specification cited in Appendix&nbsp;A.</p>
+
+    <!-- ===================================================================
+         MANUAL-GROUNDING MANIFEST. tools/check_manual_grounding.py checks the
+         two token lists below against the OVMX Compatibility Surface Register
+         (vms docs/compat/ -> build/compat-surface.json). Tokens are facility
+         keys from vms docs/compat/domains.yaml. It runs on every MAJOR/MINOR
+         release cut (track-release.yml) and on every docs PR (docs-drift.yml).
+           ovmx:covers  = facilities this manual asserts as WORKING. Each must
+                          have a real implemented/verified item in the register,
+                          or the cut fails as an over-claim.
+           ovmx:not-yet = facilities this manual DEFERS in Appendix B. Each must
+                          still be not-yet-shipped (not implemented/verified with
+                          a real item), or the cut fails as a stale manual --
+                          that capability graduated and must be documented.
+
+         MAPPING of this manual to register tokens:
+           * cluster-dlm (COVERS): the cross-node distributed lock manager of
+             Chapter 5 -- verified/real in the register (the vms-7fa H0-H11
+             ladder). This is the V0.6 headline and is asserted as working.
+           * cluster-logicals (NOT-YET): Appendix B's "cluster-wide logical
+             names degrade to system-wide" and "cluster-wide global sections
+             are absent" -- both items of this facility are 'absent' in the
+             register, so it is genuinely deferred.
+           * MSCP-served volumes and quorum/votes are ALSO deferred in
+             Appendix B, but they are deliberately NOT listed as not-yet tokens:
+             their register facilities (mscp-serve, connection-manager) already
+             carry implemented/verified real items at the protocol level
+             (mscp-serve$disk-read-write; connection-manager$quorum and the
+             HELLO/rejoin protocol). Listing them here would fail the not-yet
+             staleness check even though the USER-FACING capability (serving a
+             volume to the cluster; enforcing quorum) is honestly absent. That
+             protocol-vs-user-flow gap is documented in prose in Appendix B, not
+             silently absorbed -- mirroring the Installation Guide's manifest.
+           * CLUSTER_AUTHORIZE, VMS-way authoring, and DECnet interconnect use
+             are deferred in prose; they have no distinct absent cluster token
+             to map to (the lower-level facilities are partial/real), so they
+             are documented, not listed.
+         The block is hidden from the rendered page but present in the file the
+         checker reads.
+         ================================================================== -->
+    <div hidden aria-hidden="true">
+<!-- ovmx:covers:begin -->
+cluster-dlm
+<!-- ovmx:covers:end -->
+<!-- ovmx:not-yet:begin -->
+cluster-logicals
+<!-- ovmx:not-yet:end -->
+    </div>
+
+    <!-- ============ APPENDIX A ============ -->
+    <h2 class="chap" id="ca"><span class="cn">A</span>Appendix A. Clean-room provenance</h2>
+    <p>Everything OpenVMX knows about the VMScluster wire &mdash; SCS/NISCA framing, the membership
+      handshake, the DLM message class &mdash; is derived <b>only</b> from (a) observing the wire on
+      the project's own reference labs and (b) public OpenVMS documentation (the Cluster Systems
+      manual, <code>$ENQ</code>/<code>$DEQ</code>/<code>$LCKDEF</code>, and documented
+      SDA/SYSGEN/SYSMAN tool output). No VSI/HPE VMS source or binary was ever disassembled,
+      decompiled, or consulted.</p>
+    <p>Where the public documentation does not publish a byte-level layout, OpenVMX defines its own
+      representation and labels it an <b>OVMX design choice</b> &mdash; it is never presented as
+      VMS-authentic. This applies to the DLM SCS message opcodes and body offsets (Section&nbsp;5.3)
+      and to internal identifiers such as connection-ID assignments. If a future capture contradicts
+      anything OpenVMX currently emits, the wire wins and OpenVMX changes.</p>
+    <p>The full provenance statement, and the GROUNDED / inferred / unknown labeling of every field,
+      is the repository's cluster protocol specification,
+      <a href="https://github.com/3dl-dev/vms/blob/main/docs/cluster-protocol-spec.md"><code>docs/cluster-protocol-spec.md</code></a>
+      &sect;0.</p>
+
+    <!-- ============ APPENDIX B ============ -->
+    <h2 class="chap" id="cb"><span class="cn">B</span>Appendix B. Not yet available at V0.6</h2>
+    <p>A real VMScluster does the following; OpenVMX at V0.6 does not. These are stated plainly so no
+      one designs against a capability that is not there.</p>
+
+    <h3 class="sec"><span class="sn">B.1</span>Quorum and votes are not enforced</h3>
+    <p><b>There is no split-brain protection at V0.6.</b> Be precise about why:</p>
+    <ul class="body">
+      <li>OpenVMX always joins <b>non-voting</b>: the cluster daemon advertises <code>VOTES=0</code>
+        so it can never affect a VAX cluster's quorum. The local <code>VOTES</code> and
+        <code>EXPECTED_VOTES</code> in your <code>.PAR</code> are <b>not read</b>.</li>
+      <li>A quorum model is present and does run &mdash; the daemon folds each peer's wire-advertised
+        <code>VOTES</code> into a connection-manager quorum computation and logs quorum PRESENT/LOST.
+        But the gate result is <b>only logged</b>; it is <b>never wired to suspend I/O or
+        reconfigure</b> the cluster. Quorum loss does not block anything.</li>
+      <li><code>EXPECTED_VOTES</code> is an open reverse-engineering gap on the wire (held at 1 in
+        every capture), so the model seeds each peer's expected value from its advertised
+        <code>VOTES</code> rather than reconciling a real value.</li>
+    </ul>
+    <p>Net effect for an operator: do not rely on OpenVMX for quorum arbitration or split-brain
+      avoidance.</p>
+
+    <h3 class="sec"><span class="sn">B.2</span>MSCP-served volumes &mdash; absent</h3>
+    <p>A node cannot serve a local disk to the cluster over MSCP, and cannot mount a volume served by
+      a peer. This is post-0.6 work. (The MSCP disk read/write path exists at the protocol level in
+      the compatibility register, but serving a volume <em>to the cluster</em> as an operator flow is
+      not available.)</p>
+
+    <h3 class="sec"><span class="sn">B.3</span>Cluster-wide logical names &mdash; degrade to system-wide</h3>
+    <p><code>$CRELNM</code> with <code>LNM$M_CLUSTERWIDE</code> does not replicate a logical-name
+      table across members; the scope degrades to system-wide. Cluster-wide global sections
+      (<code>$MGBLSC</code>/<code>$CRMPSC</code> with cluster scope) are absent.</p>
+
+    <h3 class="sec"><span class="sn">B.4</span>CLUSTER_AUTHORIZE is a lab-only stand-in</h3>
+    <p><code>CLUSTER_AUTHORIZE</code> is a minimal OpenVMX stand-in: a tiny typed file holding a group
+      number and a cleartext password, defaulting to the reference lab's <b>group&nbsp;1</b> only.
+      There is no real <code>CLUSTER_AUTHORIZE.DAT</code> on-disk format, no credential hashing, and
+      no wire authentication. Joining an arbitrary VMScluster (any group or password) is 1.0 work.</p>
+
+    <h3 class="sec"><span class="sn">B.5</span>VMS-way authoring &mdash; post-0.6</h3>
+    <p>You cannot yet author cluster identity the VMS way and reboot into it. There is no
+      <code>SYSMAN PARAMETERS</code> for string parameters, no <code>.PAR</code> write mechanism or
+      conversational <code>SYSBOOT</code>, no AUTOGEN / <code>MODPARAMS.DAT</code> feedback, and no
+      <code>CLUSTER_CONFIG(_LAN).COM</code>. Author identity by editing the pre-seeded
+      <code>.PAR</code> (Section&nbsp;2.2).</p>
+
+    <h3 class="sec"><span class="sn">B.6</span>DECnet &mdash; essentially greenfield</h3>
+    <p>Cluster interconnect and application use of DECnet Phase&nbsp;IV is not implemented.</p>
+
+    <p class="spacer-b">For the current status of every facility, see the
+      <a href="/compat/">compatibility surface</a>.</p>
+
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="colo">
+      <div>
+        <a href="/" class="mark lg" style="text-decoration:none">
+          <span class="m">Open</span><span class="m fill">VMX</span>
+        </a>
+        <p style="margin-top:18px">A DCL and RMS operating environment on the Linux and NetBSD kernels.</p>
+        <p><span class="badge">Free &amp; open source</span></p>
+      </div>
+      <div>
+        <h5>Documentation</h5>
+        <a href="/docs/">Manual set</a>
+        <a href="#contents">This manual: contents</a>
+        <a href="/compat/">Compatibility surface</a>
+        <a href="/">Home</a>
+      </div>
+      <div>
+        <h5>Source</h5>
+        <a href="https://github.com/3dl-dev/vms">Source repository &#8599;</a>
+        <a href="https://github.com/3dl-dev/vms/blob/main/docs/cluster-configuration-guide.md">Cluster configuration guide (source) &#8599;</a>
+        <a href="https://github.com/3dl-dev/vms/blob/main/docs/cluster-protocol-spec.md">Cluster protocol spec (source) &#8599;</a>
+      </div>
+    </div>
+    <div class="wrap disclaim" style="padding-inline:0">
+      <span>OpenVMX is an independent, open-source project. VMS is a trademark of its respective
+        owner, referenced here only to describe compatibility.</span>
+      <span class="r">AA&ndash;OVMX3&ndash;CL<br>Printed in the open &middot; <span id="yr"></span></span>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var root=document.documentElement;
+  var btn=document.getElementById('themebtn');
+  try{var saved=localStorage.getItem('ovmx-theme'); if(saved)root.setAttribute('data-theme',saved);}catch(e){}
+  function isDark(){var t=root.getAttribute('data-theme');
+    return t==='dark' || (!t && window.matchMedia('(prefers-color-scheme:dark)').matches);}
+  function label(){btn.textContent = isDark() ? 'Paper' : 'Screen';}
+  label();
+  btn.addEventListener('click',function(){
+    root.setAttribute('data-theme', isDark()?'light':'dark');
+    try{localStorage.setItem('ovmx-theme',root.getAttribute('data-theme'));}catch(e){}
+    label();
+  });
+  document.getElementById('yr').textContent = new Date().getFullYear();
+
+  /* single-source the version from the roadmap ledger (same source as the homepage),
+     so this page's "applies to" tracks the current release instead of a hand-edited literal */
+  fetch('/data/roadmap.json').then(function(r){return r.ok?r.json():null;}).then(function(d){
+    if(!d) return;
+    var cur=(d.meta&&d.meta.currentVersion)||(d.releases&&d.releases[0]&&d.releases[0].tag);
+    if(cur){ var ns=document.querySelectorAll('[data-ovmx-version]'); for(var i=0;i<ns.length;i++) ns[i].textContent=cur; }
+  }).catch(function(){});
+})();
+</script>
+</body>
+</html>
