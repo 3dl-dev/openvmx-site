@@ -5,8 +5,15 @@
   <link href="https://openvmx.3dl.dev/atom.xml" rel="self"/>
   <link href="https://openvmx.3dl.dev/" rel="alternate"/>
   <id>tag:openvmx.3dl.dev,2026:releases</id>
-  <updated>2026-08-29T07:56:26-04:00</updated>
+  <updated>2026-08-30T09:54:58-04:00</updated>
   <author><name>OpenVMX</name></author>
+  <entry>
+    <title>V0.6</title>
+    <id>tag:openvmx.3dl.dev,2026:release/V0.6</id>
+    <updated>2026-08-30T09:54:58-04:00</updated>
+    <link href="https://openvmx.3dl.dev/roadmap/" rel="alternate"/>
+    <summary>Point release.</summary>
+  </entry>
   <entry>
     <title>V0.5-11</title>
     <id>tag:openvmx.3dl.dev,2026:release/V0.5-11</id>
@@ -55,12 +62,5 @@
     <updated>2026-08-27T13:39:03-04:00</updated>
     <link href="https://openvmx.3dl.dev/roadmap/" rel="alternate"/>
     <summary>VAX login end-to-end, executive faithfulness, and Alpha toolchain hardening — the first release cut through an all-architectures gate (x86_64, aarch64, VAX, and Alpha all proven green on the exact commit before tagging). The VAX installed single-disk authenticates SYSTEM/MANAGER to a DCL prompt, and RUN /DETACHED now names the console OPA0: instead of the raw substrate path. The executive-boundary audit tracer is wired operational at image activation, so a raw syscall an image issues becomes a visible finding rather than a silent bypass. Alpha toolchain: a DST-tolerant object reader, container-format-aware C-RTL architecture auto-detection, LINK.EXE hard-errors a strong-vs-strong duplicate definition on the EVAX path (exempting same-library members, VMS first-module-wins), the stdio streams export as data universals, and $CREPRC fails honestly when a UIC or privilege override cannot reach the executive row.</summary>
-  </entry>
-  <entry>
-    <title>V0.5-4</title>
-    <id>tag:openvmx.3dl.dev,2026:release/V0.5-4</id>
-    <updated>2026-08-26T17:11:22-04:00</updated>
-    <link href="https://openvmx.3dl.dev/roadmap/" rel="alternate"/>
-    <summary>VAX authentication reaches DCL. The VAX login chain lands end-to-end: the Purdy-S hash defeats a gcc-vax DImode miscompile by construction so it matches the real binary SYSUAF, JOB_CONTROL establishes SYSTEM identity at startup, and $CREPRC stamps executive identity with RUN /UIC//PRIVILEGES honored. Alpha becomes a co-release peer with a genuine C runtime: a wiring gate reds the cut on any broken Alpha build, the Alpha C-RTL shareables (DECC$SHR's 538 universals and LIBOTS$SHR's 11 OTS$ routines) are built from real musl and libgcc with zero undefined, the GCC port's crt0 links zero-deferred against them, and an FP divide-by-zero raises SS$_HPARITH through the condition handler into $STATUS. Toolchain and faithfulness hardening: a standing shell-portability lint gate, LINK.EXE hard-errors a strong-vs-strong multiple definition (%LINK-F-MULDEF), and the executive-boundary audit tracer (seccomp user-notification, observe-only) makes every raw syscall an image issues visible as a finding — the Phase-A instrument under the executive-boundary program.</summary>
   </entry>
 </feed>
