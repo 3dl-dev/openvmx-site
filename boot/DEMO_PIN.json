@@ -1,5 +1,5 @@
 {
-  "pinned_to": "V0.6-1",
+  "pinned_to": "V0.6-2",
   "blocked_from": "V0.6-3",
-  "reason": "The browser-VAX demo runs the known-good V0.6-1 wasm payload. V0.6-2 and V0.6-3 ship DECnet rung-1, cluster-config authoring, SSH SYSUAF auth, and the Alpha multi-.o self-host proof \u2014 none touch the demo boot path \u2014 so the demo intentionally trails V0.6-1 until a payload rebuild. Acknowledged so the release-cascade gate stays honest (no silent drift, INV-0)."
+  "reason": "The browser-VAX demo runs the V0.6-2 wasm payload. V0.6-3 ships SSH SYSUAF auth and the Alpha multi-.o self-host proof \u2014 neither touches the demo boot path \u2014 so the demo intentionally trails at V0.6-2 until a payload rebuild. Acknowledged so the release-cascade gate stays honest (no silent drift, INV-0)."
 }
