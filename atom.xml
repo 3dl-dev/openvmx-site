@@ -5,8 +5,15 @@
   <link href="https://openvmx.3dl.dev/atom.xml" rel="self"/>
   <link href="https://openvmx.3dl.dev/" rel="alternate"/>
   <id>tag:openvmx.3dl.dev,2026:releases</id>
-  <updated>2026-08-31T02:43:23-04:00</updated>
+  <updated>2026-08-31T04:32:22-04:00</updated>
   <author><name>OpenVMX</name></author>
+  <entry>
+    <title>V0.6-5</title>
+    <id>tag:openvmx.3dl.dev,2026:release/V0.6-5</id>
+    <updated>2026-08-31T04:32:22-04:00</updated>
+    <link href="https://openvmx.3dl.dev/roadmap/" rel="alternate"/>
+    <summary>Two more rungs, one on each of the networking and self-hosting long poles. DECnet Phase IV gains its router-hello codec — the L1/L2 router variant of the routing HELLO (spec-derived from the public DNA Phase IV routing spec and cross-checked against public tooling, its trailing router-list carried as opaque bytes rather than fabricated, and flagged to promote once a real router specimen is captured) — so the adjacency layer can now see routers, not just endnodes. And GCC self-hosting clears its pipeline rung: the executive drives a real multi-stage subprocess pipeline the VMS way — each stage spawned /NOWAIT via SYS$CREPRC, its completion signalled by the executive's event-flag/AST facility, its $STATUS read back by process id and checked before the next stage launches, inter-stage data flowing over an RMS scratch file — proven end to end on the QEMU kernel harness against a real /dev/vms (a four-stage chain runs in order; a mid-chain failure halts the pipeline). The GCC driver's process model now works on OVMX; only the real compiler-stage images remain to be dropped in behind it.</summary>
+  </entry>
   <entry>
     <title>V0.6-4</title>
     <id>tag:openvmx.3dl.dev,2026:release/V0.6-4</id>
@@ -55,12 +62,5 @@
     <updated>2026-08-29T02:17:38-04:00</updated>
     <link href="https://openvmx.3dl.dev/roadmap/" rel="alternate"/>
     <summary>The UX-fidelity de-fabrication batch completes: every confirmed hollow or fabricated SHOW/F$ surface is now real executive data or an honest omission (INV-6) — SHOW SYSTEM with an oracle-captured golden, SHOW WORKING_SET's real working-set size, F$PID's real executive pids, SHOW ERROR's real per-device error counts, and F$GETQUI honoring the caller's queue. Plus a chunked producer-load cap and the Alpha LLP64 malloc-width fix, both rail-proven on the real /dev/vms executive.</summary>
-  </entry>
-  <entry>
-    <title>V0.5-9</title>
-    <id>tag:openvmx.3dl.dev,2026:release/V0.5-9</id>
-    <updated>2026-08-28T22:49:18-04:00</updated>
-    <link href="https://openvmx.3dl.dev/roadmap/" rel="alternate"/>
-    <summary>A broad batch: oracle-driven UX-fidelity de-fabrications held to live-VMS goldens, the distributed lock manager's H5 two-node SCS-wire milestone, the TCP/IP Services configuration plane (TCPIP$CONFIG, TCPIP$ logicals, SET/SHOW INTERFACE), and further GCC-port toolchain rungs up the do-it-like-VMS ladder.</summary>
   </entry>
 </feed>
