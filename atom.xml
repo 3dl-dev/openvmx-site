@@ -5,8 +5,15 @@
   <link href="https://openvmx.3dl.dev/atom.xml" rel="self"/>
   <link href="https://openvmx.3dl.dev/" rel="alternate"/>
   <id>tag:openvmx.3dl.dev,2026:releases</id>
-  <updated>2026-08-31T04:32:22-04:00</updated>
+  <updated>2026-08-31T06:08:22-04:00</updated>
   <author><name>OpenVMX</name></author>
+  <entry>
+    <title>V0.6-6</title>
+    <id>tag:openvmx.3dl.dev,2026:release/V0.6-6</id>
+    <updated>2026-08-31T06:08:22-04:00</updated>
+    <link href="https://openvmx.3dl.dev/roadmap/" rel="alternate"/>
+    <summary>Executive robustness on the /NOWAIT subprocess path. LIB$SPAWN's asynchronous completion now fires even when a subprocess is killed WITHOUT calling $EXIT — a SIGKILL, a crash, a segfault — where before the parent would wait forever: the executive delivers an SS$_ABORT completion at reap time (setting the parent's event flag and queuing its AST) as it reclaims the dead child, at both reclaim points, so a /NOWAIT LIB$SPAWN is now safe against abnormal child termination. Also hardens the test surface: a cross-process publish-versus-translate race in the mailbox-by-logical-name harness is fixed deterministically (a real happens-before handshake, not a timeout), proven quiet across repeated runs.</summary>
+  </entry>
   <entry>
     <title>V0.6-5</title>
     <id>tag:openvmx.3dl.dev,2026:release/V0.6-5</id>
@@ -55,12 +62,5 @@
     <updated>2026-08-29T07:56:26-04:00</updated>
     <link href="https://openvmx.3dl.dev/roadmap/" rel="alternate"/>
     <summary>The VAX DCL/SHOW acceptance battery goes fully green (101 of 101) — every VAX user-visible surface is now faithful. Real per-process accounting binds to the kernel's maintained accessors (calcru CPU, rulwps live-aggregated page faults, vm_resident_count resident pages), the SYSUAF quota facility returns real SHOW PROCESS/QUOTAS values, F$PID preserves its %08X pid format across every DCL coercion path, and a device error-count writer records genuine block-I/O errors. Plus the Alpha decc$_malloc64 allocator unifies with mallocng (EVAX strong-over-weak), rail-proven. Accounting reads the value the kernel's own ps/kinfo path reads, never a raw struct field a map names (INV-6, no false-zeros).</summary>
-  </entry>
-  <entry>
-    <title>V0.5-10</title>
-    <id>tag:openvmx.3dl.dev,2026:release/V0.5-10</id>
-    <updated>2026-08-29T02:17:38-04:00</updated>
-    <link href="https://openvmx.3dl.dev/roadmap/" rel="alternate"/>
-    <summary>The UX-fidelity de-fabrication batch completes: every confirmed hollow or fabricated SHOW/F$ surface is now real executive data or an honest omission (INV-6) — SHOW SYSTEM with an oracle-captured golden, SHOW WORKING_SET's real working-set size, F$PID's real executive pids, SHOW ERROR's real per-device error counts, and F$GETQUI honoring the caller's queue. Plus a chunked producer-load cap and the Alpha LLP64 malloc-width fix, both rail-proven on the real /dev/vms executive.</summary>
   </entry>
 </feed>
