@@ -1,5 +1,0 @@
-{
-  "pinned_to": "V0.6-2",
-  "blocked_from": "V0.6-8",
-  "reason": "The browser-VAX demo runs the V0.6-2 wasm payload; releases V0.6-3..V0.6-8 don't touch the demo boot path, so it intentionally trails at V0.6-2 until a payload rebuild. Acknowledged for the cascade gate (no silent drift, INV-0)."
-}
