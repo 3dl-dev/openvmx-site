@@ -1,5 +1,5 @@
 {
   "pinned_to": "V0.6-2",
-  "blocked_from": "V0.6-5",
-  "reason": "The browser-VAX demo runs the V0.6-2 wasm payload; releases V0.6-3..V0.6-5 (SSH SYSUAF auth, Alpha multi-.o self-host proof, DECnet NSP/adjacency/router-hello, executive /NOWAIT completion + multi-stage pipeline) don't touch the demo boot path, so it intentionally trails at V0.6-2 until a payload rebuild. Acknowledged for the cascade gate (no silent drift, INV-0)."
+  "blocked_from": "V0.6-6",
+  "reason": "The browser-VAX demo runs the V0.6-2 wasm payload; releases V0.6-3..V0.6-6 (SSH SYSUAF auth, Alpha multi-.o self-host proof, DECnet NSP/adjacency/router-hello, executive /NOWAIT completion incl signal-death + multi-stage pipeline) don't touch the demo boot path, so it intentionally trails at V0.6-2 until a payload rebuild. Acknowledged for the cascade gate (no silent drift, INV-0)."
 }
