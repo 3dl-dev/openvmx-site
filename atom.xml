@@ -5,8 +5,15 @@
   <link href="https://openvmx.3dl.dev/atom.xml" rel="self"/>
   <link href="https://openvmx.3dl.dev/" rel="alternate"/>
   <id>tag:openvmx.3dl.dev,2026:releases</id>
-  <updated>2026-08-31T00:52:27-04:00</updated>
+  <updated>2026-08-31T02:43:23-04:00</updated>
   <author><name>OpenVMX</name></author>
+  <entry>
+    <title>V0.6-4</title>
+    <id>tag:openvmx.3dl.dev,2026:release/V0.6-4</id>
+    <updated>2026-08-31T02:43:23-04:00</updated>
+    <link href="https://openvmx.3dl.dev/roadmap/" rel="alternate"/>
+    <summary>Three increments up the networking and executive long poles, no version-gated feature removed. DECnet Phase IV grows a transport and a routing brain: an NSP codec (Connect Initiate oracle-verified byte-identical against the captured real-VAX specimen, the rest of the message set spec-derived from the public DNA NSP spec and labelled as such — no fabricated bytes), and a clock-injectable adjacency state machine that brings a neighbour up on a two-way HELLO handshake, holds it up while HELLOs arrive within the listen timer, and downs it on lapse — the hello cadence taken from the captured oracle. And the executive learns to complete a /NOWAIT subprocess honestly: a new VMS_IOCTL_SPAWN_NOTIFY facility sets the parent's event flag and queues its completion AST from the real executive as an indivisible part of recording the child's exit over /dev/vms (no userspace waitpid poll, fail-closed without /dev/vms), proven on the QEMU kernel harness and mirrored across the x86_64, NetBSD/VAX, and Alpha builds.</summary>
+  </entry>
   <entry>
     <title>V0.6-3</title>
     <id>tag:openvmx.3dl.dev,2026:release/V0.6-3</id>
@@ -55,12 +62,5 @@
     <updated>2026-08-28T22:49:18-04:00</updated>
     <link href="https://openvmx.3dl.dev/roadmap/" rel="alternate"/>
     <summary>A broad batch: oracle-driven UX-fidelity de-fabrications held to live-VMS goldens, the distributed lock manager's H5 two-node SCS-wire milestone, the TCP/IP Services configuration plane (TCPIP$CONFIG, TCPIP$ logicals, SET/SHOW INTERFACE), and further GCC-port toolchain rungs up the do-it-like-VMS ladder.</summary>
-  </entry>
-  <entry>
-    <title>V0.5-8</title>
-    <id>tag:openvmx.3dl.dev,2026:release/V0.5-8</id>
-    <updated>2026-08-28T14:04:18-04:00</updated>
-    <link href="https://openvmx.3dl.dev/roadmap/" rel="alternate"/>
-    <summary>The distributed lock manager's cross-node $ENQ GRANT crown — a lock granted on one OVMX node is honored on another over real SCS — with Alpha co-release parity, the operator-reported boot newline fix, and the reframing of TCP/IP Services as a first-class layered product.</summary>
   </entry>
 </feed>
