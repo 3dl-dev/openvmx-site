@@ -492,7 +492,7 @@ footer{background:var(--paper-2);margin-top:clamp(46px,6vw,84px)}
 
     <h3 class="sec" id="s4-2"><span class="sn">4.2</span>Boot with the target attached</h3>
     <p>Boot the distribution disk with the target attached as a second virtio disk. Inside the
-      running system the target appears as <code>DKA100:</code>. Bind-mount the current directory so
+      running system the target appears as <code>VDA100:</code>. Bind-mount the current directory so
       the install writes to <code>target.img</code> on the host.</p>
     <div class="term">
       <div class="top"><span>host shell</span><span>sh</span></div>
@@ -511,17 +511,17 @@ footer{background:var(--paper-2);margin-top:clamp(46px,6vw,84px)}
       the executive and confirms it.</p>
     <div class="term">
       <div class="top"><span>OpenVMX console</span><span>DCL</span></div>
-<pre><span class="p">$</span> <span class="i">MOUNT DKA100: WORK</span>
-<span class="o">%MOUNT-I-MOUNTED, WORK mounted on _DKA100:</span></pre>
+<pre><span class="p">$</span> <span class="i">MOUNT VDA100: WORK</span>
+<span class="o">%MOUNT-I-MOUNTED, WORK mounted on _VDA100:</span></pre>
     </div>
 
     <h3 class="sec" id="s4-4"><span class="sn">4.4</span>Install the kit</h3>
     <p>Type <code>PRODUCT INSTALL</code>, naming the kit at <code>SYS$UPDATE:</code> and the
       destination device. The install reads the kit and writes the system tree onto
-      <code>DKA100:</code>.</p>
+      <code>VDA100:</code>.</p>
     <div class="term">
       <div class="top"><span>OpenVMX console</span><span>DCL</span></div>
-<pre><span class="p">$</span> <span class="i">PRODUCT INSTALL VMS /SOURCE=SYS$UPDATE:OVMX-OS.KIT /DESTINATION=DKA100:</span>
+<pre><span class="p">$</span> <span class="i">PRODUCT INSTALL VMS /SOURCE=SYS$UPDATE:OVMX-OS.KIT /DESTINATION=VDA100:</span>
 <span class="o">%PCSI-I-DONE</span></pre>
     </div>
     <p>A <code>%PCSI-I-DONE</code> line with no <code>%PCSI-E-</code> or <code>%PCSI-F-</code> line
@@ -539,17 +539,17 @@ footer{background:var(--paper-2);margin-top:clamp(46px,6vw,84px)}
       the target, and dismount to flush the volume.</p>
     <div class="term">
       <div class="top"><span>OpenVMX console</span><span>DCL</span></div>
-<pre><span class="p">$</span> <span class="i">DIRECTORY DKA100:[SYS0.SYSCOMMON.SYSEXE]DCL.EXE</span>
-<span class="o">Directory DKA100:[SYS0.SYSCOMMON.SYSEXE]</span>
+<pre><span class="p">$</span> <span class="i">DIRECTORY VDA100:[SYS0.SYSCOMMON.SYSEXE]DCL.EXE</span>
+<span class="o">Directory VDA100:[SYS0.SYSCOMMON.SYSEXE]</span>
 <span class="o">DCL.EXE;1</span>
 <span class="o">Total of 1 file.</span>
 
-<span class="p">$</span> <span class="i">PRODUCT SHOW PRODUCT /DESTINATION=DKA100:</span>
+<span class="p">$</span> <span class="i">PRODUCT SHOW PRODUCT /DESTINATION=VDA100:</span>
 <span class="o">PRODUCT                          KIT TYPE      STATE</span>
 <span class="o">X86VMS VMS                       Full LP       <span class="k">Installed</span></span>
 
-<span class="p">$</span> <span class="i">DISMOUNT DKA100:</span>
-<span class="o">%DISMOUNT-I-DISMOUNTED, WORK dismounted from _DKA100:</span></pre>
+<span class="p">$</span> <span class="i">DISMOUNT VDA100:</span>
+<span class="o">%DISMOUNT-I-DISMOUNTED, WORK dismounted from _VDA100:</span></pre>
     </div>
     <p class="caption-h">The product name comes from the kit. On an x86-64 build the kit is named
       <code>X86VMS VMS</code>. Shut the machine down with <code>Ctrl-A</code> then <code>X</code>.</p>
@@ -567,10 +567,10 @@ footer{background:var(--paper-2);margin-top:clamp(46px,6vw,84px)}
     <div hidden aria-hidden="true">
 <!-- ovmx:guide-steps:begin -->
 ```
-MOUNT DKA100: WORK
-PRODUCT INSTALL VMS /SOURCE=SYS$UPDATE:OVMX-OS.KIT /DESTINATION=DKA100:
-PRODUCT SHOW PRODUCT /DESTINATION=DKA100:
-DISMOUNT DKA100:
+MOUNT VDA100: WORK
+PRODUCT INSTALL VMS /SOURCE=SYS$UPDATE:OVMX-OS.KIT /DESTINATION=VDA100:
+PRODUCT SHOW PRODUCT /DESTINATION=VDA100:
+DISMOUNT VDA100:
 ```
 <!-- ovmx:guide-steps:end -->
     </div>
@@ -720,7 +720,7 @@ cluster-logicals
         <tr><th scope="row"><code>%OVMX-F-SYSINIT</code> on the installed disk</th>
           <td>The install did not write the rooted layout, or you booted the wrong disk. Reinstall
             with <code>/DESTINATION</code> and confirm
-            <code>DKA100:[SYS0.SYSCOMMON.SYSEXE]DCL.EXE</code> lists before you dismount.</td></tr>
+            <code>VDA100:[SYS0.SYSCOMMON.SYSEXE]DCL.EXE</code> lists before you dismount.</td></tr>
         <tr><th scope="row">The build stops in the link stage</th>
           <td>A system image was linked with the wrong toolchain, and the build refuses to ship it.
             This is a check, not a workaround target. Report it as a build bug.</td></tr>
