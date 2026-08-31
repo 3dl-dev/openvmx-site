@@ -406,19 +406,41 @@ footer{background:var(--paper-2);margin-top:clamp(46px,6vw,84px)}
     </table>
     </div>
 
-    <h3 class="sec" id="s2-2"><span class="sn">2.2</span>Authoring identity at V0.6</h3>
-    <p>The identity parameters are <b>pre-seeded</b> in the shipped <code>OVMXVMSSYS.PAR</code>. To
-      configure a node, you edit that pre-seeded store. That is the only authoring path at V0.6. You
-      set identity by editing the pre-seeded <code>.PAR</code> (or by pointing
-      <code>OVMX_SYSGEN_PATH</code> at a store you have prepared), and the cluster daemon adopts it
-      on the next boot.</p>
-    <div class="call caution">
-      <span class="lab">Caution</span>
-      The VMS-way authoring surface is <b>not</b> shipped at V0.6. There is no
-      <code>SYSMAN PARAMETERS</code> for string parameters, no <code>.PAR</code> write mechanism or
-      conversational <code>SYSBOOT</code>, no AUTOGEN / <code>MODPARAMS.DAT</code> feedback, and no
-      <code>CLUSTER_CONFIG(_LAN).COM</code>. You cannot yet author cluster identity &ldquo;the VMS
-      way&rdquo; and reboot into it. See Appendix&nbsp;B.
+    <h3 class="sec" id="s2-2"><span class="sn">2.2</span>Authoring identity the VMS way</h3>
+    <p>You author a node's cluster identity the way a VMScluster administrator expects &mdash; by
+      running the cluster configuration procedure, not by editing a file:</p>
+    <div class="term">
+      <div class="top"><span>OpenVMX console</span><span>DCL</span></div>
+<pre><span class="p">$</span> <span class="i">@SYS$MANAGER:CLUSTER_CONFIG_LAN.COM</span>
+
+<span class="o">                    Cluster Configuration Procedure</span>
+
+<span class="o">        1. ADD this node to a cluster</span>
+<span class="o">        2. CHANGE this node's cluster characteristics</span>
+<span class="o">        3. REMOVE a node from the cluster</span>
+<span class="o">        4. CREATE a duplicate system disk</span>
+<span class="o">        5. EXIT from this procedure</span>
+
+<span class="p">Enter choice [1]:</span> <span class="i">2</span>
+<span class="p">    What is the node's SCSNODE name:</span> <span class="i">OVMXA</span>
+<span class="p">    What is the node's SCSSYSTEMID:</span> <span class="i">1030</span>
+<span class="o">    ...</span>
+<span class="o">    CHANGE complete. The new cluster identity is written to</span>
+<span class="o">    SYS$SYSTEM:OVMXVMSSYS.PAR and takes effect on the next reboot.</span></pre>
+    </div>
+    <p><code>ADD</code> configures this node as a cluster member (and enables participation);
+      <code>CHANGE</code> reconfigures an existing member. The procedure drives <code>SYSGEN</code> to
+      write a new version of <code>SYS$SYSTEM:OVMXVMSSYS.PAR</code> through the executive Files-11 ACP,
+      the same store the cluster daemon reads its identity from at boot. Reboot to adopt it.</p>
+    <div class="call">
+      <span class="lab">Note</span>
+      The procedure authors <code>VOTES</code>, <code>EXPECTED_VOTES</code> and <code>VAXCLUSTER</code>
+      into the parameter file and they persist, but at V0.6 the daemon does not yet <b>enforce</b>
+      them &mdash; the node joins non-voting and quorum is computed-and-logged only (Appendix&nbsp;B.1).
+      The procedure says so at the prompt. Its <code>REMOVE</code>-a-remote-node and
+      duplicate-system-disk items are honestly declined at this edition rather than faked; the deeper
+      VMS authoring pipeline (SYSMAN string parameters, AUTOGEN / <code>MODPARAMS.DAT</code>,
+      arbitrary-cluster <code>CLUSTER_AUTHORIZE</code>) is still post-0.6 (Appendix&nbsp;B.5).
     </div>
 
     <!-- ============ CHAPTER 3 ============ -->
@@ -429,8 +451,9 @@ footer{background:var(--paper-2);margin-top:clamp(46px,6vw,84px)}
       <code>SHOW CLUSTER</code> (Chapter&nbsp;4).</p>
 
     <h3 class="sec" id="s3-1"><span class="sn">3.1</span>Give each node a unique identity</h3>
-    <p>In each node's pre-seeded <code>OVMXVMSSYS.PAR</code>, set a distinct <code>SCSNODE</code>
-      (six characters or fewer) and a distinct <code>SCSSYSTEMID</code>.</p>
+    <p>On each node, run <code>@SYS$MANAGER:CLUSTER_CONFIG_LAN.COM</code> (Section&nbsp;2.2) and give it
+      a distinct <code>SCSNODE</code> (six characters or fewer) and a distinct <code>SCSSYSTEMID</code>.
+      Reboot each node to adopt its new identity.</p>
     <div class="call caution">
       <span class="lab">Caution</span>
       Reusing an <code>SCSNODE</code>/<code>SCSSYSTEMID</code> that a peer has recently seen on
@@ -441,9 +464,9 @@ footer{background:var(--paper-2);margin-top:clamp(46px,6vw,84px)}
     <h3 class="sec" id="s3-2"><span class="sn">3.2</span>Match the cluster group</h3>
     <p>OpenVMX joins the reference lab's <b>group&nbsp;1</b> by default
       (<code>CLUSTER_AUTHORIZE</code> is a minimal stand-in &mdash; see Appendix&nbsp;B). Both nodes
-      must be on the same LAN segment carrying the LAVC/SCA ethertype. The transport is genuine raw
-      Ethernet, not a UDP tunnel, so the cluster daemon needs the <code>CAP_NET_RAW</code>
-      capability.</p>
+      must be on the same LAN segment carrying the LAVC/SCA ethertype: the transport is genuine raw
+      Ethernet, not a UDP tunnel. (Raw-Ethernet access is arranged by the runtime, not something you
+      configure as an operator.)</p>
 
     <h3 class="sec" id="s3-3"><span class="sn">3.3</span>Boot both nodes</h3>
     <p>Boot both nodes (see the <a href="/docs/installation/">Installation Guide</a>). As the cluster
@@ -663,12 +686,17 @@ cluster-logicals
       There is no real <code>CLUSTER_AUTHORIZE.DAT</code> on-disk format, no credential hashing, and
       no wire authentication. Joining an arbitrary VMScluster (any group or password) is 1.0 work.</p>
 
-    <h3 class="sec"><span class="sn">B.5</span>VMS-way authoring &mdash; post-0.6</h3>
-    <p>You cannot yet author cluster identity the VMS way and reboot into it. There is no
-      <code>SYSMAN PARAMETERS</code> for string parameters, no <code>.PAR</code> write mechanism or
-      conversational <code>SYSBOOT</code>, no AUTOGEN / <code>MODPARAMS.DAT</code> feedback, and no
-      <code>CLUSTER_CONFIG(_LAN).COM</code>. Author identity by editing the pre-seeded
-      <code>.PAR</code> (Section&nbsp;2.2).</p>
+    <h3 class="sec"><span class="sn">B.5</span>VMS-way authoring &mdash; partial</h3>
+    <p>You <b>can</b> now author cluster identity the VMS way and reboot into it, with
+      <code>@SYS$MANAGER:CLUSTER_CONFIG_LAN.COM</code> driving <code>SYSGEN</code> to write a new
+      version of <code>OVMXVMSSYS.PAR</code> over the executive ACP (Section&nbsp;2.2). What the
+      broader VMS authoring pipeline still lacks at this edition: no <code>SYSMAN PARAMETERS</code>
+      shell for string parameters, no conversational <code>SYSBOOT</code>, no AUTOGEN /
+      <code>MODPARAMS.DAT</code> feedback loop, and the configuration procedure covers only the local
+      node's identity &mdash; it does not provision a remote satellite, remove a remote member, or
+      build a duplicate system disk (those items decline honestly). Enforcing the authored
+      <code>VOTES</code> and joining an arbitrary cluster's group (Appendix&nbsp;B.1, B.4) are the
+      remaining 1.0 work.</p>
 
     <h3 class="sec"><span class="sn">B.6</span>DECnet &mdash; essentially greenfield</h3>
     <p>Cluster interconnect and application use of DECnet Phase&nbsp;IV is not implemented.</p>
