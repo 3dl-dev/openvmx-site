@@ -5,8 +5,15 @@
   <link href="https://openvmx.3dl.dev/atom.xml" rel="self"/>
   <link href="https://openvmx.3dl.dev/" rel="alternate"/>
   <id>tag:openvmx.3dl.dev,2026:releases</id>
-  <updated>2026-08-30T23:39:15-04:00</updated>
+  <updated>2026-08-31T00:52:27-04:00</updated>
   <author><name>OpenVMX</name></author>
+  <entry>
+    <title>V0.6-3</title>
+    <id>tag:openvmx.3dl.dev,2026:release/V0.6-3</id>
+    <updated>2026-08-31T00:52:27-04:00</updated>
+    <link href="https://openvmx.3dl.dev/roadmap/" rel="alternate"/>
+    <summary>Two long-pole milestones proven on the real runtime. SSH login is now VMS-faithful end to end: the unmodified VMS OpenSSH port authenticates passwords against the binary SYSUAF (Purdy) and drops the session into LOGINOUT-&gt;DCL rather than a shell — all OVMX behavior enters through linker --wrap hooks, no fork of upstream OpenSSH — proven fail-closed against a real /dev/vms (a password login for a user with no SYSUAF record is refused; zero AF_UNIX fds in the handshake, INV-6). And the self-hosting toolchain clears its multi-file rung: the alpha-dec-vms GCC-port image STRICT-links a real 3-object program (no --allow-undefined; decc$free and the cross-.o libc surface all bound through DECC$SHR/LIBOTS) and activates for real on qemu-system-alpha over /dev/vms, returning full success — now guarded by a standing per-PR CI gate so it cannot regress.</summary>
+  </entry>
   <entry>
     <title>V0.6-2</title>
     <id>tag:openvmx.3dl.dev,2026:release/V0.6-2</id>
@@ -55,12 +62,5 @@
     <updated>2026-08-28T14:04:18-04:00</updated>
     <link href="https://openvmx.3dl.dev/roadmap/" rel="alternate"/>
     <summary>The distributed lock manager's cross-node $ENQ GRANT crown — a lock granted on one OVMX node is honored on another over real SCS — with Alpha co-release parity, the operator-reported boot newline fix, and the reframing of TCP/IP Services as a first-class layered product.</summary>
-  </entry>
-  <entry>
-    <title>V0.5-7</title>
-    <id>tag:openvmx.3dl.dev,2026:release/V0.5-7</id>
-    <updated>2026-08-28T11:16:30Z</updated>
-    <link href="https://openvmx.3dl.dev/roadmap/" rel="alternate"/>
-    <summary>The GCC-port-on-the-real-executive release. The genuine alpha-dec-vms VMS GCC port runs as an OVMX-Alpha image on the live /dev/vms executive — a P1 milestone up the do-it-like-VMS ladder: activated via IMGACT over the mounted ODS-2 ACP, decc$main binds its producers (DECC$SHR/LIBOTS) over the ACP, and crt0-&gt;main returns the executive sentinel $STATUS=0x0035A019 (faithful C$_EXIT1(3), control-verified). The last three activation gaps close honestly against the real runtime — LIBOTS OTS$ register-preservation, the C-RTL auxv/R0 path, and the wired alpha-dec-vms musl syscall backend (callsys ABI, native Alpha syscall numbers, wruniq TP) — with the faithfulness lock catching four real gaps that qemu-user had hidden. Cluster: the OVMX&lt;-&gt;OVMX member/initiator role is complete — two OVMX nodes form a VMScluster against each other (rung-0 solicit, rung-VC 0x41 START initiate, rung-ADD 0x5b joiner accept) — and a live cross-node $ENQ round-trip A-&gt;B-&gt;A over SCS works through the distributed lock manager (granting nothing, INV-6). Networking: a real OpenSSH sshd session rides entirely on the executive's own primitives over BGn: — bind/listen/accept over BGn:, a materialized [bgconn] fd for the session, getpeername/setsockopt answered from the executive socket, and byte-exact data through IO$_READVBLK/WRITEVBLK, with no AF_UNIX and no raw host socket. QA'd under KVM boot-to-login with the full SHOW battery VMS-faithful (42/42 acceptance); the frozen-verify red legs confirmed no-new-vs-baseline (TCG-flake, vms-898a).</summary>
   </entry>
 </feed>
