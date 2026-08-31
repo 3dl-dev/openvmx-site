@@ -1,8 +1,8 @@
 {
  "meta": {
-  "generated": "2026-08-13",
+  "generated": "2026-08-31",
   "source": "docs/compat/",
-  "note": "Machine export of the OVMX Compatibility Surface Register.",
+  "note": "Machine export of the OVMX Compatibility Surface Register. This is an inventory with per-surface status; it deliberately carries NO coverage percentage \u2014 the total VMS surface has no known denominator. Report absolute counts; V1 progress is `overall_in_scope` (met/in_progress/not_started) against the commitment set, never a fraction of the whole.",
   "scrubbed": "trademark scrub applied on render (public site)"
  },
  "vocab": {
@@ -65,28 +65,56 @@
   },
   {
    "id": "runtime-arch",
-   "name": "H. Runtime & Architecture",
-   "blurb": "Architecture targets, the kernel executive (/dev/vms), image activation / runtime linking."
+   "name": "H. Executive",
+   "blurb": "The VMS executive itself \u2014 access modes, the process model (PCB), scheduling, and the executive-backed IPC that underpins the system services. (Architecture/platform support and OVMX self-hosting are roadmap concerns, not compatibility surfaces \u2014 see the release roadmap and release-dimensions, not this register.)"
+  },
+  {
+   "id": "languages",
+   "name": "I. Languages & Compilers",
+   "blurb": "The VMS language story: compilers (Fortran/COBOL/BASIC/Pascal/MACRO/Ada/PL/I/\u2026), their language RTLs (FOR$/COB$/BAS$/PAS$), and the VMS Calling Standard that makes cross-language calls work. OVMX today has one language \u2014 C, via tcc."
   }
  ],
  "overall": {
-  "count": 395,
+  "count": 431,
   "by_status": {
-   "verified": 27,
-   "implemented": 209,
-   "partial": 39,
-   "stub": 19,
-   "designed": 2,
-   "absent": 99
+   "verified": 25,
+   "implemented": 245,
+   "partial": 46,
+   "stub": 20,
+   "designed": 0,
+   "absent": 95
   },
   "by_authenticity": {
-   "real": 230,
-   "n/a": 87,
-   "advisory": 32,
-   "facade-risk": 46
+   "real": 276,
+   "n/a": 93,
+   "advisory": 46,
+   "facade-risk": 16
   },
-  "coverage_index": 57.8,
-  "facade_risk": 46
+  "met": 270,
+  "in_progress": 46,
+  "not_started": 115,
+  "facade_risk": 16
+ },
+ "overall_in_scope": {
+  "count": 387,
+  "by_status": {
+   "verified": 25,
+   "implemented": 245,
+   "partial": 45,
+   "stub": 16,
+   "designed": 0,
+   "absent": 56
+  },
+  "by_authenticity": {
+   "real": 275,
+   "n/a": 54,
+   "advisory": 44,
+   "facade-risk": 14
+  },
+  "met": 270,
+  "in_progress": 45,
+  "not_started": 72,
+  "facade_risk": 14
  },
  "facilities": [
   {
@@ -97,7 +125,7 @@
    "tier": null,
    "plan_ref": "vms-8ad",
    "vms_ref": "VMS Guide to System Security; DCL Dictionary (SET/SHOW ACCOUNTING)",
-   "last_reviewed": "2026-08-13",
+   "last_reviewed": "2026-08-31",
    "rollup": {
     "count": 3,
     "by_status": {
@@ -112,34 +140,9 @@
      "real": 2,
      "n/a": 1
     },
-    "coverage_index": 56.7,
-    "facade_risk": 0
-   }
-  },
-  {
-   "facility": "arch-targets",
-   "name": "Architecture Targets (x86_64, aarch64, alpha, vax)",
-   "domain": "runtime-arch",
-   "scope_1_0": "in",
-   "tier": null,
-   "plan_ref": "vms-8ce",
-   "vms_ref": "N/A \u2014 OVMX platform targets, not a single VMS surface",
-   "last_reviewed": "2026-08-13",
-   "rollup": {
-    "count": 4,
-    "by_status": {
-     "verified": 2,
-     "implemented": 0,
-     "partial": 1,
-     "stub": 0,
-     "designed": 0,
-     "absent": 1
-    },
-    "by_authenticity": {
-     "real": 2,
-     "n/a": 2
-    },
-    "coverage_index": 62.5,
+    "met": 2,
+    "in_progress": 0,
+    "not_started": 1,
     "facade_risk": 0
    }
   },
@@ -151,21 +154,24 @@
    "tier": null,
    "plan_ref": "vms-8ad",
    "vms_ref": "VMS Guide to System Security ch. 7-8 (Auditing, Break-In Evasion)",
-   "last_reviewed": "2026-08-13",
+   "last_reviewed": "2026-08-31",
    "rollup": {
-    "count": 3,
+    "count": 4,
     "by_status": {
      "verified": 0,
      "implemented": 0,
      "partial": 0,
-     "stub": 0,
+     "stub": 1,
      "designed": 0,
      "absent": 3
     },
     "by_authenticity": {
+     "advisory": 1,
      "n/a": 3
     },
-    "coverage_index": 0.0,
+    "met": 0,
+    "in_progress": 0,
+    "not_started": 4,
     "facade_risk": 0
    }
   },
@@ -177,7 +183,7 @@
    "tier": null,
    "plan_ref": "vms-46c",
    "vms_ref": "VMS System Manager's Manual vol. 1 ch. 3 (Booting)",
-   "last_reviewed": "2026-08-13",
+   "last_reviewed": "2026-08-31",
    "rollup": {
     "count": 5,
     "by_status": {
@@ -191,7 +197,38 @@
     "by_authenticity": {
      "real": 5
     },
-    "coverage_index": 78.0,
+    "met": 4,
+    "in_progress": 1,
+    "not_started": 0,
+    "facade_risk": 0
+   }
+  },
+  {
+   "facility": "calling-standard",
+   "name": "VMS Calling Standard",
+   "domain": "languages",
+   "scope_1_0": "in",
+   "tier": null,
+   "plan_ref": "vms-801",
+   "vms_ref": "VMS Calling Standard",
+   "last_reviewed": "2026-08-13",
+   "rollup": {
+    "count": 4,
+    "by_status": {
+     "verified": 0,
+     "implemented": 0,
+     "partial": 4,
+     "stub": 0,
+     "designed": 0,
+     "absent": 0
+    },
+    "by_authenticity": {
+     "real": 2,
+     "advisory": 2
+    },
+    "met": 0,
+    "in_progress": 4,
+    "not_started": 0,
     "facade_risk": 0
    }
   },
@@ -203,7 +240,7 @@
    "tier": 1,
    "plan_ref": "vms-801",
    "vms_ref": "VMS Programming Concepts Manual \u2014 Condition Handling; VMS RTL LIB$ Manual",
-   "last_reviewed": "2026-08-13",
+   "last_reviewed": "2026-08-31",
    "rollup": {
     "count": 12,
     "by_status": {
@@ -219,7 +256,9 @@
      "n/a": 4,
      "facade-risk": 1
     },
-    "coverage_index": 40.4,
+    "met": 5,
+    "in_progress": 0,
+    "not_started": 7,
     "facade_risk": 1
    }
   },
@@ -231,21 +270,23 @@
    "tier": null,
    "plan_ref": "vms-694",
    "vms_ref": "VMS Cluster Systems manual; $ENQ/$DEQ/$GETLKI system services",
-   "last_reviewed": "2026-08-13",
+   "last_reviewed": "2026-08-31",
    "rollup": {
-    "count": 1,
+    "count": 4,
     "by_status": {
-     "verified": 0,
+     "verified": 4,
      "implemented": 0,
      "partial": 0,
      "stub": 0,
      "designed": 0,
-     "absent": 1
+     "absent": 0
     },
     "by_authenticity": {
-     "real": 1
+     "real": 4
     },
-    "coverage_index": 0.0,
+    "met": 4,
+    "in_progress": 0,
+    "not_started": 0,
     "facade_risk": 0
    }
   },
@@ -257,7 +298,7 @@
    "tier": null,
    "plan_ref": "vms-694",
    "vms_ref": "VMS Cluster Systems manual; $CRELNM (LNM$M_CLUSTERWIDE), $MGBLSC/$CRMPSC",
-   "last_reviewed": "2026-08-13",
+   "last_reviewed": "2026-08-31",
    "rollup": {
     "count": 2,
     "by_status": {
@@ -271,7 +312,38 @@
     "by_authenticity": {
      "n/a": 2
     },
-    "coverage_index": 0.0,
+    "met": 0,
+    "in_progress": 0,
+    "not_started": 2,
+    "facade_risk": 0
+   }
+  },
+  {
+   "facility": "compilers",
+   "name": "Compilers (language front-ends)",
+   "domain": "languages",
+   "scope_1_0": "undecided",
+   "tier": null,
+   "plan_ref": "vms-082",
+   "vms_ref": "VMS language reference manuals (Fortran/COBOL/BASIC/Pascal/MACRO/\u2026)",
+   "last_reviewed": "2026-08-13",
+   "rollup": {
+    "count": 12,
+    "by_status": {
+     "verified": 0,
+     "implemented": 1,
+     "partial": 0,
+     "stub": 0,
+     "designed": 0,
+     "absent": 11
+    },
+    "by_authenticity": {
+     "real": 1,
+     "n/a": 11
+    },
+    "met": 1,
+    "in_progress": 0,
+    "not_started": 11,
     "facade_risk": 0
    }
   },
@@ -283,21 +355,23 @@
    "tier": null,
    "plan_ref": "vms-694",
    "vms_ref": "VMS Cluster Systems manual (connection manager, quorum algorithm)",
-   "last_reviewed": "2026-08-13",
+   "last_reviewed": "2026-08-31",
    "rollup": {
-    "count": 3,
+    "count": 4,
     "by_status": {
      "verified": 1,
-     "implemented": 2,
+     "implemented": 3,
      "partial": 0,
      "stub": 0,
      "designed": 0,
      "absent": 0
     },
     "by_authenticity": {
-     "real": 3
+     "real": 4
     },
-    "coverage_index": 90.0,
+    "met": 4,
+    "in_progress": 0,
+    "not_started": 0,
     "facade_risk": 0
    }
   },
@@ -309,11 +383,11 @@
    "tier": 1,
    "plan_ref": "vms-8ad",
    "vms_ref": "VMS Command Definition Utility (CDU) Manual; DCL Dictionary",
-   "last_reviewed": "2026-08-13",
+   "last_reviewed": "2026-08-31",
    "rollup": {
-    "count": 4,
+    "count": 5,
     "by_status": {
-     "verified": 1,
+     "verified": 2,
      "implemented": 0,
      "partial": 2,
      "stub": 0,
@@ -321,10 +395,12 @@
      "absent": 1
     },
     "by_authenticity": {
-     "real": 3,
+     "real": 4,
      "facade-risk": 1
     },
-    "coverage_index": 50.0,
+    "met": 2,
+    "in_progress": 2,
+    "not_started": 1,
     "facade_risk": 1
    }
   },
@@ -336,24 +412,25 @@
    "tier": 1,
    "plan_ref": "vms-8ad",
    "vms_ref": "VMS DCL Dictionary; VMS User's Guide (command procedures)",
-   "last_reviewed": "2026-08-13",
+   "last_reviewed": "2026-08-31",
    "rollup": {
     "count": 8,
     "by_status": {
-     "verified": 1,
-     "implemented": 1,
-     "partial": 3,
+     "verified": 0,
+     "implemented": 6,
+     "partial": 2,
      "stub": 0,
      "designed": 0,
-     "absent": 3
+     "absent": 0
     },
     "by_authenticity": {
-     "real": 2,
-     "n/a": 1,
-     "facade-risk": 5
+     "real": 7,
+     "advisory": 1
     },
-    "coverage_index": 41.9,
-    "facade_risk": 5
+    "met": 6,
+    "in_progress": 2,
+    "not_started": 0,
+    "facade_risk": 0
    }
   },
   {
@@ -364,50 +441,54 @@
    "tier": 1,
    "plan_ref": "vms-8ad",
    "vms_ref": "VMS DCL Dictionary",
-   "last_reviewed": "2026-08-13",
+   "last_reviewed": "2026-08-31",
    "rollup": {
     "count": 11,
     "by_status": {
      "verified": 0,
-     "implemented": 0,
+     "implemented": 2,
      "partial": 2,
      "stub": 0,
      "designed": 0,
-     "absent": 9
+     "absent": 7
     },
     "by_authenticity": {
-     "real": 2,
-     "n/a": 7,
-     "facade-risk": 2
+     "real": 4,
+     "advisory": 1,
+     "n/a": 6
     },
-    "coverage_index": 9.1,
-    "facade_risk": 2
+    "met": 2,
+    "in_progress": 2,
+    "not_started": 7,
+    "facade_risk": 0
    }
   },
   {
    "facility": "decnet",
-   "name": "DECnet Phase IV (NSP, Task-to-Task, SET HOST)",
+   "name": "DECnet Phase IV (Routing, NSP, Task-to-Task, SET HOST)",
    "domain": "networking",
    "scope_1_0": "in",
    "tier": null,
    "plan_ref": "vms-30e",
-   "vms_ref": "DECnet for VMS Networking Manual",
-   "last_reviewed": "2026-08-13",
+   "vms_ref": "DECnet for VMS Networking Manual; DNA Phase IV Routing + NSP specs",
+   "last_reviewed": "2026-08-31",
    "rollup": {
-    "count": 4,
+    "count": 7,
     "by_status": {
-     "verified": 0,
-     "implemented": 0,
-     "partial": 1,
+     "verified": 1,
+     "implemented": 2,
+     "partial": 2,
      "stub": 1,
      "designed": 0,
-     "absent": 2
+     "absent": 1
     },
     "by_authenticity": {
-     "n/a": 2,
-     "real": 2
+     "real": 6,
+     "n/a": 1
     },
-    "coverage_index": 17.5,
+    "met": 3,
+    "in_progress": 2,
+    "not_started": 2,
     "facade_risk": 0
    }
   },
@@ -419,7 +500,7 @@
    "tier": 1,
    "plan_ref": "vms-801",
    "vms_ref": "VMS Programming Concepts Manual, Ch. 4 (Descriptors); VMS Calling Standard",
-   "last_reviewed": "2026-08-13",
+   "last_reviewed": "2026-08-31",
    "rollup": {
     "count": 14,
     "by_status": {
@@ -435,7 +516,9 @@
      "n/a": 4,
      "advisory": 1
     },
-    "coverage_index": 58.2,
+    "met": 9,
+    "in_progress": 1,
+    "not_started": 4,
     "facade_risk": 0
    }
   },
@@ -447,7 +530,7 @@
    "tier": null,
    "plan_ref": "vms-651",
    "vms_ref": "VMS I/O User's Reference Manual; VMS System Manager's Manual (MOUNT)",
-   "last_reviewed": "2026-08-13",
+   "last_reviewed": "2026-08-31",
    "rollup": {
     "count": 7,
     "by_status": {
@@ -462,7 +545,9 @@
      "real": 6,
      "advisory": 1
     },
-    "coverage_index": 67.9,
+    "met": 4,
+    "in_progress": 2,
+    "not_started": 1,
     "facade_risk": 0
    }
   },
@@ -474,7 +559,7 @@
    "tier": null,
    "plan_ref": "vms-801",
    "vms_ref": "VMS File Definition Language Facility Manual",
-   "last_reviewed": "2026-08-13",
+   "last_reviewed": "2026-08-31",
    "rollup": {
     "count": 2,
     "by_status": {
@@ -489,7 +574,9 @@
      "advisory": 1,
      "n/a": 1
     },
-    "coverage_index": 10.0,
+    "met": 0,
+    "in_progress": 0,
+    "not_started": 2,
     "facade_risk": 0
    }
   },
@@ -501,7 +588,7 @@
    "tier": null,
    "plan_ref": "vms-801",
    "vms_ref": "VMS DCL Concepts Manual \u2014 file specifications; VMS I/O User's Reference",
-   "last_reviewed": "2026-08-13",
+   "last_reviewed": "2026-08-31",
    "rollup": {
     "count": 5,
     "by_status": {
@@ -516,7 +603,9 @@
      "real": 4,
      "advisory": 1
     },
-    "coverage_index": 78.0,
+    "met": 4,
+    "in_progress": 1,
+    "not_started": 0,
     "facade_risk": 0
    }
   },
@@ -528,12 +617,12 @@
    "tier": 1,
    "plan_ref": "vms-8ad",
    "vms_ref": "VMS DCL Dictionary \u2014 HELP",
-   "last_reviewed": "2026-08-13",
+   "last_reviewed": "2026-08-31",
    "rollup": {
     "count": 1,
     "by_status": {
-     "verified": 1,
-     "implemented": 0,
+     "verified": 0,
+     "implemented": 1,
      "partial": 0,
      "stub": 0,
      "designed": 0,
@@ -542,7 +631,9 @@
     "by_authenticity": {
      "real": 1
     },
-    "coverage_index": 100.0,
+    "met": 1,
+    "in_progress": 0,
+    "not_started": 0,
     "facade_risk": 0
    }
   },
@@ -554,7 +645,7 @@
    "tier": null,
    "plan_ref": "vms-ade",
    "vms_ref": "VMS Linker Utility Manual; Programming Concepts Manual (image activation)",
-   "last_reviewed": "2026-08-13",
+   "last_reviewed": "2026-08-31",
    "rollup": {
     "count": 4,
     "by_status": {
@@ -568,7 +659,9 @@
     "by_authenticity": {
      "real": 4
     },
-    "coverage_index": 92.5,
+    "met": 4,
+    "in_progress": 0,
+    "not_started": 0,
     "facade_risk": 0
    }
   },
@@ -580,7 +673,7 @@
    "tier": null,
    "plan_ref": "vms-718",
    "vms_ref": "VMS System Manager's Manual; POLYCENTER Software Installation Utility Manual",
-   "last_reviewed": "2026-08-13",
+   "last_reviewed": "2026-08-31",
    "rollup": {
     "count": 5,
     "by_status": {
@@ -595,7 +688,9 @@
      "advisory": 1,
      "real": 4
     },
-    "coverage_index": 88.0,
+    "met": 5,
+    "in_progress": 0,
+    "not_started": 0,
     "facade_risk": 0
    }
   },
@@ -607,7 +702,7 @@
    "tier": null,
    "plan_ref": "vms-6b8",
    "vms_ref": "VMS VAX/Alpha Internals and Data Structures (executive primitives underlying the SYS$ layer)",
-   "last_reviewed": "2026-08-13",
+   "last_reviewed": "2026-08-31",
    "rollup": {
     "count": 9,
     "by_status": {
@@ -620,11 +715,41 @@
     },
     "by_authenticity": {
      "real": 6,
-     "facade-risk": 2,
-     "advisory": 1
+     "advisory": 3
     },
-    "coverage_index": 70.0,
-    "facade_risk": 2
+    "met": 6,
+    "in_progress": 2,
+    "not_started": 1,
+    "facade_risk": 0
+   }
+  },
+  {
+   "facility": "language-rtl",
+   "name": "Language-specific run-time libraries (FOR$/COB$/BAS$/PAS$)",
+   "domain": "languages",
+   "scope_1_0": "undecided",
+   "tier": null,
+   "plan_ref": "vms-082",
+   "vms_ref": "VMS language RTL references",
+   "last_reviewed": "2026-08-13",
+   "rollup": {
+    "count": 6,
+    "by_status": {
+     "verified": 0,
+     "implemented": 0,
+     "partial": 1,
+     "stub": 0,
+     "designed": 0,
+     "absent": 5
+    },
+    "by_authenticity": {
+     "n/a": 5,
+     "real": 1
+    },
+    "met": 0,
+    "in_progress": 1,
+    "not_started": 5,
+    "facade_risk": 0
    }
   },
   {
@@ -635,7 +760,7 @@
    "tier": null,
    "plan_ref": "vms-67f",
    "vms_ref": "DECnet/OSI... / LAT protocol reference (DEC)",
-   "last_reviewed": "2026-08-13",
+   "last_reviewed": "2026-08-31",
    "rollup": {
     "count": 1,
     "by_status": {
@@ -649,7 +774,9 @@
     "by_authenticity": {
      "n/a": 1
     },
-    "coverage_index": 0.0,
+    "met": 0,
+    "in_progress": 0,
+    "not_started": 1,
     "facade_risk": 0
    }
   },
@@ -661,7 +788,7 @@
    "tier": 1,
    "plan_ref": "vms-8ad",
    "vms_ref": "VMS DCL Dictionary \u2014 F$ Lexical Functions",
-   "last_reviewed": "2026-08-13",
+   "last_reviewed": "2026-08-31",
    "rollup": {
     "count": 9,
     "by_status": {
@@ -676,7 +803,9 @@
      "real": 8,
      "n/a": 1
     },
-    "coverage_index": 77.2,
+    "met": 8,
+    "in_progress": 0,
+    "not_started": 1,
     "facade_risk": 0
    }
   },
@@ -688,7 +817,7 @@
    "tier": 1,
    "plan_ref": "vms-801",
    "vms_ref": "VMS RTL Library (LIB$) Manual",
-   "last_reviewed": "2026-08-13",
+   "last_reviewed": "2026-08-31",
    "rollup": {
     "count": 22,
     "by_status": {
@@ -703,33 +832,38 @@
      "real": 17,
      "n/a": 5
     },
-    "coverage_index": 60.9,
+    "met": 14,
+    "in_progress": 3,
+    "not_started": 5,
     "facade_risk": 0
    }
   },
   {
    "facility": "librarian",
-   "name": "LIBRARIAN (.OLB Object Libraries)",
+   "name": "LIBRARIAN (.OLB Object Libraries + .TLB/.HLB)",
    "domain": "toolchain",
    "scope_1_0": "in",
    "tier": null,
    "plan_ref": "vms-59a",
-   "vms_ref": "VMS LIBRARIAN Utility Reference Manual",
-   "last_reviewed": "2026-08-13",
+   "vms_ref": "VMS LIBRARIAN Utility Reference Manual; VMS DCL Dictionary (LIBRARY)",
+   "last_reviewed": "2026-08-31",
    "rollup": {
-    "count": 1,
+    "count": 4,
     "by_status": {
      "verified": 0,
-     "implemented": 0,
+     "implemented": 4,
      "partial": 0,
      "stub": 0,
-     "designed": 1,
+     "designed": 0,
      "absent": 0
     },
     "by_authenticity": {
-     "n/a": 1
+     "real": 2,
+     "advisory": 2
     },
-    "coverage_index": 10.0,
+    "met": 4,
+    "in_progress": 0,
+    "not_started": 0,
     "facade_risk": 0
    }
   },
@@ -741,22 +875,23 @@
    "tier": null,
    "plan_ref": "vms-ade",
    "vms_ref": "VMS Linker Utility Manual",
-   "last_reviewed": "2026-08-13",
+   "last_reviewed": "2026-08-31",
    "rollup": {
-    "count": 5,
+    "count": 2,
     "by_status": {
-     "verified": 0,
-     "implemented": 3,
+     "verified": 1,
+     "implemented": 1,
      "partial": 0,
      "stub": 0,
      "designed": 0,
-     "absent": 2
+     "absent": 0
     },
     "by_authenticity": {
-     "real": 3,
-     "n/a": 2
+     "real": 2
     },
-    "coverage_index": 51.0,
+    "met": 2,
+    "in_progress": 0,
+    "not_started": 0,
     "facade_risk": 0
    }
   },
@@ -768,7 +903,7 @@
    "tier": null,
    "plan_ref": "vms-96e2",
    "vms_ref": "VMS System Services Reference Manual ($CRELNM/$TRNLNM); VMS DCL Concepts Manual",
-   "last_reviewed": "2026-08-13",
+   "last_reviewed": "2026-08-31",
    "rollup": {
     "count": 9,
     "by_status": {
@@ -783,7 +918,9 @@
      "real": 8,
      "n/a": 1
     },
-    "coverage_index": 82.2,
+    "met": 8,
+    "in_progress": 0,
+    "not_started": 1,
     "facade_risk": 0
    }
   },
@@ -795,7 +932,7 @@
    "tier": null,
    "plan_ref": "vms-801",
    "vms_ref": "VMS MACRO Compiler Porting and User's Guide",
-   "last_reviewed": "2026-08-13",
+   "last_reviewed": "2026-08-31",
    "rollup": {
     "count": 1,
     "by_status": {
@@ -809,7 +946,9 @@
     "by_authenticity": {
      "n/a": 1
     },
-    "coverage_index": 0.0,
+    "met": 0,
+    "in_progress": 0,
+    "not_started": 1,
     "facade_risk": 0
    }
   },
@@ -821,7 +960,7 @@
    "tier": null,
    "plan_ref": "vms-801",
    "vms_ref": "VMS MESSAGE Utility",
-   "last_reviewed": "2026-08-13",
+   "last_reviewed": "2026-08-31",
    "rollup": {
     "count": 1,
     "by_status": {
@@ -835,7 +974,9 @@
     "by_authenticity": {
      "n/a": 1
     },
-    "coverage_index": 0.0,
+    "met": 0,
+    "in_progress": 0,
+    "not_started": 1,
     "facade_risk": 0
    }
   },
@@ -846,23 +987,24 @@
    "scope_1_0": "in",
    "tier": null,
    "plan_ref": "vms-59a",
-   "vms_ref": "VMS MMS Reference Manual",
-   "last_reviewed": "2026-08-13",
+   "vms_ref": "VMS MMS Reference Manual; MadGoat MMK documentation",
+   "last_reviewed": "2026-08-31",
    "rollup": {
     "count": 3,
     "by_status": {
      "verified": 0,
-     "implemented": 1,
-     "partial": 0,
+     "implemented": 2,
+     "partial": 1,
      "stub": 0,
-     "designed": 1,
-     "absent": 1
+     "designed": 0,
+     "absent": 0
     },
     "by_authenticity": {
-     "real": 1,
-     "n/a": 2
+     "real": 3
     },
-    "coverage_index": 31.7,
+    "met": 2,
+    "in_progress": 1,
+    "not_started": 0,
     "facade_risk": 0
    }
   },
@@ -874,7 +1016,7 @@
    "tier": null,
    "plan_ref": "vms-6e1",
    "vms_ref": "MSCP/TMSCP protocol (Systems Application A); VMS Cluster Systems manual",
-   "last_reviewed": "2026-08-13",
+   "last_reviewed": "2026-08-31",
    "rollup": {
     "count": 3,
     "by_status": {
@@ -890,7 +1032,9 @@
      "advisory": 1,
      "n/a": 1
     },
-    "coverage_index": 35.0,
+    "met": 1,
+    "in_progress": 0,
+    "not_started": 2,
     "facade_risk": 0
    }
   },
@@ -902,7 +1046,7 @@
    "tier": 1,
    "plan_ref": "vms-801",
    "vms_ref": "VMS RTL Mathematics (MTH$) Manual",
-   "last_reviewed": "2026-08-13",
+   "last_reviewed": "2026-08-31",
    "rollup": {
     "count": 3,
     "by_status": {
@@ -918,7 +1062,9 @@
      "advisory": 1,
      "n/a": 1
     },
-    "coverage_index": 56.7,
+    "met": 2,
+    "in_progress": 0,
+    "not_started": 1,
     "facade_risk": 0
    }
   },
@@ -930,7 +1076,7 @@
    "tier": null,
    "plan_ref": "vms-694",
    "vms_ref": "VMS Cluster Systems manual; NISCA/NISCS wire protocol (Systems Application A)",
-   "last_reviewed": "2026-08-13",
+   "last_reviewed": "2026-08-31",
    "rollup": {
     "count": 1,
     "by_status": {
@@ -944,7 +1090,9 @@
     "by_authenticity": {
      "real": 1
     },
-    "coverage_index": 85.0,
+    "met": 1,
+    "in_progress": 0,
+    "not_started": 0,
     "facade_risk": 0
    }
   },
@@ -955,12 +1103,12 @@
    "scope_1_0": "in",
    "tier": null,
    "plan_ref": "vms-ade",
-   "vms_ref": "VMS Linker Utility Manual (object module format)",
-   "last_reviewed": "2026-08-13",
+   "vms_ref": "VMS Linker Utility Manual (object module format); binutils include/vms (public GPL) EVAX record layouts",
+   "last_reviewed": "2026-08-31",
    "rollup": {
-    "count": 3,
+    "count": 4,
     "by_status": {
-     "verified": 0,
+     "verified": 1,
      "implemented": 2,
      "partial": 0,
      "stub": 0,
@@ -969,10 +1117,12 @@
     },
     "by_authenticity": {
      "advisory": 1,
-     "real": 1,
+     "real": 2,
      "n/a": 1
     },
-    "coverage_index": 56.7,
+    "met": 3,
+    "in_progress": 0,
+    "not_started": 1,
     "facade_risk": 0
    }
   },
@@ -984,7 +1134,7 @@
    "tier": null,
    "plan_ref": "vms-0f3",
    "vms_ref": "VMS File System (ODS-2) documentation; Files-11 On-Disk Structure",
-   "last_reviewed": "2026-08-13",
+   "last_reviewed": "2026-08-31",
    "rollup": {
     "count": 7,
     "by_status": {
@@ -996,11 +1146,12 @@
      "absent": 0
     },
     "by_authenticity": {
-     "real": 6,
-     "facade-risk": 1
+     "real": 7
     },
-    "coverage_index": 87.1,
-    "facade_risk": 1
+    "met": 7,
+    "in_progress": 0,
+    "not_started": 0,
+    "facade_risk": 0
    }
   },
   {
@@ -1011,7 +1162,7 @@
    "tier": 1,
    "plan_ref": "vms-801",
    "vms_ref": "VMS RTL Object Time System (OTS$) Manual",
-   "last_reviewed": "2026-08-13",
+   "last_reviewed": "2026-08-31",
    "rollup": {
     "count": 13,
     "by_status": {
@@ -1026,7 +1177,9 @@
      "real": 5,
      "n/a": 8
     },
-    "coverage_index": 32.7,
+    "met": 5,
+    "in_progress": 0,
+    "not_started": 8,
     "facade_risk": 0
    }
   },
@@ -1038,24 +1191,25 @@
    "tier": null,
    "plan_ref": "vms-8ad",
    "vms_ref": "VMS Guide to System Security ch. 3 (Privileges)",
-   "last_reviewed": "2026-08-13",
+   "last_reviewed": "2026-08-31",
    "rollup": {
     "count": 4,
     "by_status": {
      "verified": 2,
      "implemented": 1,
-     "partial": 0,
+     "partial": 1,
      "stub": 0,
      "designed": 0,
-     "absent": 1
+     "absent": 0
     },
     "by_authenticity": {
      "n/a": 1,
-     "real": 2,
-     "facade-risk": 1
+     "real": 3
     },
-    "coverage_index": 71.2,
-    "facade_risk": 1
+    "met": 3,
+    "in_progress": 1,
+    "not_started": 0,
+    "facade_risk": 0
    }
   },
   {
@@ -1066,25 +1220,26 @@
    "tier": null,
    "plan_ref": "vms-8ad",
    "vms_ref": "VMS Guide to System Security ch. 5 (Protecting Data)",
-   "last_reviewed": "2026-08-13",
+   "last_reviewed": "2026-08-31",
    "rollup": {
     "count": 6,
     "by_status": {
-     "verified": 0,
-     "implemented": 2,
-     "partial": 0,
+     "verified": 1,
+     "implemented": 1,
+     "partial": 1,
      "stub": 1,
      "designed": 0,
-     "absent": 3
+     "absent": 2
     },
     "by_authenticity": {
-     "real": 1,
+     "real": 2,
      "advisory": 2,
-     "n/a": 2,
-     "facade-risk": 1
+     "n/a": 2
     },
-    "coverage_index": 31.7,
-    "facade_risk": 1
+    "met": 2,
+    "in_progress": 1,
+    "not_started": 3,
+    "facade_risk": 0
    }
   },
   {
@@ -1095,23 +1250,26 @@
    "tier": 1,
    "plan_ref": "vms-8ad",
    "vms_ref": "VMS System Management Utilities Reference Manual \u2014 Queue Manager",
-   "last_reviewed": "2026-08-13",
+   "last_reviewed": "2026-08-31",
    "rollup": {
     "count": 7,
     "by_status": {
-     "verified": 4,
-     "implemented": 1,
+     "verified": 0,
+     "implemented": 5,
      "partial": 1,
      "stub": 0,
      "designed": 0,
      "absent": 1
     },
     "by_authenticity": {
-     "real": 6,
-     "facade-risk": 1
+     "real": 5,
+     "n/a": 1,
+     "advisory": 1
     },
-    "coverage_index": 76.4,
-    "facade_risk": 1
+    "met": 5,
+    "in_progress": 1,
+    "not_started": 1,
+    "facade_risk": 0
    }
   },
   {
@@ -1122,7 +1280,7 @@
    "tier": null,
    "plan_ref": "vms-8ad",
    "vms_ref": "VMS Guide to System Security ch. 4 (Identifiers)",
-   "last_reviewed": "2026-08-13",
+   "last_reviewed": "2026-08-31",
    "rollup": {
     "count": 2,
     "by_status": {
@@ -1137,7 +1295,9 @@
      "real": 1,
      "n/a": 1
     },
-    "coverage_index": 42.5,
+    "met": 1,
+    "in_progress": 0,
+    "not_started": 1,
     "facade_risk": 0
    }
   },
@@ -1149,24 +1309,26 @@
    "tier": 1,
    "plan_ref": "vms-801",
    "vms_ref": "VMS Record Management Services Reference Manual",
-   "last_reviewed": "2026-08-13",
+   "last_reviewed": "2026-08-31",
    "rollup": {
-    "count": 31,
+    "count": 33,
     "by_status": {
      "verified": 0,
-     "implemented": 24,
-     "partial": 2,
+     "implemented": 26,
+     "partial": 3,
      "stub": 0,
      "designed": 0,
-     "absent": 5
+     "absent": 4
     },
     "by_authenticity": {
-     "real": 19,
-     "facade-risk": 9,
-     "n/a": 3
+     "real": 27,
+     "n/a": 3,
+     "facade-risk": 3
     },
-    "coverage_index": 69.0,
-    "facade_risk": 9
+    "met": 26,
+    "in_progress": 3,
+    "not_started": 4,
+    "facade_risk": 3
    }
   },
   {
@@ -1177,7 +1339,7 @@
    "tier": null,
    "plan_ref": "vms-694",
    "vms_ref": "VMS Cluster Systems manual; Systems Application A (SCS/SCA architecture)",
-   "last_reviewed": "2026-08-13",
+   "last_reviewed": "2026-08-31",
    "rollup": {
     "count": 2,
     "by_status": {
@@ -1192,34 +1354,10 @@
      "real": 1,
      "facade-risk": 1
     },
-    "coverage_index": 52.5,
+    "met": 1,
+    "in_progress": 0,
+    "not_started": 1,
     "facade_risk": 1
-   }
-  },
-  {
-   "facility": "self-host-compiler",
-   "name": "Self-Hosting Compiler (tcc -> rustc)",
-   "domain": "toolchain",
-   "scope_1_0": "in",
-   "tier": null,
-   "plan_ref": "vms-ade",
-   "vms_ref": "N/A \u2014 OVMX-original self-hosting program, not a VMS surface",
-   "last_reviewed": "2026-08-13",
-   "rollup": {
-    "count": 3,
-    "by_status": {
-     "verified": 1,
-     "implemented": 1,
-     "partial": 1,
-     "stub": 0,
-     "designed": 0,
-     "absent": 0
-    },
-    "by_authenticity": {
-     "real": 3
-    },
-    "coverage_index": 78.3,
-    "facade_risk": 0
    }
   },
   {
@@ -1230,7 +1368,7 @@
    "tier": null,
    "plan_ref": null,
    "vms_ref": "VMS Volume Shadowing for VMS manual",
-   "last_reviewed": "2026-08-13",
+   "last_reviewed": "2026-08-31",
    "rollup": {
     "count": 1,
     "by_status": {
@@ -1244,7 +1382,9 @@
     "by_authenticity": {
      "n/a": 1
     },
-    "coverage_index": 0.0,
+    "met": 0,
+    "in_progress": 0,
+    "not_started": 1,
     "facade_risk": 0
    }
   },
@@ -1256,7 +1396,7 @@
    "tier": null,
    "plan_ref": "vms-531",
    "vms_ref": "VMS Screen Management (SMG$) Manual",
-   "last_reviewed": "2026-08-13",
+   "last_reviewed": "2026-08-31",
    "rollup": {
     "count": 2,
     "by_status": {
@@ -1271,35 +1411,38 @@
      "advisory": 1,
      "n/a": 1
     },
-    "coverage_index": 10.0,
+    "met": 0,
+    "in_progress": 0,
+    "not_started": 2,
     "facade_risk": 0
    }
   },
   {
    "facility": "ssh",
-   "name": "SSH (OVMX-Added Remote Access)",
+   "name": "SSH remote login",
    "domain": "networking",
    "scope_1_0": "in",
    "tier": null,
    "plan_ref": "vms-67f",
-   "vms_ref": "N/A \u2014 OVMX addition, not a VMS surface",
-   "last_reviewed": "2026-08-13",
+   "vms_ref": "VMS TCP/IP Services \u2014 SSH server (OpenSSH port)",
+   "last_reviewed": "2026-08-31",
    "rollup": {
-    "count": 3,
+    "count": 4,
     "by_status": {
      "verified": 0,
-     "implemented": 1,
+     "implemented": 4,
      "partial": 0,
      "stub": 0,
      "designed": 0,
-     "absent": 2
+     "absent": 0
     },
     "by_authenticity": {
-     "real": 1,
-     "facade-risk": 2
+     "real": 4
     },
-    "coverage_index": 28.3,
-    "facade_risk": 2
+    "met": 4,
+    "in_progress": 0,
+    "not_started": 0,
+    "facade_risk": 0
    }
   },
   {
@@ -1310,12 +1453,12 @@
    "tier": 1,
    "plan_ref": "vms-801",
    "vms_ref": "VMS System Services Reference Manual \u2014 Condition Values; VMS Programming Concepts Manual Ch. 8",
-   "last_reviewed": "2026-08-13",
+   "last_reviewed": "2026-08-31",
    "rollup": {
     "count": 6,
     "by_status": {
-     "verified": 1,
-     "implemented": 0,
+     "verified": 0,
+     "implemented": 1,
      "partial": 4,
      "stub": 1,
      "designed": 0,
@@ -1323,11 +1466,13 @@
     },
     "by_authenticity": {
      "real": 4,
-     "facade-risk": 1,
+     "advisory": 1,
      "n/a": 1
     },
-    "coverage_index": 53.3,
-    "facade_risk": 1
+    "met": 1,
+    "in_progress": 4,
+    "not_started": 1,
+    "facade_risk": 0
    }
   },
   {
@@ -1353,7 +1498,9 @@
      "real": 23,
      "n/a": 1
     },
-    "coverage_index": 81.5,
+    "met": 23,
+    "in_progress": 0,
+    "not_started": 1,
     "facade_risk": 0
    }
   },
@@ -1365,7 +1512,7 @@
    "tier": null,
    "plan_ref": "vms-ade",
    "vms_ref": "VMS Linker Utility Manual (shareable images, GSMATCH)",
-   "last_reviewed": "2026-08-13",
+   "last_reviewed": "2026-08-31",
    "rollup": {
     "count": 3,
     "by_status": {
@@ -1380,7 +1527,9 @@
      "advisory": 2,
      "real": 1
     },
-    "coverage_index": 85.0,
+    "met": 3,
+    "in_progress": 0,
+    "not_started": 0,
     "facade_risk": 0
    }
   },
@@ -1392,7 +1541,7 @@
    "tier": 1,
    "plan_ref": "vms-801",
    "vms_ref": "VMS System Services Reference Manual \u2014 Asynchronous System Trap (AST) Services",
-   "last_reviewed": "2026-08-13",
+   "last_reviewed": "2026-08-31",
    "rollup": {
     "count": 3,
     "by_status": {
@@ -1407,7 +1556,9 @@
      "real": 2,
      "n/a": 1
     },
-    "coverage_index": 56.7,
+    "met": 2,
+    "in_progress": 0,
+    "not_started": 1,
     "facade_risk": 0
    }
   },
@@ -1419,7 +1570,7 @@
    "tier": 1,
    "plan_ref": "vms-801",
    "vms_ref": "VMS System Services Reference Manual \u2014 Event Flag Services",
-   "last_reviewed": "2026-08-13",
+   "last_reviewed": "2026-08-31",
    "rollup": {
     "count": 11,
     "by_status": {
@@ -1434,7 +1585,9 @@
      "real": 10,
      "n/a": 1
     },
-    "coverage_index": 77.3,
+    "met": 10,
+    "in_progress": 0,
+    "not_started": 1,
     "facade_risk": 0
    }
   },
@@ -1446,7 +1599,7 @@
    "tier": 1,
    "plan_ref": "vms-801",
    "vms_ref": "VMS System Services Reference Manual \u2014 FAO and Message Services",
-   "last_reviewed": "2026-08-13",
+   "last_reviewed": "2026-08-31",
    "rollup": {
     "count": 6,
     "by_status": {
@@ -1462,7 +1615,9 @@
      "facade-risk": 1,
      "n/a": 1
     },
-    "coverage_index": 65.0,
+    "met": 4,
+    "in_progress": 1,
+    "not_started": 1,
     "facade_risk": 1
    }
   },
@@ -1474,7 +1629,7 @@
    "tier": 1,
    "plan_ref": "vms-801",
    "vms_ref": "VMS System Services Reference Manual \u2014 I/O Services (QIO)",
-   "last_reviewed": "2026-08-13",
+   "last_reviewed": "2026-08-31",
    "rollup": {
     "count": 6,
     "by_status": {
@@ -1490,7 +1645,9 @@
      "real": 1,
      "n/a": 1
     },
-    "coverage_index": 70.8,
+    "met": 5,
+    "in_progress": 0,
+    "not_started": 1,
     "facade_risk": 0
    }
   },
@@ -1502,7 +1659,7 @@
    "tier": 1,
    "plan_ref": "vms-801",
    "vms_ref": "VMS System Services Reference Manual \u2014 Lock Management Services",
-   "last_reviewed": "2026-08-13",
+   "last_reviewed": "2026-08-31",
    "rollup": {
     "count": 6,
     "by_status": {
@@ -1517,7 +1674,9 @@
      "real": 3,
      "n/a": 3
     },
-    "coverage_index": 42.5,
+    "met": 3,
+    "in_progress": 0,
+    "not_started": 3,
     "facade_risk": 0
    }
   },
@@ -1529,7 +1688,7 @@
    "tier": 1,
    "plan_ref": "vms-d37",
    "vms_ref": "VMS System Services Reference Manual \u2014 SYS$CRELNM, SYS$DELLNM, SYS$TRNLNM",
-   "last_reviewed": "2026-08-13",
+   "last_reviewed": "2026-08-31",
    "rollup": {
     "count": 3,
     "by_status": {
@@ -1543,7 +1702,9 @@
     "by_authenticity": {
      "real": 3
     },
-    "coverage_index": 50.0,
+    "met": 0,
+    "in_progress": 3,
+    "not_started": 0,
     "facade_risk": 0
    }
   },
@@ -1555,7 +1716,7 @@
    "tier": 1,
    "plan_ref": "vms-801",
    "vms_ref": "VMS System Services Reference Manual \u2014 Mailbox Services",
-   "last_reviewed": "2026-08-13",
+   "last_reviewed": "2026-08-31",
    "rollup": {
     "count": 2,
     "by_status": {
@@ -1569,7 +1730,9 @@
     "by_authenticity": {
      "real": 2
     },
-    "coverage_index": 85.0,
+    "met": 2,
+    "in_progress": 0,
+    "not_started": 0,
     "facade_risk": 0
    }
   },
@@ -1581,7 +1744,7 @@
    "tier": 1,
    "plan_ref": "vms-801",
    "vms_ref": "VMS System Services Reference Manual \u2014 Memory Management Services",
-   "last_reviewed": "2026-08-13",
+   "last_reviewed": "2026-08-31",
    "rollup": {
     "count": 11,
     "by_status": {
@@ -1597,7 +1760,9 @@
      "facade-risk": 4,
      "n/a": 3
     },
-    "coverage_index": 38.2,
+    "met": 4,
+    "in_progress": 0,
+    "not_started": 7,
     "facade_risk": 4
    }
   },
@@ -1609,7 +1774,7 @@
    "tier": 1,
    "plan_ref": "vms-801",
    "vms_ref": "VMS System Services Reference Manual \u2014 Process Control Services",
-   "last_reviewed": "2026-08-13",
+   "last_reviewed": "2026-08-31",
    "rollup": {
     "count": 13,
     "by_status": {
@@ -1622,11 +1787,14 @@
     },
     "by_authenticity": {
      "real": 4,
-     "facade-risk": 6,
+     "advisory": 4,
+     "facade-risk": 2,
      "n/a": 3
     },
-    "coverage_index": 60.4,
-    "facade_risk": 6
+    "met": 9,
+    "in_progress": 0,
+    "not_started": 4,
+    "facade_risk": 2
    }
   },
   {
@@ -1637,7 +1805,7 @@
    "tier": 1,
    "plan_ref": "vms-801",
    "vms_ref": "VMS System Services Reference Manual \u2014 SYS$GETJPI, SYS$GETJPIW, SYS$GETSYI, SYS$GETSYIW",
-   "last_reviewed": "2026-08-13",
+   "last_reviewed": "2026-08-31",
    "rollup": {
     "count": 5,
     "by_status": {
@@ -1651,7 +1819,9 @@
     "by_authenticity": {
      "real": 5
     },
-    "coverage_index": 78.0,
+    "met": 4,
+    "in_progress": 1,
+    "not_started": 0,
     "facade_risk": 0
    }
   },
@@ -1663,7 +1833,7 @@
    "tier": 1,
    "plan_ref": "vms-801",
    "vms_ref": "VMS System Services Reference Manual \u2014 Security Services",
-   "last_reviewed": "2026-08-13",
+   "last_reviewed": "2026-08-31",
    "rollup": {
     "count": 3,
     "by_status": {
@@ -1675,10 +1845,13 @@
      "absent": 1
     },
     "by_authenticity": {
-     "advisory": 2,
+     "real": 1,
+     "advisory": 1,
      "n/a": 1
     },
-    "coverage_index": 56.7,
+    "met": 2,
+    "in_progress": 0,
+    "not_started": 1,
     "facade_risk": 0
    }
   },
@@ -1690,23 +1863,25 @@
    "tier": 1,
    "plan_ref": "vms-801",
    "vms_ref": "VMS System Services Reference Manual \u2014 Time and Timer Services",
-   "last_reviewed": "2026-08-13",
+   "last_reviewed": "2026-08-31",
    "rollup": {
-    "count": 8,
+    "count": 9,
     "by_status": {
      "verified": 0,
-     "implemented": 6,
+     "implemented": 7,
      "partial": 0,
      "stub": 0,
      "designed": 0,
      "absent": 2
     },
     "by_authenticity": {
-     "real": 4,
+     "real": 5,
      "advisory": 2,
      "n/a": 2
     },
-    "coverage_index": 63.7,
+    "met": 7,
+    "in_progress": 0,
+    "not_started": 2,
     "facade_risk": 0
    }
   },
@@ -1718,7 +1893,7 @@
    "tier": null,
    "plan_ref": "vms-8ad",
    "vms_ref": "VMS System Generation Utility (SYSGEN) Manual; AUTOGEN",
-   "last_reviewed": "2026-08-13",
+   "last_reviewed": "2026-08-31",
    "rollup": {
     "count": 2,
     "by_status": {
@@ -1733,7 +1908,9 @@
      "real": 1,
      "n/a": 1
     },
-    "coverage_index": 25.0,
+    "met": 0,
+    "in_progress": 1,
+    "not_started": 1,
     "facade_risk": 0
    }
   },
@@ -1745,50 +1922,54 @@
    "tier": null,
    "plan_ref": "vms-8ad",
    "vms_ref": "VMS Guide to System Security; Authorize Utility Manual",
-   "last_reviewed": "2026-08-13",
+   "last_reviewed": "2026-08-31",
    "rollup": {
     "count": 6,
     "by_status": {
      "verified": 0,
-     "implemented": 2,
+     "implemented": 5,
      "partial": 0,
      "stub": 0,
      "designed": 0,
-     "absent": 4
+     "absent": 1
     },
     "by_authenticity": {
-     "real": 2,
-     "facade-risk": 4
+     "real": 5,
+     "facade-risk": 1
     },
-    "coverage_index": 28.3,
-    "facade_risk": 4
+    "met": 5,
+    "in_progress": 0,
+    "not_started": 1,
+    "facade_risk": 1
    }
   },
   {
    "facility": "tcpip-services",
-   "name": "TCP/IP Services (UCX QIO + Sockets + EWA0:/BGn:)",
+   "name": "TCP/IP Services (UCX QIO + Sockets + BGn:/ETH0:)",
    "domain": "networking",
    "scope_1_0": "in",
    "tier": null,
    "plan_ref": "vms-67f",
    "vms_ref": "VMS TCP/IP Services for VMS (UCX) manuals",
-   "last_reviewed": "2026-08-13",
+   "last_reviewed": "2026-08-31",
    "rollup": {
-    "count": 3,
+    "count": 10,
     "by_status": {
-     "verified": 0,
-     "implemented": 1,
+     "verified": 1,
+     "implemented": 8,
      "partial": 0,
      "stub": 0,
      "designed": 0,
-     "absent": 2
+     "absent": 1
     },
     "by_authenticity": {
-     "n/a": 2,
-     "facade-risk": 1
+     "real": 9,
+     "n/a": 1
     },
-    "coverage_index": 28.3,
-    "facade_risk": 1
+    "met": 9,
+    "in_progress": 0,
+    "not_started": 1,
+    "facade_risk": 0
    }
   },
   {
@@ -1799,12 +1980,12 @@
    "tier": 1,
    "plan_ref": "vms-8ad",
    "vms_ref": "VMS System Management Utilities Reference Manual; VMS Utility Routines Manual",
-   "last_reviewed": "2026-08-13",
+   "last_reviewed": "2026-08-31",
    "rollup": {
     "count": 24,
     "by_status": {
-     "verified": 3,
-     "implemented": 9,
+     "verified": 1,
+     "implemented": 11,
      "partial": 6,
      "stub": 2,
      "designed": 0,
@@ -1816,7 +1997,9 @@
      "facade-risk": 2,
      "n/a": 4
     },
-    "coverage_index": 58.5,
+    "met": 12,
+    "in_progress": 6,
+    "not_started": 6,
     "facade_risk": 2
    }
   }
@@ -1847,9 +2030,9 @@
    "status": "implemented",
    "authenticity": "real",
    "scope_1_0": "in",
-   "evidence": "src/libvms/include/ovmx_accounting.h",
+   "evidence": "src/libvms/rtl/ovmx_accounting.c",
    "verified_against": null,
-   "notes": "",
+   "notes": "RE-CENSUS 2026-08-31: unchanged. ovmx_accounting_set_enabled()/is_enabled() persist a real system-wide flag; SET ACCOUNTING in dcl_cmd_set.c (~line 1793) drives it and ovmx_accounting_record_login() honors it \u2014 no longer the per-context INV-DCL facade it replaced.",
    "plan_ref": "vms-17d"
   },
   {
@@ -1868,64 +2051,19 @@
    "plan_ref": "vms-8ad"
   },
   {
-   "domain": "runtime-arch",
-   "facility": "arch-targets",
-   "facility_name": "Architecture Targets (x86_64, aarch64, alpha, vax)",
-   "id": "arch-targets$x86_64",
-   "kind": "feature",
-   "vms": "x86_64 platform target",
-   "status": "verified",
-   "authenticity": "real",
-   "scope_1_0": "in",
-   "evidence": ".github/workflows/ci.yml",
-   "verified_against": "CI job 'Build & Test' (.github/workflows/ci.yml:272) \u2014 vms.ko via /dev/vms, full test suite",
-   "notes": "Primary arch (Rule 5).",
-   "plan_ref": "vms-8ce"
-  },
-  {
-   "domain": "runtime-arch",
-   "facility": "arch-targets",
-   "facility_name": "Architecture Targets (x86_64, aarch64, alpha, vax)",
-   "id": "arch-targets$aarch64",
-   "kind": "feature",
-   "vms": "aarch64 platform target",
-   "status": "verified",
-   "authenticity": "real",
-   "scope_1_0": "in",
-   "evidence": ".github/workflows/ci.yml",
-   "verified_against": "CI job 'aarch64-system-boot' (.github/workflows/ci.yml:207) \u2014 freestanding EM_AARCH64 PID 1 boots under qemu-system-aarch64 -machine virt, negctl gate",
-   "notes": "Boot-proof verified, not full CI parity with x86_64.",
-   "plan_ref": "vms-8ce"
-  },
-  {
-   "domain": "runtime-arch",
-   "facility": "arch-targets",
-   "facility_name": "Architecture Targets (x86_64, aarch64, alpha, vax)",
-   "id": "arch-targets$alpha",
-   "kind": "feature",
-   "vms": "Alpha (AXP) platform target",
-   "status": "absent",
-   "authenticity": "n/a",
-   "scope_1_0": "in",
-   "evidence": "src/libvmssys/arch",
-   "verified_against": null,
-   "notes": "Made first-class by operator ruling 2026-08-10 (vms-8ce), but absent on origin/main: src/libvmssys/arch/ has only aarch64/x86_64, LINK.EXE has no EM_ALPHA target (src/vmslink/link.c:1694). Freestanding syscall/crt0 exists only on the unmerged local branch vms-054-alpha-port.",
-   "plan_ref": "vms-8ce"
-  },
-  {
-   "domain": "runtime-arch",
-   "facility": "arch-targets",
-   "facility_name": "Architecture Targets (x86_64, aarch64, alpha, vax)",
-   "id": "arch-targets$vax",
-   "kind": "feature",
-   "vms": "VAX platform target",
-   "status": "partial",
-   "authenticity": "n/a",
+   "domain": "system-management",
+   "facility": "audit",
+   "facility_name": "Security Auditing / Break-in Evasion / OPCOM Alarms",
+   "id": "dcl$set_audit",
+   "kind": "command",
+   "vms": "SET AUDIT /ENABLE /DISABLE \u2014 toggle security auditing",
+   "status": "stub",
+   "authenticity": "advisory",
    "scope_1_0": "stretch",
-   "evidence": "src/kernel-netbsd",
+   "evidence": "src/vmsdcl/dcl_cmd_set.c:1772",
    "verified_against": null,
-   "notes": "Absent as a native libvmssys/LINK.EXE target; present only as a separate NetBSD-substrate path (src/kernel-netbsd, netbsd_vax CI, tests/lab-vax). libvmssys VAX backend commit vms-9dc not merged. Aspirational, not a 1.0 blocker.",
-   "plan_ref": "vms-8ce"
+   "notes": "RE-CENSUS 2026-08-31: cmd_set_audit() is a real, privileged DCL verb that HONESTLY refuses \u2014 it changes no state and reports 'security auditing is not implemented in OVMX - no state changed' (vms-6f4 Phase 0 replaced the old ctx->audit_enabled per-process facade). Anti-facade posture, not a lie; the subsystem behind it is absent.",
+   "plan_ref": "vms-8ad"
   },
   {
    "domain": "system-management",
@@ -1933,13 +2071,13 @@
    "facility_name": "Security Auditing / Break-in Evasion / OPCOM Alarms",
    "id": "audit$security_journal",
    "kind": "feature",
-   "vms": "Security audit journal (SET AUDIT / SYS$AUDIT_EVENT)",
+   "vms": "Security audit journal (SET AUDIT/ALARM /AUDIT, SYS$AUDIT_EVENT)",
    "status": "absent",
    "authenticity": "n/a",
    "scope_1_0": "stretch",
    "evidence": "",
    "verified_against": null,
-   "notes": "No implementation found; entire facility not built",
+   "notes": "No journal implementation found; SET AUDIT is an honest stub (see dcl$set_audit).",
    "plan_ref": "vms-8ad"
   },
   {
@@ -1954,7 +2092,7 @@
    "scope_1_0": "stretch",
    "evidence": "",
    "verified_against": null,
-   "notes": "No implementation found. Related to, but distinct from, the sysuaf DISUSER/login-limit gap",
+   "notes": "No implementation found. Related to, but distinct from, the sysuaf password-expiration/login-limit gap.",
    "plan_ref": "vms-8ad"
   },
   {
@@ -2046,6 +2184,66 @@
    "verified_against": null,
    "notes": "Bounded by sysgen facility's thin parameter set",
    "plan_ref": "vms-46c"
+  },
+  {
+   "domain": "languages",
+   "facility": "calling-standard",
+   "facility_name": "VMS Calling Standard",
+   "id": "cs$arg-passing",
+   "kind": "feature",
+   "vms": "Argument list: by reference / value / descriptor",
+   "status": "partial",
+   "authenticity": "real",
+   "scope_1_0": "in",
+   "evidence": "src/libvms/include/descrip.h",
+   "verified_against": null,
+   "notes": "Works for C via the native host ABI; VMS's own item-list/arg-block conventions honored for descriptor args.",
+   "plan_ref": "vms-801"
+  },
+  {
+   "domain": "languages",
+   "facility": "calling-standard",
+   "facility_name": "VMS Calling Standard",
+   "id": "cs$data-types",
+   "kind": "feature",
+   "vms": "Standard data types passed across the call boundary",
+   "status": "partial",
+   "authenticity": "real",
+   "scope_1_0": "in",
+   "evidence": "src/libvms/include/descrip.h",
+   "verified_against": null,
+   "notes": "Descriptor classes S/D real; classes A (array) and VS (varying string) absent; packed decimal absent; VAX F/D/G/H float unsupported (IEEE only). These block Fortran/COBOL/BASIC cross-calls.",
+   "plan_ref": "vms-801"
+  },
+  {
+   "domain": "languages",
+   "facility": "calling-standard",
+   "facility_name": "VMS Calling Standard",
+   "id": "cs$condition-handling",
+   "kind": "feature",
+   "vms": "Condition-handling as part of the standard (handler search, unwind)",
+   "status": "partial",
+   "authenticity": "advisory",
+   "scope_1_0": "in",
+   "evidence": "src/libvms/rtl/lib_signal.c",
+   "verified_against": null,
+   "notes": "In-process handler stack, not a real machine-frame unwind; SYS$UNWIND simplified. Cross-ref chf facility.",
+   "plan_ref": "vms-801"
+  },
+  {
+   "domain": "languages",
+   "facility": "calling-standard",
+   "facility_name": "VMS Calling Standard",
+   "id": "cs$register-usage",
+   "kind": "feature",
+   "vms": "Register/stack usage conventions (VAX/Alpha/I64 calling standard)",
+   "status": "partial",
+   "authenticity": "advisory",
+   "scope_1_0": "in",
+   "evidence": "",
+   "verified_against": null,
+   "notes": "OVMX uses the host (x86_64/aarch64 SysV) ABI, honestly \u2014 not the VAX/Alpha VMS register convention; fine for recompiled C, wrong for binary/MACRO interop.",
+   "plan_ref": "vms-801"
   },
   {
    "domain": "programming-interfaces",
@@ -2233,13 +2431,58 @@
    "facility_name": "Cluster-wide Distributed Lock Manager",
    "id": "cluster-dlm$cross-node-lock",
    "kind": "feature",
-   "vms": "Lock request forwarding / resource remastering to a non-local master node",
-   "status": "absent",
+   "vms": "Cross-node $ENQ grant / block-then-grant / blocking-AST delivered on the mastering node + real holder",
+   "status": "verified",
    "authenticity": "real",
    "scope_1_0": "in",
-   "evidence": "src/kernel/vms_lock.c",
-   "verified_against": null,
-   "notes": "vms_lock.c:318-390 returns SS$_UNSUPPORTED for a non-local directory or master; membership hard-stubbed to 1 node. Single-node DLM only \u2014 no fake grants, so the gap is authentic (real), not a facade.",
+   "evidence": "src/kernel-core/vms_lock.c",
+   "verified_against": "tests/qemu/test_syssvc_dlm_xnode.c (x86_64 + Alpha LP64); tests/qemu/run_dlm_harness_h5.sh + run_dlm_harness_h6.sh (block-then-grant + BLKAST wire on real /dev/vms)",
+   "notes": "vms-94c/vms-e8f1/vms-904c + BLKAST wire H6 (vms-76d/#918). vms_lock_dlm_xnode_dispatch runs a decoded cross-node $ENQ through the real lock manager on the mastering node, held FOR the remote requester's CSID: a compatible request GRANTS (SS$_NORMAL, GET_RESMASTER shows held_for=<peer>); an incompatible one QUEUES on the real waiting queue (VMS_DLM_STS_QUEUED, GETLKI shows granted NL / requested EX) and the master fires the blocking-AST decision. The BLKAST is now DELIVERED over SCS and fires a genuine user-mode AST on the remote holder's process (H6, was deferred); a cross-node $DEQ (vms_lock_dlm_xnode_deq, authorized by CSID) releases and grants the blocked request (GETLKI flips NL->EX). Proven on real /dev/vms (tests/qemu/test_syssvc_dlm_xnode.c x86_64 + Alpha LP64; the multi-node H5/H6 QEMU harnesses). No fake grants OR blocks \u2014 a queued request is a real lock on the master's queue that releases only on a real $DEQ (INV-6).\n",
+   "plan_ref": "vms-694"
+  },
+  {
+   "domain": "clustering",
+   "facility": "cluster-dlm",
+   "facility_name": "Cluster-wide Distributed Lock Manager",
+   "id": "cluster-dlm$async-reply-wire",
+   "kind": "feature",
+   "vms": "Async DLM replies (queued-reply + deferred GRANT) delivered over SCS; requester-side completion",
+   "status": "verified",
+   "authenticity": "real",
+   "scope_1_0": "in",
+   "evidence": "src/vmsscs/scsd.c",
+   "verified_against": "tests/qemu/run_dlm_harness_h5.sh (two-node A<->B live /dev/vms: SCSD-I-DLMPEND, SCSD-I-DLMDEFER, SCSD-I-DLMH5FLIP granted_mode=EX)",
+   "notes": "vms-6ca rung H5. The master's async replies ride the live SCS wire: node B WIREs the queued-reply (granted mode NL \u2014 the requester stays genuinely pending) and, on a real cross-node $DEQ that flips a queued waiter to granted, WIREs an unprompted deferred GRANT (SS$_NORMAL, the granted mode) to that requester (vms_lock_dlm_xnode_deq reports the flipped waiter). The REQUESTER-SIDE GRANT RECEIVE (VMS_DLM_OP_GRANT) completes an executive-resident ORIGIN record on the requesting node, whose granted mode is set ONLY from what the master sent over SCS; GETLKI reads the NL->EX flip back on the REQUESTER. This origin record is the requester-side wait-for state H11's distributed deadlock search reads (VMS_IOCTL_DLM_ENUM_WAITS). Proven on a two-node live A<->B QEMU harness with real /dev/vms on both (tests/qemu/run_dlm_harness_h5.sh: SCSD-I-DLMPEND, SCSD-I-DLMDEFER, SCSD-I-DLMH5FLIP granted_mode=EX). No fabricated wire reply or grant (INV-6).\n",
+   "plan_ref": "vms-694"
+  },
+  {
+   "domain": "clustering",
+   "facility": "cluster-dlm",
+   "facility_name": "Cluster-wide Distributed Lock Manager",
+   "id": "cluster-dlm$remaster-lvb-deadlock",
+   "kind": "feature",
+   "vms": "LVB replication, dynamic remastering (directory + lock state), directory-ownership guard, distributed deadlock detection",
+   "status": "verified",
+   "authenticity": "real",
+   "scope_1_0": "in",
+   "evidence": "src/kernel-core/vms_lock.c",
+   "verified_against": "tests/qemu/run_dlm_harness_h8.sh, _h9.sh (LVB write/read), _h10.sh (H10a directory remaster), _h10b.sh (H10b lock-state rebuild), _e84.sh (directory-ownership refusal), _ec75.sh (H11 distributed deadlock) \u2014 all multi-node real /dev/vms",
+   "notes": "The former \"remain absent\" cluster of the DLM epic, now COMPLETE and each part proven on a live multi-node /dev/vms rail. LVB REPLICATION both ways: the H8 write crossing (vms-d81/#923) and the H9 read crossing (vms-eeb/#925). DYNAMIC REMASTERING on graceful departure: the directory INGRESS re-resolves a departed node's resources onto a survivor (H10a, vms-2bf/#927, VMS_IOCTL_DLM_MEMBER_DEPART + a runtime departed-set filtering the static dlm_member_csids vector), AND the cross-node lock STATE is rebuilt on the new master from the surviving holder's REAL origin record over a targeted SCS_DLM_OP_REBUILD, reconstructed directly into res->granted and value-verified (H10b, vms-dca9/#928, run_dlm_harness_h10b.sh three-way equality). DIRECTORY OWNERSHIP: a node refuses to master a resource it is not the directory for \u2014 dlm_resolve_master returns SS$_UNSUPPORTED \u2014 proven on the wire (e84, vms-e84/#929, run_dlm_harness_e84.sh: non-directory node answers 0x8F8, directory node GRANTS). DISTRIBUTED DEADLOCK DETECTION: a cross-node cycle is found by an edge-chasing search over the real distributed wait-for graph (home pending origins via VMS_IOCTL_DLM_ENUM_WAITS + master res->granted via VMS_IOCTL_DLM_GET_GRANTED), and a globally-deterministic single victim (lexicographic-min over the cycle) is aborted with SS$_DEADLOCK via the GRANT-reply path, idempotently (H11, vms-ec75/#930, run_dlm_harness_ec75.sh: cycle detected, exactly one victim, the other stays queued). Every edge is a real queue/origin read; a dropped/ttl-expired probe reports no-deadlock, never a fabricated cycle (INV-6). DEPTH deferred beyond the engine (honest, tracked): the concurrent-both-initiate deadlock proof (vms-04f \u2014 logic shipped + code-verified), directory REDIRECT (vms-b96), and a real app-process cross-node acquisition path replacing the SS$_UNSUPPORTED \"0.4\" stub (vms-d1f, post-1.0).\n",
+   "plan_ref": "vms-694"
+  },
+  {
+   "domain": "clustering",
+   "facility": "cluster-dlm",
+   "facility_name": "Cluster-wide Distributed Lock Manager",
+   "id": "cluster-dlm$scs-transport",
+   "kind": "feature",
+   "vms": "DLM SYSAP SCS connection + lock-request message class (ENQ/GRANT/DEQ/BLKAST/REBUILD/DLKSRCH) between cluster nodes",
+   "status": "verified",
+   "authenticity": "real",
+   "scope_1_0": "in",
+   "evidence": "src/vmsscs/scs_dlm.c",
+   "verified_against": "tests/qemu/run_dlm_harness_h0.sh..ec75 (H0..H11 on real /dev/vms); src/vmsscs codec ctests (scs_dlm frame encode/decode + op-name validators)",
+   "notes": "vms-94c rung 1, extended through H11. A DLM message rides as a p.4-13 SCS application message (MTYPE 10) with its body at SCA content offset 58 (the scs_mscp.c nesting). The transport is real and the receive handler GRANTS, QUEUES, delivers BLKAST, rebuilds on remaster, and runs the deadlock search \u2014 the full ENQ-class op set is handled on a real /dev/vms executive across every DLM QEMU harness (H0..H11).\n",
    "plan_ref": "vms-694"
   },
   {
@@ -2252,9 +2495,9 @@
    "status": "absent",
    "authenticity": "n/a",
    "scope_1_0": "in",
-   "evidence": "src/kernel/vms_lnm.c",
+   "evidence": "src/kernel-core/vms_lnm.c",
    "verified_against": null,
-   "notes": "Degrades to system-wide scope (per docs/compatibility-contract.md); no cluster-wide replication built.",
+   "notes": "Degrades to system-wide scope (per docs/compatibility-contract.md); no cluster-wide replication built \u2014 grep of vms_lnm.c on origin/main finds no CLUSTERWIDE path.",
    "plan_ref": "vms-694"
   },
   {
@@ -2271,6 +2514,186 @@
    "verified_against": null,
    "notes": "Absent; not evidenced in the current tree.",
    "plan_ref": "vms-694"
+  },
+  {
+   "domain": "languages",
+   "facility": "compilers",
+   "facility_name": "Compilers (language front-ends)",
+   "id": "c",
+   "kind": "subsystem",
+   "vms": "DEC C / vendor C compiler",
+   "status": "implemented",
+   "authenticity": "real",
+   "scope_1_0": "in",
+   "evidence": "third-party/tcc",
+   "verified_against": null,
+   "notes": "tcc self-hosts inside OVMX (S2, gen2==gen3); independence beachhead, NOT full DEC C nor a perf compiler (rustc/Rust later). Source-compat is the C target.",
+   "plan_ref": "vms-082"
+  },
+  {
+   "domain": "languages",
+   "facility": "compilers",
+   "facility_name": "Compilers (language front-ends)",
+   "id": "macro32",
+   "kind": "subsystem",
+   "vms": "MACRO-32 assembler",
+   "status": "absent",
+   "authenticity": "n/a",
+   "scope_1_0": "out",
+   "evidence": "",
+   "verified_against": null,
+   "notes": "Explicitly out of scope (compatibility-contract.md); tcc's integrated assembler is GAS-syntax only.",
+   "plan_ref": "vms-082"
+  },
+  {
+   "domain": "languages",
+   "facility": "compilers",
+   "facility_name": "Compilers (language front-ends)",
+   "id": "macro64",
+   "kind": "subsystem",
+   "vms": "MACRO-64 (Alpha) assembler",
+   "status": "absent",
+   "authenticity": "n/a",
+   "scope_1_0": "stretch",
+   "evidence": "",
+   "verified_against": null,
+   "notes": "No native Alpha backend on main either.",
+   "plan_ref": "vms-082"
+  },
+  {
+   "domain": "languages",
+   "facility": "compilers",
+   "facility_name": "Compilers (language front-ends)",
+   "id": "fortran",
+   "kind": "subsystem",
+   "vms": "VAX/DEC/vendor Fortran (77/90/95)",
+   "status": "absent",
+   "authenticity": "n/a",
+   "scope_1_0": "undecided",
+   "evidence": "",
+   "verified_against": null,
+   "notes": "Central to the scientific corpus. Needs FOR$ RTL + array descriptors + VAX-float support \u2014 all absent. Operator scope call.",
+   "plan_ref": "vms-082"
+  },
+  {
+   "domain": "languages",
+   "facility": "compilers",
+   "facility_name": "Compilers (language front-ends)",
+   "id": "cobol",
+   "kind": "subsystem",
+   "vms": "VAX/DEC COBOL",
+   "status": "absent",
+   "authenticity": "n/a",
+   "scope_1_0": "undecided",
+   "evidence": "",
+   "verified_against": null,
+   "notes": "Central to the business corpus. Needs COB$ RTL + packed-decimal (OTS$ gap) + indexed-file multi-key (RMS gap). Operator scope call.",
+   "plan_ref": "vms-082"
+  },
+  {
+   "domain": "languages",
+   "facility": "compilers",
+   "facility_name": "Compilers (language front-ends)",
+   "id": "basic",
+   "kind": "subsystem",
+   "vms": "VAX/DEC BASIC",
+   "status": "absent",
+   "authenticity": "n/a",
+   "scope_1_0": "undecided",
+   "evidence": "",
+   "verified_against": null,
+   "notes": "Needs BAS$ RTL + varying-string descriptors (descriptor class VS absent). Operator scope call.",
+   "plan_ref": "vms-082"
+  },
+  {
+   "domain": "languages",
+   "facility": "compilers",
+   "facility_name": "Compilers (language front-ends)",
+   "id": "pascal",
+   "kind": "subsystem",
+   "vms": "VAX/DEC Pascal",
+   "status": "absent",
+   "authenticity": "n/a",
+   "scope_1_0": "undecided",
+   "evidence": "",
+   "verified_against": null,
+   "notes": "Needs PAS$ RTL. Operator scope call.",
+   "plan_ref": "vms-082"
+  },
+  {
+   "domain": "languages",
+   "facility": "compilers",
+   "facility_name": "Compilers (language front-ends)",
+   "id": "cxx",
+   "kind": "subsystem",
+   "vms": "DEC / vendor C++",
+   "status": "absent",
+   "authenticity": "n/a",
+   "scope_1_0": "undecided",
+   "evidence": "",
+   "verified_against": null,
+   "notes": "Operator scope call.",
+   "plan_ref": "vms-082"
+  },
+  {
+   "domain": "languages",
+   "facility": "compilers",
+   "facility_name": "Compilers (language front-ends)",
+   "id": "ada",
+   "kind": "subsystem",
+   "vms": "DEC Ada / GNAT Pro",
+   "status": "absent",
+   "authenticity": "n/a",
+   "scope_1_0": "stretch",
+   "evidence": "",
+   "verified_against": null,
+   "notes": "Large; likely post-1.0.",
+   "plan_ref": "vms-082"
+  },
+  {
+   "domain": "languages",
+   "facility": "compilers",
+   "facility_name": "Compilers (language front-ends)",
+   "id": "pli",
+   "kind": "subsystem",
+   "vms": "VAX PL/I",
+   "status": "absent",
+   "authenticity": "n/a",
+   "scope_1_0": "stretch",
+   "evidence": "",
+   "verified_against": null,
+   "notes": "",
+   "plan_ref": "vms-082"
+  },
+  {
+   "domain": "languages",
+   "facility": "compilers",
+   "facility_name": "Compilers (language front-ends)",
+   "id": "bliss",
+   "kind": "subsystem",
+   "vms": "BLISS",
+   "status": "absent",
+   "authenticity": "n/a",
+   "scope_1_0": "stretch",
+   "evidence": "",
+   "verified_against": null,
+   "notes": "VMS's own systems-implementation language.",
+   "plan_ref": "vms-082"
+  },
+  {
+   "domain": "languages",
+   "facility": "compilers",
+   "facility_name": "Compilers (language front-ends)",
+   "id": "compilers$_other",
+   "kind": "subsystem",
+   "vms": "DIBOL, RPG II, APL, CORAL 66, SCAN, DSM/MUMPS, DECTPU-as-language, \u2026",
+   "status": "absent",
+   "authenticity": "n/a",
+   "scope_1_0": "stretch",
+   "evidence": "",
+   "verified_against": null,
+   "notes": "The long tail of VMS languages; almost certainly post-1.0.",
+   "plan_ref": "vms-082"
   },
   {
    "domain": "clustering",
@@ -2299,7 +2722,7 @@
    "scope_1_0": "in",
    "evidence": "src/vmsscs/scs_quorum.c",
    "verified_against": null,
-   "notes": "",
+   "notes": "The documented connection-manager quorum arithmetic (VMScluster Systems for VMS sec 2.3.5; mined CM transcript 5-node worked example reproduced in the unit test). Per-node VOTES are wire-grounded from the peer's own report (cm_quorum_note_peer_votes reads the peer's mv.votes), not fabricated. Computed daemon-resident in scsd, not yet executive-resident \u2014 the votes/quorum cutover into vms.ko is deferred (vms-551 follow-on).\n",
    "plan_ref": "vms-694"
   },
   {
@@ -2314,8 +2737,38 @@
    "scope_1_0": "in",
    "evidence": "src/vmsscs/scsd.c",
    "verified_against": null,
-   "notes": "3-party member-driven join FSM (scsd.c enum join_step); no distinct rejoin state, matching VMS's own model. \u00a74(O.38): 4/5 member-oracle reliable after fixing OVMX's own XITDONE self-verdict bug; residual 1/5 is real member-side loss, not an OVMX defect (operator call).",
+   "notes": "3-party member-driven join FSM (scsd.c enum join_step); no distinct rejoin state, matching VMS's own model. \u00a74(O.38): 4/5 member-oracle reliable after fixing OVMX's own XITDONE self-verdict bug; residual 1/5 is real member-side loss, not an OVMX defect (operator call).\n",
    "plan_ref": "vms-694"
+  },
+  {
+   "domain": "clustering",
+   "facility": "connection-manager",
+   "facility_name": "Connection manager / membership / quorum / rejoin",
+   "id": "connection-manager$executive-membership",
+   "kind": "feature",
+   "vms": "Cluster membership visible to the executive ($GETSYI/SHOW CLUSTER see a real cluster)",
+   "status": "implemented",
+   "authenticity": "real",
+   "scope_1_0": "in",
+   "evidence": "src/kernel-core/vms_lock.c",
+   "verified_against": null,
+   "notes": "vms-551 / vms-967d / vms-8d4. vms.ko owns a module-global membership block (struct vms_cluster_member{csid,sysid,scsnode[16],state}, up to 96 nodes, separate from the CSID-only dlm_member_csids), populated by scsd's scsd_publish_membership via VMS_IOCTL_CLUSTER_MEMBER_SET/CLEAR (0x39/0x3a) and read by SHOW CLUSTER via the wired CLUSTER_MEMBER_GET (0x3b) \u2014 the userspace /var/run/ovmx/cluster_state file bridge (an INV-6/Rule-9 userspace-to-userspace path) is fully retired (vms-967d). NOTMEMBER (executive reachable, 0 members, SS$_NORMAL) is honestly distinct from NOSUCHDEV (executive unreachable, 2680). Proven on real 2/3-node QEMU + tests/integration/test_show_cluster_membership.sh. Not verified: votes/quorum and $GETSYI cutover into the executive remain deferred; today's membership block carries no votes field.\n",
+   "plan_ref": "vms-694"
+  },
+  {
+   "domain": "command-language",
+   "facility": "dcl-qualifiers",
+   "facility_name": "DCL Qualifier Grammar (Engine A / CLD tables)",
+   "id": "dcl-qualifiers$ivqual-enforcement",
+   "kind": "feature",
+   "vms": "Unknown /QUALIFIER on a verb -> %DCL-W-IVQUAL; bad keyword -> %DCL-W-IVKEYW, before the handler runs",
+   "status": "verified",
+   "authenticity": "real",
+   "scope_1_0": "in",
+   "evidence": "src/vmsdcl/dcl_parser.c:448",
+   "verified_against": "tests/dcl/test_ivqual_gate_structural.sh \u2014 anti-cheat tripwire: revert the .quals wiring and every IVQUAL/IVKEYW assertion goes red; positive controls (real /LOG,/KEEP,/REVERSE,/DATE=MODIFIED still pass) plus authentic $STATUS %X000008F0 (IVQUAL) / %X000008F4 (IVKEYW)",
+   "notes": "dcl_validate_qualifiers() (dcl_parser.c) is the structural enforcement point; called from dispatch (dcl_exec.c) before every handler. Closes the universal silent-accept hole for the retrofit tranche.",
+   "plan_ref": "vms-8ad"
   },
   {
    "domain": "command-language",
@@ -2329,7 +2782,7 @@
    "scope_1_0": "in",
    "evidence": "src/vmsdcl/dcl_builtin.c",
    "verified_against": null,
-   "notes": "28 of 55 builtin verbs have real qualifier tables (ANALYZE, ASSIGN, ATTACH, BACKUP, CONVERT, COPY, CREATE, DEASSIGN, DEFINE, DELETE, DIRECTORY, DUMP, INQUIRE, LINK, MOUNT, OPEN, PRINT, PRODUCT, PURGE, RECALL, RENAME, REPLY, SEARCH, SORT, SPAWN, STOP, SUBMIT, TYPE).",
+   "notes": "29 verbs carry a real q_* qualifier table (ANALYZE ASSIGN ATTACH BACKUP CONVERT COPY CREATE DEASSIGN DEFINE DELETE DIRECTORY DUMP INQUIRE LINK MOUNT OPEN PING PRINT PRODUCT PURGE RECALL RENAME REPLY SEARCH SORT SPAWN STOP SUBMIT TYPE); 17 more use q_none (empty table = reject-all, honest over-restriction for verbs whose VMS qualifiers OVMX has not retrofit). 46 of 58 validate.",
    "plan_ref": "vms-8ad"
   },
   {
@@ -2338,13 +2791,13 @@
    "facility_name": "DCL Qualifier Grammar (Engine A / CLD tables)",
    "id": "dcl-qualifiers$zero-validation-verbs",
    "kind": "feature",
-   "vms": "Qualifier validation for SET, SHOW, TCPIP, RUN, LIBRARY, READ, WRITE, INSTALL, MAIL",
+   "vms": "Qualifier validation for the accept-all verbs (SET, SHOW, RUN, MAIL, READ, WRITE, INSTALL, LIBRARY, TCPIP, TELNET, FTP, HELP)",
    "status": "absent",
    "authenticity": "facade-risk",
    "scope_1_0": "in",
-   "evidence": "src/vmsdcl/dcl_builtin.c",
+   "evidence": "src/vmsdcl/dcl_parser.c:451",
    "verified_against": null,
-   "notes": "9 legacy accept-all verbs (quals == NULL in builtin_verbs[]): any /QUALIFIER is silently accepted rather than rejected with IVQUAL.",
+   "notes": "12 verbs still have quals == NULL in builtin_verbs[]; dcl_validate_qualifiers() returns SS$_NORMAL for them ('not retrofit'), so any /QUALIFIER is silently accepted rather than rejected with IVQUAL. SET/SHOW mitigate at the sub-verb level (cmd_set_password/accounting/volume run their own shim validators; unknown SET/SHOW keywords still get IVKEYW), and HELP is deliberately accept-all. The remaining ~10 are the Phase-1 follow-up (vms-097).",
    "plan_ref": "vms-8ad"
   },
   {
@@ -2359,7 +2812,7 @@
    "scope_1_0": "in",
    "evidence": "src/vmsdcl/dcl_builtin.c",
    "verified_against": null,
-   "notes": "Depth still a fraction of VMS: DIRECTORY 13 quals, DELETE 5, PRINT/SUBMIT 3 each, PURGE 3, COPY 2.",
+   "notes": "Per INV-DCL a table lists ONLY implemented qualifiers, so depth is honestly a fraction of VMS (DIRECTORY carries /DATE=MODIFIED,/SIZE,/OWNER,/PROTECTION,... but not the full VMS set); qualifiers VMS accepts that OVMX does not implement are honestly rejected (over-restriction, not a lie).",
    "plan_ref": "vms-8ad"
   },
   {
@@ -2373,8 +2826,8 @@
    "authenticity": "real",
    "scope_1_0": "in",
    "evidence": "src/libvms/rtl/lib_cli.c",
-   "verified_against": "tests/libvms/test_lib_cli.c compiling tests/corpus/tier3-mmk/mmk_cld.cld",
-   "notes": "Real CDU compiler, CLI$-callable, proven against an external image's CLD \u2014 but the 55 builtin verbs still use hand-written C tables, not CDU-generated ones.",
+   "verified_against": "tests/libvms/test_lib_cli.c compiling the real external CLD tests/corpus/tier3-mmk/mmk_cld.cld (corpus conformance, not a synthetic input)",
+   "notes": "Real CDU compiler, CLI$-callable, proven against an external image's CLD \u2014 but the 58 builtin verbs still use hand-written C tables, not CDU-generated ones.",
    "plan_ref": "vms-8ad"
   },
   {
@@ -2384,12 +2837,12 @@
    "id": "dcl-scripting$if-then-goto",
    "kind": "feature",
    "vms": "IF/THEN, GOTO, GOSUB, labels",
-   "status": "verified",
+   "status": "implemented",
    "authenticity": "real",
    "scope_1_0": "in",
    "evidence": "src/vmsdcl/dcl_script.c",
-   "verified_against": "tests/dcl/test_if_then.sh, tests/dcl/test_parser_goto.sh, tests/dcl/test_script_labels.sh",
-   "notes": "Covered by parser + script test suites.",
+   "verified_against": null,
+   "notes": "Real. Exercised by tests/dcl/test_if_then.sh, test_parser_goto.sh, test_script_labels.sh \u2014 plain functional self-tests, not an oracle, so implemented (not verified) per the credibility rule.",
    "plan_ref": "vms-8ad"
   },
   {
@@ -2414,12 +2867,12 @@
    "id": "dcl-scripting$call-subroutine",
    "kind": "command",
    "vms": "CALL / SUBROUTINE / ENDSUBROUTINE",
-   "status": "absent",
-   "authenticity": "n/a",
+   "status": "implemented",
+   "authenticity": "real",
    "scope_1_0": "in",
-   "evidence": "",
+   "evidence": "src/vmsdcl/dcl_exec.c:1354",
    "verified_against": null,
-   "notes": "See dcl-verbs.yaml dcl-verbs$call-subroutine for the verb-family entry.",
+   "notes": "Landed since last census. CALL gives the subroutine a new command level with its own P1-P8 and local-symbol frame; RETURN pops it and propagates status (dcl_script.c:231/271/302). Exercised by tests/dcl/test_scripting_status_call_deck.sh (SUB_P1P2, RETURN_STATUS_PROPAGATED).",
    "plan_ref": "vms-8ad"
   },
   {
@@ -2429,12 +2882,12 @@
    "id": "dcl-scripting$deck-eod",
    "kind": "feature",
    "vms": "DECK / $EOD in-stream data",
-   "status": "absent",
-   "authenticity": "facade-risk",
+   "status": "implemented",
+   "authenticity": "real",
    "scope_1_0": "in",
-   "evidence": "src/vmsdcl/dcl_exec.c",
+   "evidence": "src/vmsdcl/dcl_cmd_process.c:1659",
    "verified_against": null,
-   "notes": "In-stream data is parsed as commands, cascading IVVERB errors rather than an honest not-supported error.",
+   "notes": "Landed since last census (vms-3983). A DECK block reads in-stream lines verbatim to the EOD sentinel instead of parsing them as commands; former facade-risk retired. Exercised by test_scripting_status_call_deck.sh (DOLLAR_DATA_LINE_KEPT, AFTER_DECK).",
    "plan_ref": "vms-8ad"
   },
   {
@@ -2444,12 +2897,12 @@
    "id": "dcl-scripting$symbol-scoping",
    "kind": "feature",
    "vms": "Per-procedure local symbol scope",
-   "status": "absent",
-   "authenticity": "facade-risk",
+   "status": "implemented",
+   "authenticity": "real",
    "scope_1_0": "in",
-   "evidence": "src/vmsdcl/dcl_symbol.c",
+   "evidence": "src/vmsdcl/dcl_symbol.c:33",
    "verified_against": null,
-   "notes": "Single flat local-symbol table; an inner procedure's LOCAL symbols leak into the caller's scope instead of being torn down on return.",
+   "notes": "Landed since last census (vms-2af frames). Each @ invocation / CALL gets its own local-symbol frame (SYM_MAX_FRAMES), inner levels read outer locals, the frame is torn down on RETURN, and SET SYMBOL/SCOPE=([NO]LOCAL,[NO]GLOBAL) is honoured. Former facade-risk (flat leaking table) retired. Exercised by test_symbol_scope.sh / test_symbol_scope_domain.sh with EXPECT_NOT isolation controls.",
    "plan_ref": "vms-8ad"
   },
   {
@@ -2460,11 +2913,11 @@
    "kind": "feature",
    "vms": "$STATUS holds a VMS condition code, conventionally displayed %Xhhhhhhhh",
    "status": "implemented",
-   "authenticity": "facade-risk",
+   "authenticity": "real",
    "scope_1_0": "in",
-   "evidence": "src/vmsdcl/dcl_exec.c:1207",
+   "evidence": "src/vmsdcl/dcl_exec.c:98",
    "verified_against": null,
-   "notes": "$STATUS is stored/formatted as plain decimal (%d), not the VMS hex condition-code representation.",
+   "notes": "Fixed since last census: $STATUS is stored VMS-style as the 32-bit condition value and rendered %Xhhhhhhhh (dcl_exec.c:98/157); IF/arithmetic reads it radix-aware. Former facade-risk (plain decimal) retired.",
    "plan_ref": "vms-8ad"
   },
   {
@@ -2474,12 +2927,12 @@
    "id": "dcl-scripting$status-refresh",
    "kind": "feature",
    "vms": "$STATUS is set after every command, including an unrecognized verb (IVVERB)",
-   "status": "partial",
-   "authenticity": "facade-risk",
+   "status": "implemented",
+   "authenticity": "real",
    "scope_1_0": "in",
-   "evidence": "src/vmsdcl/dcl_exec.c:1209",
+   "evidence": "src/vmsdcl/dcl_exec.c:1531",
    "verified_against": null,
-   "notes": "HIGHEST-IMPACT bug: only the interactive REPL refreshes $STATUS on command-not-found; the command-procedure execution path never does, so IF .NOT.$STATUS THEN GOTO err silently misses a typo'd command anywhere in a .COM.",
+   "notes": "Fixed since last census \u2014 the highest-impact former bug. Command-not-found now calls dcl_set_status(ctx, SS$_IVVERB) on the single shared dispatch path used by both the REPL and .COM execution, so IF .NOT.$STATUS THEN GOTO err catches a typo'd command anywhere. Verb handlers and qualifier validation also set $STATUS. Exercised by test_scripting_status_call_deck.sh (STATUS_FALSE_ON_ERROR).",
    "plan_ref": "vms-8ad"
   },
   {
@@ -2490,11 +2943,11 @@
    "kind": "lexical",
    "vms": "F$MODE reports INTERACTIVE/BATCH/OTHER/NETWORK per the actual process context",
    "status": "partial",
-   "authenticity": "facade-risk",
+   "authenticity": "advisory",
    "scope_1_0": "in",
-   "evidence": "src/vmsdcl/dcl_lexical.c",
+   "evidence": "src/vmsdcl/dcl_lexical.c:624",
    "verified_against": null,
-   "notes": "Advisory-adjacent: misreports script (command-procedure) execution as BATCH.",
+   "notes": "Reports only INTERACTIVE vs BATCH from ctx->interactive; NETWORK/OTHER modes not distinguished. Honest two-value report of what OVMX tracks, not a fabrication \u2014 advisory, not facade-risk.",
    "plan_ref": "vms-8ad"
   },
   {
@@ -2509,7 +2962,7 @@
    "scope_1_0": "in",
    "evidence": "src/vmsdcl/dcl_builtin.c",
    "verified_against": null,
-   "notes": "55 of ~150 verbs present (builtin_verbs[] dispatch table). Real breadth gap, not a facade.",
+   "notes": "58 of ~150 verbs present in builtin_verbs[] (ACCOUNTING ANALYZE APPEND ASSIGN ATTACH BACKUP CLOSE CONTINUE CONVERT COPY CREATE DEASSIGN DEFINE DELETE DIFFERENCES DIRECTORY DISMOUNT DUMP EDIT EXIT FTP HELP INITIALIZE INQUIRE INSTALL LIBRARY LINK LOGOUT MAIL MONITOR MOUNT OPEN PHONE PING PIPE PRINT PRODUCT PURGE READ RECALL RENAME REPLY REQUEST RUN SEARCH SET SHOW SORT SPAWN STOP SUBMIT SYSGEN SYSMAN TCPIP TELNET TYPE WAIT WRITE). Real breadth gap, not a facade.",
    "plan_ref": "vms-8ad"
   },
   {
@@ -2519,12 +2972,12 @@
    "id": "dcl-verbs$call-subroutine",
    "kind": "command",
    "vms": "CALL / SUBROUTINE / ENDSUBROUTINE \u2014 command-procedure subroutine calls",
-   "status": "absent",
-   "authenticity": "n/a",
+   "status": "implemented",
+   "authenticity": "real",
    "scope_1_0": "in",
-   "evidence": "",
+   "evidence": "src/vmsdcl/dcl_exec.c:1354",
    "verified_against": null,
-   "notes": "No verb family; GOSUB/labels exist but VMS's SUBROUTINE construct does not.",
+   "notes": "Landed since last census: CALL transfers to a labelled SUBROUTINE block with its own command level and P1-P8, RETURN propagates status (dcl_exec.c:1354/1367/1377, dcl_script.c). Exercised by tests/dcl/test_scripting_status_call_deck.sh.",
    "plan_ref": "vms-8ad"
   },
   {
@@ -2534,12 +2987,12 @@
    "id": "dcl-verbs$deck-eod",
    "kind": "command",
    "vms": "DECK / $EOD \u2014 in-stream data deck delimiting",
-   "status": "absent",
-   "authenticity": "facade-risk",
+   "status": "implemented",
+   "authenticity": "real",
    "scope_1_0": "in",
-   "evidence": "src/vmsdcl/dcl_exec.c",
+   "evidence": "src/vmsdcl/dcl_cmd_process.c:1659",
    "verified_against": null,
-   "notes": "Facade-risk: without DECK/EOD, in-stream data lines are parsed as commands, cascading IVVERB errors rather than failing with an honest 'not supported'.",
+   "notes": "Landed since last census (vms-3983): DECK suspends the first-'$'-line terminator so an in-stream data block is read verbatim to the EOD sentinel (default $EOD; DECK/DOLLAR=string names another). Former facade-risk (data lines mis-parsed as commands) retired. See dcl-scripting.yaml.",
    "plan_ref": "vms-8ad"
   },
   {
@@ -2550,11 +3003,11 @@
    "kind": "command",
    "vms": "START/QUEUE, STOP/QUEUE, INITIALIZE/QUEUE \u2014 real VMS queue-management verb syntax",
    "status": "absent",
-   "authenticity": "facade-risk",
+   "authenticity": "advisory",
    "scope_1_0": "in",
    "evidence": "src/vmsdcl/dcl_cmd_set.c",
    "verified_against": null,
-   "notes": "Function reshaped into SET QUEUE/START, /STOP, /PAUSE \u2014 syntax deviation from authentic VMS verbs; see queues.yaml for the underlying queue-manager status.",
+   "notes": "The VMS verb spellings START/QUEUE and INITIALIZE/QUEUE are not present (typing START -> honest %DCL-W-IVVERB, not a facade); the function is reshaped as SET QUEUE/START,/STOP,/PAUSE (cmd_set_queue). Honest syntax deviation, documented. See queues.yaml.",
    "plan_ref": "vms-8ad"
   },
   {
@@ -2582,9 +3035,9 @@
    "status": "absent",
    "authenticity": "n/a",
    "scope_1_0": "in",
-   "evidence": "",
+   "evidence": "src/vmsdcl/dcl_cmd_set.c",
    "verified_against": null,
-   "notes": "Depends on DECnet/LAT (out until networking lane lands).",
+   "notes": "A cmd_set_host SET sub-verb exists but the DECnet/LAT terminal-connection semantics depend on the networking lane (out until DECnet/LAT land).",
    "plan_ref": "vms-8ad"
   },
   {
@@ -2657,69 +3110,114 @@
    "status": "partial",
    "authenticity": "real",
    "scope_1_0": "in",
-   "evidence": "src/vmsdcl/dcl_cmd_set.c",
+   "evidence": "src/vmsdcl/dcl_cmd_set.c:2145",
    "verified_against": null,
-   "notes": "SET dispatches 23 real sub-handlers, SHOW dispatches 26 real sub-handlers (dcl_cmd_set.c, dcl_cmd_show.c) \u2014 each real, not facaded, but short of VMS's ~30-each full set.",
+   "notes": "SET dispatches 22 real sub-handlers (DEFAULT PROMPT VERIFY TERMINAL PROTECTION PASSWORD ON/NOON SYMBOL MESSAGE CONTROL PROCESS FILE UIC WORKING_SET TIME HOST AUDIT ACCOUNTING VOLUME ENTRY QUEUE) rejecting unknown keywords with %DCL-W-IVKEYW; SHOW dispatches 28 real sub-handlers (dcl_cmd_show.c). Each real, not facaded, but short of VMS's ~30-each full set.",
    "plan_ref": "vms-8ad"
   },
   {
    "domain": "networking",
    "facility": "decnet",
-   "facility_name": "DECnet Phase IV (NSP, Task-to-Task, SET HOST)",
+   "facility_name": "DECnet Phase IV (Routing, NSP, Task-to-Task, SET HOST)",
+   "id": "decnet$routing-hello",
+   "kind": "protocol",
+   "vms": "Phase IV Ethernet Endnode Hello codec (encode/decode)",
+   "status": "verified",
+   "authenticity": "real",
+   "scope_1_0": "in",
+   "evidence": "src/vmsdecnet/routing/dnet_hello.c",
+   "verified_against": "docs/decnet-provenance-register.md sec 4.6 specimen #1 (lab capture, rd vms-3be/PR #665) round-tripped byte-identical by tests/vmsdecnet/test_dnet_hello.c",
+   "notes": "Pure byte-layout library, no socket/allocation; field-by-field mapped to the committed capture.",
+   "plan_ref": "vms-30e"
+  },
+  {
+   "domain": "networking",
+   "facility": "decnet",
+   "facility_name": "DECnet Phase IV (Routing, NSP, Task-to-Task, SET HOST)",
+   "id": "decnet$router-hello",
+   "kind": "protocol",
+   "vms": "Phase IV Ethernet Router Hello codec (encode/decode)",
+   "status": "implemented",
+   "authenticity": "real",
+   "scope_1_0": "in",
+   "evidence": "src/vmsdecnet/routing/dnet_router_hello.c",
+   "verified_against": null,
+   "notes": "SPEC-DERIVED \u2014 no committed router-hello wire specimen exists, so not oracle-anchored; self round-trips in tests/vmsdecnet/test_dnet_router_hello.c (rd vms-0aba).",
+   "plan_ref": "vms-30e"
+  },
+  {
+   "domain": "networking",
+   "facility": "decnet",
+   "facility_name": "DECnet Phase IV (Routing, NSP, Task-to-Task, SET HOST)",
+   "id": "decnet$routing-adjacency",
+   "kind": "feature",
+   "vms": "Phase IV routing adjacency state machine (DOWN/INITIALIZING/UP) + hello cadence / listen timers",
+   "status": "implemented",
+   "authenticity": "real",
+   "scope_1_0": "in",
+   "evidence": "src/vmsdecnet/routing/dnet_adjacency.c",
+   "verified_against": null,
+   "notes": "Pure clock-injectable SM over the Hello codec; T3=15s oracle-captured (vms-3be), BCT3MULT spec-derived. Tested tests/vmsdecnet/test_dnet_adjacency.c (rd vms-b15).",
+   "plan_ref": "vms-30e"
+  },
+  {
+   "domain": "networking",
+   "facility": "decnet",
+   "facility_name": "DECnet Phase IV (Routing, NSP, Task-to-Task, SET HOST)",
    "id": "decnet$nsp-transport",
    "kind": "protocol",
-   "vms": "NSP (Network Services Protocol) \u2014 DECnet transport layer",
-   "status": "absent",
-   "authenticity": "n/a",
+   "vms": "NSP transport codec \u2014 Connect Initiate/Confirm, Data, Ack, teardown PDUs (logical links)",
+   "status": "partial",
+   "authenticity": "real",
    "scope_1_0": "in",
-   "evidence": "docs/design-decnet-ovmx.md",
+   "evidence": "src/vmsdecnet/nsp/dnet_nsp.c",
    "verified_against": null,
-   "notes": "No src/vmsdecnet/. Total greenfield.",
+   "notes": "Connect Initiate is oracle-verified byte-identical against docs/decnet-provenance-register.md sec 4.6 specimen #3 (the lab handshake never completed, so the other PDUs are self-round-trip only, no fabricated specimen bytes). Codec only \u2014 no live transport engine drives a logical link yet. Tested tests/vmsdecnet/test_dnet_nsp.c (rd vms-6986).",
    "plan_ref": "vms-30e"
   },
   {
    "domain": "networking",
    "facility": "decnet",
-   "facility_name": "DECnet Phase IV (NSP, Task-to-Task, SET HOST)",
+   "facility_name": "DECnet Phase IV (Routing, NSP, Task-to-Task, SET HOST)",
    "id": "decnet$task-to-task",
    "kind": "feature",
-   "vms": "Task-to-task DECnet communication",
+   "vms": "Task-to-task DECnet communication (logical-link $QIO / FAL)",
    "status": "absent",
    "authenticity": "n/a",
    "scope_1_0": "in",
    "evidence": "docs/design-decnet-ovmx.md",
    "verified_against": null,
-   "notes": "",
+   "notes": "The codecs exist but the engine boundary has not moved \u2014 no socket/AF_PACKET engine binds them into a live link.",
    "plan_ref": "vms-30e"
   },
   {
    "domain": "networking",
    "facility": "decnet",
-   "facility_name": "DECnet Phase IV (NSP, Task-to-Task, SET HOST)",
+   "facility_name": "DECnet Phase IV (Routing, NSP, Task-to-Task, SET HOST)",
    "id": "decnet$set-host",
    "kind": "command",
    "vms": "SET HOST \u2014 DECnet remote-node connection",
    "status": "stub",
    "authenticity": "real",
    "scope_1_0": "in",
-   "evidence": "src/vmsdcl/dcl_cmd_set.c:1542",
+   "evidence": "src/vmsdcl/dcl_cmd_set.c",
    "verified_against": null,
-   "notes": "Honestly reports %SET-I-NOTAVAIL, DECnet is not available on this system \u2014 stub, not a facade.",
+   "notes": "Honestly reports %SET-I-NOTAVAIL, DECnet is not available on this system \u2014 a stub, not a facade.",
    "plan_ref": "vms-30e"
   },
   {
    "domain": "networking",
    "facility": "decnet",
-   "facility_name": "DECnet Phase IV (NSP, Task-to-Task, SET HOST)",
+   "facility_name": "DECnet Phase IV (Routing, NSP, Task-to-Task, SET HOST)",
    "id": "decnet$node-filespec-syntax",
    "kind": "feature",
    "vms": "NODE\"acc\"::dev:[dir]file filespec syntax",
    "status": "partial",
    "authenticity": "real",
    "scope_1_0": "in",
-   "evidence": "src/vmsrms/rms_parse.c:173",
+   "evidence": "src/vmsrms/rms_parse.c",
    "verified_against": null,
-   "notes": "Syntax only \u2014 sets NAM$M_NODE, parses/reconstructs the node prefix; nothing downstream (no DECnet transport) acts on it.",
+   "notes": "Syntax only \u2014 sets NAM$M_NODE, parses/reconstructs the node prefix; nothing downstream (no live DECnet transport) acts on it.",
    "plan_ref": "vms-30e"
   },
   {
@@ -2989,7 +3487,7 @@
    "scope_1_0": "in",
    "evidence": "src/libvms/syssvc/sys_device.c",
    "verified_against": null,
-   "notes": "",
+   "notes": "yields rows of the executive I/O database via vms_kif_devscan() (vms-dv1); it can no longer report a device the executive does not have \u2014 wildcard/DVS$_DEVCLASS filtering is applied in-process",
    "plan_ref": "vms-651"
   },
   {
@@ -3003,8 +3501,8 @@
    "authenticity": "real",
    "scope_1_0": "in",
    "evidence": "src/vmsdcl/dcl_cmd_misc.c",
-   "verified_against": "tests/qemu/test_mount_e2e.sh (run_mount_e2e.sh)",
-   "notes": "old fake killed (vms-651); now exec-checked PRV$M_MOUNT, vms_kif_disk_resolve, real mount(2) via setuid helper, DISK$<label> logical read from the volume home block",
+   "verified_against": "QA-cluster acceptance gate + sysboot proofs (vms-165 retired the old mount(2)-as-vmsfs test_mount_e2e.sh)",
+   "notes": "old fake killed (vms-651); vms-481/vms-165 replaced the setuid mount(2)-as-vmsfs path with the executive Files-11 ACP $MOUNT (vms_kif_acp_mount) \u2014 exec-checked PRV$M_MOUNT, ACP validates the ODS-2 home block/SCB, executive-global mounted-volume table",
    "plan_ref": "vms-651"
   },
   {
@@ -3047,7 +3545,7 @@
    "status": "stub",
    "authenticity": "advisory",
    "scope_1_0": "in",
-   "evidence": "src/vmsdcl/dcl_cmd_misc.c:2345",
+   "evidence": "src/vmsdcl/dcl_cmd_misc.c:2615",
    "verified_against": null,
    "notes": "accepted but ignored with an informational message (%CONVERT-I-FDL); no FDL file is read or written",
    "plan_ref": "vms-801"
@@ -3092,7 +3590,7 @@
    "status": "partial",
    "authenticity": "advisory",
    "scope_1_0": "in",
-   "evidence": "src/vmsfs/vmsfs_translate.c:49",
+   "evidence": "src/vmsfs/vmsfs_translate.c:901",
    "verified_against": null,
    "notes": "directory-translate leaves it as a marker; recursion is handled by DIRECTORY's own layer, not the translator",
    "plan_ref": "vms-801"
@@ -3149,12 +3647,12 @@
    "id": "help$verb",
    "kind": "command",
    "vms": "HELP \u2014 hierarchical topic help, keyword lookup",
-   "status": "verified",
+   "status": "implemented",
    "authenticity": "real",
    "scope_1_0": "in",
-   "evidence": "tools/vms_help.c",
-   "verified_against": "tests/dcl/test_help_content.sh",
-   "notes": "",
+   "evidence": "src/vmsdcl/dcl_help.c",
+   "verified_against": null,
+   "notes": "Real HLB-backed help library walk (tests/dcl/test_help_engine.c, test_help_content.sh assert HELP_TOPLEVEL_LISTS / HELP_TOPIC_TEXT_OK against the real topic tree, and test_help_hlb.sh the library). Downgraded verified->implemented 2026-08-31: those are plain local self-tests, not an oracle/negctl gate.",
    "plan_ref": "vms-8ad"
   },
   {
@@ -3168,8 +3666,8 @@
    "authenticity": "real",
    "scope_1_0": "in",
    "evidence": "src/imgact/imgact.c",
-   "verified_against": "src/imgact/test/ \u2014 25 activation scripts",
-   "notes": "1537 lines, freestanding static-PIE, arch start.S.",
+   "verified_against": "src/imgact/test/ activation scripts incl. run_test.sh, run_test_x86_64.sh and run_test_alpha.sh / run_vms_std_activation_alpha.sh",
+   "notes": "Freestanding static-PIE, per-arch start.S (x86_64/aarch64/alpha).",
    "plan_ref": "vms-ade"
   },
   {
@@ -3183,7 +3681,7 @@
    "authenticity": "real",
    "scope_1_0": "in",
    "evidence": "src/imgact/test/run_symvec_activation.sh",
-   "verified_against": "src/imgact/test/run_symvec_activation.sh and related shell tests (run_dcl_native.sh, run_login_native.sh, run_shareable_import_activation.sh)",
+   "verified_against": "run_symvec_activation.sh + run_dcl_native.sh, run_login_native.sh, run_shareable_import_activation.sh, run_decc_shr_activation.sh, run_weak_import_activation.sh",
    "notes": "Activation behavior real; symbol-vector byte layout is advisory (Rule 8) \u2014 see symbol-vectors facility.",
    "plan_ref": "vms-ade"
   },
@@ -3214,7 +3712,7 @@
    "scope_1_0": "in",
    "evidence": "src/imgact/test/run_exec_tls.sh",
    "verified_against": null,
-   "notes": ".vms$tls section.",
+   "notes": ".vms$tls section; run_exec_tls.sh, run_tls_producer_over_crtl.sh.",
    "plan_ref": "vms-ade"
   },
   {
@@ -3272,7 +3770,7 @@
    "status": "implemented",
    "authenticity": "real",
    "scope_1_0": "in",
-   "evidence": "",
+   "evidence": "src/product/product.c",
    "verified_against": null,
    "notes": "/DESTINATION target boots to login",
    "plan_ref": "vms-96ec"
@@ -3287,8 +3785,8 @@
    "status": "verified",
    "authenticity": "real",
    "scope_1_0": "in",
-   "evidence": ".github/workflows/ci.yml:752",
-   "verified_against": "CI job install-boot-e2e \u2014 fails (not skips) if unset",
+   "evidence": ".github/workflows/ci.yml:1495",
+   "verified_against": "CI job install-boot-e2e (ci.yml:1495, vms-96ec) \u2014 runs tests/qemu/run_install_boot_e2e.sh on non-PR events; FATAL if the gate is skipped (never a silent skip). Re-census 2026-08-31 refreshed the line ref (was :752).",
    "notes": "",
    "plan_ref": "vms-718"
   },
@@ -3317,9 +3815,9 @@
    "status": "implemented",
    "authenticity": "real",
    "scope_1_0": "in",
-   "evidence": "src/kernel/vms_lock.c",
+   "evidence": "src/kernel-core/vms_lock.c",
    "verified_against": null,
-   "notes": "Single-node. ioctls 0x30-0x34. See cluster-dlm.yaml for the cross-node gap.",
+   "notes": "Single-node engine. ioctls 0x30-0x34. cluster-dlm.yaml covers the cross-node DLM built on this (now COMPLETE through H11).",
    "plan_ref": "vms-6b8"
   },
   {
@@ -3334,7 +3832,7 @@
    "scope_1_0": "in",
    "evidence": "src/kernel-core/vms_ast.c",
    "verified_against": null,
-   "notes": "ioctls 0x10-0x12. Prior SIGUSR1-based facade fixed (vms-as1).",
+   "notes": "ioctls 0x10-0x12. Prior SIGUSR1-based facade fixed (vms-as1). Executive-resident async delivery \u2014 a queued AST interrupts $HIBER cross-process (vms-feb).",
    "plan_ref": "vms-6b8"
   },
   {
@@ -3349,7 +3847,7 @@
    "scope_1_0": "in",
    "evidence": "src/kernel-core/vms_mbx.c",
    "verified_against": null,
-   "notes": "Replaced an earlier AF_UNIX socketpair facade.",
+   "notes": "Replaced an earlier AF_UNIX socketpair facade. IO$M_NOW non-blocking dequeue honored (vms-5df).",
    "plan_ref": "vms-6b8"
   },
   {
@@ -3362,9 +3860,9 @@
    "status": "implemented",
    "authenticity": "real",
    "scope_1_0": "in",
-   "evidence": "src/kernel/vms_lnm.c",
+   "evidence": "src/kernel-core/vms_lnm.c",
    "verified_against": null,
-   "notes": "mmap-backed shared arena, not a per-process fake table.",
+   "notes": "mmap-backed shared arena, not a per-process fake table. Cluster-wide scope is a separate absent surface (see cluster-logicals.yaml).",
    "plan_ref": "vms-6b8"
   },
   {
@@ -3390,11 +3888,11 @@
    "kind": "struct",
    "vms": "Process Control Block: identity, privilege mask, quotas",
    "status": "partial",
-   "authenticity": "facade-risk",
+   "authenticity": "advisory",
    "scope_1_0": "in",
    "evidence": "src/kernel-core/vms_proctab.c",
    "verified_against": null,
-   "notes": "Legacy dead AST-queue fields orphaned. See kernel-executive$process-control for the process-create/delete facade-risk this feeds.",
+   "notes": "Executive-resident, module-global PCB table shared across processes via /dev/vms \u2014 NOT a per-process fake. The $GETJPI privilege-visibility gate is oracle-grounded (docs/oracle/vax73-privileges.md \u00a75, measured on VAX1 / VMS VAX V7.3): a same-group read needs no privilege, cross-group withholds under WORLD/GROUP. Privilege bits are tracked (cur_privs/perm_privs) and consulted, but enforcement across the full operation matrix is advisory, not a complete privilege model. Single-node: no cluster-wide PCB view (see connection-manager$executive-membership for the cluster-member readout).\n",
    "plan_ref": "vms-6b8"
   },
   {
@@ -3403,13 +3901,13 @@
    "facility_name": "Kernel Executive (/dev/vms substrate: EF/locks/AST/mailbox/access-modes/PCB)",
    "id": "kernel-executive$process-control",
    "kind": "feature",
-   "vms": "$CREPRC / $DELPRC process creation and deletion",
+   "vms": "$CREPRC / $DELPRC / $WAKE / $FORCEX process creation, deletion, and control",
    "status": "partial",
-   "authenticity": "facade-risk",
+   "authenticity": "advisory",
    "scope_1_0": "in",
    "evidence": "src/kernel-core/vms_proctab.c",
    "verified_against": null,
-   "notes": "Privileges/UIC copied PCB-to-PCB only; not visible cluster-wide (vms-afd). $WAKE/$DELPRC/$FORCEX cast the VMS pid straight into a Linux kill() (vms-pt1).",
+   "notes": "$WAKE/$HIBER are executive-resident (vms-feb): a sticky wake bit re-tested under hiber_lock, cross-process, no Linux-signal shim. $DELPRC resolves its target in the executive (by pid, any group, gated by WORLD \u2014 the same cross-process control gate $GETJPI uses) and the terminate itself is a real SIGTERM (OVMX-LOCAL, honestly labelled in sys_process.c \u2014 the process genuinely dies). Single-node scope; not visible cluster-wide.\n",
    "plan_ref": "vms-6b8"
   },
   {
@@ -3422,10 +3920,100 @@
    "status": "stub",
    "authenticity": "advisory",
    "scope_1_0": "in",
-   "evidence": "",
+   "evidence": "src/kernel-core/vms_proctab.c",
    "verified_against": null,
    "notes": "Honestly absent: OVMX has no VMS scheduler. Advisory, not faked \u2014 no fabricated priority effects.",
    "plan_ref": "vms-6b8"
+  },
+  {
+   "domain": "languages",
+   "facility": "language-rtl",
+   "facility_name": "Language-specific run-time libraries (FOR$/COB$/BAS$/PAS$)",
+   "id": "for$",
+   "kind": "subsystem",
+   "vms": "Fortran RTL \u2014 formatted/list-directed I/O, intrinsics, VAX-float",
+   "status": "absent",
+   "authenticity": "n/a",
+   "scope_1_0": "undecided",
+   "evidence": "",
+   "verified_against": null,
+   "notes": "0 files on origin/main.",
+   "plan_ref": "vms-082"
+  },
+  {
+   "domain": "languages",
+   "facility": "language-rtl",
+   "facility_name": "Language-specific run-time libraries (FOR$/COB$/BAS$/PAS$)",
+   "id": "cob$",
+   "kind": "subsystem",
+   "vms": "COBOL RTL \u2014 record I/O, packed-decimal arithmetic, ACCEPT/DISPLAY",
+   "status": "absent",
+   "authenticity": "n/a",
+   "scope_1_0": "undecided",
+   "evidence": "",
+   "verified_against": null,
+   "notes": "0 files. Depends on OTS$ packed-decimal (absent).",
+   "plan_ref": "vms-082"
+  },
+  {
+   "domain": "languages",
+   "facility": "language-rtl",
+   "facility_name": "Language-specific run-time libraries (FOR$/COB$/BAS$/PAS$)",
+   "id": "bas$",
+   "kind": "subsystem",
+   "vms": "BASIC RTL \u2014 PRINT/INPUT, string dynamics, virtual arrays",
+   "status": "absent",
+   "authenticity": "n/a",
+   "scope_1_0": "undecided",
+   "evidence": "",
+   "verified_against": null,
+   "notes": "0 files. Depends on varying-string descriptors (absent).",
+   "plan_ref": "vms-082"
+  },
+  {
+   "domain": "languages",
+   "facility": "language-rtl",
+   "facility_name": "Language-specific run-time libraries (FOR$/COB$/BAS$/PAS$)",
+   "id": "pas$",
+   "kind": "subsystem",
+   "vms": "Pascal RTL",
+   "status": "absent",
+   "authenticity": "n/a",
+   "scope_1_0": "undecided",
+   "evidence": "",
+   "verified_against": null,
+   "notes": "0 files.",
+   "plan_ref": "vms-082"
+  },
+  {
+   "domain": "languages",
+   "facility": "language-rtl",
+   "facility_name": "Language-specific run-time libraries (FOR$/COB$/BAS$/PAS$)",
+   "id": "pli$",
+   "kind": "subsystem",
+   "vms": "PL/I RTL",
+   "status": "absent",
+   "authenticity": "n/a",
+   "scope_1_0": "stretch",
+   "evidence": "",
+   "verified_against": null,
+   "notes": "",
+   "plan_ref": "vms-082"
+  },
+  {
+   "domain": "languages",
+   "facility": "language-rtl",
+   "facility_name": "Language-specific run-time libraries (FOR$/COB$/BAS$/PAS$)",
+   "id": "language-rtl$shared",
+   "kind": "subsystem",
+   "vms": "Language-independent RTL floor (LIB$/STR$/MTH$/OTS$) every language links",
+   "status": "partial",
+   "authenticity": "real",
+   "scope_1_0": "in",
+   "evidence": "docs/compat/facilities/ots.yaml",
+   "verified_against": null,
+   "notes": "Catalogued in domain A. Partial: OTS$ packed-decimal + comparison families and descriptor classes A/VS are absent \u2014 exactly the pieces COBOL/BASIC/Fortran need.",
+   "plan_ref": "vms-082"
   },
   {
    "domain": "networking",
@@ -3910,16 +4498,61 @@
   {
    "domain": "toolchain",
    "facility": "librarian",
-   "facility_name": "LIBRARIAN (.OLB Object Libraries)",
-   "id": "librarian$olb-container-decision",
-   "kind": "subsystem",
-   "vms": "LIBRARIAN.EXE \u2014 build/maintain .OLB object libraries",
-   "status": "designed",
-   "authenticity": "n/a",
+   "facility_name": "LIBRARIAN (.OLB Object Libraries + .TLB/.HLB)",
+   "id": "librarian$olb-utility",
+   "kind": "utility",
+   "vms": "LIBRARIAN.EXE \u2014 build/maintain .OLB object libraries (/CREATE /INSERT /DELETE /LIST /EXTRACT)",
+   "status": "implemented",
+   "authenticity": "real",
    "scope_1_0": "in",
-   "evidence": "src/vmslink/link.c:2112",
+   "evidence": "src/vmslink/librarian.c",
    "verified_against": null,
-   "notes": "Decision made: ar whole-archive as .OLB container (Rule 8, VMS .OLB byte format not reproduced). LINK.EXE already ingests ar archives at this evidence line, covering .OLB consumption once wired; no LIBRARIAN.EXE binary, no mk_librarian.sh yet.",
+   "notes": "337-line SYS$SYSTEM image; operations real. Proven end-to-end by src/imgact/test/run_olb_native.sh (LIBRARIAN \u2192 LINK selective pull \u2192 IMGACT activate \u2192 runs) and the ctest toolchain-olb-roundtrip; byte-identical determinism by tests/toolchain/run_mmk_component_build.sh. .OLB container is Rule-8 (see olb-container item).",
+   "plan_ref": "vms-59a"
+  },
+  {
+   "domain": "toolchain",
+   "facility": "librarian",
+   "facility_name": "LIBRARIAN (.OLB Object Libraries + .TLB/.HLB)",
+   "id": "librarian$dcl-library-cmd",
+   "kind": "command",
+   "vms": "DCL LIBRARY command \u2014 /CREATE /INSERT /EXTRACT /LIST (/DELETE for .OLB) across .OLB/.TLB/.HLB",
+   "status": "implemented",
+   "authenticity": "real",
+   "scope_1_0": "in",
+   "evidence": "src/vmsdcl/dcl_library.c",
+   "verified_against": null,
+   "notes": "Shares the .OLB reader/writer with LIBRARIAN.EXE via ovmx_olb.h. HELP reads the compiled .HLB directly (dcl_help.c).",
+   "plan_ref": "vms-59a"
+  },
+  {
+   "domain": "toolchain",
+   "facility": "librarian",
+   "facility_name": "LIBRARIAN (.OLB Object Libraries + .TLB/.HLB)",
+   "id": "librarian$olb-container",
+   "kind": "struct",
+   "vms": ".OLB object-library on-disk container",
+   "status": "implemented",
+   "authenticity": "advisory",
+   "scope_1_0": "in",
+   "evidence": "src/vmslink/include/ovmx_olb.h",
+   "verified_against": null,
+   "notes": "Standard `ar` archive of ELF .OBJ members \u2014 an OVMX design choice (Rule 8), NOT the unpublished VMS LBR byte layout. Inspectable by stock `ar t` (used as an independent test oracle); consumed by LINK.EXE's own ar reader.",
+   "plan_ref": "vms-59a"
+  },
+  {
+   "domain": "toolchain",
+   "facility": "librarian",
+   "facility_name": "LIBRARIAN (.OLB Object Libraries + .TLB/.HLB)",
+   "id": "librarian$text-help-container",
+   "kind": "struct",
+   "vms": ".TLB text / .HLB help library on-disk format",
+   "status": "implemented",
+   "authenticity": "advisory",
+   "scope_1_0": "in",
+   "evidence": "src/vmsdcl/include/dcl/hlb.h",
+   "verified_against": null,
+   "notes": "OVMX 'LBRO' key-indexed binary format (magic/type/module table) \u2014 an OVMX design choice (Rule 8), not VMS binary-compatible. Real create/insert/extract/list + HELP consumption.",
    "plan_ref": "vms-59a"
   },
   {
@@ -3928,73 +4561,28 @@
    "facility_name": "LINK.EXE (Image Linker)",
    "id": "link$core-linker",
    "kind": "utility",
-   "vms": "LINK.EXE image linker \u2014 symbol resolution, relocation, image build",
+   "vms": "LINK.EXE image linker \u2014 symbol resolution, relocation, image build (executable + shareable)",
    "status": "implemented",
    "authenticity": "real",
    "scope_1_0": "in",
    "evidence": "src/vmslink/link.c",
    "verified_against": null,
-   "notes": "2197 lines; 11 test scripts. Semantics real; image-container byte layout Rule-8-labeled (see image-activation/symbol-vectors).",
+   "notes": "~4860 lines; ELF (x86_64/aarch64) + EVAX (Alpha) object loaders, selective ar pull. Semantics real; image-container byte layout Rule-8-labeled (see image-activation/symbol-vectors). Which host architectures OVMX targets is a platform/roadmap concern (release dimension), not a VMS surface.",
    "plan_ref": "vms-ade"
   },
   {
    "domain": "toolchain",
    "facility": "link",
    "facility_name": "LINK.EXE (Image Linker)",
-   "id": "link$target-x86_64",
+   "id": "link$evax-backend",
    "kind": "feature",
-   "vms": "x86_64 (EM_X86_64) link target",
-   "status": "implemented",
+   "vms": "Link native Alpha/VMS (EVAX) objects into shareable/executable images",
+   "status": "verified",
    "authenticity": "real",
    "scope_1_0": "in",
-   "evidence": "src/vmslink/link.c:296",
-   "verified_against": null,
-   "notes": "",
-   "plan_ref": "vms-ade"
-  },
-  {
-   "domain": "toolchain",
-   "facility": "link",
-   "facility_name": "LINK.EXE (Image Linker)",
-   "id": "link$target-aarch64",
-   "kind": "feature",
-   "vms": "aarch64 (EM_AARCH64) link target",
-   "status": "implemented",
-   "authenticity": "real",
-   "scope_1_0": "in",
-   "evidence": "src/vmslink/link.c:296",
-   "verified_against": null,
-   "notes": "",
-   "plan_ref": "vms-ade"
-  },
-  {
-   "domain": "toolchain",
-   "facility": "link",
-   "facility_name": "LINK.EXE (Image Linker)",
-   "id": "link$target-alpha",
-   "kind": "feature",
-   "vms": "Alpha (EM_ALPHA) link target",
-   "status": "absent",
-   "authenticity": "n/a",
-   "scope_1_0": "in",
-   "evidence": "src/vmslink/link.c:1694",
-   "verified_against": null,
-   "notes": "No Alpha backend on origin/main; operator made AXP first-class 2026-08-10. Freestanding Alpha syscall/crt0 exists only on unmerged local branch vms-054-alpha-port. Cross-listed to arch-targets.",
-   "plan_ref": "vms-ade"
-  },
-  {
-   "domain": "toolchain",
-   "facility": "link",
-   "facility_name": "LINK.EXE (Image Linker)",
-   "id": "link$target-vax",
-   "kind": "feature",
-   "vms": "VAX link target",
-   "status": "absent",
-   "authenticity": "n/a",
-   "scope_1_0": "stretch",
-   "evidence": "src/vmslink/link.c:1694",
-   "verified_against": null,
-   "notes": "No VAX backend as a libvmssys/LINK.EXE target; VAX exists only via the separate NetBSD substrate path (see arch-targets). libvmssys VAX backend commit vms-9dc not merged.",
+   "evidence": "src/vmslink/link.c",
+   "verified_against": "src/vmslink/test/run_evax_link.sh, run_evax_shareable.sh, run_muldef_evax.sh, run_evax_ximport.sh \u2014 against binutils-2.43 alpha-dec-vms fixtures (rd vms-e06); EVAX object ingest itself is object-format$evax-object-ingest.",
+   "notes": "Applies the ETIR reloc stack-machine incl. Alpha linkage pairs; produces symbol-vectored shareables the activator loads.",
    "plan_ref": "vms-ade"
   },
   {
@@ -4142,7 +4730,7 @@
    "status": "absent",
    "authenticity": "n/a",
    "scope_1_0": "out",
-   "evidence": "docs/compatibility-contract.md:559",
+   "evidence": "docs/compatibility-contract.md",
    "verified_against": null,
    "notes": "Explicit compatibility-contract decision: TCC integrated assembler is GAS-syntax only; MACRO-32 out of scope.",
    "plan_ref": "vms-801"
@@ -4159,7 +4747,7 @@
    "scope_1_0": "in",
    "evidence": "",
    "verified_against": null,
-   "notes": "No implementation anywhere on origin/main.",
+   "notes": "No implementation anywhere on origin/main; .MSG corpus sources present but unbuildable natively.",
    "plan_ref": "vms-801"
   },
   {
@@ -4174,7 +4762,7 @@
    "scope_1_0": "in",
    "evidence": "src/libvms/rtl",
    "verified_against": null,
-   "notes": "P1-P5 complete on origin/main.",
+   "notes": "P1-P5 complete on origin/main; drive MMK's real parse/CLD path.",
    "plan_ref": "vms-59a"
   },
   {
@@ -4183,13 +4771,13 @@
    "facility_name": "MMS / MMK (Make)",
    "id": "mms-mmk$mmk-exe",
    "kind": "utility",
-   "vms": "MMK.EXE \u2014 make-compatible build utility",
-   "status": "designed",
-   "authenticity": "n/a",
+   "vms": "MMK.EXE \u2014 make-compatible build utility (description-file parse + dependency plan)",
+   "status": "partial",
+   "authenticity": "real",
    "scope_1_0": "in",
-   "evidence": "docs/design-self-host-mmk-spine.md",
+   "evidence": "src/vmslink/mk_mmk.sh",
    "verified_against": null,
-   "notes": "MMK.EXE not built; no mk_mmk.sh, no native-link vector entries.",
+   "notes": "Built as an OVMX-native image (mk_mmk.sh) and as host ctests toolchain-mmk-parse / -component-plan / -component-build / -link-selfhost-plan (tests/toolchain). Parse+plan proven end-to-end via real lib$table_parse + CLI$ compiled-CLD + MMK's own parse_store (run_mmk_parse.sh, oracle = the descrip.mms itself). Actual command EXECUTION (subprocess drive) is a separately-tracked deferred gap (vms-ec70).",
    "plan_ref": "vms-59a"
   },
   {
@@ -4198,13 +4786,13 @@
    "facility_name": "MMS / MMK (Make)",
    "id": "mms-mmk$parse-tables-port",
    "kind": "feature",
-   "vms": "parse_tables.mar C-port (grammar tables for MMS/MMK parser)",
-   "status": "absent",
-   "authenticity": "n/a",
+   "vms": "PARSE_TABLES.MAR -> C grammar tables for the MMS/MMK parser",
+   "status": "implemented",
+   "authenticity": "real",
    "scope_1_0": "in",
-   "evidence": "tests/corpus/tier3-mmk/parse_tables.mar",
+   "evidence": "tests/libvms/mmk_parse_tables.c",
    "verified_against": null,
-   "notes": "Corpus source present as reference; C-port not built (vms-486).",
+   "notes": "vms-486 C-port now built and, under -DOVMX_MMK_PRODUCTION, fires MMK's real parse_store/parse_obj_store (not just the test probe).",
    "plan_ref": "vms-59a"
   },
   {
@@ -4219,7 +4807,7 @@
    "scope_1_0": "in",
    "evidence": "src/vmsscs/scs_mscp_srv.c",
    "verified_against": null,
-   "notes": "Real pread()/pwrite() against the node's actual served volume, not a placeholder. Default read-only; write opt-in (vms-6e1).",
+   "notes": "Real pread()/pwrite() against the node's actual served volume, not a placeholder. Default read-only; write opt-in (vms-6e1). MSCP accept emits op-2 ACCEPT_REQ so a real VAX MOUNT reaches SCS OPEN (vms-257).",
    "plan_ref": "vms-6e1"
   },
   {
@@ -4309,7 +4897,7 @@
    "scope_1_0": "in",
    "evidence": "src/vmsscs/scs_hello.c",
    "verified_against": null,
-   "notes": "AF_PACKET/SOCK_RAW genuine raw frames (requires CAP_NET_RAW) \u2014 not UDP/IP.",
+   "notes": "AF_PACKET/SOCK_RAW genuine raw frames (requires CAP_NET_RAW) \u2014 not UDP/IP. Raw-L2 datalink API closes the SCSD.EXE VAX build (vms-838).",
    "plan_ref": "vms-694"
   },
   {
@@ -4324,7 +4912,7 @@
    "scope_1_0": "in",
    "evidence": "src/vmslink/link.c",
    "verified_against": null,
-   "notes": "Consumes ELF .o objects, not VMS OBJ$ records; relocation/symbol-resolution semantics real, container format is OVMX-original (Rule 8), not VMS-authentic byte layout.",
+   "notes": "Consumes ELF .o objects (OVMX self-host path); relocation/symbol-resolution semantics real, container format is OVMX-original (Rule 8), not VMS-authentic byte layout.",
    "plan_ref": "vms-ade"
   },
   {
@@ -4337,9 +4925,24 @@
    "status": "implemented",
    "authenticity": "real",
    "scope_1_0": "in",
-   "evidence": "src/vmslink/link.c:2112",
+   "evidence": "src/vmslink/link.c",
    "verified_against": null,
-   "notes": "Standard `ar` archive; consumption logic real. Precursor for LIBRARIAN .OLB support (see librarian facility) \u2014 LINK.EXE already ingests ar, so .OLB consumption needs no new LINK.EXE code.",
+   "notes": "Standard `ar` archive (load_archive/load_archive_selective); consumption logic real. .OLB (see librarian facility) is an ar container \u2014 LINK.EXE already ingests it with no format bridge.",
+   "plan_ref": "vms-ade"
+  },
+  {
+   "domain": "toolchain",
+   "facility": "object-format",
+   "facility_name": "Object File Format",
+   "id": "object-format$evax-object-ingest",
+   "kind": "feature",
+   "vms": "LINK.EXE reads native Alpha/VMS (EVAX) object modules from the alpha-dec-vms GCC/binutils port \u2014 records, EGSD psects/symbols, ETIR relocations, materialized content",
+   "status": "verified",
+   "authenticity": "real",
+   "scope_1_0": "in",
+   "evidence": "src/vmslink/evax_read.c",
+   "verified_against": "binutils-2.43 alpha-dec-vms-as EVAX fixtures round-tripped byte-exact and checked vs alpha-dec-vms-objdump \u2014 src/vmslink/test/run_evax_read.sh, run_evax_link.sh, run_evax_shareable.sh, run_evax_vmsrel.sh, run_evax_ximport.sh, run_evax_gvalfold.sh, run_muldef_evax.sh (rd vms-cbe/vms-e06)",
+   "notes": "The native VMS object format (not ELF) \u2014 read unchanged so the Alpha GCC port keeps its VMS identity. Field layouts clean-room from public binutils include/vms (Rule 8). Reader front end (evax_read.c) + reloc application/format dispatch in link.c.",
    "plan_ref": "vms-ade"
   },
   {
@@ -4348,13 +4951,13 @@
    "facility_name": "Object File Format",
    "id": "object-format$vms-obj-records",
    "kind": "struct",
-   "vms": "VAX/Alpha OBJ$ record-based object format (module header, GSD, TIR, EPM records)",
+   "vms": "VAX-era OBJ$ record-based object format (module header, GSD, TIR, EPM records)",
    "status": "absent",
    "authenticity": "n/a",
    "scope_1_0": "out",
    "evidence": "",
    "verified_against": null,
-   "notes": "Not pursued \u2014 OVMX's self-host toolchain uses ELF internally; true VMS object-interchange byte format is out of scope.",
+   "notes": "VAX OBJ$ interchange byte format not pursued. (The Alpha native VMS object format IS now read \u2014 see object-format$evax-object-ingest.)",
    "plan_ref": "vms-ade"
   },
   {
@@ -4363,13 +4966,13 @@
    "facility_name": "ODS-2 on-disk file system + versioning",
    "id": "vmsfs$runtime_fs",
    "kind": "subsystem",
-   "vms": "OVMX runtime file system (vmsfs.ko) \u2014 the boot/runtime fs",
+   "vms": "SYS$DISK runtime file system \u2014 genuine Files-11 ODS-2 over the executive ACP",
    "status": "implemented",
    "authenticity": "real",
    "scope_1_0": "in",
-   "evidence": "src/kernel/vmsfs/vmsfs_ondisk.h",
+   "evidence": "src/kernel-core/vmsfs_acp.c",
    "verified_against": null,
-   "notes": "honestly own format (magic VMFS/VFH2), case-insensitive, versioned, SOGW-protected \u2014 NOT byte-compatible with real ODS-2 by design",
+   "notes": "vms-165 retired the legacy vmsfs.ko VFS driver (its own VMFS/VFH2 format); the runtime now reads/writes a real ODS-2 volume via $ASSIGN + IO$_ACCESS/READVBLK/WRITEVBLK through the ACP, with per-file SOGW protection enforced in acp_check_access",
    "plan_ref": "vms-0f3"
   },
   {
@@ -4399,7 +5002,7 @@
    "scope_1_0": "in",
    "evidence": "src/vmsfs/ods2/ods2_writer.c",
    "verified_against": null,
-   "notes": "not yet oracle round-tripped; some fields are [OVMX-inferred] rather than vendor-doc-cited",
+   "notes": "home-block pair, index bitmap, ten reserved system files, BITMAP.SYS accounting, MFD, caller files/dirs with real FM2 pointers; block-device-backed mode added (vms-6d3b). Not yet oracle round-tripped; some fields are [OVMX-inferred] rather than vendor-doc-cited",
    "plan_ref": "vms-0f3"
   },
   {
@@ -4451,15 +5054,15 @@
    "domain": "file-system",
    "facility": "ods2",
    "facility_name": "ODS-2 on-disk file system + versioning",
-   "id": "ods2$copy_overwrite",
+   "id": "ods2$copy_versioning",
    "kind": "feature",
-   "vms": "COPY/CREATE overwrite behavior vs. versioning",
+   "vms": "COPY output version-defaulting vs. ODS-2 versioning",
    "status": "implemented",
-   "authenticity": "facade-risk",
+   "authenticity": "real",
    "scope_1_0": "in",
-   "evidence": "src/vmsdcl/dcl_cmd_file.c:538",
+   "evidence": "src/vmsdcl/dcl_cmd_file.c",
    "verified_against": null,
-   "notes": "cmd_copy uses fopen(\"wb\") on the existing highest version in place instead of creating ;N+1 \u2014 breaks VMS ODS-2 versioning semantics",
+   "notes": "resolve_out_version (cmd_copy): no output version -> highest+1 (unversioned if none existed), never a silent overwrite; explicit ;n that exists is an error unless /NEW_VERSION bumps to highest+1 \u2014 the old in-place fopen(\"wb\") facade is gone (vendor DCL Dictionary COPY/RENAME defaulting)",
    "plan_ref": "vms-0f3"
   },
   {
@@ -4528,7 +5131,7 @@
    "facility_name": "OTS$ Object-Time-System RTL",
    "id": "ots$_other_implemented",
    "kind": "routine",
-   "vms": "Remaining implemented OTS$ numeric<->string conversion routines beyond the four named above (32/43 declared routines are implemented; VMS ships ~50 total)",
+   "vms": "Remaining implemented OTS$ numeric<->string conversion routines beyond the four named above (33/43 declared routines are implemented; VMS ships ~50 total)",
    "status": "implemented",
    "authenticity": "real",
    "scope_1_0": "in",
@@ -4678,13 +5281,13 @@
    "facility_name": "Privileges (Definition + Enforcement)",
    "id": "sys$mode_transition",
    "kind": "feature",
-   "vms": "Privilege-checked mode escalation gate",
+   "vms": "Privilege-checked access-mode escalation gate ($SETMODE)",
    "status": "verified",
    "authenticity": "real",
    "scope_1_0": "in",
-   "evidence": "src/kernel-core/vms_access.c:108-130",
+   "evidence": "src/kernel-core/vms_access.c:93",
    "verified_against": "lab-VAX SDA (docs/oracle/vax73-privileges.md \u00a72) \u2014 caught SETPRV mismapped to DETACH bit, fixed",
-   "notes": "",
+   "notes": "vms_ioctl_setmode; re-census 2026-08-31 refreshed the line ref (was :108-130).",
    "plan_ref": "vms-8ad"
   },
   {
@@ -4693,13 +5296,13 @@
    "facility_name": "Privileges (Definition + Enforcement)",
    "id": "sys$setprv",
    "kind": "routine",
-   "vms": "vms_ioctl_setprv() \u2014 SETPRV can only narrow within the authorized mask, never exceed it",
+   "vms": "$SETPRV \u2014 enable/disable process privileges within the authorized mask",
    "status": "verified",
    "authenticity": "real",
    "scope_1_0": "in",
-   "evidence": "src/kernel-core/vms_access.c:290",
+   "evidence": "src/kernel-core/vms_access.c:320",
    "verified_against": "lab-VAX SDA READ SYS$SYSTEM:SYSDEF.STB (docs/oracle/vax73-privileges.md \u00a72)",
-   "notes": "",
+   "notes": "vms_ioctl_setprv; SETPRV can only narrow within the authorized mask, never exceed it. Re-census 2026-08-31 refreshed the line ref (was :290).",
    "plan_ref": "vms-8ad"
   },
   {
@@ -4709,12 +5312,12 @@
    "id": "privs$file_access_override",
    "kind": "feature",
    "vms": "SYSPRV/BYPASS/READALL/GRPPRV override normal file protection checks",
-   "status": "absent",
-   "authenticity": "facade-risk",
+   "status": "partial",
+   "authenticity": "real",
    "scope_1_0": "in",
-   "evidence": "src/kernel/vmsfs/vmsfs_blkdev.c:1256",
+   "evidence": "src/kernel-core/vmsfs_acp.c:861",
    "verified_against": null,
-   "notes": "vmsfs_blkdev_permission() checks only uid==0/gid, zero SYSPRV refs \u2014 both over-grants (any root/SSH session) and under-grants (legit-SYSPRV non-root user denied). Tracked vms-f15/vms-36d, unfixed. Cross-listed to protection-acl.",
+   "notes": "RE-CENSUS 2026-08-31: was absent/facade-risk. vms-165 retired the old vmsfs_blkdev_permission() (uid==0/gid only) and the Files-11 ACP's acp_check_access (vmsfs_acp.c:861) now applies privilege overrides: BYPASS (bit 29) lifts all access control, READALL (bit 35) grants read, SYSPRV (bit 28) confers the SYSTEM protection category. GRPPRV is NOT handled \u2014 hence partial, not implemented. Real (does the real thing for the three it honors), so no longer facade-risk. Tracked vms-f15/vms-36d. Cross-listed to protection-acl.",
    "plan_ref": "vms-8ad"
   },
   {
@@ -4723,13 +5326,13 @@
    "facility_name": "File Protection (SOGW/UIC) + ACLs",
    "id": "fileprot$sogw_uic",
    "kind": "feature",
-   "vms": "SOGW protection mask, UIC-based, kernel-enforced (-EACCES on deny)",
-   "status": "implemented",
+   "vms": "SOGW protection mask, UIC-based, executive-enforced (denies on category miss)",
+   "status": "verified",
    "authenticity": "real",
    "scope_1_0": "in",
-   "evidence": "src/kernel/vmsfs/vmsfs_blkdev.c:1252-1330",
-   "verified_against": null,
-   "notes": "",
+   "evidence": "src/kernel-core/vmsfs_acp.c:861",
+   "verified_against": "tests/qemu/test_syssvc_acp_access.c \u2014 SOGW/UIC enforcement proven against a real /dev/vms over the real-VAX ODS-2 fixture (tests/ods2/real_vax_ods2.dsk). Point 6: a re-exec'd child that setgid/setuid'd to [100,100] is refused SS$_NOPRIV where the system-group parent succeeds; point 7: per-file-class protections (SYSUAF World:none, RIGHTSLIST World:R, DCL.EXE World:RE) each pinned. Built by CMake glob + run by tests/qemu/init.sh against a real vms.ko in the positive kernel-executive CI job.",
+   "notes": "RE-CENSUS 2026-08-31: upgraded implemented->verified. vms-165 moved SOGW/UIC enforcement into acp_check_access (nibble-per-category System/Owner/Group/World, set-bit-denies; directory read maps to EXECUTE traversal, vms-548b).",
    "plan_ref": "vms-8ad"
   },
   {
@@ -4742,9 +5345,9 @@
    "status": "stub",
    "authenticity": "advisory",
    "scope_1_0": "in",
-   "evidence": "src/kernel/vmsfs/vmsfs_blkdev.c:1225-1226",
+   "evidence": "src/kernel-core/vmsfs_acp.c:861",
    "verified_against": null,
-   "notes": "Enforcement deferred by design comment; checking D on the file being deleted needs custom VFS hooks beyond current scope",
+   "notes": "RE-CENSUS 2026-08-31: acp_check_access wants only Read/Write (and Execute for directory traversal); the Delete bit is never a wanted right in the check, so it is not enforced \u2014 advisory. Unchanged in effect since 2026-08-13, now confirmed against the ACP path.",
    "plan_ref": "vms-8ad"
   },
   {
@@ -4759,7 +5362,7 @@
    "scope_1_0": "in",
    "evidence": "src/libvms/syssvc/sys_security.c",
    "verified_against": null,
-   "notes": "Correct logic, zero OVMX callers \u2014 computed but unused, honestly inert",
+   "notes": "RE-CENSUS 2026-08-31: correct logic, still ZERO OVMX callers (only starlet.h decl + shr.vec export) \u2014 computed but unused, honestly inert. The ACP enforces access directly (fileprot$sogw_uic), not via $CHKPRO.",
    "plan_ref": "vms-8ad"
   },
   {
@@ -4799,12 +5402,12 @@
    "id": "fileprot$priv_override",
    "kind": "feature",
    "vms": "SYSPRV/BYPASS/READALL/GRPPRV override of normal SOGW checks",
-   "status": "absent",
-   "authenticity": "facade-risk",
+   "status": "partial",
+   "authenticity": "real",
    "scope_1_0": "in",
-   "evidence": "src/kernel/vmsfs/vmsfs_blkdev.c:1256",
+   "evidence": "src/kernel-core/vmsfs_acp.c:861",
    "verified_against": null,
-   "notes": "Tracked vms-f15/vms-36d, unfixed. Full detail under privileges; cross-listed here as the file-access-facing half.",
+   "notes": "RE-CENSUS 2026-08-31: was absent/facade-risk. acp_check_access now honors BYPASS (lifts all), READALL (grants read), and SYSPRV (SYSTEM category) \u2014 real. GRPPRV is not consulted, hence partial. Tracked vms-f15/vms-36d. Full detail under privileges; cross-listed here as the file-access-facing half.",
    "plan_ref": "vms-8ad"
   },
   {
@@ -4814,12 +5417,12 @@
    "id": "queues$manager",
    "kind": "subsystem",
    "vms": "Queue manager \u2014 create/delete/submit/hold/release/status queue entries",
-   "status": "verified",
+   "status": "implemented",
    "authenticity": "real",
    "scope_1_0": "in",
    "evidence": "src/vmsqueue/vmsqueue.c",
-   "verified_against": "tests/vmsqueue/test_vmsqueue.c",
-   "notes": "Real QMAN$MASTER.DAT binary file, flock-serialized, VMS binary time \u2014 not an in-memory placeholder.",
+   "verified_against": null,
+   "notes": "Real QMAN$MASTER.DAT binary file, flock-serialized, VMS binary time \u2014 not an in-memory placeholder; persistence across close/reopen exercised by tests/vmsqueue/test_vmsqueue.c. Implemented (not verified): plain local self-test, and the facility is partial (no batch engine).",
    "plan_ref": "vms-8ad"
   },
   {
@@ -4829,12 +5432,12 @@
    "id": "queues$submit",
    "kind": "command",
    "vms": "SUBMIT \u2014 queue a command procedure as a batch job",
-   "status": "verified",
+   "status": "implemented",
    "authenticity": "real",
    "scope_1_0": "in",
    "evidence": "src/vmsdcl/dcl_builtin.c",
-   "verified_against": "tests/dcl/test_print_submit_coverage.sh",
-   "notes": "Submit-only; see queues$batch-engine \u2014 nothing ever runs the submitted job.",
+   "verified_against": null,
+   "notes": "Submit-only; see queues$batch-engine \u2014 nothing ever runs the submitted job. Exercised by tests/dcl/test_print_submit_coverage.sh (a plain self-test).",
    "plan_ref": "vms-8ad"
   },
   {
@@ -4844,12 +5447,12 @@
    "id": "queues$print",
    "kind": "command",
    "vms": "PRINT \u2014 queue a file to a print queue",
-   "status": "verified",
+   "status": "implemented",
    "authenticity": "real",
    "scope_1_0": "in",
    "evidence": "src/vmsdcl/dcl_builtin.c",
-   "verified_against": "tests/dcl/test_print_submit_coverage.sh",
-   "notes": "Submit-only, same as SUBMIT.",
+   "verified_against": null,
+   "notes": "Submit-only, same as SUBMIT. Exercised by tests/dcl/test_print_submit_coverage.sh.",
    "plan_ref": "vms-8ad"
   },
   {
@@ -4860,11 +5463,11 @@
    "kind": "feature",
    "vms": "Batch execution engine \u2014 dequeues and runs submitted batch jobs",
    "status": "absent",
-   "authenticity": "real",
+   "authenticity": "n/a",
    "scope_1_0": "in",
    "evidence": "src/vmsqueue/vmsqueue.c",
    "verified_against": null,
-   "notes": "Honestly documented absence, not a facade: jobs queue but are never dequeued/run. Any software or SYSTARTUP procedure that submits a batch job and waits on it hangs forever.",
+   "notes": "Honestly documented absence: jobs queue but are never dequeued/run (no dequeue-and-execute path in vmsqueue or ovmx_job_control, which is boot plumbing). Any software or SYSTARTUP procedure that submits a batch job and waits on it hangs forever. The 1.0 gap for this facility.",
    "plan_ref": "vms-8ad"
   },
   {
@@ -4875,11 +5478,11 @@
    "kind": "command",
    "vms": "START/QUEUE, STOP/QUEUE, INITIALIZE/QUEUE \u2014 real VMS queue-management verb syntax",
    "status": "partial",
-   "authenticity": "facade-risk",
+   "authenticity": "advisory",
    "scope_1_0": "in",
    "evidence": "src/vmsdcl/dcl_cmd_set.c",
    "verified_against": null,
-   "notes": "Reshaped as SET QUEUE/START, /STOP, /PAUSE. The underlying function is real; the surface syntax deviates from authentic VMS verbs.",
+   "notes": "Reshaped as SET QUEUE/START,/STOP,/PAUSE (cmd_set_queue). The underlying function is real; typing the VMS spelling START/QUEUE fails honestly with %DCL-W-IVVERB (no silent fake), so this is a documented syntax deviation \u2014 advisory, not facade-risk.",
    "plan_ref": "vms-8ad"
   },
   {
@@ -4889,12 +5492,12 @@
    "id": "queues$show-queue-entry",
    "kind": "command",
    "vms": "SHOW QUEUE / SHOW QUEUE/ENTRY \u2014 display queue and entry status",
-   "status": "verified",
+   "status": "implemented",
    "authenticity": "real",
    "scope_1_0": "in",
    "evidence": "src/vmsdcl/dcl_cmd_show.c",
-   "verified_against": "tests/dcl/test_show_queue_entry.sh",
-   "notes": "",
+   "verified_against": null,
+   "notes": "Reads real queue/entry state. Exercised by tests/dcl/test_show_queue_entry.sh (plain self-test), so implemented not verified.",
    "plan_ref": "vms-8ad"
   },
   {
@@ -4924,7 +5527,7 @@
    "scope_1_0": "in",
    "evidence": "src/libvms/rtl/rightslist.c",
    "verified_against": null,
-   "notes": "",
+   "notes": "RE-CENSUS 2026-08-31: unchanged. The world-readable RIGHTSLIST.DAT is read back through the ACP over a real /dev/vms (tests/qemu/test_syssvc_rightslist.c, vms-5f0); F$IDENTIFIER traverses the concealed-rooted path to it.",
    "plan_ref": "vms-8ad"
   },
   {
@@ -5081,15 +5684,30 @@
    "domain": "programming-interfaces",
    "facility": "rms-api",
    "facility_name": "RMS programmatic API \u2014 entry points, control blocks, file organizations",
+   "id": "sys$extend",
+   "kind": "routine",
+   "vms": "Extend a file's allocation (fab$l_alq blocks)",
+   "status": "partial",
+   "authenticity": "real",
+   "scope_1_0": "in",
+   "evidence": "src/vmsrms/rms_core.c",
+   "verified_against": null,
+   "notes": "vms-bc7: exec IO$_MODIFY allocates fab$l_alq more blocks (BITMAP.SYS + FH2 retrieval-pointer append) without moving EOF; caller-FAB validation is local",
+   "plan_ref": "vms-801"
+  },
+  {
+   "domain": "programming-interfaces",
+   "facility": "rms-api",
+   "facility_name": "RMS programmatic API \u2014 entry points, control blocks, file organizations",
    "id": "sys$get",
    "kind": "routine",
    "vms": "Read next/keyed record",
    "status": "implemented",
-   "authenticity": "facade-risk",
+   "authenticity": "real",
    "scope_1_0": "in",
    "evidence": "src/vmsrms/rms_record.c",
    "verified_against": null,
-   "notes": "dispatch is real; two processes reading/writing the same file are not serialized (vms-407)",
+   "notes": "reads the record's VBNs through the ACP window; a default $GET takes a real per-record $ENQ (EX, child of the FAB file-access lock) \u2014 RMS$_RLK on a live conflict; RAB$M_NLK/RAB$M_RLK read modifiers honored (vms-0dd)",
    "plan_ref": "vms-801"
   },
   {
@@ -5100,11 +5718,11 @@
    "kind": "routine",
    "vms": "Write a new record",
    "status": "implemented",
-   "authenticity": "facade-risk",
+   "authenticity": "real",
    "scope_1_0": "in",
    "evidence": "src/vmsrms/rms_record.c",
    "verified_against": null,
-   "notes": "same locking gap as sys$get (vms-407)",
+   "notes": "writes the record's VBNs through the ACP window; holds no persistent record lock, matching VMS $PUT (vms-0dd)",
    "plan_ref": "vms-801"
   },
   {
@@ -5115,11 +5733,11 @@
    "kind": "routine",
    "vms": "Rewrite current record",
    "status": "implemented",
-   "authenticity": "facade-risk",
+   "authenticity": "real",
    "scope_1_0": "in",
    "evidence": "src/vmsrms/rms_record.c",
    "verified_against": null,
-   "notes": "same locking gap as sys$get (vms-407)",
+   "notes": "gated on the stream holding its record lock (rms_reclock_require_held); serialized by the DLM (vms-0dd)",
    "plan_ref": "vms-801"
   },
   {
@@ -5130,11 +5748,11 @@
    "kind": "routine",
    "vms": "Delete current record",
    "status": "implemented",
-   "authenticity": "facade-risk",
+   "authenticity": "real",
    "scope_1_0": "in",
    "evidence": "src/vmsrms/rms_record.c",
    "verified_against": null,
-   "notes": "same locking gap as sys$get (vms-407)",
+   "notes": "gated on the held record lock like sys$update (vms-0dd)",
    "plan_ref": "vms-801"
   },
   {
@@ -5145,11 +5763,11 @@
    "kind": "routine",
    "vms": "Locate a record without transferring data",
    "status": "implemented",
-   "authenticity": "facade-risk",
+   "authenticity": "real",
    "scope_1_0": "in",
    "evidence": "src/vmsrms/rms_record.c",
    "verified_against": null,
-   "notes": "same locking gap as sys$get (vms-407)",
+   "notes": "same record-lock seam as sys$get (vms-0dd)",
    "plan_ref": "vms-801"
   },
   {
@@ -5164,7 +5782,7 @@
    "scope_1_0": "in",
    "evidence": "src/vmsrms/rms_parse.c",
    "verified_against": null,
-   "notes": "concealed/rooted device attrs reach the executive (vms-d8e); no executive device/volume DB behind it",
+   "notes": "device-field logical names resolve iteratively through the executive LNM$FILE_DEV incl. concealed/rooted attrs (vms-d8e, vms-240); remaining gap is an executive device/volume DB (vms-dv1)",
    "plan_ref": "vms-801"
   },
   {
@@ -5179,7 +5797,22 @@
    "scope_1_0": "in",
    "evidence": "src/vmsrms/rms_search.c",
    "verified_against": null,
-   "notes": "readdir+fnmatch, private per-process snapshot",
+   "notes": "ACP $SEARCH; distinguishes RMS$_DNF (no such dir) from RMS$_NMF (no match)",
+   "plan_ref": "vms-801"
+  },
+  {
+   "domain": "programming-interfaces",
+   "facility": "rms-api",
+   "facility_name": "RMS programmatic API \u2014 entry points, control blocks, file organizations",
+   "id": "rms$file_share_locking",
+   "kind": "feature",
+   "vms": "File-level share/access arbitration (FAB fac/shr flags)",
+   "status": "implemented",
+   "authenticity": "real",
+   "scope_1_0": "in",
+   "evidence": "src/vmsrms/rms_core.c",
+   "verified_against": null,
+   "notes": "vms-50e: sys$open/create map fab$b_fac/fab$b_shr to a DLM lock mode (NL/CR/CW/PR/PW/EX) $ENQ'd on the file's FID with NOQUEUE; RMS$_FLK on a real conflict, $DEQ'd at sys$close",
    "plan_ref": "vms-801"
   },
   {
@@ -5188,13 +5821,13 @@
    "facility_name": "RMS programmatic API \u2014 entry points, control blocks, file organizations",
    "id": "rms$record_locking",
    "kind": "feature",
-   "vms": "Cross-process record/file locking and share-access arbitration (FAB share flags)",
-   "status": "absent",
-   "authenticity": "facade-risk",
+   "vms": "Cross-process record locking (RAB rop modifiers)",
+   "status": "implemented",
+   "authenticity": "real",
    "scope_1_0": "in",
-   "evidence": "src/vmsrms/rms_core.c",
+   "evidence": "src/vmsrms/rms_record.c",
    "verified_against": null,
-   "notes": "two processes opening/reading/writing the same file are not serialized by anything RMS does (vms-407)",
+   "notes": "vms-0dd: per-record $ENQ, a child of the FAB file-access lock, arbitrated by the executive DLM; the one honest degradation is the non-ACP/POSIX-defer handle (access_lkid==0), which holds nothing and passes status through",
    "plan_ref": "vms-801"
   },
   {
@@ -5374,7 +6007,7 @@
    "scope_1_0": "in",
    "evidence": "src/vmsrms/rms_rel.c",
    "verified_against": null,
-   "notes": "status-byte cells; no locking (see rms$record_locking)",
+   "notes": "status-byte cells; record locking now via the DLM (see rms$record_locking)",
    "plan_ref": "vms-801"
   },
   {
@@ -5438,51 +6071,6 @@
    "plan_ref": "vms-694"
   },
   {
-   "domain": "toolchain",
-   "facility": "self-host-compiler",
-   "facility_name": "Self-Hosting Compiler (tcc -> rustc)",
-   "id": "self-host-compiler$tcc-selfhost",
-   "kind": "feature",
-   "vms": "tcc compiles its own source inside OVMX (S2 self-hosting)",
-   "status": "verified",
-   "authenticity": "real",
-   "scope_1_0": "in",
-   "evidence": "src/imgact/test/run_tcc_selfhost.sh",
-   "verified_against": "src/imgact/test/run_tcc_selfhost.sh \u2014 gen2 == gen3 byte-identical (vms-4ba)",
-   "notes": "",
-   "plan_ref": "vms-ade"
-  },
-  {
-   "domain": "toolchain",
-   "facility": "self-host-compiler",
-   "facility_name": "Self-Hosting Compiler (tcc -> rustc)",
-   "id": "self-host-compiler$build-com",
-   "kind": "utility",
-   "vms": "BUILD.COM \u2014 zero-bash build orchestration",
-   "status": "implemented",
-   "authenticity": "real",
-   "scope_1_0": "in",
-   "evidence": "src/imgact/test/run_build_com_native.sh",
-   "verified_against": null,
-   "notes": "Zero-bash (vms-251).",
-   "plan_ref": "vms-ade"
-  },
-  {
-   "domain": "toolchain",
-   "facility": "self-host-compiler",
-   "facility_name": "Self-Hosting Compiler (tcc -> rustc)",
-   "id": "self-host-compiler$s3-s5-images",
-   "kind": "feature",
-   "vms": "S3-S5: assembler / LIBRARIAN / MMS / editor as OVMX-native images",
-   "status": "partial",
-   "authenticity": "real",
-   "scope_1_0": "in",
-   "evidence": "",
-   "verified_against": null,
-   "notes": "RTL floor complete; the images themselves (assembler, LIBRARIAN.EXE, MMK.EXE, editor) not yet built. Tracked vms-678.",
-   "plan_ref": "vms-ade"
-  },
-  {
    "domain": "clustering",
    "facility": "shadowing",
    "facility_name": "Volume shadowing",
@@ -5530,46 +6118,61 @@
   {
    "domain": "networking",
    "facility": "ssh",
-   "facility_name": "SSH (OVMX-Added Remote Access)",
-   "id": "ssh$vmsshd-daemon",
+   "facility_name": "SSH remote login",
+   "id": "ssh$remote-login",
    "kind": "feature",
-   "vms": "vmsshd \u2014 SSH daemon, LOGINOUT-equivalent PCB init, execs vmsdcl --login",
+   "vms": "SSH in and get an authenticated interactive DCL/LOGINOUT session",
+   "status": "implemented",
+   "authenticity": "real",
+   "scope_1_0": "in",
+   "evidence": "src/vmsssh/sshd_session.c",
+   "verified_against": null,
+   "notes": "Wrapped OpenSSH sshd runs a full authenticated session over BGn:, proven end-to-end by tests/qemu/test_syssvc_ssh_server.c (stock client, remote command byte-exact) + test_syssvc_ssh_kex.c, against a real /dev/vms (honest Rule-9 skip with no executive; rd vms-0cd). Not yet verified-status: the SSH service is disabled in TCPIP$SERVICE.DAT so the shipped bootable does not auto-launch it (vms-9ef).",
+   "plan_ref": "vms-67f"
+  },
+  {
+   "domain": "networking",
+   "facility": "ssh",
+   "facility_name": "SSH remote login",
+   "id": "ssh$server-daemon",
+   "kind": "utility",
+   "vms": "VMSSSHD.EXE \u2014 the OVMX SSH server image",
    "status": "implemented",
    "authenticity": "real",
    "scope_1_0": "in",
    "evidence": "src/vmsssh/vmssshd.c",
    "verified_against": null,
-   "notes": "903 lines, libssh-based, full PCB init.",
+   "notes": "Built + installed to SYS$SYSTEM (src/vmsssh/CMakeLists.txt); wraps unmodified OpenSSH behind the BGn: sockets veneer.",
    "plan_ref": "vms-67f"
   },
   {
    "domain": "networking",
    "facility": "ssh",
-   "facility_name": "SSH (OVMX-Added Remote Access)",
-   "id": "ssh$pid1-wiring",
+   "facility_name": "SSH remote login",
+   "id": "ssh$cred-drop",
    "kind": "feature",
-   "vms": "PID 1 startup wiring for sshd",
-   "status": "absent",
-   "authenticity": "facade-risk",
+   "vms": "SSH session credential drop to the authenticated SYSUAF UIC",
+   "status": "implemented",
+   "authenticity": "real",
    "scope_1_0": "in",
-   "evidence": "src/ovmx_init",
+   "evidence": "src/vmsssh/cred_drop.c",
    "verified_against": null,
-   "notes": "start_sshd() call deleted \u2014 no grep hit under src/ovmx_init on origin/main; also no NIC to reach it even if wired (see tcpip-services). vmsshd is unreachable in the shipped system.",
+   "notes": "Ordered, permanent, fail-closed drop (setgroups/setgid/setuid) exercised as the real product logic by tests/vmsssh/test_cred_drop.c; the wrapped-sshd path uses OpenSSH's own permanently_set_uid from the SYSUAF UIC (sshd_auth.c). Fixes the earlier euid=0 no-drop gap (vms-49e).",
    "plan_ref": "vms-67f"
   },
   {
    "domain": "networking",
    "facility": "ssh",
-   "facility_name": "SSH (OVMX-Added Remote Access)",
-   "id": "ssh$credential-drop",
+   "facility_name": "SSH remote login",
+   "id": "ssh$identity-terminal-map",
    "kind": "feature",
-   "vms": "Privilege drop from root to the authenticated user's UIC/credentials",
-   "status": "absent",
-   "authenticity": "facade-risk",
+   "vms": "SYSUAF authentication + VMS identity / terminal mapping for the session",
+   "status": "implemented",
+   "authenticity": "real",
    "scope_1_0": "in",
-   "evidence": "src/vmsssh/vmssshd.c",
+   "evidence": "src/vmsssh/sshd_auth.c",
    "verified_against": null,
-   "notes": "Every SSH session runs euid=0 \u2014 no credential drop. Security facade-risk distinct from the reachability gap. Cross-listed to Draper register.",
+   "notes": "sshd_auth.c (SYSUAF lookup -> struct passwd), ssh_ident.c (vms_kif_setident), term_map.c \u2014 each unit-tested (tests/vmsssh/test_sshd_auth.c, test_ssh_ident.c, test_term_mapping.c).",
    "plan_ref": "vms-67f"
   },
   {
@@ -5579,12 +6182,12 @@
    "id": "stsdef$_bitfield",
    "kind": "struct",
    "vms": "STS$V/M/S_* bitfield layout + $VMS_STATUS_SUCCESS success-test macro",
-   "status": "verified",
+   "status": "implemented",
    "authenticity": "real",
    "scope_1_0": "in",
    "evidence": "src/libvms/include/stsdef.h",
-   "verified_against": "VMS Programming Concepts Manual Ch. 8 / System Services Reference Manual status-value bitfield layout",
-   "notes": "",
+   "verified_against": null,
+   "notes": "matches the documented vendor status-value bitfield layout; not oracle-verified (no lab/conformance capture pins it), so implemented not verified",
    "plan_ref": "vms-801"
   },
   {
@@ -5599,7 +6202,7 @@
    "scope_1_0": "in",
    "evidence": "src/libvms/include/ssdef.h",
    "verified_against": null,
-   "notes": "95 defined; common/executive subset, long tail absent",
+   "notes": "111 defined; common/executive subset, long tail absent",
    "plan_ref": "vms-801"
   },
   {
@@ -5614,7 +6217,7 @@
    "scope_1_0": "in",
    "evidence": "src/libvms/include/rmsdef.h",
    "verified_against": null,
-   "notes": "81 defined",
+   "notes": "83 defined",
    "plan_ref": "vms-801"
   },
   {
@@ -5625,11 +6228,11 @@
    "kind": "routine",
    "vms": "Message text table consumed by SYS$GETMSG (VMS ships real text for ~176 SS$+RMS$ codes)",
    "status": "partial",
-   "authenticity": "facade-risk",
+   "authenticity": "advisory",
    "scope_1_0": "in",
-   "evidence": "src/libvms/syssvc/sys_msg.c",
+   "evidence": "src/libvms/status.c",
    "verified_against": null,
-   "notes": "51/176 have oracle-pinned text; unknown codes fall back to generic non-authentic text",
+   "notes": "51 codes (44 SS$ + 8 RMS$) carry real text in known_codes[]; a code not in the table decodes honestly to 'unknown status code' and an unknown facility to 'NONAME' \u2014 degrades honestly, no invented text. Ident audit vs oracle tracked vms-916.",
    "plan_ref": "vms-801"
   },
   {
@@ -5642,9 +6245,9 @@
    "status": "stub",
    "authenticity": "real",
    "scope_1_0": "in",
-   "evidence": "src/libvms/include/stsdef.h",
+   "evidence": "src/libvms/syssvc/sys_msg.c",
    "verified_against": null,
-   "notes": "6 defined (SYSTEM,RMS,CLI,LIB,STR,MTH); unknown facilities decode to generic NONAME, honestly",
+   "notes": "facility_name() decodes 6 (SYSTEM,RMS,CLI,LIB,MTH,OTS); unknown facilities decode to generic NONAME, honestly",
    "plan_ref": "vms-801"
   },
   {
@@ -6032,9 +6635,9 @@
    "status": "implemented",
    "authenticity": "advisory",
    "scope_1_0": "in",
-   "evidence": "src/vmslink/link.c",
+   "evidence": "src/vmslink/include/ovmx_symvec.h",
    "verified_against": null,
-   "notes": "Position-bound binding semantics real; byte layout OVMX-original (Rule 8, VMS layout not public).",
+   "notes": "Position-bound binding semantics real (ELF + EVAX shareable paths); byte layout OVMX-original (Rule 8, VMS layout not public). Exercised by run_symvec_activation.sh / run_evax_shareable.sh.",
    "plan_ref": "vms-ade"
   },
   {
@@ -6334,7 +6937,7 @@
    "scope_1_0": "in",
    "evidence": "src/libvms/syssvc/sys_msg.c",
    "verified_against": null,
-   "notes": "",
+   "notes": "reads the compiled-in known_codes[] table in status.c (51 codes); a code absent decodes honestly to 'unknown status code'",
    "plan_ref": "vms-801"
   },
   {
@@ -6379,7 +6982,7 @@
    "scope_1_0": "in",
    "evidence": "src/libvms/syssvc/sys_assign.c",
    "verified_against": null,
-   "notes": "console channel executive-routed (real); other channels are private per-process fds, invisible cross-process",
+   "notes": "console/mailbox/BGn: channels executive-routed (real, cross-process); ordinary channels are private per-process fds",
    "plan_ref": "vms-801"
   },
   {
@@ -6394,7 +6997,7 @@
    "scope_1_0": "in",
    "evidence": "src/libvms/syssvc/sys_assign.c",
    "verified_against": null,
-   "notes": "same console/other-channel split as sys$assign",
+   "notes": "same executive/private-channel split as sys$assign",
    "plan_ref": "vms-801"
   },
   {
@@ -6409,7 +7012,7 @@
    "scope_1_0": "in",
    "evidence": "src/libvms/syssvc/sys_qio.c",
    "verified_against": null,
-   "notes": "console channel executive-routed (real); other channels are private per-process fds",
+   "notes": "console/mailbox/BGn: channels executive-routed (real); ordinary channels are private per-process fds with no cross-process I/O queue",
    "plan_ref": "vms-801"
   },
   {
@@ -6424,7 +7027,7 @@
    "scope_1_0": "in",
    "evidence": "src/libvms/syssvc/sys_qio.c",
    "verified_against": null,
-   "notes": "same console/other-channel split as sys$qio",
+   "notes": "same executive/private-channel split as sys$qio",
    "plan_ref": "vms-801"
   },
   {
@@ -6799,7 +7402,7 @@
    "scope_1_0": "in",
    "evidence": "src/libvms/syssvc/sys_process.c",
    "verified_against": null,
-   "notes": "",
+   "notes": "fork()+execve() + executive PCB registration; inherits identity; returns the executive-assigned VMS PID in pidadr",
    "plan_ref": "vms-801"
   },
   {
@@ -6814,7 +7417,7 @@
    "scope_1_0": "in",
    "evidence": "src/libvms/syssvc/sys_process.c",
    "verified_against": null,
-   "notes": "",
+   "notes": "target resolved through the executive by prcnam (caller's UIC group) or VMS PID; executive SS$_NONEXPR, never a raw kill on a Linux pid",
    "plan_ref": "vms-801"
   },
   {
@@ -6844,7 +7447,7 @@
    "scope_1_0": "in",
    "evidence": "src/libvms/syssvc/sys_process.c",
    "verified_against": null,
-   "notes": "",
+   "notes": "runs sys$dclexh exit handlers LIFO",
    "plan_ref": "vms-801"
   },
   {
@@ -6855,11 +7458,11 @@
    "kind": "routine",
    "vms": "Wake a hibernating/suspended process, by process name or ID",
    "status": "implemented",
-   "authenticity": "facade-risk",
+   "authenticity": "advisory",
    "scope_1_0": "in",
-   "evidence": "src/libvms/syssvc/sys_misc.c",
+   "evidence": "src/libvms/syssvc/sys_process.c",
    "verified_against": null,
-   "notes": "prcnam argument silently discarded; acts on the calling Linux PID only",
+   "notes": "routes through the executive (vms_kif_wake) by pidadr or self; prcnam-by-name is not resolved (documented gap)",
    "plan_ref": "vms-801"
   },
   {
@@ -6870,11 +7473,11 @@
    "kind": "routine",
    "vms": "Suspend a process",
    "status": "implemented",
-   "authenticity": "facade-risk",
+   "authenticity": "advisory",
    "scope_1_0": "in",
-   "evidence": "src/libvms/syssvc/sys_misc.c",
+   "evidence": "src/libvms/syssvc/sys_process.c",
    "verified_against": null,
-   "notes": "prcnam argument silently discarded; acts on the calling Linux PID only",
+   "notes": "kill(SIGSTOP) on pidadr, or the caller when none; prcnam-only targeting silently acts on the caller (documented gap)",
    "plan_ref": "vms-801"
   },
   {
@@ -6885,11 +7488,26 @@
    "kind": "routine",
    "vms": "Resume a suspended process",
    "status": "implemented",
-   "authenticity": "facade-risk",
+   "authenticity": "advisory",
    "scope_1_0": "in",
-   "evidence": "src/libvms/syssvc/sys_misc.c",
+   "evidence": "src/libvms/syssvc/sys_process.c",
    "verified_against": null,
-   "notes": "prcnam argument silently discarded; acts on the calling Linux PID only",
+   "notes": "kill(SIGCONT) on pidadr, or the caller when none; prcnam-only targeting silently acts on the caller (documented gap)",
+   "plan_ref": "vms-801"
+  },
+  {
+   "domain": "programming-interfaces",
+   "facility": "sys-process",
+   "facility_name": "SYS$ Process Control",
+   "id": "sys$forcex",
+   "kind": "routine",
+   "vms": "Force a process to exit",
+   "status": "implemented",
+   "authenticity": "advisory",
+   "scope_1_0": "in",
+   "evidence": "src/libvms/syssvc/sys_process.c",
+   "verified_against": null,
+   "notes": "kill(SIGUSR1) on pidadr, or sys$exit on the caller when none; prcnam-only targeting silently acts on the caller (documented gap)",
    "plan_ref": "vms-801"
   },
   {
@@ -6902,24 +7520,9 @@
    "status": "implemented",
    "authenticity": "facade-risk",
    "scope_1_0": "in",
-   "evidence": "src/libvms/syssvc/sys_misc.c",
+   "evidence": "src/libvms/syssvc/sys_process.c",
    "verified_against": null,
-   "notes": "prcnam argument silently discarded; acts on the calling Linux PID only",
-   "plan_ref": "vms-801"
-  },
-  {
-   "domain": "programming-interfaces",
-   "facility": "sys-process",
-   "facility_name": "SYS$ Process Control",
-   "id": "sys$forcex",
-   "kind": "routine",
-   "vms": "Force a process to exit",
-   "status": "implemented",
-   "authenticity": "facade-risk",
-   "scope_1_0": "in",
-   "evidence": "src/libvms/syssvc/sys_misc.c",
-   "verified_against": null,
-   "notes": "prcnam argument silently discarded; acts on the calling Linux PID only",
+   "notes": "discards BOTH pidadr and prcnam; always sets the CALLER's priority (getpriority/setpriority on self) yet returns success for any target",
    "plan_ref": "vms-801"
   },
   {
@@ -6949,7 +7552,7 @@
    "scope_1_0": "in",
    "evidence": "",
    "verified_against": null,
-   "notes": "",
+   "notes": "no $SETPRN service; only an internal vms_kif_setprn used by $CREPRC to stamp the child name",
    "plan_ref": "vms-801"
   },
   {
@@ -6992,9 +7595,9 @@
    "status": "implemented",
    "authenticity": "real",
    "scope_1_0": "in",
-   "evidence": "src/libvms/syssvc/sys_misc.c",
+   "evidence": "src/libvms/syssvc/sys_process.c",
    "verified_against": null,
-   "notes": "",
+   "notes": "target resolved through the executive by prcnam (caller's UIC group), VMS PID, or self",
    "plan_ref": "vms-801"
   },
   {
@@ -7007,7 +7610,7 @@
    "status": "implemented",
    "authenticity": "real",
    "scope_1_0": "in",
-   "evidence": "src/libvms/syssvc/sys_misc.c",
+   "evidence": "src/libvms/syssvc/sys_process.c",
    "verified_against": null,
    "notes": "",
    "plan_ref": "vms-801"
@@ -7052,9 +7655,9 @@
    "status": "partial",
    "authenticity": "real",
    "scope_1_0": "in",
-   "evidence": "src/libvms/syssvc/sys_misc.c",
+   "evidence": "src/libvms/syssvc/sys_process.c",
    "verified_against": null,
-   "notes": "most common item codes implemented; not exhaustive vs VMS's full set",
+   "notes": "most common item codes implemented; not exhaustive vs VMS's full set (JPI in sys_process.c, SYI in sys_misc.c)",
    "plan_ref": "vms-801"
   },
   {
@@ -7065,11 +7668,11 @@
    "kind": "routine",
    "vms": "Enable/disable process privileges",
    "status": "implemented",
-   "authenticity": "advisory",
+   "authenticity": "real",
    "scope_1_0": "in",
-   "evidence": "src/libvms/syssvc/sys_security.c",
+   "evidence": "src/libvms/syssvc/sys_misc.c",
    "verified_against": null,
-   "notes": "privileges tracked in the PCB; no privileged-mode transition unless already privileged",
+   "notes": "executive-authoritative via vms_kif_setprv: authorizes against the permanent/authorized mask (SS$_NOTALLPRIV / SS$_NOPRIV), owns the state, fails honestly if /dev/vms unreachable (INV-6); PCB is a cache, not the authority",
    "plan_ref": "vms-801"
   },
   {
@@ -7166,6 +7769,21 @@
    "domain": "programming-interfaces",
    "facility": "sys-time",
    "facility_name": "SYS$ Time & Timers",
+   "id": "sys$getutc",
+   "kind": "routine",
+   "vms": "Get the current UTC time (128-bit UTC binary)",
+   "status": "implemented",
+   "authenticity": "real",
+   "scope_1_0": "in",
+   "evidence": "src/libvms/syssvc/sys_time.c",
+   "verified_against": null,
+   "notes": "",
+   "plan_ref": "vms-801"
+  },
+  {
+   "domain": "programming-interfaces",
+   "facility": "sys-time",
+   "facility_name": "SYS$ Time & Timers",
    "id": "sys$setimr",
    "kind": "routine",
    "vms": "Set a timer request (AST/event-flag at expiration)",
@@ -7234,7 +7852,7 @@
    "scope_1_0": "in",
    "evidence": "tools/vms_sysgen.c",
    "verified_against": null,
-   "notes": "~6 of ~600 VMS tunables; thin but genuinely dynamic (SET/SHOW round-trips to a real parameter file), not a facade",
+   "notes": "RE-CENSUS 2026-08-31: unchanged. ~6 of ~600 VMS tunables; thin but genuinely dynamic (SET/SHOW round-trips to a real parameter file), not a facade.",
    "plan_ref": "vms-8ad"
   },
   {
@@ -7249,7 +7867,7 @@
    "scope_1_0": "in",
    "evidence": "",
    "verified_against": null,
-   "notes": "No separate implementation found",
+   "notes": "No separate implementation found.",
    "plan_ref": "vms-8ad"
   },
   {
@@ -7273,11 +7891,11 @@
    "facility_name": "SYSUAF \u2014 Accounts + Login Authentication",
    "id": "sysuaf$authenticate",
    "kind": "routine",
-   "vms": "sysuaf_authenticate() \u2014 SHA-256 password check against stored hash",
+   "vms": "sysuaf_authenticate() \u2014 Purdy/hashed password check against stored quadword",
    "status": "implemented",
    "authenticity": "real",
    "scope_1_0": "in",
-   "evidence": "src/libvms/rtl/sysuaf.c:477",
+   "evidence": "src/libvms/rtl/sysuaf.c:319",
    "verified_against": null,
    "notes": "",
    "plan_ref": "vms-8ad"
@@ -7288,13 +7906,13 @@
    "facility_name": "SYSUAF \u2014 Accounts + Login Authentication",
    "id": "sysuaf$disuser",
    "kind": "feature",
-   "vms": "UAI$M_DISUSER \u2014 interactive login disabled for account",
-   "status": "absent",
-   "authenticity": "facade-risk",
+   "vms": "UAI$M_DISUSER/DISACNT \u2014 interactive login disabled for account",
+   "status": "implemented",
+   "authenticity": "real",
    "scope_1_0": "in",
-   "evidence": "src/libvms/include/uaidef.h:142",
+   "evidence": "src/libvms/rtl/sysuaf.c:389",
    "verified_against": null,
-   "notes": "Bit defined; sysuaf_authenticate() never reads it \u2014 a disabled account logs in normally",
+   "notes": "vms-c8fa (re-census 2026-08-31): now READ at login. sysuaf_interactive_login_permitted() checks DISUSER|DISACNT and is enforced BEFORE start_session() in both console LOGINOUT (tools/vms_login.c:~740) and SSH (src/vmsssh/sshd_auth.c:41) \u2014 a disabled account is refused with the same generic failure text even with the correct password. Was absent/facade-risk on 2026-08-13.",
    "plan_ref": "vms-8ad"
   },
   {
@@ -7304,12 +7922,12 @@
    "id": "sysuaf$captive",
    "kind": "feature",
    "vms": "UAI$M_CAPTIVE \u2014 restrict account to captive command procedure",
-   "status": "absent",
-   "authenticity": "facade-risk",
+   "status": "implemented",
+   "authenticity": "real",
    "scope_1_0": "in",
-   "evidence": "src/libvms/include/uaidef.h:133",
+   "evidence": "src/libvms/rtl/sysuaf.c:399",
    "verified_against": null,
-   "notes": "Bit defined, zero readers",
+   "notes": "vms-c8fa (re-census 2026-08-31): sysuaf_account_captive() now read. SSH auth passes --captive to vmsdcl (src/vmsssh/sshd_auth.c:151); DCL enforces it (src/vmsdcl/dcl_main.c:614+ \u2014 Ctrl-Y disabled, REPL suppressed, logs out after the login procedure). Was absent/facade-risk on 2026-08-13.",
    "plan_ref": "vms-8ad"
   },
   {
@@ -7324,7 +7942,7 @@
    "scope_1_0": "in",
    "evidence": "src/libvms/include/uaidef.h:154",
    "verified_against": null,
-   "notes": "Bit defined, zero readers; no login-limit enforcement either",
+   "notes": "Bit defined (uaidef.h:154), still ZERO readers \u2014 no password-expiration or login-limit enforcement. A stale/expired password logs in normally. The only remaining sysuaf login-flag facade after vms-c8fa.",
    "plan_ref": "vms-8ad"
   },
   {
@@ -7333,58 +7951,163 @@
    "facility_name": "SYSUAF \u2014 Accounts + Login Authentication",
    "id": "sysuaf$ssh_credential_drop",
    "kind": "feature",
-   "vms": "Process credentials match the authenticated SYSUAF identity after login",
-   "status": "absent",
-   "authenticity": "facade-risk",
+   "vms": "Process credentials match the authenticated SYSUAF identity after SSH login",
+   "status": "implemented",
+   "authenticity": "real",
    "scope_1_0": "in",
-   "evidence": "src/vmsssh/vmssshd.c",
+   "evidence": "src/vmsssh/vmssshd.c:612",
    "verified_against": null,
-   "notes": "Console LOGINOUT drops correctly via vms_kif_setident; vmssshd.c authenticates against SYSUAF (sysuaf_authenticate(), line ~237) but never calls setuid/setgid/seteuid \u2014 zero hits in the file. Transport mechanics are networking's; this is the SYSUAF-side credential-drop failure.",
+   "notes": "vms-49e/vms-6ae (re-census 2026-08-31): FIXED. vmssshd now (a) establishes the authenticated identity in the executive via vms_kif_setident, fail-closed _exit(1) on refusal (vmssshd.c:~446, INV-6), and (b) performs a permanent setgid-before-setuid UIC drop via ovmx_cred_drop_to_uic() (vmssshd.c:612) BEFORE execl of vmsdcl, fatal on failure. Unit-tested (tests/vmsssh/test_cred_drop.c, test_ssh_ident.c). Was absent/facade-risk (session ran as euid=0/root) on 2026-08-13.",
    "plan_ref": "vms-8ad"
   },
   {
    "domain": "networking",
    "facility": "tcpip-services",
-   "facility_name": "TCP/IP Services (UCX QIO + Sockets + EWA0:/BGn:)",
-   "id": "tcpip-services$ucx-qio-socket-api",
+   "facility_name": "TCP/IP Services (UCX QIO + Sockets + BGn:/ETH0:)",
+   "id": "tcpip-services$bg-inet-device",
    "kind": "feature",
-   "vms": "UCX QIO-based / C-socket network API for VMS programs",
-   "status": "absent",
-   "authenticity": "n/a",
+   "vms": "INET pseudo-device BGn: \u2014 $ASSIGN TCPIP$DEVICE: + $QIO (IO$_SETMODE/IO$_ACCESS/IO$_READVBLK/IO$_WRITEVBLK/IO$_DEACCESS) TCP socket path, executive-resident",
+   "status": "verified",
+   "authenticity": "real",
    "scope_1_0": "in",
-   "evidence": "docs/design-tcpip-services-ovmx.md",
-   "verified_against": null,
-   "notes": "No src/vmstcpip/. No BG: device, no QIO network path, no usable socket API.",
+   "evidence": "src/kernel/vms_bg_datafd.c",
+   "verified_against": "tests/qemu/test_syssvc_bg_echo.c \u2014 a VMS program TCP round-trips a loopback echo via the public system services against a REAL /dev/vms (honest SS$_NOSUCHDEV/EXIT_SKIP with no executive); + the facility_defects negctl gate 'bg-recv-length-zeroed' (vms-527)",
+   "notes": "The socket is executive-resident (vms.ko), the analogue of the executive mailbox; no userspace socket, exactly as VMS BGn: is a driver not a library.",
    "plan_ref": "vms-67f"
   },
   {
    "domain": "networking",
    "facility": "tcpip-services",
-   "facility_name": "TCP/IP Services (UCX QIO + Sockets + EWA0:/BGn:)",
+   "facility_name": "TCP/IP Services (UCX QIO + Sockets + BGn:/ETH0:)",
+   "id": "tcpip-services$sockets-veneer",
+   "kind": "feature",
+   "vms": "BSD-sockets RTL veneer (DECC$SOCKET) \u2014 socket/connect/send/recv translated to $QIO on BGn:",
+   "status": "implemented",
+   "authenticity": "real",
+   "scope_1_0": "in",
+   "evidence": "src/vmstcpip/sockets/vms_bgsock.c",
+   "verified_against": null,
+   "notes": "707-line veneer; app speaks only BSD sockets, never BGn:/$QIO. Exercised by the qemu harness (tests/qemu/CMakeLists.txt) alongside the BGn: driver; used by the wrapped OpenSSH clients/daemon.",
+   "plan_ref": "vms-67f"
+  },
+  {
+   "domain": "networking",
+   "facility": "tcpip-services",
+   "facility_name": "TCP/IP Services (UCX QIO + Sockets + BGn:/ETH0:)",
+   "id": "tcpip-services$client-tools",
+   "kind": "utility",
+   "vms": "TCP/IP client TOOLS \u2014 DCL TELNET + FTP over BGn:",
+   "status": "implemented",
+   "authenticity": "real",
+   "scope_1_0": "in",
+   "evidence": "src/vmstcpip/services/tcpip_client.h",
+   "verified_against": null,
+   "notes": "TELNET/FTP protocol engines driving BGn: the ordinary $ASSIGN/$QIO way; header-only static-inline so the test exercises the real product logic. Guarded by the negctl gate 'tcpip-ftp-get-length-dropped' (vms-dbb). Honest SS$_NOSUCHDEV with no executive.",
+   "plan_ref": "vms-67f"
+  },
+  {
+   "domain": "networking",
+   "facility": "tcpip-services",
+   "facility_name": "TCP/IP Services (UCX QIO + Sockets + BGn:/ETH0:)",
+   "id": "tcpip-services$ping",
+   "kind": "utility",
+   "vms": "PING (ICMP echo) over BGn: raw socket",
+   "status": "implemented",
+   "authenticity": "real",
+   "scope_1_0": "in",
+   "evidence": "src/vmstcpip/services/tcpip_ping.h",
+   "verified_against": null,
+   "notes": "IO$_SETMODE P2=IO$K_SOCK_ICMP mints a raw AF_INET/SOCK_RAW/IPPROTO_ICMP executive socket; same public services as the TCP tools (vms-80b). Was the one tool tcpip_client.h honestly deferred as a NOOP.",
+   "plan_ref": "vms-67f"
+  },
+  {
+   "domain": "networking",
+   "facility": "tcpip-services",
+   "facility_name": "TCP/IP Services (UCX QIO + Sockets + BGn:/ETH0:)",
+   "id": "tcpip-services$inetd",
+   "kind": "subsystem",
+   "vms": "TCPIP$INETD auxiliary server \u2014 bind/listen each enabled service's port and hand the connection to its service image",
+   "status": "implemented",
+   "authenticity": "real",
+   "scope_1_0": "in",
+   "evidence": "src/vmstcpip/services/tcpip_inetd.h",
+   "verified_against": null,
+   "notes": "Proven against a real /dev/vms by tests/qemu/test_syssvc_tcpip_inetd.c (vms-cdb9). The precondition that unblocks the OpenSSH sshd ladder (vms-9ef).",
+   "plan_ref": "vms-67f"
+  },
+  {
+   "domain": "networking",
+   "facility": "tcpip-services",
+   "facility_name": "TCP/IP Services (UCX QIO + Sockets + BGn:/ETH0:)",
+   "id": "tcpip-services$daytime-service",
+   "kind": "feature",
+   "vms": "DAYTIME service (RFC 867) launched by the auxiliary server",
+   "status": "implemented",
+   "authenticity": "real",
+   "scope_1_0": "in",
+   "evidence": "src/vmstcpip/services/tcpip_daytime.h",
+   "verified_against": null,
+   "notes": "First genuine standalone service image INETD launches end to end; proven by tests/qemu/test_syssvc_tcpip_daytime.c against a real /dev/vms (vms-477).",
+   "plan_ref": "vms-67f"
+  },
+  {
+   "domain": "networking",
+   "facility": "tcpip-services",
+   "facility_name": "TCP/IP Services (UCX QIO + Sockets + BGn:/ETH0:)",
    "id": "tcpip-services$nic-device",
    "kind": "feature",
-   "vms": "NIC exposed as VMS device EWA0:/BGn:",
-   "status": "absent",
-   "authenticity": "n/a",
+   "vms": "NIC exposed as a VMS device (ETH0:, DVI$_DEVCLASS = DC$_SCOM)",
+   "status": "implemented",
+   "authenticity": "real",
    "scope_1_0": "in",
-   "evidence": "distro/boot/run-qemu.sh:70",
+   "evidence": "src/kernel-core/vms_devtab.c",
    "verified_against": null,
-   "notes": "QEMU boots with -nic none (also distro/Dockerfile.bootable:773); no network device path into the VM at all.",
+   "notes": "The Linux net device roots at 'eth' so the native-rooted VMS name is ETH0: (device-native naming, vms-9d2). QEMU now provides ONE virtio-net-pci device; OVMX_NET_MODE defaults to user-mode NAT (SLIRP), with tap/bridge/none options (vms-7bd). A raw NIC-as-VMS-device I/O path (EWA0:) is still deferred; the TCP data path rides BGn:.",
    "plan_ref": "vms-67f"
   },
   {
    "domain": "networking",
    "facility": "tcpip-services",
-   "facility_name": "TCP/IP Services (UCX QIO + Sockets + EWA0:/BGn:)",
+   "facility_name": "TCP/IP Services (UCX QIO + Sockets + BGn:/ETH0:)",
+   "id": "tcpip-services$config-plane",
+   "kind": "feature",
+   "vms": "TCPIP$CONFIG core config + TCPIP$INET_HOST/DOMAIN/HOSTADDR SYSTEM logicals + TCPIP SET INTERFACE/SHOW CONFIGURATION",
+   "status": "implemented",
+   "authenticity": "real",
+   "scope_1_0": "in",
+   "evidence": "src/vmstcpip/mgmt/tcpip_config.h",
+   "verified_against": null,
+   "notes": "Host name/domain/address configured the VMS way land in the executive-resident LNM$SYSTEM table (shared cross-process over /dev/vms), read back through the independent sys$trnlnm, and the address is applied to the interface over the substrate stack. Proven against a real /dev/vms (tests/qemu/test_syssvc_tcpip_config) + a host honest-degradation DCL test; SS$_NOSUCHDEV with no executive (vms-67f).",
+   "plan_ref": "vms-67f"
+  },
+  {
+   "domain": "networking",
+   "facility": "tcpip-services",
+   "facility_name": "TCP/IP Services (UCX QIO + Sockets + BGn:/ETH0:)",
    "id": "tcpip-services$dcl-tcpip-verb",
    "kind": "command",
-   "vms": "DCL TCPIP verb (show interface/route/host/version, set host)",
+   "vms": "DCL TCPIP verb (show interface/route/host/version/configuration, set host/interface/route/name_service)",
    "status": "implemented",
-   "authenticity": "facade-risk",
+   "authenticity": "real",
    "scope_1_0": "in",
-   "evidence": "src/vmsdcl/dcl_cmd_misc.c:1093",
+   "evidence": "src/vmsdcl/dcl_cmd_misc.c",
    "verified_against": null,
-   "notes": "Opens a Linux AF_INET SOCK_DGRAM socket only for SIOCGIF* ioctls (host interface introspection); configures nothing durable and gives VMS code no stack. Cross-listed to Draper register (INV-6 facade-risk).",
+   "notes": "SHOW INTERFACE/ROUTE is Linux-substrate introspection (SIOCGIF*/proc). SET INTERFACE applies the address AND records TCPIP$INET_HOSTADDR in the executive; SHOW CONFIGURATION reads the TCPIP$ SYSTEM logicals back (honest %TCPIP-W-NOEXEC with no executive).",
+   "plan_ref": "vms-67f"
+  },
+  {
+   "domain": "networking",
+   "facility": "tcpip-services",
+   "facility_name": "TCP/IP Services (UCX QIO + Sockets + BGn:/ETH0:)",
+   "id": "tcpip-services$deferred-rungs",
+   "kind": "feature",
+   "vms": "DHCP client, multiple interfaces / TCPIP$INET_HOSTADDRn, persistent service/proxy databases",
+   "status": "absent",
+   "authenticity": "n/a",
+   "scope_1_0": "stretch",
+   "evidence": "docs/design-tcpip-services-ovmx.md",
+   "verified_against": null,
+   "notes": "Honestly deferred; single static interface + in-memory service enablement today.",
    "plan_ref": "vms-67f"
   },
   {
@@ -7409,12 +8132,12 @@
    "id": "utilities$sysgen",
    "kind": "utility",
    "vms": "SYSGEN \u2014 system parameter/generation utility",
-   "status": "verified",
+   "status": "implemented",
    "authenticity": "real",
    "scope_1_0": "in",
    "evidence": "tools/vms_sysgen.c",
-   "verified_against": "tests/dcl/test_sysgen.sh",
-   "notes": "",
+   "verified_against": null,
+   "notes": "SET/SHOW round-trips a real parameter and enforces its range (tests/dcl/test_sysgen.sh). Downgraded verified->implemented 2026-08-31: that test is a plain local self-test, not an oracle/negctl gate.",
    "plan_ref": "vms-8ad"
   },
   {
@@ -7577,9 +8300,9 @@
    "status": "partial",
    "authenticity": "facade-risk",
    "scope_1_0": "in",
-   "evidence": "src/vmsdcl/dcl_cmd_misc.c",
+   "evidence": "src/vmsdcl/dcl_cmd_misc.c:2604",
    "verified_against": null,
-   "notes": "/FDL accepted but ignored; body is a line-by-line copy, not a real record-format conversion.",
+   "notes": "/FDL now emits an honest %CONVERT-I-FDL 'accepted but ignored' informational, but the body is still a line-by-line fgets/fputs copy that then prints '%CONVERT-S-CONVERTED, N records converted' \u2014 reporting a record-format conversion it did not perform. Still facade-risk.",
    "plan_ref": "vms-8ad"
   },
   {
@@ -7694,12 +8417,12 @@
    "id": "utilities$edit",
    "kind": "utility",
    "vms": "EDIT/EDT \u2014 line-mode text editor",
-   "status": "verified",
+   "status": "implemented",
    "authenticity": "real",
    "scope_1_0": "in",
    "evidence": "src/vmsdcl/dcl_editor.c",
-   "verified_against": "tests/dcl/test_edit_command.sh",
-   "notes": "Minimal line-mode EDT; no screen mode.",
+   "verified_against": null,
+   "notes": "Minimal line-mode EDT; no screen mode. Exercised by tests/dcl/test_edit_command.sh. Downgraded verified->implemented 2026-08-31: plain local self-test, not an oracle/negctl gate.",
    "plan_ref": "vms-8ad"
   },
   {
