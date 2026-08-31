@@ -5,8 +5,15 @@
   <link href="https://openvmx.3dl.dev/atom.xml" rel="self"/>
   <link href="https://openvmx.3dl.dev/" rel="alternate"/>
   <id>tag:openvmx.3dl.dev,2026:releases</id>
-  <updated>2026-08-31T15:47:25-04:00</updated>
+  <updated>2026-08-31T18:03:24-04:00</updated>
   <author><name>OpenVMX</name></author>
+  <entry>
+    <title>V0.6-10</title>
+    <id>tag:openvmx.3dl.dev,2026:release/V0.6-10</id>
+    <updated>2026-08-31T18:03:24-04:00</updated>
+    <link href="https://openvmx.3dl.dev/roadmap/" rel="alternate"/>
+    <summary>Three more rungs up the self-hosting and networking long poles, no cluster-participation claim. DECnet Phase IV gains a real transport: an NSP logical-link connection service — establish (Connect Initiate/Confirm), carry data segments with acknowledgement and in-order sequencing, tear down (Disconnect Initiate/Confirm), and give up honestly (retransmit then abandon as unreachable) — proven on the wire between two nodes, byte-identical, the layer SET HOST and file transfer will ride. VMS condition handling gains its third authentic rung: the real Alpha invocation-context primitives (LIB$GET_INVO_*) walk the genuine procedure-descriptor and register-save-area chain, so an unwind can transfer into an ancestor frame that armed no explicit anchor — the mechanism a bare 'return to main' and compiler exception handling need — replacing the last piece of emulation on the software path. And the compiler runtime's file layer gains a real RMS veneer: a C-RTL stdio surface that routes fopen/fwrite/fread/fclose to genuine RMS create/put/get/close over the executive ACP, proven un-fakeably — a file written through the veneer is then seen on the real Files-11 ODS-2 volume by an independent reader, with a genuine File ID and version a POSIX bootstrap cannot forge; wiring it into the alpha port image is scoped as tracked follow-on work.</summary>
+  </entry>
   <entry>
     <title>V0.6-9</title>
     <id>tag:openvmx.3dl.dev,2026:release/V0.6-9</id>
@@ -55,12 +62,5 @@
     <updated>2026-08-31T00:52:27-04:00</updated>
     <link href="https://openvmx.3dl.dev/roadmap/" rel="alternate"/>
     <summary>Two long-pole milestones proven on the real runtime. SSH login is now VMS-faithful end to end: the unmodified VMS OpenSSH port authenticates passwords against the binary SYSUAF (Purdy) and drops the session into LOGINOUT-&gt;DCL rather than a shell — all OVMX behavior enters through linker --wrap hooks, no fork of upstream OpenSSH — proven fail-closed against a real /dev/vms (a password login for a user with no SYSUAF record is refused; zero AF_UNIX fds in the handshake, INV-6). And the self-hosting toolchain clears its multi-file rung: the alpha-dec-vms GCC-port image STRICT-links a real 3-object program (no --allow-undefined; decc$free and the cross-.o libc surface all bound through DECC$SHR/LIBOTS) and activates for real on qemu-system-alpha over /dev/vms, returning full success — now guarded by a standing per-PR CI gate so it cannot regress.</summary>
-  </entry>
-  <entry>
-    <title>V0.6-2</title>
-    <id>tag:openvmx.3dl.dev,2026:release/V0.6-2</id>
-    <updated>2026-08-30T23:39:15-04:00</updated>
-    <link href="https://openvmx.3dl.dev/roadmap/" rel="alternate"/>
-    <summary>Two increments up the 1.0 networking and cluster-configuration long poles, no engine changes. DECnet Phase IV gets its first real engine code: a routing-layer endnode-HELLO codec that decodes every field of and byte-identically re-encodes the captured real-VAX oracle specimen (clean-room, derived only from the DNA Phase IV Routing spec plus the lab capture) — the foundation rung under the forthcoming NSP transport, adjacency state machine, and the engine go/no-go. And cluster identity can now be authored the VMS-canon way: CLUSTER_CONFIG_LAN.COM, with a CLUSTER_CONFIG.COM front end, drives SYSGEN SET + WRITE CURRENT to persist SCSNODE and SCSSYSTEMID into OVMXVMSSYS.PAR over the executive ACP, honestly declining the operations it does not yet implement, proven end-to-end against the booted DCL (authors an identity, rejects an over-long SCSNODE, reads it back from the store). It rides the SYS$INPUT-to-image and .PAR-write mechanisms that already shipped.</summary>
   </entry>
 </feed>
