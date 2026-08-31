@@ -5,8 +5,15 @@
   <link href="https://openvmx.3dl.dev/atom.xml" rel="self"/>
   <link href="https://openvmx.3dl.dev/" rel="alternate"/>
   <id>tag:openvmx.3dl.dev,2026:releases</id>
-  <updated>2026-08-31T08:09:30-04:00</updated>
+  <updated>2026-08-31T09:23:23-04:00</updated>
   <author><name>OpenVMX</name></author>
+  <entry>
+    <title>V0.6-8</title>
+    <id>tag:openvmx.3dl.dev,2026:release/V0.6-8</id>
+    <updated>2026-08-31T09:23:23-04:00</updated>
+    <link href="https://openvmx.3dl.dev/roadmap/" rel="alternate"/>
+    <summary>A runtime-fidelity cleanup. $CREPRC no longer leaks debug text to the error stream: two unconditional diagnostic writes fired on stderr on every single process creation (visible in the boot and harness logs), which real VMS never does. They are removed — process creation is now silent on the error path — with no change to $CREPRC behavior, only its output.</summary>
+  </entry>
   <entry>
     <title>V0.6-7</title>
     <id>tag:openvmx.3dl.dev,2026:release/V0.6-7</id>
@@ -55,12 +62,5 @@
     <updated>2026-08-30T18:31:50-04:00</updated>
     <link href="https://openvmx.3dl.dev/roadmap/" rel="alternate"/>
     <summary>Bug-fix patch: SPAWN now works in the booted runtime. In V0.6, DCL SPAWN failed with %DCL-F-CREPRC because a non-root interactive session's $CREPRC child tried to re-stamp a privileged identity the executive correctly refused; the child now inherits the creator's identity by continuation from its unforgeable parent (a new VMS_IOCTL_REGISTER_SUBPROCESS path), leaving the SS$_NOPRIV self-declaration guard intact. The VMS User Acceptance battery goes 62/66 → 66/66. Found by KVM runtime verification that CI's TCG-flake had masked.</summary>
-  </entry>
-  <entry>
-    <title>V0.6</title>
-    <id>tag:openvmx.3dl.dev,2026:release/V0.6</id>
-    <updated>2026-08-30T09:54:58-04:00</updated>
-    <link href="https://openvmx.3dl.dev/roadmap/" rel="alternate"/>
-    <summary>Cluster correctness, complete: OVMX is now a genuine VMScluster participant. The distributed lock manager runs the full H0–H11 ladder on the real executive over the SCS wire — cross-node $ENQ grant, contention and block-then-grant, BLKAST delivery, resource mastering and remastering, LVB replication, and distributed deadlock detection — and RMS file-share and record locking reach the real DLM arbitrator on real /dev/vms (INV-6, no flock fallback). Cluster membership now lives in the executive: SHOW CLUSTER and $GETSYI read the real member block and the userspace file-facade is fully excised, with rejoin and parameter adoption proven. Plus the oracle-driven UX-fidelity gate: a continuous, structure-tolerant golden-diff of DCL/SHOW output against byte-exact real-VMS captures, with the SHOW family proven fabrication-free and real structural gaps tracked as an honest, gated backlog. (Quorum, votes, and MSCP-served volumes remain post-0.6.)</summary>
   </entry>
 </feed>
