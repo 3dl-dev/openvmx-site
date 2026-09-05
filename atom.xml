@@ -5,8 +5,15 @@
   <link href="https://openvmx.3dl.dev/atom.xml" rel="self"/>
   <link href="https://openvmx.3dl.dev/" rel="alternate"/>
   <id>tag:openvmx.3dl.dev,2026:releases</id>
-  <updated>2026-08-31T18:03:24-04:00</updated>
+  <updated>2026-09-05T19:27:26-04:00</updated>
   <author><name>OpenVMX</name></author>
+  <entry>
+    <title>V0.6-11</title>
+    <id>tag:openvmx.3dl.dev,2026:release/V0.6-11</id>
+    <updated>2026-09-05T19:27:26-04:00</updated>
+    <link href="https://openvmx.3dl.dev/roadmap/" rel="alternate"/>
+    <summary>The cluster claim, made good: a booted OpenVMX node joins a real, running VMS Cluster and is counted as a member. On the lab's two-node VAXcluster, a fresh-booted OVMX node — with CAP_NET_RAW dropped, so the executive itself, not an ambient Linux capability, drove the Ethernet — brought up its cluster port, opened an SCS virtual circuit to a live VAX, connected the VMS$VAXcluster connection manager, and was admitted through the membership transition. The existing members' own accounting counted it: VAX1's F$GETSYI("CLUSTER_NODES") reported 3, sustained for the full ten-minute run; SHOW CLUSTER listed the node with STATUS=MEMBER; SDA showed a genuine, sequential Cluster System Block (CSID 00010003, following the VAXes' 00010001/00010002) with the member flag. The whole join runs inside the executive (vms.ko) — SCS, the connection manager, the PE/virtual-circuit transport, the DLM rebuild, and the state-transition barrier — not a userspace daemon. And it is crash-safe: both real VAXes stayed up the entire run with zero bugchecks, the release-gating invariant that OpenVMX must never emit a frame that can crash a peer. That safety is enforced two ways — a runtime emit-guard that drops any frame violating the measured crash-safe envelope, and a post-hoc wire-safety audit calibrated against 234k real cluster frames — after a hunt (E55–E85) that found and closed every crash-vector in the lab, never in production, the last being a transaction-close frame whose mandatory field VMS asserts nonzero. Honest scope: this edition JOINS an existing cluster (it does not boot satellites or form a cluster from nothing); quorum votes are computed and displayed but not yet enforced; and the member committed the transition without an on-wire barrier-release frame, a tracked follow-on. Configure it the VMS way: @SYS$MANAGER:CLUSTER_CONFIG_LAN.COM (docs/cluster-configuration.md).</summary>
+  </entry>
   <entry>
     <title>V0.6-10</title>
     <id>tag:openvmx.3dl.dev,2026:release/V0.6-10</id>
@@ -55,12 +62,5 @@
     <updated>2026-08-31T02:43:23-04:00</updated>
     <link href="https://openvmx.3dl.dev/roadmap/" rel="alternate"/>
     <summary>Three increments up the networking and executive long poles, no version-gated feature removed. DECnet Phase IV grows a transport and a routing brain: an NSP codec (Connect Initiate oracle-verified byte-identical against the captured real-VAX specimen, the rest of the message set spec-derived from the public DNA NSP spec and labelled as such — no fabricated bytes), and a clock-injectable adjacency state machine that brings a neighbour up on a two-way HELLO handshake, holds it up while HELLOs arrive within the listen timer, and downs it on lapse — the hello cadence taken from the captured oracle. And the executive learns to complete a /NOWAIT subprocess honestly: a new VMS_IOCTL_SPAWN_NOTIFY facility sets the parent's event flag and queues its completion AST from the real executive as an indivisible part of recording the child's exit over /dev/vms (no userspace waitpid poll, fail-closed without /dev/vms), proven on the QEMU kernel harness and mirrored across the x86_64, NetBSD/VAX, and Alpha builds.</summary>
-  </entry>
-  <entry>
-    <title>V0.6-3</title>
-    <id>tag:openvmx.3dl.dev,2026:release/V0.6-3</id>
-    <updated>2026-08-31T00:52:27-04:00</updated>
-    <link href="https://openvmx.3dl.dev/roadmap/" rel="alternate"/>
-    <summary>Two long-pole milestones proven on the real runtime. SSH login is now VMS-faithful end to end: the unmodified VMS OpenSSH port authenticates passwords against the binary SYSUAF (Purdy) and drops the session into LOGINOUT-&gt;DCL rather than a shell — all OVMX behavior enters through linker --wrap hooks, no fork of upstream OpenSSH — proven fail-closed against a real /dev/vms (a password login for a user with no SYSUAF record is refused; zero AF_UNIX fds in the handshake, INV-6). And the self-hosting toolchain clears its multi-file rung: the alpha-dec-vms GCC-port image STRICT-links a real 3-object program (no --allow-undefined; decc$free and the cross-.o libc surface all bound through DECC$SHR/LIBOTS) and activates for real on qemu-system-alpha over /dev/vms, returning full success — now guarded by a standing per-PR CI gate so it cannot regress.</summary>
   </entry>
 </feed>
