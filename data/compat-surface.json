@@ -75,44 +75,44 @@
   }
  ],
  "overall": {
-  "count": 446,
+  "count": 448,
   "by_status": {
    "verified": 22,
-   "implemented": 267,
-   "partial": 48,
+   "implemented": 268,
+   "partial": 49,
    "stub": 16,
    "designed": 0,
    "absent": 93
   },
   "by_authenticity": {
-   "real": 302,
+   "real": 304,
    "n/a": 93,
    "advisory": 45,
    "facade-risk": 6
   },
-  "met": 289,
-  "in_progress": 48,
+  "met": 290,
+  "in_progress": 49,
   "not_started": 109,
   "facade_risk": 6
  },
  "overall_in_scope": {
-  "count": 402,
+  "count": 404,
   "by_status": {
    "verified": 22,
-   "implemented": 267,
-   "partial": 47,
+   "implemented": 268,
+   "partial": 48,
    "stub": 12,
    "designed": 0,
    "absent": 54
   },
   "by_authenticity": {
-   "real": 301,
+   "real": 303,
    "n/a": 54,
    "advisory": 43,
    "facade-risk": 4
   },
-  "met": 289,
-  "in_progress": 47,
+  "met": 290,
+  "in_progress": 48,
   "not_started": 66,
   "facade_risk": 4
  },
@@ -471,23 +471,23 @@
    "tier": null,
    "plan_ref": "vms-30e",
    "vms_ref": "DECnet for VMS Networking Manual; DNA Phase IV Routing + NSP specs",
-   "last_reviewed": "2026-08-31",
+   "last_reviewed": "2026-09-09",
    "rollup": {
-    "count": 13,
+    "count": 15,
     "by_status": {
      "verified": 2,
-     "implemented": 6,
-     "partial": 4,
+     "implemented": 7,
+     "partial": 5,
      "stub": 0,
      "designed": 0,
      "absent": 1
     },
     "by_authenticity": {
-     "real": 12,
+     "real": 14,
      "n/a": 1
     },
-    "met": 8,
-    "in_progress": 4,
+    "met": 9,
+    "in_progress": 5,
     "not_started": 1,
     "facade_risk": 0
    }
@@ -3409,7 +3409,37 @@
    "scope_1_0": "in",
    "evidence": "src/vmsrms/rms_parse.c",
    "verified_against": null,
-   "notes": "Syntax only \u2014 sets NAM$M_NODE, parses/reconstructs the node prefix; nothing downstream (no live DECnet transport) acts on it.",
+   "notes": "Syntax sets NAM$M_NODE and parses/reconstructs the node prefix. DCL COPY now ACTS on it (rd vms-8c2): a NODE:: spec routes to the DECnet FAL/DAP path and, since the outbound COPY-over-datalink client is not yet wired into a DCL process, reports honestly (%COPY-I-NETNOTWIRED) rather than mis-copying it as a local file \u2014 src/vmsdcl/dcl_cmd_file.c copy_spec_has_node. Full outbound DCL->datalink bridge is a tracked follow-on.",
+   "plan_ref": "vms-30e"
+  },
+  {
+   "domain": "networking",
+   "facility": "decnet",
+   "facility_name": "DECnet Phase IV (Routing, NSP, Task-to-Task, SET HOST)",
+   "id": "decnet$dap",
+   "kind": "protocol",
+   "vms": "DAP (Data Access Protocol) message codec \u2014 CONFIGURATION/ATTRIBUTES/ACCESS/CONTROL/DATA/STATUS/NAME/ACCESS-COMPLETE encode+decode",
+   "status": "implemented",
+   "authenticity": "real",
+   "scope_1_0": "in",
+   "evidence": "src/vmsdecnet/dap/dnet_dap.c",
+   "verified_against": "docs/oracle/vax-copy-fal-dap.* (rd vms-cd3): the message SEQUENCE + carried values (filename, resolved full spec, owner UIC, verbatim records) are the real VAX<->VAX COPY's ground truth; the per-field framing is the PUBLIC DAP spec",
+   "notes": "Pure byte codec, self-round-tripping. CLEAN-ROOM (Rule 8): message set + generic framing from the public DEC DAP functional specification; sequence + credential/object/carried-value semantics from the oracle. FULLY BOUNDED against hostile input \u2014 decoder fuzzed 200k inputs + every truncated prefix, ASan/UBSan-clean (tests/vmsdecnet/test_dnet_dap.c). HONEST SCOPE (INV-6): the field sub-framing is NOT asserted byte-identical to the real-VAX DAP sub-framing (the oracle \u00a73 does not transcribe every sub-field); two OVMX nodes interoperate over it faithfully, byte-level stock-VAX FAL wire interop is a filed follow-on.",
+   "plan_ref": "vms-30e"
+  },
+  {
+   "domain": "networking",
+   "facility": "decnet",
+   "facility_name": "DECnet Phase IV (Routing, NSP, Task-to-Task, SET HOST)",
+   "id": "decnet$fal",
+   "kind": "feature",
+   "vms": "FAL \u2014 File Access Listener (DECnet Session Control object 17): inbound file COPY authenticated at connect + served/stored via RMS; the COPY node:: client",
+   "status": "partial",
+   "authenticity": "real",
+   "scope_1_0": "in",
+   "evidence": "src/vmsdecnet/fal/dnet_fal.c",
+   "verified_against": "DECNETD.EXE --fal-accept-test in the booted acceptance battery (tests/qemu/lib/dcl_acceptance_battery.sh): real SYSUAF/Purdy auth (GUEST/GUEST accepted, a wrong password + DISABLED/DISUSER refused) then a sequential file transferred BOTH directions through real DAP over an NSP link + real RMS over the ACP, byte-verified",
+   "notes": "SECURITY SURFACE. An inbound object-17 connect CARRIES the username+password (oracle \u00a71 \u2014 the OPPOSITE of CTERM's empty creds); FAL authenticates them through THE ONE faithful authenticator (sysuaf_lookup + sysuaf_authenticate Purdy + the disabled-account gate, the SAME path LOGINOUT/SSHD use) BEFORE accepting the link, and REFUSES with an NSP Disconnect on a bad password \u2014 the FAL analogue of the no-auth-CTERM hole (INV-6, no file served on an unauthenticated connect). The connect-carried creds are decoded by a bounded, fuzz-clean decoder (dnet_fal_access_decode) that never over-reads and wipes the password after the check. File I/O is rms_textfile_* (RMS over the ODS-2 ACP), fail-honest with no /dev/vms \u2014 no userspace fallback that fakes a transfer (Rule 9). No fork/exec/openpty/dup2, no raw-fd/termios file mechanics. HONEST FLOOR (no executive, runs anywhere): DECNETD.EXE --fal-selftest proves the client emits a real object-17 connect carrying the creds + the honest refusal + the DAP-over-NSP transport pump. NOT yet (filed follow-ons, never faked): the outbound COPY client wired into a DCL process over the live datalink; advanced DAP (indexed/relative files, wildcards, DIRECTORY, block mode, proxy-instead-of-password access); byte-level stock-VAX FAL wire interop; network-access-class (NETMBX) enforcement distinct from the password/DISUSER gates.",
    "plan_ref": "vms-30e"
   },
   {
@@ -6349,7 +6379,7 @@
    "scope_1_0": "in",
    "evidence": "src/vmsssh/sshd_session.c",
    "verified_against": null,
-   "notes": "Wrapped OpenSSH sshd runs a full authenticated session over BGn:, proven end-to-end by tests/qemu/test_syssvc_ssh_server.c (stock client, remote command byte-exact) + test_syssvc_ssh_kex.c, against a real /dev/vms (honest Rule-9 skip with no executive; rd vms-0cd). Not yet verified-status: the SSH service is disabled in TCPIP$SERVICE.DAT so the shipped bootable does not auto-launch it (vms-9ef).",
+   "notes": "Wrapped OpenSSH sshd runs a full authenticated session over BGn:. The POSITIVE SYSUAF-password path is RUNTIME-PROVEN (rd vms-9cc, tests/qemu/test_syssvc_ssh_server.c on real /dev/vms): a valid SYSUAF user (SYSTEM/MANAGER) is resolved from the real SYS$SYSTEM:SYSUAF.DAT over the Files-11 ACP, Purdy-authenticated, and lands in an interactive DCL session over the wrapped BGn: connection; the unknown-user refusal is NON-VACUOUS (coupled to the SYSTEM positive proving the reader actually opened SYSUAF). The separate 'remote command byte-exact' proof (test_syssvc_ssh_kex.c) exercises transport + BGn: exec via pubkey-as-root, NOT the SYSUAF path. Interactive SYS$WELCOME banner display is a PTY-login artifact proven separately (vms-f166). Not yet verified-status: the SSH service is disabled in TCPIP$SERVICE.DAT so the shipped bootable does not auto-launch it (vms-9ef/vms-3bf).",
    "plan_ref": "vms-67f"
   },
   {
@@ -6394,7 +6424,7 @@
    "scope_1_0": "in",
    "evidence": "src/vmsssh/sshd_auth.c",
    "verified_against": null,
-   "notes": "sshd_auth.c (SYSUAF lookup -> struct passwd), ssh_ident.c (vms_kif_setident), term_map.c \u2014 each unit-tested (tests/vmsssh/test_sshd_auth.c, test_ssh_ident.c, test_term_mapping.c).",
+   "notes": "sshd_auth.c (SYSUAF lookup -> struct passwd), ssh_ident.c (vms_kif_setident), term_map.c \u2014 each unit-tested (tests/vmsssh/test_sshd_auth.c, test_ssh_ident.c, test_term_mapping.c). The SYSUAF authentication is now RUNTIME-PROVEN over the wrapped sshd on real /dev/vms (rd vms-9cc): SYSTEM resolved from the real SYSUAF over the ACP, Purdy-authenticated, identity established fail-closed (no %OVMX-F-NOIDENT) \u2014 before vms-9cc this was only unit-tested + the SYSUAF read was never runtime-exercised via the sshd.",
    "plan_ref": "vms-67f"
   },
   {
