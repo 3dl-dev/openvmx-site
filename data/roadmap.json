@@ -5,7 +5,7 @@
   "note": "Derived, milestone-level public view. Regenerated each checkpoint; do not hand-edit.",
   "scrubbed": "trademark scrub applied on render (public site)",
   "nextPointRelease": {
-   "version": "V0.6-14",
+   "version": "V0.6-15",
    "theme": "Cluster genesis (OpenVMX forms a cluster as a founding member), SSH-to-DCL over the executive, and DECnet routing hardening — landing now."
   }
  },
@@ -145,9 +145,9 @@
    "lands_by": "0.5-0.9",
    "status": "in_progress",
    "progress": {
-    "done": 16,
+    "done": 17,
     "total": 23,
-    "pct": 70
+    "pct": 74
    }
   },
   {
@@ -178,9 +178,9 @@
    "lands_by": "0.9",
    "status": "in_progress",
    "progress": {
-    "done": 14,
-    "total": 38,
-    "pct": 37
+    "done": 15,
+    "total": 39,
+    "pct": 38
    }
   },
   {
@@ -208,6 +208,10 @@
  ],
  "releases": [
   {
+   "tag": "V0.6-14",
+   "note": "Cluster genesis and networking hardening. OpenVMX becomes a first-class founding cluster member: the executive can now FORM a VMScluster from nothing (authentic VMS formation, quorum-grounded) — a genesis, not only a join of an existing cluster — running on the real executive-resident membership machinery. A cluster crash-fix closes a host-kernel panic on a clustered node's shared network buffer and a founder self-demotion. Networking: a valid SYSUAF user now lands at a DCL prompt over the wrapped OpenSSH sshd end to end (real ACP SYSUAF authentication, the earlier pubkey-root overclaim dropped from the register), the DECnet routing receive path gains ASan/UBSan fuzzing and bound proofs with CI-enforced sanitizer teeth, and the libdatalink DECnet datalink is wire-proven on live NetBSD/VAX. Honest scope: interoperation with a REAL VAX cluster — a genuine VAX joining and mounting OpenVMX-served storage — remains in progress and unproven."
+  },
+  {
    "tag": "V0.6-13",
    "note": "DECnet Phase IV file COPY, and a substrate-agnostic login frontier. Authenticated inbound SET HOST -> LOGINOUT is now a hard release gate on all three rails (x86_64, Alpha, and VAX) — the interactive-login frontier no longer depends on the substrate. DECnet Phase IV file COPY (FAL/DAP) lands: an object-17 FAL server, a DAP codec, and a COPY client, authenticated against the real SYSUAF/Purdy, transferring over RMS-on-the-executive-ACP and byte-verified in both directions, with a Phase IV configuration and usage guide. And a compatibility-register honesty pass: four cluster distributed-lock-manager rows whose multi-node proof harness had been retired were downgraded from verified to implemented (re-establishment tracked as a follow-on), so the surface states only what a live test currently proves."
   },
@@ -234,10 +238,6 @@
   {
    "tag": "V0.6-7",
    "note": "An authenticity fix on the process-creation path. A RUN/UIC identity override requested by an unauthenticated creator is correctly refused with SS$_NOPRIV — but until now that refusal left a phantom process: $CREPRC named and registered the subprocess in the executive before deciding whether the /UIC override could be honored, so on refusal a live process control block persisted under the refused name and $GETJPI could find it. $CREPRC now takes the stamp-versus-refuse decision from its own arguments before it registers or names anything, so a refused override touches the executive not at all — no PCB, nothing to find. The authorized-override and plain-detached paths are unchanged and the LARP guard is not weakened; this closes the gap by construction, since a refused grandchild issues zero executive calls."
-  },
-  {
-   "tag": "V0.6-6",
-   "note": "Executive robustness on the /NOWAIT subprocess path. LIB$SPAWN's asynchronous completion now fires even when a subprocess is killed WITHOUT calling $EXIT — a SIGKILL, a crash, a segfault — where before the parent would wait forever: the executive delivers an SS$_ABORT completion at reap time (setting the parent's event flag and queuing its AST) as it reclaims the dead child, at both reclaim points, so a /NOWAIT LIB$SPAWN is now safe against abnormal child termination. Also hardens the test surface: a cross-process publish-versus-translate race in the mailbox-by-logical-name harness is fixed deterministically (a real happens-before handshake, not a timeout), proven quiet across repeated runs."
   }
  ]
 }
