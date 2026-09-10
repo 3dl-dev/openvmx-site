@@ -1,6 +1,6 @@
 {
  "meta": {
-  "generated": "2026-09-09",
+  "generated": "2026-09-10",
   "source": "docs/compat/",
   "note": "Machine export of the OVMX Compatibility Surface Register. This is an inventory with per-surface status; it deliberately carries NO coverage percentage \u2014 the total VMS surface has no known denominator. Report absolute counts; V1 progress is `overall_in_scope` (met/in_progress/not_started) against the commitment set, never a fraction of the whole.",
   "scrubbed": "trademark scrub applied on render (public site)"
@@ -77,8 +77,8 @@
  "overall": {
   "count": 446,
   "by_status": {
-   "verified": 26,
-   "implemented": 263,
+   "verified": 22,
+   "implemented": 267,
    "partial": 48,
    "stub": 16,
    "designed": 0,
@@ -98,8 +98,8 @@
  "overall_in_scope": {
   "count": 402,
   "by_status": {
-   "verified": 26,
-   "implemented": 263,
+   "verified": 22,
+   "implemented": 267,
    "partial": 47,
    "stub": 12,
    "designed": 0,
@@ -273,8 +273,8 @@
    "rollup": {
     "count": 4,
     "by_status": {
-     "verified": 4,
-     "implemented": 0,
+     "verified": 0,
+     "implemented": 4,
      "partial": 0,
      "stub": 0,
      "designed": 0,
@@ -2429,12 +2429,12 @@
    "id": "cluster-dlm$cross-node-lock",
    "kind": "feature",
    "vms": "Cross-node $ENQ grant / block-then-grant / blocking-AST delivered on the mastering node + real holder",
-   "status": "verified",
+   "status": "implemented",
    "authenticity": "real",
    "scope_1_0": "in",
    "evidence": "src/kernel-core/vms_lock.c",
-   "verified_against": "tests/qemu/test_syssvc_dlm_xnode.c (x86_64 + Alpha LP64); tests/qemu/run_dlm_harness_h5.sh + run_dlm_harness_h6.sh (block-then-grant + BLKAST wire on real /dev/vms)",
-   "notes": "vms-94c/vms-e8f1/vms-904c + BLKAST wire H6 (vms-76d/#918). vms_lock_dlm_xnode_dispatch runs a decoded cross-node $ENQ through the real lock manager on the mastering node, held FOR the remote requester's CSID: a compatible request GRANTS (SS$_NORMAL, GET_RESMASTER shows held_for=<peer>); an incompatible one QUEUES on the real waiting queue (VMS_DLM_STS_QUEUED, GETLKI shows granted NL / requested EX) and the master fires the blocking-AST decision. The BLKAST is now DELIVERED over SCS and fires a genuine user-mode AST on the remote holder's process (H6, was deferred); a cross-node $DEQ (vms_lock_dlm_xnode_deq, authorized by CSID) releases and grants the blocked request (GETLKI flips NL->EX). Proven on real /dev/vms (tests/qemu/test_syssvc_dlm_xnode.c x86_64 + Alpha LP64; the multi-node H5/H6 QEMU harnesses). No fake grants OR blocks \u2014 a queued request is a real lock on the master's queue that releases only on a real $DEQ (INV-6).\n",
+   "verified_against": "tests/qemu/test_syssvc_dlm_xnode.c (x86_64 + Alpha LP64) \u2014 scenario 5 (H5: block-then-grant + deferred-grant report) and scenario 7 (H6: BLKAST wire + holder-side receive) driven against a real /dev/vms executive. (The former two-node run_dlm_harness_h5.sh/_h6.sh QEMU harnesses were retired with the userspace SCSD daemon in the executive-resident pivot, #1052; the receive-handler behavior they proved is now exercised by this injected-cross-node-request test on real /dev/vms.)",
+   "notes": "vms-94c/vms-e8f1/vms-904c + BLKAST wire H6 (vms-76d/#918). vms_lock_dlm_xnode_dispatch runs a decoded cross-node $ENQ through the real lock manager on the mastering node, held FOR the remote requester's CSID: a compatible request GRANTS (SS$_NORMAL, GET_RESMASTER shows held_for=<peer>); an incompatible one QUEUES on the real waiting queue (VMS_DLM_STS_QUEUED, GETLKI shows granted NL / requested EX) and the master fires the blocking-AST decision. The BLKAST is now DELIVERED over SCS and fires a genuine user-mode AST on the remote holder's process (H6, was deferred); a cross-node $DEQ (vms_lock_dlm_xnode_deq, authorized by CSID) releases and grants the blocked request (GETLKI flips NL->EX). Exercised on real /dev/vms single-node with an injected cross-node CSID (tests/qemu/test_syssvc_dlm_xnode.c x86_64 + Alpha LP64); the two-node H5/H6 QEMU harnesses that proved the over-the-wire path were retired in #1052 \u2014 multi-node runtime proof pending (vms-1ee). No fake grants OR blocks \u2014 a queued request is a real lock on the master's queue that releases only on a real $DEQ (INV-6).\n",
    "plan_ref": "vms-694"
   },
   {
@@ -2444,12 +2444,12 @@
    "id": "cluster-dlm$async-reply-wire",
    "kind": "feature",
    "vms": "Async DLM replies (queued-reply + deferred GRANT) delivered over SCS; requester-side completion",
-   "status": "verified",
+   "status": "implemented",
    "authenticity": "real",
    "scope_1_0": "in",
-   "evidence": "src/vmsscs/scsd.c",
-   "verified_against": "tests/qemu/run_dlm_harness_h5.sh (two-node A<->B live /dev/vms: SCSD-I-DLMPEND, SCSD-I-DLMDEFER, SCSD-I-DLMH5FLIP granted_mode=EX)",
-   "notes": "vms-6ca rung H5. The master's async replies ride the live SCS wire: node B WIREs the queued-reply (granted mode NL \u2014 the requester stays genuinely pending) and, on a real cross-node $DEQ that flips a queued waiter to granted, WIREs an unprompted deferred GRANT (SS$_NORMAL, the granted mode) to that requester (vms_lock_dlm_xnode_deq reports the flipped waiter). The REQUESTER-SIDE GRANT RECEIVE (VMS_DLM_OP_GRANT) completes an executive-resident ORIGIN record on the requesting node, whose granted mode is set ONLY from what the master sent over SCS; GETLKI reads the NL->EX flip back on the REQUESTER. This origin record is the requester-side wait-for state H11's distributed deadlock search reads (VMS_IOCTL_DLM_ENUM_WAITS). Proven on a two-node live A<->B QEMU harness with real /dev/vms on both (tests/qemu/run_dlm_harness_h5.sh: SCSD-I-DLMPEND, SCSD-I-DLMDEFER, SCSD-I-DLMH5FLIP granted_mode=EX). No fabricated wire reply or grant (INV-6).\n",
+   "evidence": "src/kernel-core/vms_dlm_scs_fsm.c",
+   "verified_against": "tests/qemu/test_syssvc_dlm_xnode.c \u2014 scenario 5 (H5: the block-then-grant $DEQ REPORTS the flipped waiter so the daemon can wire a deferred GRANT) and scenario 5b (the requester-side VMS_DLM_OP_GRANT receive completes an executive-resident origin record \u2014 a queued-reply leaves it NL-pending, a deferred GRANT flips NL->EX, read back on the requester by GETLKI), driven against a real /dev/vms executive. (The former two-node A<->B run_dlm_harness_h5.sh daemon harness \u2014 SCSD-I-DLMPEND/DLMDEFER/DLMH5FLIP \u2014 was retired with the userspace SCSD daemon in the executive-resident pivot, #1052.)",
+   "notes": "vms-6ca rung H5. The master's async replies ride the live SCS wire: node B WIREs the queued-reply (granted mode NL \u2014 the requester stays genuinely pending) and, on a real cross-node $DEQ that flips a queued waiter to granted, WIREs an unprompted deferred GRANT (SS$_NORMAL, the granted mode) to that requester (vms_lock_dlm_xnode_deq reports the flipped waiter). The REQUESTER-SIDE GRANT RECEIVE (VMS_DLM_OP_GRANT) completes an executive-resident ORIGIN record on the requesting node, whose granted mode is set ONLY from what the master sent over SCS; GETLKI reads the NL->EX flip back on the REQUESTER. This origin record is the requester-side wait-for state H11's distributed deadlock search reads (VMS_IOCTL_DLM_ENUM_WAITS). The requester-side receive is exercised single-node on real /dev/vms (tests/qemu/test_syssvc_dlm_xnode.c, injected CSID); the former two-node A<->B run_dlm_harness_h5.sh proof (SCSD-I-DLMPEND/DLMDEFER/DLMH5FLIP) was retired in #1052 \u2014 multi-node wire proof pending (vms-1ee). No fabricated wire reply or grant (INV-6).\n",
    "plan_ref": "vms-694"
   },
   {
@@ -2459,12 +2459,12 @@
    "id": "cluster-dlm$remaster-lvb-deadlock",
    "kind": "feature",
    "vms": "LVB replication, dynamic remastering (directory + lock state), directory-ownership guard, distributed deadlock detection",
-   "status": "verified",
+   "status": "implemented",
    "authenticity": "real",
    "scope_1_0": "in",
    "evidence": "src/kernel-core/vms_lock.c",
-   "verified_against": "tests/qemu/run_dlm_harness_h8.sh, _h9.sh (LVB write/read), _h10.sh (H10a directory remaster), _h10b.sh (H10b lock-state rebuild), _e84.sh (directory-ownership refusal), _ec75.sh (H11 distributed deadlock) \u2014 all multi-node real /dev/vms",
-   "notes": "The former \"remain absent\" cluster of the DLM epic, now COMPLETE and each part proven on a live multi-node /dev/vms rail. LVB REPLICATION both ways: the H8 write crossing (vms-d81/#923) and the H9 read crossing (vms-eeb/#925). DYNAMIC REMASTERING on graceful departure: the directory INGRESS re-resolves a departed node's resources onto a survivor (H10a, vms-2bf/#927, VMS_IOCTL_DLM_MEMBER_DEPART + a runtime departed-set filtering the static dlm_member_csids vector), AND the cross-node lock STATE is rebuilt on the new master from the surviving holder's REAL origin record over a targeted SCS_DLM_OP_REBUILD, reconstructed directly into res->granted and value-verified (H10b, vms-dca9/#928, run_dlm_harness_h10b.sh three-way equality). DIRECTORY OWNERSHIP: a node refuses to master a resource it is not the directory for \u2014 dlm_resolve_master returns SS$_UNSUPPORTED \u2014 proven on the wire (e84, vms-e84/#929, run_dlm_harness_e84.sh: non-directory node answers 0x8F8, directory node GRANTS). DISTRIBUTED DEADLOCK DETECTION: a cross-node cycle is found by an edge-chasing search over the real distributed wait-for graph (home pending origins via VMS_IOCTL_DLM_ENUM_WAITS + master res->granted via VMS_IOCTL_DLM_GET_GRANTED), and a globally-deterministic single victim (lexicographic-min over the cycle) is aborted with SS$_DEADLOCK via the GRANT-reply path, idempotently (H11, vms-ec75/#930, run_dlm_harness_ec75.sh: cycle detected, exactly one victim, the other stays queued). Every edge is a real queue/origin read; a dropped/ttl-expired probe reports no-deadlock, never a fabricated cycle (INV-6). DEPTH deferred beyond the engine (honest, tracked): the concurrent-both-initiate deadlock proof (vms-04f \u2014 logic shipped + code-verified), directory REDIRECT (vms-b96), and a real app-process cross-node acquisition path replacing the SS$_UNSUPPORTED \"0.4\" stub (vms-d1f, post-1.0).\n",
+   "verified_against": "PARTIAL coverage only \u2014 host units tests/cluster/host/test_dlm_ldwv.c (LVB read + wait-for visibility, injected/fake master) + tests/cluster/host/test_dlm_requester.c; N-node simulator scenarios tests/cluster/sim/scenarios/dlm_directory.c (directory routing) + tests/cluster/sim/scenarios/dlm_requester.c (simulated peers); tests/cluster/host/test_codec_dlm.c (REBUILD/DLKSRCH frame codec). The multi-node real-/dev/vms proofs (run_dlm_harness_h8/_h9/_h10/_h10b/_e84/_ec75.sh \u2014 LVB write/read crossing, dynamic remaster, directory-ownership refusal, distributed deadlock) were RETIRED with the userspace SCSD daemon in the #1052 executive-resident pivot and have NO real-/dev/vms multi-node successor today \u2014 status downgraded verified->implemented pending re-established proof (vms-1ee).",
+   "notes": "The former \"remain absent\" cluster of the DLM epic. The code implements each part below and was originally proven on a live multi-node /dev/vms rail, but those multi-node proofs (the run_dlm_harness_* QEMU harnesses referenced below) were RETIRED in the #1052 executive-resident pivot with no real-/dev/vms multi-node successor today \u2014 so this row is implemented, not verified (re-establishment tracked in vms-1ee). The mechanism, still in the executive. LVB REPLICATION both ways: the H8 write crossing (vms-d81/#923) and the H9 read crossing (vms-eeb/#925). DYNAMIC REMASTERING on graceful departure: the directory INGRESS re-resolves a departed node's resources onto a survivor (H10a, vms-2bf/#927, VMS_IOCTL_DLM_MEMBER_DEPART + a runtime departed-set filtering the static dlm_member_csids vector), AND the cross-node lock STATE is rebuilt on the new master from the surviving holder's REAL origin record over a targeted SCS_DLM_OP_REBUILD, reconstructed directly into res->granted and value-verified (H10b, vms-dca9/#928, run_dlm_harness_h10b.sh three-way equality). DIRECTORY OWNERSHIP: a node refuses to master a resource it is not the directory for \u2014 dlm_resolve_master returns SS$_UNSUPPORTED \u2014 proven on the wire (e84, vms-e84/#929, run_dlm_harness_e84.sh: non-directory node answers 0x8F8, directory node GRANTS). DISTRIBUTED DEADLOCK DETECTION: a cross-node cycle is found by an edge-chasing search over the real distributed wait-for graph (home pending origins via VMS_IOCTL_DLM_ENUM_WAITS + master res->granted via VMS_IOCTL_DLM_GET_GRANTED), and a globally-deterministic single victim (lexicographic-min over the cycle) is aborted with SS$_DEADLOCK via the GRANT-reply path, idempotently (H11, vms-ec75/#930, run_dlm_harness_ec75.sh: cycle detected, exactly one victim, the other stays queued). Every edge is a real queue/origin read; a dropped/ttl-expired probe reports no-deadlock, never a fabricated cycle (INV-6). DEPTH deferred beyond the engine (honest, tracked): the concurrent-both-initiate deadlock proof (vms-04f \u2014 logic shipped + code-verified), directory REDIRECT (vms-b96), and a real app-process cross-node acquisition path replacing the SS$_UNSUPPORTED \"0.4\" stub (vms-d1f, post-1.0).\n",
    "plan_ref": "vms-694"
   },
   {
@@ -2474,12 +2474,12 @@
    "id": "cluster-dlm$scs-transport",
    "kind": "feature",
    "vms": "DLM SYSAP SCS connection + lock-request message class (ENQ/GRANT/DEQ/BLKAST/REBUILD/DLKSRCH) between cluster nodes",
-   "status": "verified",
+   "status": "implemented",
    "authenticity": "real",
    "scope_1_0": "in",
-   "evidence": "src/vmsscs/scs_dlm.c",
-   "verified_against": "tests/qemu/run_dlm_harness_h0.sh..ec75 (H0..H11 on real /dev/vms); src/vmsscs codec ctests (scs_dlm frame encode/decode + op-name validators)",
-   "notes": "vms-94c rung 1, extended through H11. A DLM message rides as a p.4-13 SCS application message (MTYPE 10) with its body at SCA content offset 58 (the scs_mscp.c nesting). The transport is real and the receive handler GRANTS, QUEUES, delivers BLKAST, rebuilds on remaster, and runs the deadlock search \u2014 the full ENQ-class op set is handled on a real /dev/vms executive across every DLM QEMU harness (H0..H11).\n",
+   "evidence": "src/kernel-core/vms_cluster_codec_dlm.c",
+   "verified_against": "tests/cluster/host/test_codec_dlm.c (DLM frame encode/decode + op validators: ENQ/GRANT/DENY/CONVERT fixture round trip + the op-0d rebuild-record echo); tests/qemu/test_syssvc_dlm_xnode.c (the receive handler GRANTS/QUEUES/DEQs and delivers BLKAST on a real /dev/vms executive, rungs 2/3/H5/H6). (The former run_dlm_harness_h0.sh..ec75 QEMU harnesses were retired with the userspace SCSD daemon in the executive-resident pivot, #1052. NOTE \u2014 the REBUILD-on-remaster and DLKSRCH distributed-deadlock op HANDLING those harnesses exercised at runtime on real /dev/vms has no equivalent successor test today; see the cluster-dlm remaster-lvb-deadlock row.)",
+   "notes": "vms-94c rung 1, extended through H11. A DLM message rides as a p.4-13 SCS application message (MTYPE 10) with its body at SCA content offset 58 (the scs_mscp.c nesting). The transport is real and the receive handler GRANTS, QUEUES, delivers BLKAST, rebuilds on remaster, and runs the deadlock search \u2014 the full ENQ-class op set is handled on a real /dev/vms executive (single-node dispatch, tests/qemu/test_syssvc_dlm_xnode.c); the H0..H11 multi-node QEMU harnesses were retired in #1052 with no multi-node successor (vms-1ee).\n",
    "plan_ref": "vms-694"
   },
   {
