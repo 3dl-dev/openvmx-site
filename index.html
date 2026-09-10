@@ -454,7 +454,7 @@ footer{background:var(--paper-2)}
         <figure class="machine" id="machine-vax">
           <figcaption class="machine-top">
             <span class="live"><i class="dot"></i>OpenVMX</span>
-            <span class="plate">OVMX/VAX · MicroVAX 3900 · console</span>
+            <span class="plate">OVMX/VAX · MicroVAX 3900 · console &#183; disk <span data-vax-demo-version>V0.6-14</span></span>
           </figcaption>
           <div class="machine-screen" id="screen-vax">
             <div class="idle" id="idle-vax" role="button" tabindex="0"
@@ -966,8 +966,8 @@ footer{background:var(--paper-2)}
        it in-browser (no ranged host needed). Versioned filename = cache-busting. */
     f.src = 'https://vax.3dl.network/machines/dec/vax/browser/ovmx.html' +
       '?rom=https://vax.3dl.network/machines/dec/vax/browser/ka655x.bin' +
-      '&diskgz=https://vax.3dl.network/machines/dec/vax/browser/ovmx-vax-v0.5-11.img.gz' +
-      '&drive=login&mem=32';
+      '&diskgz=https://vax.3dl.network/machines/dec/vax/browser/ovmx-vax-v0.6-14.img.gz' +
+      '&drive=login&mem=64';
     f.title = 'OpenVMX/VAX — live serial console (MicroVAX 3900)';
     if (idleVax) idleVax.remove();
     screenVax.appendChild(f);
