@@ -6,7 +6,7 @@
   "scrubbed": "trademark scrub applied on render (public site)",
   "nextPointRelease": {
    "version": "V0.6-14",
-   "theme": "Actively landing on the current line."
+   "theme": "Cluster genesis (OpenVMX forms a cluster as a founding member), SSH-to-DCL over the executive, and DECnet routing hardening — landing now."
   }
  },
  "vocab": {
@@ -108,11 +108,11 @@
    "theme": "Hardened and proven — feature-frozen on 0.9: authenticity enforced by the executive, not by convention, and the whole system proven on real hardware and in extended cluster interop against a real VAX. The release you trust; fixes only.",
    "status": "goal",
    "progress": {
-    "done": 29,
-    "open": 20,
-    "blocked": 5,
-    "total": 49,
-    "pct": 59
+    "done": 32,
+    "open": 25,
+    "blocked": 8,
+    "total": 57,
+    "pct": 56
    }
   }
  ],
@@ -167,8 +167,8 @@
    "lands_by": "0.5-0.9",
    "status": "in_progress",
    "progress": {
-    "done": 16,
-    "total": 29,
+    "done": 17,
+    "total": 31,
     "pct": 55
    }
   },
@@ -178,9 +178,9 @@
    "lands_by": "0.9",
    "status": "in_progress",
    "progress": {
-    "done": 12,
-    "total": 37,
-    "pct": 32
+    "done": 14,
+    "total": 38,
+    "pct": 37
    }
   },
   {
@@ -209,11 +209,11 @@
  "releases": [
   {
    "tag": "V0.6-13",
-   "note": "Point release."
+   "note": "DECnet Phase IV file COPY, and a substrate-agnostic login frontier. Authenticated inbound SET HOST -> LOGINOUT is now a hard release gate on all three rails (x86_64, Alpha, and VAX) — the interactive-login frontier no longer depends on the substrate. DECnet Phase IV file COPY (FAL/DAP) lands: an object-17 FAL server, a DAP codec, and a COPY client, authenticated against the real SYSUAF/Purdy, transferring over RMS-on-the-executive-ACP and byte-verified in both directions, with a Phase IV configuration and usage guide. And a compatibility-register honesty pass: four cluster distributed-lock-manager rows whose multi-node proof harness had been retired were downgraded from verified to implemented (re-establishment tracked as a follow-on), so the surface states only what a live test currently proves."
   },
   {
    "tag": "V0.6-12",
-   "note": "Point release."
+   "note": "DECnet Phase IV SET HOST reaches an authenticated interactive login. An inbound SET HOST session now runs the full connect-through-LOGINOUT dialogue (P0-P5) bidirectionally against the real binary SYSUAF, so a remote terminal lands at a genuine DCL prompt with full SYSUAF login-flag authenticity. Alpha activates its symbol-vector shareables on the live executive; the VAX rail builds them, with runtime activation isolated to a cross-image cross-call marshalling bug (tracked RED). Plus CI-backlog optimization across the release gates."
   },
   {
    "tag": "V0.6-11",
