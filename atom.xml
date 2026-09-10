@@ -17,7 +17,7 @@
   <entry>
     <title>V0.6-13</title>
     <id>tag:openvmx.3dl.dev,2026:release/V0.6-13</id>
-    <updated>2026-09-10T05:02:39Z</updated>
+    <updated>2026-09-10T05:02:39+00:00</updated>
     <link href="https://openvmx.3dl.dev/roadmap/" rel="alternate"/>
     <summary>DECnet Phase IV file COPY, and a substrate-agnostic login frontier. Authenticated inbound SET HOST -&gt; LOGINOUT is now a hard release gate on all three rails (x86_64, Alpha, and VAX) — the interactive-login frontier no longer depends on the substrate. DECnet Phase IV file COPY (FAL/DAP) lands: an object-17 FAL server, a DAP codec, and a COPY client, authenticated against the real SYSUAF/Purdy, transferring over RMS-on-the-executive-ACP and byte-verified in both directions, with a Phase IV configuration and usage guide. And a compatibility-register honesty pass: four cluster distributed-lock-manager rows whose multi-node proof harness had been retired were downgraded from verified to implemented (re-establishment tracked as a follow-on), so the surface states only what a live test currently proves.</summary>
   </entry>
