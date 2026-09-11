@@ -78,8 +78,8 @@
   "count": 452,
   "by_status": {
    "verified": 24,
-   "implemented": 269,
-   "partial": 50,
+   "implemented": 271,
+   "partial": 48,
    "stub": 16,
    "designed": 0,
    "absent": 93
@@ -90,8 +90,8 @@
    "advisory": 45,
    "facade-risk": 6
   },
-  "met": 293,
-  "in_progress": 50,
+  "met": 295,
+  "in_progress": 48,
   "not_started": 109,
   "facade_risk": 6
  },
@@ -99,8 +99,8 @@
   "count": 408,
   "by_status": {
    "verified": 24,
-   "implemented": 269,
-   "partial": 49,
+   "implemented": 271,
+   "partial": 47,
    "stub": 12,
    "designed": 0,
    "absent": 54
@@ -111,8 +111,8 @@
    "advisory": 43,
    "facade-risk": 4
   },
-  "met": 293,
-  "in_progress": 49,
+  "met": 295,
+  "in_progress": 47,
   "not_started": 66,
   "facade_risk": 4
  },
@@ -471,13 +471,13 @@
    "tier": null,
    "plan_ref": "vms-30e",
    "vms_ref": "DECnet for VMS Networking Manual; DNA Phase IV Routing + NSP specs",
-   "last_reviewed": "2026-09-09",
+   "last_reviewed": "2026-09-11",
    "rollup": {
     "count": 15,
     "by_status": {
      "verified": 2,
-     "implemented": 6,
-     "partial": 6,
+     "implemented": 8,
+     "partial": 4,
      "stub": 0,
      "designed": 0,
      "absent": 1
@@ -486,8 +486,8 @@
      "real": 14,
      "n/a": 1
     },
-    "met": 8,
-    "in_progress": 6,
+    "met": 10,
+    "in_progress": 4,
     "not_started": 1,
     "facade_risk": 0
    }
@@ -3313,13 +3313,13 @@
    "facility_name": "DECnet Phase IV (Routing, NSP, Task-to-Task, SET HOST)",
    "id": "decnet$nsp-transport",
    "kind": "protocol",
-   "vms": "NSP transport codec \u2014 Connect Initiate/Confirm, Data, Ack, teardown PDUs (logical links)",
-   "status": "partial",
+   "vms": "NSP transport codec + live logical link \u2014 Connect Initiate/Confirm, Link Service (flow-control credit), Data, Ack, teardown PDUs",
+   "status": "implemented",
    "authenticity": "real",
    "scope_1_0": "in",
    "evidence": "src/vmsdecnet/nsp/dnet_nsp.c",
-   "verified_against": null,
-   "notes": "Connect Initiate is oracle-verified byte-identical against docs/decnet-provenance-register.md sec 4.6 specimen #3 (the lab handshake never completed, so the other PDUs are self-round-trip only, no fabricated specimen bytes). Codec only \u2014 no live transport engine drives a logical link yet. Tested tests/vmsdecnet/test_dnet_nsp.c (rd vms-6986).",
+   "verified_against": "rd vms-a70: a live NSP logical link ran END-TO-END, BIDIRECTIONALLY, against a real VMS VAX V7.3 (tests/lab/captures/decnet-sethost-dcl-20260911/) \u2014 CI -> CC -> Link Service credit-grant/ack -> multi-segment Data both directions -> data-ack -> Disconnect Initiate/Confirm clean teardown. Connect Initiate also byte-identical against docs/decnet-provenance-register.md sec 4.6 specimen #3.",
+   "notes": "The live transport engine (src/vmsdecnet/engine) NOW drives a real logical link over the datalink; the CC / Link Service (MSGFLG 0x10) / Data / Ack / DI / DC PDUs are all wire-exercised against a real VAX (were previously self-round-trip only). Link Service added rd vms-a70 (the client's post-CC credit grant, ACKNUM from real link state, INV-6). Tested tests/vmsdecnet/test_dnet_nsp.c + test_dnet_link.c (rd vms-6986).",
    "plan_ref": "vms-30e"
   },
   {
@@ -3394,7 +3394,7 @@
    "scope_1_0": "in",
    "evidence": "src/vmsdecnet/cterm/dnet_cterm_host.c",
    "verified_against": null,
-   "notes": "An inbound object-42 connect mints an RTAn: THROUGH THE EXECUTIVE (VMS_IOCTL_TERM_CREATE -> vms_devtab_add_terminal; the executive picks the unit) and creates a process running the real SYS$SYSTEM:LOGINOUT.EXE on it via $CREPRC PRC$M_INTER|PRC$M_LOGINOUT -- the SAME primitive the console login uses (vms-3e9/vms-f881). The daemon holds no credential, spawns nothing, and the carried username reaches no decision; there is no fork/execvp/openpty anywhere above the VMS layer (standing gate tests/integration/test_creprc_session_primitive.sh check 5, both directions + negctl). NOT yet: one session at a time, no CTERM read-solicitation flow (byte-transparent pump), no DCL `SET HOST` client wiring (decnet$set-host), no live-VAX bracket. The authentication proof (challenged, bad credentials REFUSED, $GETDVI RTAn: cross-process) is DECNETD.EXE --cterm-accept-test against the real /dev/vms + real LOGINOUT, run by the shared acceptance battery in the booted image -- it FAILS honestly where the executive is absent (INV-6), it does not degrade to a stub. FACADE CAUGHT (rd vms-a70, real-oracle test OVMX -> real VMS VAX V7.3): the executive session-creation + LOGINOUT auth above are real and proven, but the CTERM FOUNDATION/BIND wire protocol they ride is NOT yet oracle-grounded -- dnet_cterm.h message types (BIND=1, BIND_ACCEPT=2, CHARACTERISTICS, START_READ, ...) are OVMX-assigned/spec-derived, NOT the real DNA Command Terminal foundation protocol, so a real VAX parses OVMX's bind and rejects the session (object rejected connect). Inbound real-VAX SET HOST is therefore NOT interoperable; status is partial (real executive session/auth machinery, facade CTERM protocol content) until the bind is re-grounded byte-for-byte against the oracle pcap (docs/oracle/real-cterm-ci.pcap) -- re-grounding in progress. What IS oracle-proven with a real VAX: the Session Control CONNECT + datalink + routing + NSP (decnet$sc-connect verified; bidirectional NSP data exchanged, rd vms-a70).",
+   "notes": "An inbound object-42 connect mints an RTAn: THROUGH THE EXECUTIVE (VMS_IOCTL_TERM_CREATE -> vms_devtab_add_terminal; the executive picks the unit) and creates a process running the real SYS$SYSTEM:LOGINOUT.EXE on it via $CREPRC PRC$M_INTER|PRC$M_LOGINOUT -- the SAME primitive the console login uses (vms-3e9/vms-f881). The daemon holds no credential, spawns nothing, and the carried username reaches no decision; there is no fork/execvp/openpty anywhere above the VMS layer (standing gate tests/integration/test_creprc_session_primitive.sh check 5, both directions + negctl). NOT yet: one session at a time, no CTERM read-solicitation flow (byte-transparent pump), no DCL `SET HOST` client wiring (decnet$set-host), no live-VAX bracket. The authentication proof (challenged, bad credentials REFUSED, $GETDVI RTAn: cross-process) is DECNETD.EXE --cterm-accept-test against the real /dev/vms + real LOGINOUT, run by the shared acceptance battery in the booted image -- it FAILS honestly where the executive is absent (INV-6), it does not degrade to a stub. CTERM FOUNDATION PROTOCOL RE-GROUNDED (rd vms-a70): the CTERM foundation/Bind wire protocol is NO LONGER a facade -- it was re-grounded byte-for-byte on the real oracle (the foundation short-TLV + msgtype-9 envelope codec, host-speaks-first negotiation FSM, NSP link-service credit grant, prompt-gated Read Data) and PROVEN interoperable with a real VMS VAX V7.3 in the OUTBOUND direction: OVMX's SET HOST client drove a full authenticated CTERM session to a live DCL on a real VAX (decnet$set-host, tests/lab/captures/decnet-sethost-dcl-20260911/). This row (the INBOUND server: real VAX -> OVMX object 42 -> OVMX LOGINOUT on RTAn:) stays PARTIAL because the executive session/auth machinery here is real + unit/accept-proven (--cterm-accept-test) but the INBOUND live-VAX bracket (a real VAX initiating SET HOST into OVMX-as-server) is not yet run -- it needs the full booted OVMX-on-VAX executive; tracked as vms-a70 direction B. What IS oracle-proven with a real VAX: Session Control CONNECT + datalink + routing + NSP + the CTERM foundation exchange, all the way to an authenticated remote DCL (decnet$sc-connect + decnet$nsp-transport + decnet$set-host).",
    "plan_ref": "vms-30e"
   },
   {
@@ -3433,13 +3433,13 @@
    "facility_name": "DECnet Phase IV (Routing, NSP, Task-to-Task, SET HOST)",
    "id": "decnet$set-host",
    "kind": "command",
-   "vms": "SET HOST \u2014 DECnet remote-node connection (outbound client)",
-   "status": "partial",
+   "vms": "SET HOST \u2014 DECnet remote-node connection (outbound client): full authenticated CTERM session to a real VAX",
+   "status": "implemented",
    "authenticity": "real",
    "scope_1_0": "in",
    "evidence": "src/vmsdcl/dcl_cmd_set.c",
-   "verified_against": null,
-   "notes": "DCL `SET HOST <node>` activates SYS$SYSTEM:DECNETD.EXE --set-host on the CALLER'S TERMINAL through the executive image activator (dcl_activate_image -> imgact_activate, with DCL's fork fallback -- the same path RUN uses, NOT a bare fork/exec). The client (src/vmsdecnet/engine/decnetd.c run_set_host_loop) opens a REAL NSP logical link to the remote's Session Control object 42, binds a CTERM terminal session, and bridges THIS process's local terminal to it. VMS-NATIVE terminal I/O (the anti-LARP core): the client does $ASSIGN SYS$INPUT/SYS$OUTPUT + $QIO IO$_SETMODE (OVMX pass-all selector IO$K_TT_PASSALL) + IO$_READVBLK/IO$_WRITEVBLK -- NEVER tcsetattr/cfmakeraw on fd 0/1; the termios that realises pass-all lives in the executive terminal driver (src/libvms/syssvc/sys_qio.c qio_terminal_setmode), below the $QIO interface. On teardown control returns with the canonical %REM-S-END (oracle docs/oracle/vax-sethost-cterm.console.txt). The remote authenticates FRESH (the carried --user is proxy only, never auto-login). The client contains NO fork/exec/openpty/dup2. Response decoders are bounded against a hostile remote (mutation fuzz of dnet_nsp_decode/dnet_cterm_rx, tests/vmsdecnet/test_dnet_cterm.c, clean under ASan/UBSan). PROVEN: the CLIENT drives a genuine Connect Initiate to object 42 over a real veth datalink and the server refuses honestly without an executive (tests/integration/decnet_set_host_live.sh reduced proof). partial (not implemented): the FULL authenticated end-to-end (client -> remote LOGINOUT challenge -> %REM-S-END) needs a CI leg with BOTH CAP_NET and a real executive (/dev/vms) plus DECNETD.EXE staged into the boot image -- the workflow_dispatch proof leg; tracked as follow-on. CTERM-BIND FACADE (rd vms-a70): the CTERM terminal session this client binds rides the OVMX-assigned/spec-derived CTERM foundation protocol (dnet_cterm.h), NOT yet the real DNA Command Terminal wire format -- real-oracle testing (OVMX -> real VMS VAX V7.3) showed a real VAX rejects OVMX's bind (object rejected connect). The NSP connect + datalink + routing beneath it ARE oracle-proven (decnet$sc-connect verified; bidirectional NSP data exchanged with a real VAX, rd vms-a70), but the CTERM bind content is being re-grounded byte-for-byte against docs/oracle/real-cterm-ci.pcap.",
+   "verified_against": "rd vms-a70, tests/lab/captures/decnet-sethost-dcl-20260911/ \u2014 OVMX --set-host to a real VMS VAX V7.3 reached an authenticated live DCL and ran commands with output returned over the link (the session's own _RTA1: process appears in its own SHOW SYSTEM output)",
+   "notes": "DCL `SET HOST <node>` activates SYS$SYSTEM:DECNETD.EXE --set-host on the CALLER'S TERMINAL through the executive image activator (dcl_activate_image -> imgact_activate, with DCL's fork fallback -- the same path RUN uses, NOT a bare fork/exec). The client (src/vmsdecnet/engine/decnetd.c run_set_host_loop) opens a REAL NSP logical link to the remote's Session Control object 42, binds a CTERM terminal session, and bridges THIS process's local terminal to it. VMS-NATIVE terminal I/O (the anti-LARP core): the client does $ASSIGN SYS$INPUT/SYS$OUTPUT + $QIO IO$_SETMODE (OVMX pass-all selector IO$K_TT_PASSALL) + IO$_READVBLK/IO$_WRITEVBLK -- NEVER tcsetattr/cfmakeraw on fd 0/1; the termios that realises pass-all lives in the executive terminal driver (src/libvms/syssvc/sys_qio.c qio_terminal_setmode), below the $QIO interface. On teardown control returns with the canonical %REM-S-END (oracle docs/oracle/vax-sethost-cterm.console.txt). The remote authenticates FRESH (the carried --user is proxy only, never auto-login). The client contains NO fork/exec/openpty/dup2. Response decoders are bounded against a hostile remote (mutation fuzz of dnet_nsp_decode/dnet_cterm_rx, tests/vmsdecnet/test_dnet_cterm.c, clean under ASan/UBSan). LIVE-PROVEN end-to-end against a real VMS VAX V7.3 (rd vms-a70, tests/lab/captures/decnet-sethost-dcl-20260911/): OVMX --set-host 1.1 drove CI -> CC -> NSP Link Service -> CTERM foundation negotiation (byte-exact vs the oracle) -> real VAX LOGINOUT -> authenticated DCL -> F$GETSYI(NODENAME)=VAX1 + SHOW SYSTEM returning VAX1's live process table (incl the session's OWN _RTA1: process) -> clean LOGOUT + NSP disconnect. The earlier CTERM-BIND FACADE is RETIRED: the CTERM foundation/Bind protocol was re-grounded byte-for-byte on the real oracle (the foundation short-TLV + msgtype-9 envelope codec, the host-speaks-first negotiation FSM, the NSP link-service credit grant after CC, and prompt-gated Read Data \u2014 one line per host read-solicit), oracle-anchored in tests/vmsdecnet/test_dnet_cterm.c. NOT yet: the INBOUND direction (real VAX -> OVMX-as-CTERM-server, decnet$cterm-session-auth) is not live-proven; general task-to-task ($QIO) and the outbound COPY-over-datalink client are separate rungs.",
    "plan_ref": "vms-30e"
   },
   {
