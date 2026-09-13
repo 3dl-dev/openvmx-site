@@ -5,8 +5,15 @@
   <link href="https://openvmx.3dl.dev/atom.xml" rel="self"/>
   <link href="https://openvmx.3dl.dev/" rel="alternate"/>
   <id>tag:openvmx.3dl.dev,2026:releases</id>
-  <updated>2026-09-11T20:03:30-04:00</updated>
+  <updated>2026-09-12T21:04:43-04:00</updated>
   <author><name>OpenVMX</name></author>
+  <entry>
+    <title>V0.6-16</title>
+    <id>tag:openvmx.3dl.dev,2026:release/V0.6-16</id>
+    <updated>2026-09-12T21:04:43-04:00</updated>
+    <link href="https://openvmx.3dl.dev/roadmap/" rel="alternate"/>
+    <summary>Point release.</summary>
+  </entry>
   <entry>
     <title>V0.6-15</title>
     <id>tag:openvmx.3dl.dev,2026:release/V0.6-15</id>
@@ -55,12 +62,5 @@
     <updated>2026-08-31T15:47:25-04:00</updated>
     <link href="https://openvmx.3dl.dev/roadmap/" rel="alternate"/>
     <summary>Four increments up the self-hosting and networking long poles. DECnet Phase IV gets its first real engine: a userspace daemon (DECNETD.EXE) opens an Ethernet datalink, emits and receives the routing HELLO on cadence, and drives a per-neighbour adjacency state machine — the raw socket hidden behind a VMS-authentic surface (an executor node, a circuit, SHOW ADJACENT NODES), the same way the cluster's SCS daemon hides its datalink; proven byte-exact against a real-VAX capture and live on the wire between two nodes. VMS condition handling gains its first authentic rung: SYS$SETEXV establishes real per-thread exception vectors and the dispatcher walks the genuine call-frame chain in the VMS four-stage search order with a real mechanism array, replacing a flat handler-stack emulation (the deeper frame-transfer unwind and hardware-exception unification are staged behind it). The compiler port's file workload is proven over genuine Files-11 ODS-2 through the executive ACP — versioning (a file created twice yields ;1 and ;2, which a POSIX overwrite cannot), wildcard directory enumeration with real File IDs, and fail-honest RMS$_FNF — though the port image's own C-RTL binding to that RMS engine (versus the bootstrap POSIX path) remains separate follow-on work. And a phantom is retired: the alpha cross-compiler's reported -O0 union-type-pun 'miscompile' was the VMS data model itself (long is 32-bit, matching DEC C), not a compiler defect — the test was corrected and a DEC C behavior-compatibility architecture drafted. No cluster-participation claim: the cluster machinery is real, but a booted OVMX auto-joining a cluster is not yet built.</summary>
-  </entry>
-  <entry>
-    <title>V0.6-8</title>
-    <id>tag:openvmx.3dl.dev,2026:release/V0.6-8</id>
-    <updated>2026-08-31T09:23:23-04:00</updated>
-    <link href="https://openvmx.3dl.dev/roadmap/" rel="alternate"/>
-    <summary>A runtime-fidelity cleanup. $CREPRC no longer leaks debug text to the error stream: two unconditional diagnostic writes fired on stderr on every single process creation (visible in the boot and harness logs), which real VMS never does. They are removed — process creation is now silent on the error path — with no change to $CREPRC behavior, only its output.</summary>
   </entry>
 </feed>
