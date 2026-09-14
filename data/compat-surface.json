@@ -1,6 +1,6 @@
 {
  "meta": {
-  "generated": "2026-09-11",
+  "generated": "2026-09-14",
   "source": "docs/compat/",
   "note": "Machine export of the OVMX Compatibility Surface Register. This is an inventory with per-surface status; it deliberately carries NO coverage percentage \u2014 the total VMS surface has no known denominator. Report absolute counts; V1 progress is `overall_in_scope` (met/in_progress/not_started) against the commitment set, never a fraction of the whole.",
   "scrubbed": "trademark scrub applied on render (public site)"
@@ -75,45 +75,45 @@
   }
  ],
  "overall": {
-  "count": 453,
+  "count": 459,
   "by_status": {
    "verified": 24,
-   "implemented": 272,
-   "partial": 48,
-   "stub": 16,
+   "implemented": 281,
+   "partial": 50,
+   "stub": 14,
    "designed": 0,
-   "absent": 93
+   "absent": 90
   },
   "by_authenticity": {
-   "real": 309,
-   "n/a": 93,
-   "advisory": 45,
+   "real": 316,
+   "n/a": 90,
+   "advisory": 47,
    "facade-risk": 6
   },
-  "met": 296,
-  "in_progress": 48,
-  "not_started": 109,
+  "met": 305,
+  "in_progress": 50,
+  "not_started": 104,
   "facade_risk": 6
  },
  "overall_in_scope": {
-  "count": 409,
+  "count": 415,
   "by_status": {
    "verified": 24,
-   "implemented": 272,
-   "partial": 47,
-   "stub": 12,
+   "implemented": 281,
+   "partial": 49,
+   "stub": 10,
    "designed": 0,
-   "absent": 54
+   "absent": 51
   },
   "by_authenticity": {
-   "real": 308,
-   "n/a": 54,
-   "advisory": 43,
+   "real": 315,
+   "n/a": 51,
+   "advisory": 45,
    "facade-risk": 4
   },
-  "met": 296,
-  "in_progress": 47,
-  "not_started": 66,
+  "met": 305,
+  "in_progress": 49,
+  "not_started": 61,
   "facade_risk": 4
  },
  "facilities": [
@@ -125,7 +125,7 @@
    "tier": null,
    "plan_ref": "vms-8ad",
    "vms_ref": "VMS Guide to System Security; DCL Dictionary (SET/SHOW ACCOUNTING)",
-   "last_reviewed": "2026-08-31",
+   "last_reviewed": "2026-09-14",
    "rollup": {
     "count": 3,
     "by_status": {
@@ -154,7 +154,7 @@
    "tier": null,
    "plan_ref": "vms-8ad",
    "vms_ref": "VMS Guide to System Security ch. 7-8 (Auditing, Break-In Evasion)",
-   "last_reviewed": "2026-08-31",
+   "last_reviewed": "2026-09-14",
    "rollup": {
     "count": 4,
     "by_status": {
@@ -183,7 +183,7 @@
    "tier": null,
    "plan_ref": "vms-46c",
    "vms_ref": "VMS System Manager's Manual vol. 1 ch. 3 (Booting)",
-   "last_reviewed": "2026-08-31",
+   "last_reviewed": "2026-09-14",
    "rollup": {
     "count": 5,
     "by_status": {
@@ -211,7 +211,7 @@
    "tier": null,
    "plan_ref": "vms-801",
    "vms_ref": "VMS Calling Standard",
-   "last_reviewed": "2026-08-13",
+   "last_reviewed": "2026-09-14",
    "rollup": {
     "count": 4,
     "by_status": {
@@ -234,30 +234,31 @@
   },
   {
    "facility": "chf",
-   "name": "Condition Handling Facility (LIB$SIGNAL/ESTABLISH, SYS$UNWIND)",
+   "name": "Condition Handling Facility (LIB$SIGNAL/ESTABLISH, SYS$UNWIND, SYS$SETEXV)",
    "domain": "programming-interfaces",
    "scope_1_0": "in",
    "tier": 1,
-   "plan_ref": "vms-801",
-   "vms_ref": "VMS Programming Concepts Manual \u2014 Condition Handling; VMS RTL LIB$ Manual",
-   "last_reviewed": "2026-08-31",
+   "plan_ref": "vms-2e72",
+   "vms_ref": "VMS Programming Concepts Manual \u2014 Condition Handling; VMS Calling Standard (Condition Handling / Exception Vectors); VMS RTL LIB$ Manual",
+   "last_reviewed": "2026-09-14",
    "rollup": {
-    "count": 12,
+    "count": 15,
     "by_status": {
      "verified": 0,
-     "implemented": 6,
+     "implemented": 12,
      "partial": 0,
-     "stub": 2,
+     "stub": 0,
      "designed": 0,
-     "absent": 4
+     "absent": 3
     },
     "by_authenticity": {
-     "advisory": 8,
-     "n/a": 4
+     "advisory": 9,
+     "n/a": 3,
+     "real": 3
     },
-    "met": 6,
+    "met": 12,
     "in_progress": 0,
-    "not_started": 6,
+    "not_started": 3,
     "facade_risk": 0
    }
   },
@@ -269,7 +270,7 @@
    "tier": null,
    "plan_ref": "vms-694",
    "vms_ref": "VMS Cluster Systems manual; $ENQ/$DEQ/$GETLKI system services",
-   "last_reviewed": "2026-09-10",
+   "last_reviewed": "2026-09-14",
    "rollup": {
     "count": 5,
     "by_status": {
@@ -325,7 +326,7 @@
    "tier": null,
    "plan_ref": "vms-082",
    "vms_ref": "VMS language reference manuals (Fortran/COBOL/BASIC/Pascal/MACRO/\u2026)",
-   "last_reviewed": "2026-08-13",
+   "last_reviewed": "2026-09-14",
    "rollup": {
     "count": 12,
     "by_status": {
@@ -383,7 +384,7 @@
    "tier": 1,
    "plan_ref": "vms-8ad",
    "vms_ref": "VMS Command Definition Utility (CDU) Manual; DCL Dictionary",
-   "last_reviewed": "2026-08-31",
+   "last_reviewed": "2026-09-14",
    "rollup": {
     "count": 5,
     "by_status": {
@@ -412,7 +413,7 @@
    "tier": 1,
    "plan_ref": "vms-8ad",
    "vms_ref": "VMS DCL Dictionary; VMS User's Guide (command procedures)",
-   "last_reviewed": "2026-08-31",
+   "last_reviewed": "2026-09-14",
    "rollup": {
     "count": 8,
     "by_status": {
@@ -441,25 +442,25 @@
    "tier": 1,
    "plan_ref": "vms-8ad",
    "vms_ref": "VMS DCL Dictionary",
-   "last_reviewed": "2026-08-31",
+   "last_reviewed": "2026-09-14",
    "rollup": {
     "count": 11,
     "by_status": {
      "verified": 0,
      "implemented": 2,
-     "partial": 2,
+     "partial": 3,
      "stub": 0,
      "designed": 0,
-     "absent": 7
+     "absent": 6
     },
     "by_authenticity": {
-     "real": 4,
+     "real": 5,
      "advisory": 1,
-     "n/a": 6
+     "n/a": 5
     },
     "met": 2,
-    "in_progress": 2,
-    "not_started": 7,
+    "in_progress": 3,
+    "not_started": 6,
     "facade_risk": 0
    }
   },
@@ -471,7 +472,7 @@
    "tier": null,
    "plan_ref": "vms-30e",
    "vms_ref": "DECnet for VMS Networking Manual; DNA Phase IV Routing + NSP specs",
-   "last_reviewed": "2026-09-11",
+   "last_reviewed": "2026-09-14",
    "rollup": {
     "count": 16,
     "by_status": {
@@ -500,7 +501,7 @@
    "tier": 1,
    "plan_ref": "vms-801",
    "vms_ref": "VMS Programming Concepts Manual, Ch. 4 (Descriptors); VMS Calling Standard",
-   "last_reviewed": "2026-08-31",
+   "last_reviewed": "2026-09-14",
    "rollup": {
     "count": 14,
     "by_status": {
@@ -530,7 +531,7 @@
    "tier": null,
    "plan_ref": "vms-651",
    "vms_ref": "VMS I/O User's Reference Manual; VMS System Manager's Manual (MOUNT)",
-   "last_reviewed": "2026-08-31",
+   "last_reviewed": "2026-09-14",
    "rollup": {
     "count": 7,
     "by_status": {
@@ -559,7 +560,7 @@
    "tier": null,
    "plan_ref": "vms-801",
    "vms_ref": "VMS File Definition Language Facility Manual",
-   "last_reviewed": "2026-08-31",
+   "last_reviewed": "2026-09-14",
    "rollup": {
     "count": 2,
     "by_status": {
@@ -588,7 +589,7 @@
    "tier": null,
    "plan_ref": "vms-801",
    "vms_ref": "VMS DCL Concepts Manual \u2014 file specifications; VMS I/O User's Reference",
-   "last_reviewed": "2026-08-31",
+   "last_reviewed": "2026-09-14",
    "rollup": {
     "count": 5,
     "by_status": {
@@ -617,7 +618,7 @@
    "tier": 1,
    "plan_ref": "vms-8ad",
    "vms_ref": "VMS DCL Dictionary \u2014 HELP",
-   "last_reviewed": "2026-08-31",
+   "last_reviewed": "2026-09-14",
    "rollup": {
     "count": 1,
     "by_status": {
@@ -645,7 +646,7 @@
    "tier": null,
    "plan_ref": "vms-ade",
    "vms_ref": "VMS Linker Utility Manual; Programming Concepts Manual (image activation)",
-   "last_reviewed": "2026-08-31",
+   "last_reviewed": "2026-09-14",
    "rollup": {
     "count": 4,
     "by_status": {
@@ -673,7 +674,7 @@
    "tier": null,
    "plan_ref": "vms-718",
    "vms_ref": "VMS System Manager's Manual; POLYCENTER Software Installation Utility Manual",
-   "last_reviewed": "2026-08-31",
+   "last_reviewed": "2026-09-14",
    "rollup": {
     "count": 5,
     "by_status": {
@@ -731,7 +732,7 @@
    "tier": null,
    "plan_ref": "vms-082",
    "vms_ref": "VMS language RTL references",
-   "last_reviewed": "2026-08-13",
+   "last_reviewed": "2026-09-14",
    "rollup": {
     "count": 6,
     "by_status": {
@@ -760,7 +761,7 @@
    "tier": null,
    "plan_ref": "vms-67f",
    "vms_ref": "DECnet/OSI... / LAT protocol reference (DEC)",
-   "last_reviewed": "2026-08-31",
+   "last_reviewed": "2026-09-14",
    "rollup": {
     "count": 1,
     "by_status": {
@@ -788,7 +789,7 @@
    "tier": 1,
    "plan_ref": "vms-8ad",
    "vms_ref": "VMS DCL Dictionary \u2014 F$ Lexical Functions",
-   "last_reviewed": "2026-08-31",
+   "last_reviewed": "2026-09-14",
    "rollup": {
     "count": 9,
     "by_status": {
@@ -817,7 +818,7 @@
    "tier": 1,
    "plan_ref": "vms-801",
    "vms_ref": "VMS RTL Library (LIB$) Manual",
-   "last_reviewed": "2026-08-31",
+   "last_reviewed": "2026-09-14",
    "rollup": {
     "count": 22,
     "by_status": {
@@ -846,7 +847,7 @@
    "tier": null,
    "plan_ref": "vms-59a",
    "vms_ref": "VMS LIBRARIAN Utility Reference Manual; VMS DCL Dictionary (LIBRARY)",
-   "last_reviewed": "2026-09-10",
+   "last_reviewed": "2026-09-14",
    "rollup": {
     "count": 5,
     "by_status": {
@@ -875,7 +876,7 @@
    "tier": null,
    "plan_ref": "vms-ade",
    "vms_ref": "VMS Linker Utility Manual",
-   "last_reviewed": "2026-08-31",
+   "last_reviewed": "2026-09-14",
    "rollup": {
     "count": 2,
     "by_status": {
@@ -903,7 +904,7 @@
    "tier": null,
    "plan_ref": "vms-96e2",
    "vms_ref": "VMS System Services Reference Manual ($CRELNM/$TRNLNM); VMS DCL Concepts Manual",
-   "last_reviewed": "2026-08-31",
+   "last_reviewed": "2026-09-14",
    "rollup": {
     "count": 9,
     "by_status": {
@@ -932,7 +933,7 @@
    "tier": null,
    "plan_ref": "vms-801",
    "vms_ref": "VMS MACRO Compiler Porting and User's Guide",
-   "last_reviewed": "2026-08-31",
+   "last_reviewed": "2026-09-14",
    "rollup": {
     "count": 1,
     "by_status": {
@@ -960,7 +961,7 @@
    "tier": null,
    "plan_ref": "vms-801",
    "vms_ref": "VMS MESSAGE Utility",
-   "last_reviewed": "2026-08-31",
+   "last_reviewed": "2026-09-14",
    "rollup": {
     "count": 1,
     "by_status": {
@@ -988,7 +989,7 @@
    "tier": null,
    "plan_ref": "vms-59a",
    "vms_ref": "VMS MMS Reference Manual; MadGoat MMK documentation",
-   "last_reviewed": "2026-08-31",
+   "last_reviewed": "2026-09-14",
    "rollup": {
     "count": 3,
     "by_status": {
@@ -1016,24 +1017,24 @@
    "tier": null,
    "plan_ref": "vms-6e1",
    "vms_ref": "MSCP/TMSCP protocol (Systems Application A); VMS Cluster Systems manual",
-   "last_reviewed": "2026-09-03",
+   "last_reviewed": "2026-09-14",
    "rollup": {
     "count": 4,
     "by_status": {
      "verified": 0,
-     "implemented": 2,
+     "implemented": 3,
      "partial": 0,
      "stub": 0,
      "designed": 0,
-     "absent": 2
+     "absent": 1
     },
     "by_authenticity": {
-     "real": 2,
-     "n/a": 2
+     "real": 3,
+     "n/a": 1
     },
-    "met": 2,
+    "met": 3,
     "in_progress": 0,
-    "not_started": 2,
+    "not_started": 1,
     "facade_risk": 0
    }
   },
@@ -1045,7 +1046,7 @@
    "tier": 1,
    "plan_ref": "vms-801",
    "vms_ref": "VMS RTL Mathematics (MTH$) Manual",
-   "last_reviewed": "2026-08-31",
+   "last_reviewed": "2026-09-14",
    "rollup": {
     "count": 3,
     "by_status": {
@@ -1103,7 +1104,7 @@
    "tier": null,
    "plan_ref": "vms-ade",
    "vms_ref": "VMS Linker Utility Manual (object module format); binutils include/vms (public GPL) EVAX record layouts",
-   "last_reviewed": "2026-08-31",
+   "last_reviewed": "2026-09-14",
    "rollup": {
     "count": 4,
     "by_status": {
@@ -1133,7 +1134,7 @@
    "tier": null,
    "plan_ref": "vms-0f3",
    "vms_ref": "VMS File System (ODS-2) documentation; Files-11 On-Disk Structure",
-   "last_reviewed": "2026-08-31",
+   "last_reviewed": "2026-09-14",
    "rollup": {
     "count": 7,
     "by_status": {
@@ -1161,7 +1162,7 @@
    "tier": 1,
    "plan_ref": "vms-801",
    "vms_ref": "VMS RTL Object Time System (OTS$) Manual",
-   "last_reviewed": "2026-08-31",
+   "last_reviewed": "2026-09-14",
    "rollup": {
     "count": 13,
     "by_status": {
@@ -1190,7 +1191,7 @@
    "tier": null,
    "plan_ref": "vms-8ad",
    "vms_ref": "VMS Guide to System Security ch. 3 (Privileges)",
-   "last_reviewed": "2026-08-31",
+   "last_reviewed": "2026-09-14",
    "rollup": {
     "count": 4,
     "by_status": {
@@ -1219,7 +1220,7 @@
    "tier": null,
    "plan_ref": "vms-8ad",
    "vms_ref": "VMS Guide to System Security ch. 5 (Protecting Data)",
-   "last_reviewed": "2026-08-31",
+   "last_reviewed": "2026-09-14",
    "rollup": {
     "count": 6,
     "by_status": {
@@ -1249,7 +1250,7 @@
    "tier": 1,
    "plan_ref": "vms-8ad",
    "vms_ref": "VMS System Management Utilities Reference Manual \u2014 Queue Manager",
-   "last_reviewed": "2026-08-31",
+   "last_reviewed": "2026-09-14",
    "rollup": {
     "count": 7,
     "by_status": {
@@ -1279,7 +1280,7 @@
    "tier": null,
    "plan_ref": "vms-8ad",
    "vms_ref": "VMS Guide to System Security ch. 4 (Identifiers)",
-   "last_reviewed": "2026-08-31",
+   "last_reviewed": "2026-09-14",
    "rollup": {
     "count": 2,
     "by_status": {
@@ -1308,22 +1309,22 @@
    "tier": 1,
    "plan_ref": "vms-801",
    "vms_ref": "VMS Record Management Services Reference Manual",
-   "last_reviewed": "2026-09-09",
+   "last_reviewed": "2026-09-14",
    "rollup": {
-    "count": 33,
+    "count": 34,
     "by_status": {
      "verified": 0,
-     "implemented": 30,
+     "implemented": 31,
      "partial": 2,
      "stub": 0,
      "designed": 0,
      "absent": 1
     },
     "by_authenticity": {
-     "real": 32,
+     "real": 33,
      "n/a": 1
     },
-    "met": 30,
+    "met": 31,
     "in_progress": 2,
     "not_started": 1,
     "facade_risk": 0
@@ -1393,7 +1394,7 @@
    "tier": null,
    "plan_ref": "vms-531",
    "vms_ref": "VMS Screen Management (SMG$) Manual",
-   "last_reviewed": "2026-08-31",
+   "last_reviewed": "2026-09-14",
    "rollup": {
     "count": 2,
     "by_status": {
@@ -1422,7 +1423,7 @@
    "tier": null,
    "plan_ref": "vms-67f",
    "vms_ref": "VMS TCP/IP Services \u2014 SSH server (OpenSSH port)",
-   "last_reviewed": "2026-08-31",
+   "last_reviewed": "2026-09-14",
    "rollup": {
     "count": 4,
     "by_status": {
@@ -1450,7 +1451,7 @@
    "tier": 1,
    "plan_ref": "vms-801",
    "vms_ref": "VMS System Services Reference Manual \u2014 Condition Values; VMS Programming Concepts Manual Ch. 8",
-   "last_reviewed": "2026-08-31",
+   "last_reviewed": "2026-09-14",
    "rollup": {
     "count": 6,
     "by_status": {
@@ -1480,7 +1481,7 @@
    "tier": 1,
    "plan_ref": "vms-801",
    "vms_ref": "VMS RTL String Manipulation (STR$) Manual",
-   "last_reviewed": "2026-08-13",
+   "last_reviewed": "2026-09-14",
    "rollup": {
     "count": 24,
     "by_status": {
@@ -1509,7 +1510,7 @@
    "tier": null,
    "plan_ref": "vms-ade",
    "vms_ref": "VMS Linker Utility Manual (shareable images, GSMATCH)",
-   "last_reviewed": "2026-08-31",
+   "last_reviewed": "2026-09-14",
    "rollup": {
     "count": 3,
     "by_status": {
@@ -1538,7 +1539,7 @@
    "tier": 1,
    "plan_ref": "vms-801",
    "vms_ref": "VMS System Services Reference Manual \u2014 Asynchronous System Trap (AST) Services",
-   "last_reviewed": "2026-08-31",
+   "last_reviewed": "2026-09-14",
    "rollup": {
     "count": 3,
     "by_status": {
@@ -1567,7 +1568,7 @@
    "tier": 1,
    "plan_ref": "vms-801",
    "vms_ref": "VMS System Services Reference Manual \u2014 Event Flag Services",
-   "last_reviewed": "2026-08-31",
+   "last_reviewed": "2026-09-14",
    "rollup": {
     "count": 11,
     "by_status": {
@@ -1596,7 +1597,7 @@
    "tier": 1,
    "plan_ref": "vms-801",
    "vms_ref": "VMS System Services Reference Manual \u2014 FAO and Message Services",
-   "last_reviewed": "2026-08-31",
+   "last_reviewed": "2026-09-14",
    "rollup": {
     "count": 6,
     "by_status": {
@@ -1625,7 +1626,7 @@
    "tier": 1,
    "plan_ref": "vms-801",
    "vms_ref": "VMS System Services Reference Manual \u2014 I/O Services (QIO)",
-   "last_reviewed": "2026-08-31",
+   "last_reviewed": "2026-09-14",
    "rollup": {
     "count": 6,
     "by_status": {
@@ -1655,7 +1656,7 @@
    "tier": 1,
    "plan_ref": "vms-801",
    "vms_ref": "VMS System Services Reference Manual \u2014 Lock Management Services",
-   "last_reviewed": "2026-08-31",
+   "last_reviewed": "2026-09-14",
    "rollup": {
     "count": 6,
     "by_status": {
@@ -1684,7 +1685,7 @@
    "tier": 1,
    "plan_ref": "vms-d37",
    "vms_ref": "VMS System Services Reference Manual \u2014 SYS$CRELNM, SYS$DELLNM, SYS$TRNLNM",
-   "last_reviewed": "2026-08-31",
+   "last_reviewed": "2026-09-14",
    "rollup": {
     "count": 3,
     "by_status": {
@@ -1712,7 +1713,7 @@
    "tier": 1,
    "plan_ref": "vms-801",
    "vms_ref": "VMS System Services Reference Manual \u2014 Mailbox Services",
-   "last_reviewed": "2026-08-31",
+   "last_reviewed": "2026-09-14",
    "rollup": {
     "count": 2,
     "by_status": {
@@ -1740,7 +1741,7 @@
    "tier": 1,
    "plan_ref": "vms-801",
    "vms_ref": "VMS System Services Reference Manual \u2014 Memory Management Services",
-   "last_reviewed": "2026-08-31",
+   "last_reviewed": "2026-09-14",
    "rollup": {
     "count": 11,
     "by_status": {
@@ -1771,7 +1772,7 @@
    "tier": 1,
    "plan_ref": "vms-801",
    "vms_ref": "VMS System Services Reference Manual \u2014 Process Control Services",
-   "last_reviewed": "2026-08-31",
+   "last_reviewed": "2026-09-14",
    "rollup": {
     "count": 13,
     "by_status": {
@@ -1802,7 +1803,7 @@
    "tier": 1,
    "plan_ref": "vms-801",
    "vms_ref": "VMS System Services Reference Manual \u2014 SYS$GETJPI, SYS$GETJPIW, SYS$GETSYI, SYS$GETSYIW",
-   "last_reviewed": "2026-08-31",
+   "last_reviewed": "2026-09-14",
    "rollup": {
     "count": 5,
     "by_status": {
@@ -1830,7 +1831,7 @@
    "tier": 1,
    "plan_ref": "vms-801",
    "vms_ref": "VMS System Services Reference Manual \u2014 Security Services",
-   "last_reviewed": "2026-08-31",
+   "last_reviewed": "2026-09-14",
    "rollup": {
     "count": 3,
     "by_status": {
@@ -1860,7 +1861,7 @@
    "tier": 1,
    "plan_ref": "vms-801",
    "vms_ref": "VMS System Services Reference Manual \u2014 Time and Timer Services",
-   "last_reviewed": "2026-08-31",
+   "last_reviewed": "2026-09-14",
    "rollup": {
     "count": 9,
     "by_status": {
@@ -1890,7 +1891,7 @@
    "tier": null,
    "plan_ref": "vms-8ad",
    "vms_ref": "VMS System Generation Utility (SYSGEN) Manual; AUTOGEN",
-   "last_reviewed": "2026-08-31",
+   "last_reviewed": "2026-09-14",
    "rollup": {
     "count": 2,
     "by_status": {
@@ -1919,23 +1920,23 @@
    "tier": null,
    "plan_ref": "vms-8ad",
    "vms_ref": "VMS Guide to System Security; Authorize Utility Manual",
-   "last_reviewed": "2026-09-09",
+   "last_reviewed": "2026-09-14",
    "rollup": {
-    "count": 6,
+    "count": 7,
     "by_status": {
      "verified": 0,
      "implemented": 5,
-     "partial": 1,
+     "partial": 2,
      "stub": 0,
      "designed": 0,
      "absent": 0
     },
     "by_authenticity": {
      "real": 5,
-     "advisory": 1
+     "advisory": 2
     },
     "met": 5,
-    "in_progress": 1,
+    "in_progress": 2,
     "not_started": 0,
     "facade_risk": 0
    }
@@ -1948,22 +1949,22 @@
    "tier": null,
    "plan_ref": "vms-67f",
    "vms_ref": "VMS TCP/IP Services for VMS (UCX) manuals",
-   "last_reviewed": "2026-08-31",
+   "last_reviewed": "2026-09-14",
    "rollup": {
-    "count": 10,
+    "count": 11,
     "by_status": {
      "verified": 1,
-     "implemented": 8,
+     "implemented": 9,
      "partial": 0,
      "stub": 0,
      "designed": 0,
      "absent": 1
     },
     "by_authenticity": {
-     "real": 9,
+     "real": 10,
      "n/a": 1
     },
-    "met": 9,
+    "met": 10,
     "in_progress": 0,
     "not_started": 1,
     "facade_risk": 0
@@ -1977,7 +1978,7 @@
    "tier": 1,
    "plan_ref": "vms-8ad",
    "vms_ref": "VMS System Management Utilities Reference Manual; VMS Utility Routines Manual",
-   "last_reviewed": "2026-08-31",
+   "last_reviewed": "2026-09-14",
    "rollup": {
     "count": 24,
     "by_status": {
@@ -2012,7 +2013,7 @@
    "status": "implemented",
    "authenticity": "real",
    "scope_1_0": "in",
-   "evidence": "src/libvms/rtl/ovmx_accounting.c",
+   "evidence": "src/libvms/rtl/ovmx_accounting.c:113",
    "verified_against": null,
    "notes": "",
    "plan_ref": "vms-8ad"
@@ -2027,9 +2028,9 @@
    "status": "implemented",
    "authenticity": "real",
    "scope_1_0": "in",
-   "evidence": "src/libvms/rtl/ovmx_accounting.c",
+   "evidence": "src/libvms/rtl/ovmx_accounting.c:76",
    "verified_against": null,
-   "notes": "RE-CENSUS 2026-08-31: unchanged. ovmx_accounting_set_enabled()/is_enabled() persist a real system-wide flag; SET ACCOUNTING in dcl_cmd_set.c (~line 1793) drives it and ovmx_accounting_record_login() honors it \u2014 no longer the per-context INV-DCL facade it replaced.",
+   "notes": "Re-census 2026-09-14: unchanged. ovmx_accounting_set_enabled()/is_enabled() persist a real system-wide flag; SET ACCOUNTING in dcl_cmd_set.c drives it and ovmx_accounting_record_login() honors it (ovmx_accounting.c:119 early-returns when disabled) \u2014 no longer the per-context INV-DCL facade it replaced.",
    "plan_ref": "vms-17d"
   },
   {
@@ -2057,9 +2058,9 @@
    "status": "stub",
    "authenticity": "advisory",
    "scope_1_0": "stretch",
-   "evidence": "src/vmsdcl/dcl_cmd_set.c:1772",
+   "evidence": "src/vmsdcl/dcl_cmd_set.c:1827",
    "verified_against": null,
-   "notes": "RE-CENSUS 2026-08-31: cmd_set_audit() is a real, privileged DCL verb that HONESTLY refuses \u2014 it changes no state and reports 'security auditing is not implemented in OVMX - no state changed' (vms-6f4 Phase 0 replaced the old ctx->audit_enabled per-process facade). Anti-facade posture, not a lie; the subsystem behind it is absent.",
+   "notes": "cmd_set_audit() is a real, privileged DCL verb that HONESTLY refuses \u2014 it changes no state and reports the subsystem is not implemented (vms-6f4 Phase 0 replaced the old ctx->audit_enabled per-process facade). Anti-facade posture, not a lie; the subsystem behind it is absent. Re-census 2026-09-14: unchanged, line ref refreshed (was :1772).",
    "plan_ref": "vms-8ad"
   },
   {
@@ -2164,7 +2165,7 @@
    "scope_1_0": "in",
    "evidence": "src/ovmx_init/opcom_kmsg.c",
    "verified_against": null,
-   "notes": "",
+   "notes": "Re-census 2026-09-14: opcom_kmsg.c present; vms-98c2 additionally seeds OPERATOR.LOG from a durable spool rather than the lossy kernel ring.",
    "plan_ref": "vms-46c"
   },
   {
@@ -2194,7 +2195,7 @@
    "scope_1_0": "in",
    "evidence": "src/libvms/include/descrip.h",
    "verified_against": null,
-   "notes": "Works for C via the native host ABI; VMS's own item-list/arg-block conventions honored for descriptor args.",
+   "notes": "Works for C via the native host ABI; VMS's own item-list/arg-block conventions honored for descriptor args. Real, not verified \u2014 no cross-language oracle is gated.",
    "plan_ref": "vms-801"
   },
   {
@@ -2209,7 +2210,7 @@
    "scope_1_0": "in",
    "evidence": "src/libvms/include/descrip.h",
    "verified_against": null,
-   "notes": "Descriptor classes S/D real; classes A (array) and VS (varying string) absent; packed decimal absent; VAX F/D/G/H float unsupported (IEEE only). These block Fortran/COBOL/BASIC cross-calls.",
+   "notes": "Descriptor classes S/D real and marshalled. descrip.h now DECLARES the full class enum (A/NCA/VS/VSA/SD/UBS/...) and dtype set, but no RTL operates on classes A (array) or VS (varying string) and packed decimal is unmarshalled (OTS$ CVT_T_P/CVT_P_T absent); VAX F/D/G/H float unsupported (IEEE only). These declared-but-unmarshalled types are what block Fortran/COBOL/BASIC cross-calls.",
    "plan_ref": "vms-801"
   },
   {
@@ -2224,7 +2225,7 @@
    "scope_1_0": "in",
    "evidence": "src/libvms/rtl/lib_signal.c",
    "verified_against": null,
-   "notes": "In-process handler stack, not a real machine-frame unwind; SYS$UNWIND simplified. Cross-ref chf facility.",
+   "notes": "In-process handler stack, not a real machine-frame unwind; SYS$UNWIND simplified. Cross-ref chf facility. Advisory: tracked honestly, not a faked full unwind.",
    "plan_ref": "vms-801"
   },
   {
@@ -2239,13 +2240,13 @@
    "scope_1_0": "in",
    "evidence": "",
    "verified_against": null,
-   "notes": "OVMX uses the host (x86_64/aarch64 SysV) ABI, honestly \u2014 not the VAX/Alpha VMS register convention; fine for recompiled C, wrong for binary/MACRO interop.",
+   "notes": "OVMX uses the host (x86_64/aarch64 SysV) ABI, honestly \u2014 not the VAX/Alpha VMS register convention; fine for recompiled C, wrong for binary/MACRO interop. Advisory, not a facade.",
    "plan_ref": "vms-801"
   },
   {
    "domain": "programming-interfaces",
    "facility": "chf",
-   "facility_name": "Condition Handling Facility (LIB$SIGNAL/ESTABLISH, SYS$UNWIND)",
+   "facility_name": "Condition Handling Facility (LIB$SIGNAL/ESTABLISH, SYS$UNWIND, SYS$SETEXV)",
    "id": "lib$establish",
    "kind": "routine",
    "vms": "Establish a condition handler",
@@ -2254,13 +2255,13 @@
    "scope_1_0": "in",
    "evidence": "src/libvms/rtl/lib_signal.c",
    "verified_against": null,
-   "notes": "thread-local handler_stack walked in-process, not real machine-frame unwind",
-   "plan_ref": "vms-801"
+   "notes": "thread-local frame-handler chain, searched in the authentic 4-stage order by dispatch_condition(); single-mode userspace, not executive-resident",
+   "plan_ref": "vms-2e72"
   },
   {
    "domain": "programming-interfaces",
    "facility": "chf",
-   "facility_name": "Condition Handling Facility (LIB$SIGNAL/ESTABLISH, SYS$UNWIND)",
+   "facility_name": "Condition Handling Facility (LIB$SIGNAL/ESTABLISH, SYS$UNWIND, SYS$SETEXV)",
    "id": "lib$revert",
    "kind": "routine",
    "vms": "Revert to the previous condition handler",
@@ -2270,12 +2271,12 @@
    "evidence": "src/libvms/rtl/lib_signal.c",
    "verified_against": null,
    "notes": "",
-   "plan_ref": "vms-801"
+   "plan_ref": "vms-2e72"
   },
   {
    "domain": "programming-interfaces",
    "facility": "chf",
-   "facility_name": "Condition Handling Facility (LIB$SIGNAL/ESTABLISH, SYS$UNWIND)",
+   "facility_name": "Condition Handling Facility (LIB$SIGNAL/ESTABLISH, SYS$UNWIND, SYS$SETEXV)",
    "id": "lib$signal",
    "kind": "routine",
    "vms": "Signal a condition",
@@ -2284,13 +2285,13 @@
    "scope_1_0": "in",
    "evidence": "src/libvms/rtl/lib_signal.c",
    "verified_against": null,
-   "notes": "",
-   "plan_ref": "vms-801"
+   "notes": "public entry to dispatch_condition() (PRIMARY vector -> frame chain -> SECONDARY -> LAST-CHANCE)",
+   "plan_ref": "vms-2e72"
   },
   {
    "domain": "programming-interfaces",
    "facility": "chf",
-   "facility_name": "Condition Handling Facility (LIB$SIGNAL/ESTABLISH, SYS$UNWIND)",
+   "facility_name": "Condition Handling Facility (LIB$SIGNAL/ESTABLISH, SYS$UNWIND, SYS$SETEXV)",
    "id": "lib$stop",
    "kind": "routine",
    "vms": "Signal a condition and force program exit if unhandled",
@@ -2300,12 +2301,12 @@
    "evidence": "src/libvms/rtl/lib_signal.c",
    "verified_against": null,
    "notes": "",
-   "plan_ref": "vms-801"
+   "plan_ref": "vms-2e72"
   },
   {
    "domain": "programming-interfaces",
    "facility": "chf",
-   "facility_name": "Condition Handling Facility (LIB$SIGNAL/ESTABLISH, SYS$UNWIND)",
+   "facility_name": "Condition Handling Facility (LIB$SIGNAL/ESTABLISH, SYS$UNWIND, SYS$SETEXV)",
    "id": "lib$sig_to_ret",
    "kind": "routine",
    "vms": "Convert a signal to a return status",
@@ -2314,13 +2315,13 @@
    "scope_1_0": "in",
    "evidence": "src/libvms/rtl/lib_signal.c",
    "verified_against": null,
-   "notes": "",
-   "plan_ref": "vms-801"
+   "notes": "writes chf$is_mch_savr0 = the signalled condition name",
+   "plan_ref": "vms-2e72"
   },
   {
    "domain": "programming-interfaces",
    "facility": "chf",
-   "facility_name": "Condition Handling Facility (LIB$SIGNAL/ESTABLISH, SYS$UNWIND)",
+   "facility_name": "Condition Handling Facility (LIB$SIGNAL/ESTABLISH, SYS$UNWIND, SYS$SETEXV)",
    "id": "lib$sig_to_stop",
    "kind": "routine",
    "vms": "Convert a signal to STOP severity",
@@ -2330,12 +2331,12 @@
    "evidence": "",
    "verified_against": null,
    "notes": "",
-   "plan_ref": "vms-801"
+   "plan_ref": "vms-2e72"
   },
   {
    "domain": "programming-interfaces",
    "facility": "chf",
-   "facility_name": "Condition Handling Facility (LIB$SIGNAL/ESTABLISH, SYS$UNWIND)",
+   "facility_name": "Condition Handling Facility (LIB$SIGNAL/ESTABLISH, SYS$UNWIND, SYS$SETEXV)",
    "id": "lib$match_cond",
    "kind": "routine",
    "vms": "Match a condition code against a list, ignoring severity",
@@ -2345,12 +2346,27 @@
    "evidence": "",
    "verified_against": null,
    "notes": "",
-   "plan_ref": "vms-801"
+   "plan_ref": "vms-2e72"
   },
   {
    "domain": "programming-interfaces",
    "facility": "chf",
-   "facility_name": "Condition Handling Facility (LIB$SIGNAL/ESTABLISH, SYS$UNWIND)",
+   "facility_name": "Condition Handling Facility (LIB$SIGNAL/ESTABLISH, SYS$UNWIND, SYS$SETEXV)",
+   "id": "lib$_get_invo_context",
+   "kind": "routine",
+   "vms": "Invocation-context primitives (LIB$GET_CURR_INVO_CONTEXT, LIB$GET_PREV_INVO_CONTEXT, LIB$GET_INVO_CONTEXT, LIB$GET_INVO_HANDLE, LIB$GET_PREV_INVO_HANDLE)",
+   "status": "implemented",
+   "authenticity": "real",
+   "scope_1_0": "in",
+   "evidence": "src/libvms/rtl/lib_invo.c",
+   "verified_against": null,
+   "notes": "Alpha (CHF rung-3, vms-1fa): walks the genuine Alpha call chain (PDSC+RSA, Alpha Calling Standard) so perform_unwind() can resume into an anchorless ancestor",
+   "plan_ref": "vms-2e72"
+  },
+  {
+   "domain": "programming-interfaces",
+   "facility": "chf",
+   "facility_name": "Condition Handling Facility (LIB$SIGNAL/ESTABLISH, SYS$UNWIND, SYS$SETEXV)",
    "id": "chf$mech_array",
    "kind": "struct",
    "vms": "Condition-handler mechanism-args array (savr0/savr1/frame fields)",
@@ -2359,43 +2375,88 @@
    "scope_1_0": "in",
    "evidence": "src/libvms/rtl/lib_signal.c",
    "verified_against": null,
-   "notes": "vms-df8 sweep re-census: chf$ph_mch_frame + chf$is_mch_depth are REAL (establisher frame via __builtin_frame_address + real chain depth, lib_signal.c:258-259/351-352); chf$is_mch_savr0 is written by lib$sig_to_ret (lib_signal.c:485). Only chf$is_mch_savr1 stays 0 -- the host C ABI exposes no VAX/Alpha R1 to capture (documented gap, not fabrication). Was stale-flagged facade-risk.",
-   "plan_ref": "vms-801"
+   "notes": "chf$ph_mch_frame + chf$is_mch_depth are real (establisher frame via __builtin_frame_address + real chain depth); chf$is_mch_savr0 is written by lib$sig_to_ret. Only chf$is_mch_savr1 stays 0 -- the host C ABI exposes no VAX/Alpha R1 to capture (documented gap, not fabrication)",
+   "plan_ref": "vms-2e72"
   },
   {
    "domain": "programming-interfaces",
    "facility": "chf",
-   "facility_name": "Condition Handling Facility (LIB$SIGNAL/ESTABLISH, SYS$UNWIND)",
+   "facility_name": "Condition Handling Facility (LIB$SIGNAL/ESTABLISH, SYS$UNWIND, SYS$SETEXV)",
    "id": "sys$unwind",
    "kind": "routine",
-   "vms": "Unwind the call stack to an establisher",
-   "status": "stub",
+   "vms": "Unwind the call stack to an establisher, transferring control (optionally to newpc)",
+   "status": "implemented",
    "authenticity": "advisory",
    "scope_1_0": "in",
    "evidence": "src/libvms/syssvc/sys_condition.c",
    "verified_against": null,
-   "notes": "documented simplified unwind",
-   "plan_ref": "vms-801"
+   "notes": "rung-2 (vms-8802): records a deferred unwind (target depth + newpc) that the dispatcher performs on the requesting handler's return -- real frame transfer via setjmp/longjmp into an armed VMS$UNWIND_ANCHOR, or an Alpha PDSC/RSA walk (lib_invo.c) for an anchorless ancestor. Single-mode userspace; not executive-resident",
+   "plan_ref": "vms-2e72"
   },
   {
    "domain": "programming-interfaces",
    "facility": "chf",
-   "facility_name": "Condition Handling Facility (LIB$SIGNAL/ESTABLISH, SYS$UNWIND)",
+   "facility_name": "Condition Handling Facility (LIB$SIGNAL/ESTABLISH, SYS$UNWIND, SYS$SETEXV)",
+   "id": "sys$setexv",
+   "kind": "routine",
+   "vms": "Set a software exception vector (primary/secondary/last-chance)",
+   "status": "implemented",
+   "authenticity": "advisory",
+   "scope_1_0": "in",
+   "evidence": "src/libvms/syssvc/sys_setexv.c",
+   "verified_against": null,
+   "notes": "rung-1 (vms-2e72): establishes/clears the thread-local exc_vector[] the dispatcher consults around the frame-handler chain; acmode validated/recorded but single effective slot participates (single-mode userspace, honest, not a per-process fake)",
+   "plan_ref": "vms-2e72"
+  },
+  {
+   "domain": "programming-interfaces",
+   "facility": "chf",
+   "facility_name": "Condition Handling Facility (LIB$SIGNAL/ESTABLISH, SYS$UNWIND, SYS$SETEXV)",
    "id": "sys$dclexh",
    "kind": "routine",
    "vms": "Declare an exit handler",
-   "status": "stub",
+   "status": "implemented",
    "authenticity": "advisory",
    "scope_1_0": "in",
-   "evidence": "src/libvms/syssvc/sys_process.c:1016",
+   "evidence": "src/libvms/syssvc/sys_process.c",
    "verified_against": null,
-   "notes": "",
-   "plan_ref": "vms-801"
+   "notes": "registers a real exit-handler desblk in the PCB (LIFO, PCB_MAX_EXIT_HANDLERS cap -> SS$_EXQUOTA); run in LIFO order by sys$exit. Per-process (PCB), not executive-resident",
+   "plan_ref": "vms-2e72"
   },
   {
    "domain": "programming-interfaces",
    "facility": "chf",
-   "facility_name": "Condition Handling Facility (LIB$SIGNAL/ESTABLISH, SYS$UNWIND)",
+   "facility_name": "Condition Handling Facility (LIB$SIGNAL/ESTABLISH, SYS$UNWIND, SYS$SETEXV)",
+   "id": "ss$_hparith_bridge",
+   "kind": "feature",
+   "vms": "Hardware arithmetic trap raises SS$_HPARITH through the CHF dispatcher",
+   "status": "implemented",
+   "authenticity": "real",
+   "scope_1_0": "in",
+   "evidence": "src/libvms/rtl/arith_signal.c",
+   "verified_against": null,
+   "notes": "Alpha (vms-db3): SIGFPE image-start handler decodes sc_fpcr sticky bits into the Alpha exception-summary byte (si_code is lossy) and signals a faithful SS$_HPARITH through dispatch_condition()",
+   "plan_ref": "vms-2e72"
+  },
+  {
+   "domain": "programming-interfaces",
+   "facility": "chf",
+   "facility_name": "Condition Handling Facility (LIB$SIGNAL/ESTABLISH, SYS$UNWIND, SYS$SETEXV)",
+   "id": "ss$_accvio_bridge",
+   "kind": "feature",
+   "vms": "Hardware access violation raises SS$_ACCVIO through the CHF dispatcher",
+   "status": "implemented",
+   "authenticity": "real",
+   "scope_1_0": "in",
+   "evidence": "src/libvms/rtl/accvio_signal.c",
+   "verified_against": null,
+   "notes": "Alpha (CHF rung-4, vms-cc8): SIGSEGV/SIGBUS/SIGILL image-start handler builds the public VMS access-violation signal array and dispatches SS$_ACCVIO through the same dispatch_condition() as software conditions",
+   "plan_ref": "vms-2e72"
+  },
+  {
+   "domain": "programming-interfaces",
+   "facility": "chf",
+   "facility_name": "Condition Handling Facility (LIB$SIGNAL/ESTABLISH, SYS$UNWIND, SYS$SETEXV)",
    "id": "sys$exiv",
    "kind": "routine",
    "vms": "Declare an exit vector",
@@ -2405,22 +2466,7 @@
    "evidence": "",
    "verified_against": null,
    "notes": "",
-   "plan_ref": "vms-801"
-  },
-  {
-   "domain": "programming-interfaces",
-   "facility": "chf",
-   "facility_name": "Condition Handling Facility (LIB$SIGNAL/ESTABLISH, SYS$UNWIND)",
-   "id": "sys$setexv",
-   "kind": "routine",
-   "vms": "Set an exception vector",
-   "status": "absent",
-   "authenticity": "n/a",
-   "scope_1_0": "in",
-   "evidence": "",
-   "verified_against": null,
-   "notes": "",
-   "plan_ref": "vms-801"
+   "plan_ref": "vms-2e72"
   },
   {
    "domain": "clustering",
@@ -2434,7 +2480,7 @@
    "scope_1_0": "in",
    "evidence": "src/kernel-core/vms_lock.c",
    "verified_against": "tests/qemu/test_syssvc_dlm_xnode.c (x86_64 + Alpha LP64) \u2014 scenario 5 (H5: block-then-grant + deferred-grant report) and scenario 7 (H6: BLKAST wire + holder-side receive) driven against a real /dev/vms executive. (The former two-node run_dlm_harness_h5.sh/_h6.sh QEMU harnesses were retired with the userspace SCSD daemon in the executive-resident pivot, #1052; the receive-handler behavior they proved is now exercised by this injected-cross-node-request test on real /dev/vms.)",
-   "notes": "vms-94c/vms-e8f1/vms-904c + BLKAST wire H6 (vms-76d/#918). vms_lock_dlm_xnode_dispatch runs a decoded cross-node $ENQ through the real lock manager on the mastering node, held FOR the remote requester's CSID: a compatible request GRANTS (SS$_NORMAL, GET_RESMASTER shows held_for=<peer>); an incompatible one QUEUES on the real waiting queue (VMS_DLM_STS_QUEUED, GETLKI shows granted NL / requested EX) and the master fires the blocking-AST decision. The BLKAST is now DELIVERED over SCS and fires a genuine user-mode AST on the remote holder's process (H6, was deferred); a cross-node $DEQ (vms_lock_dlm_xnode_deq, authorized by CSID) releases and grants the blocked request (GETLKI flips NL->EX). Exercised on real /dev/vms single-node with an injected cross-node CSID (tests/qemu/test_syssvc_dlm_xnode.c x86_64 + Alpha LP64); the two-node H5/H6 QEMU harnesses that proved the over-the-wire path were retired in #1052 \u2014 multi-node runtime proof pending (vms-1ee). No fake grants OR blocks \u2014 a queued request is a real lock on the master's queue that releases only on a real $DEQ (INV-6).\n",
+   "notes": "vms-94c/vms-e8f1/vms-904c + BLKAST wire H6 (vms-76d/#918). vms_lock_dlm_xnode_dispatch runs a decoded cross-node $ENQ through the real lock manager on the mastering node, held FOR the remote requester's CSID: a compatible request GRANTS (SS$_NORMAL, GET_RESMASTER shows held_for=<peer>); an incompatible one QUEUES on the real waiting queue (VMS_DLM_STS_QUEUED, GETLKI shows granted NL / requested EX) and the master fires the blocking-AST decision. The BLKAST is now DELIVERED over SCS and fires a genuine user-mode AST on the remote holder's process (H6, was deferred); a cross-node $DEQ (vms_lock_dlm_xnode_deq, authorized by CSID) releases and grants the blocked request (GETLKI flips NL->EX). Exercised on real /dev/vms single-node with an injected cross-node CSID (tests/qemu/test_syssvc_dlm_xnode.c x86_64 + Alpha LP64); the two-node H5/H6 QEMU harnesses that proved the over-the-wire path were retired in #1052 \u2014 multi-node runtime proof pending (vms-1ee). RE-ESTABLISHED 2-node (#1174, tests/lab/captures/xnode-dlm-2node-20260911.log): a live two-node cluster proves cross-node $ENQ->GRANT bidirectionally (each node granted EX by the PEER master, granted_mode=5, grants_received=1) and never-crash-a-peer (both survive the peer's frames, projections=agree) \u2014 the first real multi-node proof since the #1052 retirement, partially discharging the vms-1ee caveat for the acquire/grant path. NOW FULLY DISCHARGED for the acquire/grant/notify/release lifecycle (vms-c72 receive arm #1181 + round-trip lab proof #1183, tests/lab/captures/xnode-dlm-2node-resmaster-clean-20260911.log): the receive arm routes inbound op-03 ($DEQ) -> master-side release and op-04 (BLKAST) -> a real user-mode AST on the remote holder, and a live 2-node run proves the FULL emit->receive->deliver round-trip: blkasts_received>0 + blkasts_delivered>0 (BLKAST really delivered, not just emitted, superseding the earlier single-node-injection-only note), and a DIRECT master-side release readback \u2014 on node B (master) the granted queue goes n_granted 1->0 with remote_holder cleared AFTER B processes A's inbound $DEQ (counter_rose=1 gates the sample to post-processing), the resource still present (found=1): the LKB actually left the master's granted queue, a lock-DB STATE delta, not a return code. Composed with the in-process assertion (test_dlm_recv_arm: master copy GONE, real engine) this answers return-value!=state at both the unit and live 2-node levels. Only remaster/LVB + distributed-deadlock stay deferred (cluster-dlm$remaster-lvb-deadlock, vms-727). No fake grants OR blocks \u2014 a queued request is a real lock on the master's queue that releases only on a real $DEQ (INV-6).\n",
    "plan_ref": "vms-694"
   },
   {
@@ -2449,7 +2495,7 @@
    "scope_1_0": "in",
    "evidence": "src/kernel-core/vms_dlm_scs_fsm.c",
    "verified_against": "tests/qemu/test_syssvc_dlm_xnode.c \u2014 scenario 5 (H5: the block-then-grant $DEQ REPORTS the flipped waiter so the daemon can wire a deferred GRANT) and scenario 5b (the requester-side VMS_DLM_OP_GRANT receive completes an executive-resident origin record \u2014 a queued-reply leaves it NL-pending, a deferred GRANT flips NL->EX, read back on the requester by GETLKI), driven against a real /dev/vms executive. (The former two-node A<->B run_dlm_harness_h5.sh daemon harness \u2014 SCSD-I-DLMPEND/DLMDEFER/DLMH5FLIP \u2014 was retired with the userspace SCSD daemon in the executive-resident pivot, #1052.)",
-   "notes": "vms-6ca rung H5. The master's async replies ride the live SCS wire: node B WIREs the queued-reply (granted mode NL \u2014 the requester stays genuinely pending) and, on a real cross-node $DEQ that flips a queued waiter to granted, WIREs an unprompted deferred GRANT (SS$_NORMAL, the granted mode) to that requester (vms_lock_dlm_xnode_deq reports the flipped waiter). The REQUESTER-SIDE GRANT RECEIVE (VMS_DLM_OP_GRANT) completes an executive-resident ORIGIN record on the requesting node, whose granted mode is set ONLY from what the master sent over SCS; GETLKI reads the NL->EX flip back on the REQUESTER. This origin record is the requester-side wait-for state H11's distributed deadlock search reads (VMS_IOCTL_DLM_ENUM_WAITS). The requester-side receive is exercised single-node on real /dev/vms (tests/qemu/test_syssvc_dlm_xnode.c, injected CSID); the former two-node A<->B run_dlm_harness_h5.sh proof (SCSD-I-DLMPEND/DLMDEFER/DLMH5FLIP) was retired in #1052 \u2014 multi-node wire proof pending (vms-1ee). No fabricated wire reply or grant (INV-6).\n",
+   "notes": "vms-6ca rung H5. The master's async replies ride the live SCS wire: node B WIREs the queued-reply (granted mode NL \u2014 the requester stays genuinely pending) and, on a real cross-node $DEQ that flips a queued waiter to granted, WIREs an unprompted deferred GRANT (SS$_NORMAL, the granted mode) to that requester (vms_lock_dlm_xnode_deq reports the flipped waiter). The REQUESTER-SIDE GRANT RECEIVE (VMS_DLM_OP_GRANT) completes an executive-resident ORIGIN record on the requesting node, whose granted mode is set ONLY from what the master sent over SCS; GETLKI reads the NL->EX flip back on the REQUESTER. This origin record is the requester-side wait-for state H11's distributed deadlock search reads (VMS_IOCTL_DLM_ENUM_WAITS). The requester-side receive is exercised single-node on real /dev/vms (tests/qemu/test_syssvc_dlm_xnode.c, injected CSID); the former two-node A<->B run_dlm_harness_h5.sh proof (SCSD-I-DLMPEND/DLMDEFER/DLMH5FLIP) was retired in #1052 \u2014 multi-node wire proof pending (vms-1ee). RE-ESTABLISHED 2-node (#1174, tests/lab/captures/xnode-dlm-2node-20260911.log): the async GRANT-reply crosses the live wire and completes on the requester (grants_received=1 on both nodes, NL->EX read back on the real 2-node cluster) \u2014 partially discharging vms-1ee for the grant-reply path. NOW FULLY DISCHARGED: the receive arm (vms-c72, #1181) routes the inbound op-03 $DEQ (emit reachable since #1178) to the master-side release and the op-04 BLKAST to a real user-mode AST, and the live 2-node round-trip (#1183) shows the async replies delivered end-to-end \u2014 blkasts_delivered>0 and the inbound $DEQ empties the master's granted queue n_granted 1->0 (direct resmaster readback, counter_rose=1 gated). The full async emit->receive->deliver wire is proven 2-node, not just the grant-reply half. No fabricated wire reply or grant (INV-6).\n",
    "plan_ref": "vms-694"
   },
   {
@@ -2463,7 +2509,7 @@
    "authenticity": "real",
    "scope_1_0": "in",
    "evidence": "src/kernel-core/vms_lock.c",
-   "verified_against": "PARTIAL coverage only \u2014 host units tests/cluster/host/test_dlm_ldwv.c (LVB read + wait-for visibility, injected/fake master) + tests/cluster/host/test_dlm_requester.c; N-node simulator scenarios tests/cluster/sim/scenarios/dlm_directory.c (directory routing) + tests/cluster/sim/scenarios/dlm_requester.c (simulated peers); tests/cluster/host/test_codec_dlm.c (REBUILD/DLKSRCH frame codec). The multi-node real-/dev/vms proofs (run_dlm_harness_h8/_h9/_h10/_h10b/_e84/_ec75.sh \u2014 LVB write/read crossing, dynamic remaster, directory-ownership refusal, distributed deadlock) were RETIRED with the userspace SCSD daemon in the #1052 executive-resident pivot and have NO real-/dev/vms multi-node successor today \u2014 status downgraded verified->implemented pending re-established proof (vms-1ee). PROGRESS (rd vms-1ee): blocker 1 of 3 CLEARED. The Lock Directory Weight Vector now builds on a real multi-node cluster: when NO peer has advertised a LOCKDIRWT (none can -- no wire byte is pinned for a remote system, FC-P3.2) the local node WITHHOLDS its own SYSGEN weight so p. 6-32's all-zero reading applies cluster-wide, which is the one directory every node computes identically. Gated: the fallback is refused the instant ANY PEER advertises a real weight (split-brain: an all-zero answer to a peer computing a weighted vector is two directories for one resource). Proven on the live 2-node rig -- both executives now report the vector built on the unadvertised reading, where every previous run reported it not rebuilt (tests/qemu/captures/ldwv-fallback-20260911.log); teeth in tests/cluster/host/test_dlm_ldwv.c (club_local_withhold_builds_when_peers_unknown + club_local_withhold_refused_when_a_peer_advertised). STILL BLOCKING the multi-node proofs, both scoped: (2) src/kernel-core/vms_dlm_scs.c -- the arm binding codec+FSM to SCS -- is ABSENT (4 declared entry points, no implementer, no caller), and needs a cnxman send-to-CSID entry plus a DLM leg in the receive route; (3) the DLM codec is FRAME-ABSOLUTE (offsets 80/81/92/96/102/118+, and it takes a struct vms_frame_info) while the only inbound path, cnxman_vc_message(), delivers a 132-byte SYSAP BODY -- the E73 class of mismatch -- so body-relative entry points must be added before any DLM frame can be parsed on receive. The frame-level entry the FSM header cites (cnxman_barrier_rx_frame) does not exist.",
+   "verified_against": "PARTIAL coverage only \u2014 host units tests/cluster/host/test_dlm_ldwv.c (LVB read + wait-for visibility, injected/fake master) + tests/cluster/host/test_dlm_requester.c; N-node simulator scenarios tests/cluster/sim/scenarios/dlm_directory.c (directory routing) + tests/cluster/sim/scenarios/dlm_requester.c (simulated peers); tests/cluster/host/test_codec_dlm.c (REBUILD/DLKSRCH frame codec). The multi-node real-/dev/vms proofs (run_dlm_harness_h8/_h9/_h10/_h10b/_e84/_ec75.sh \u2014 LVB write/read crossing, dynamic remaster, directory-ownership refusal, distributed deadlock) were RETIRED with the userspace SCSD daemon in the #1052 executive-resident pivot; their gated multi-node successor through the now-landed SCS arm is still being re-established (vms-1ee; see the 2026-09-14 UPDATE below) \u2014 status stays verified->implemented pending that re-established proof. PROGRESS (rd vms-1ee): blocker 1 of 3 CLEARED. The Lock Directory Weight Vector now builds on a real multi-node cluster: when NO peer has advertised a LOCKDIRWT (none can -- no wire byte is pinned for a remote system, FC-P3.2) the local node WITHHOLDS its own SYSGEN weight so p. 6-32's all-zero reading applies cluster-wide, which is the one directory every node computes identically. Gated: the fallback is refused the instant ANY PEER advertises a real weight (split-brain: an all-zero answer to a peer computing a weighted vector is two directories for one resource). Proven on the live 2-node rig -- both executives now report the vector built on the unadvertised reading, where every previous run reported it not rebuilt (tests/qemu/captures/ldwv-fallback-20260911.log); teeth in tests/cluster/host/test_dlm_ldwv.c (club_local_withhold_builds_when_peers_unknown + club_local_withhold_refused_when_a_peer_advertised). UPDATE 2026-09-14 (re-census against origin/main b64d6b57): blockers (2) and (3) are now CLEARED IN CODE -- the SCS arm has LANDED. (2) src/kernel-core/vms_dlm_scs.c now EXISTS and is implemented (1668 lines, the dlm_arm_* family binding codec+FSM to SCS); it is built in all three targets (src/kernel/Makefile, src/kernel-netbsd/Makefile, distro/kernel/drivers-ovmx/vms/Kbuild) and STARTED from the executive (vms_dlm_scs_start at src/kernel-core/vms_devtab.c:2888), and it now has real callers on BOTH legs in src/kernel-core/vms_cnxman.c: the send-to-CSID origination entry cnxman_dlm_send() and the receive leg cnxman_dlm_rx() (invoked from the message-dispatch path, which hands an inbound DLM body to the arm's handle_request). (3) The DLM codec is no longer frame-absolute: src/kernel-core/vms_cluster_codec_dlm.c now exposes a body-relative *_parse_body(body,len,...) family (enq_request/enq_response/dir_hash/rebuild/deq/blkast/valblk) with frame-absolute entries layered over the SAME implementation (dlm_body_of slices at VMS_OFF_SYSAP_BODY), and the receive path parses the 132-byte SYSAP body directly, so DLM frames ARE parsed on receive -- the E73 body/frame mismatch is resolved. (The frame-level symbol the FSM header once cited, cnxman_barrier_rx_frame, still does not exist by that name; it is SUPERSEDED by the body-relative receive route cnxman_dlm_rx, not added.) Proof of the arm today: test_dlm_scs_arm (tests/cluster/host, the two-proof shape -- the arm is not host-linkable, so a driven trust-anchor against the real CSB derivation plus a wiring/order scan of the shipping files), plus live 2-node captures on disk (tests/lab/captures/dlm-arm-2node-20260911.log, ldwv-fallback/ldwv-splitbrain-gate-20260911, and the vms-727 LVB-crossing 2-node captures). REMAINING before this row can move past implemented: (a) a GATED live multi-node /dev/vms successor that exercises remaster (H10a/b) + LVB crossing (H8/H9) + distributed deadlock (H11) END-TO-END through the landed arm, as the replacement for the retired run_dlm_harness_h8/_h9/_h10/_h10b/_e84/_ec75 proofs -- the 2-node captures above are PRESENT but whether they fully discharge the remaster/deadlock slice is NOT confirmed in this census (state unverified, needs lane confirmation, vms-1ee); and (b) for verified specifically, a real-VAX DLM wire capture to replace the OVMX-DERIVED byte layout (Rule 8, 'NOT VMS-authentic' per the scs-transport row) with an oracle byte-gate. Status therefore stays IMPLEMENTED, not verified.",
    "notes": "The former \"remain absent\" cluster of the DLM epic. The code implements each part below and was originally proven on a live multi-node /dev/vms rail, but those multi-node proofs (the run_dlm_harness_* QEMU harnesses referenced below) were RETIRED in the #1052 executive-resident pivot with no real-/dev/vms multi-node successor today \u2014 so this row is implemented, not verified (re-establishment tracked in vms-1ee). The mechanism, still in the executive. LVB REPLICATION both ways: the H8 write crossing (vms-d81/#923) and the H9 read crossing (vms-eeb/#925). DYNAMIC REMASTERING on graceful departure: the directory INGRESS re-resolves a departed node's resources onto a survivor (H10a, vms-2bf/#927, VMS_IOCTL_DLM_MEMBER_DEPART + a runtime departed-set filtering the static dlm_member_csids vector), AND the cross-node lock STATE is rebuilt on the new master from the surviving holder's REAL origin record over a targeted SCS_DLM_OP_REBUILD, reconstructed directly into res->granted and value-verified (H10b, vms-dca9/#928, run_dlm_harness_h10b.sh three-way equality). DIRECTORY OWNERSHIP: a node refuses to master a resource it is not the directory for \u2014 dlm_resolve_master returns SS$_UNSUPPORTED \u2014 proven on the wire (e84, vms-e84/#929, run_dlm_harness_e84.sh: non-directory node answers 0x8F8, directory node GRANTS). DISTRIBUTED DEADLOCK DETECTION: a cross-node cycle is found by an edge-chasing search over the real distributed wait-for graph (home pending origins via VMS_IOCTL_DLM_ENUM_WAITS + master res->granted via VMS_IOCTL_DLM_GET_GRANTED), and a globally-deterministic single victim (lexicographic-min over the cycle) is aborted with SS$_DEADLOCK via the GRANT-reply path, idempotently (H11, vms-ec75/#930, run_dlm_harness_ec75.sh: cycle detected, exactly one victim, the other stays queued). Every edge is a real queue/origin read; a dropped/ttl-expired probe reports no-deadlock, never a fabricated cycle (INV-6). DEPTH deferred beyond the engine (honest, tracked): the concurrent-both-initiate deadlock proof (vms-04f \u2014 logic shipped + code-verified) and a real app-process cross-node acquisition path replacing the SS$_UNSUPPORTED \"0.4\" stub (vms-d1f, post-1.0). The directory REDIRECT that used to be listed here as deferred now SHIPS \u2014 see the cluster-dlm$directory-redirect row below.\n",
    "plan_ref": "vms-694"
   },
@@ -2539,7 +2585,7 @@
    "scope_1_0": "in",
    "evidence": "third-party/tcc",
    "verified_against": null,
-   "notes": "tcc self-hosts inside OVMX (S2, gen2==gen3); independence beachhead, NOT full DEC C nor a perf compiler (rustc/Rust later). Source-compat is the C target.",
+   "notes": "tcc self-hosts inside OVMX (S2, gen2==gen3); independence beachhead, NOT full DEC C nor a perf compiler (rustc/Rust later). Source-compat is the C target. Not 'verified' \u2014 no DEC C conformance oracle is gated.",
    "plan_ref": "vms-082"
   },
   {
@@ -2552,9 +2598,9 @@
    "status": "absent",
    "authenticity": "n/a",
    "scope_1_0": "out",
-   "evidence": "",
+   "evidence": "docs/compat/facilities/macro.yaml",
    "verified_against": null,
-   "notes": "Explicitly out of scope (compatibility-contract.md); tcc's integrated assembler is GAS-syntax only.",
+   "notes": "Explicitly out of scope (compatibility-contract.md); tcc's integrated assembler is GAS-syntax only. Cross-listed as the toolchain-domain MACRO-32 assembler row (facilities/macro.yaml).",
    "plan_ref": "vms-082"
   },
   {
@@ -2569,7 +2615,7 @@
    "scope_1_0": "stretch",
    "evidence": "",
    "verified_against": null,
-   "notes": "No native Alpha backend on main either.",
+   "notes": "No native Alpha backend on origin/main either; the Alpha object toolchain reads GAS-produced EVAX objects (object-format), not MACRO-64 source.",
    "plan_ref": "vms-082"
   },
   {
@@ -2584,7 +2630,7 @@
    "scope_1_0": "undecided",
    "evidence": "",
    "verified_against": null,
-   "notes": "Central to the scientific corpus. Needs FOR$ RTL + array descriptors + VAX-float support \u2014 all absent. Operator scope call.",
+   "notes": "Central to the scientific corpus. Needs FOR$ RTL + array descriptors (DSC$K_CLASS_A now DECLARED in descrip.h but unmarshalled) + VAX-float support \u2014 all absent. Operator scope call (vms-082).",
    "plan_ref": "vms-082"
   },
   {
@@ -2599,7 +2645,7 @@
    "scope_1_0": "undecided",
    "evidence": "",
    "verified_against": null,
-   "notes": "Central to the business corpus. Needs COB$ RTL + packed-decimal (OTS$ gap) + indexed-file multi-key (RMS gap). Operator scope call.",
+   "notes": "Central to the business corpus. Needs COB$ RTL + packed-decimal (OTS$CVT_T_P/CVT_P_T absent per ots.yaml) + indexed-file multi-key (rms$isam_alternate_key absent per rms-api). Operator scope call (vms-082).",
    "plan_ref": "vms-082"
   },
   {
@@ -2614,7 +2660,7 @@
    "scope_1_0": "undecided",
    "evidence": "",
    "verified_against": null,
-   "notes": "Needs BAS$ RTL + varying-string descriptors (descriptor class VS absent). Operator scope call.",
+   "notes": "Needs BAS$ RTL + varying-string descriptors (DSC$K_CLASS_VS declared in descrip.h but no RTL operates on it). Operator scope call (vms-082).",
    "plan_ref": "vms-082"
   },
   {
@@ -2629,7 +2675,7 @@
    "scope_1_0": "undecided",
    "evidence": "",
    "verified_against": null,
-   "notes": "Needs PAS$ RTL. Operator scope call.",
+   "notes": "Needs PAS$ RTL. Operator scope call (vms-082).",
    "plan_ref": "vms-082"
   },
   {
@@ -2644,7 +2690,7 @@
    "scope_1_0": "undecided",
    "evidence": "",
    "verified_against": null,
-   "notes": "Operator scope call.",
+   "notes": "Operator scope call (vms-082).",
    "plan_ref": "vms-082"
   },
   {
@@ -2698,7 +2744,7 @@
    "facility_name": "Compilers (language front-ends)",
    "id": "compilers$_other",
    "kind": "subsystem",
-   "vms": "DIBOL, RPG II, APL, CORAL 66, SCAN, DSM/MUMPS, DECTPU-as-language, \u2026",
+   "vms": "DIBOL, RPG II, APL, CORAL 66, SCAN, DSM/MUMPS, VAX LISP, DECTPU-as-language, \u2026",
    "status": "absent",
    "authenticity": "n/a",
    "scope_1_0": "stretch",
@@ -2734,7 +2780,7 @@
    "scope_1_0": "in",
    "evidence": "src/kernel-core/vms_cnxman_join_fsm.c",
    "verified_against": null,
-   "notes": "FC-P3.3, executive-resident and pure. Drives the wire spec sec 4(L)/(m)/(o) sequence: this node's own SCS$DIRECTORY client round, the MSCP$DISK connect + served-unit walk, the VMS$VAXcluster VC, the server half (accepting every member's own connect), the op-0d echo recipe and the hand-off into the barrier. Reached from the boot path: FC-P3.9's VMS_IOCTL_CLUSTER_START starts the connection manager and drives the join when a real system has been discovered to join THROUGH. The join reaches the barrier, completes the dialogue, AND reaches MEMBER on an OVMX^n cluster (see connection-manager$membership, R4-verified). The CSID mechanism is now GROUNDED on a real-VMS own-lab capture (E30, resolved) and CORRECTS an earlier misread: the coordinator ASSIGNS the joiner a round-robin, monotonically-advancing CSV slot (a node's SCSSYSTEMID 1030 was assigned slot 4, then slot 5 on rejoin \u2014 NEVER `SCSSYSTEMID & 0x3ff` = 6), carried per member in a cat-0x01 op-0x05 membership record (sysid at body[20:24], assigned CSID at body[36:40], CSV index at body[40:42]). The joiner ADOPTS the CSID from the record naming its own SCSSYSTEMID and re-adopts every admission; it does NOT self-derive `generation<<16 | sysid&0x3ff` (that computed an inexpressible slot and could never self-select \u2014 the deleted bug). op-0x06 is the lock-rebuild push to the joiner, not the membership record. PROVEN AT R1/R2: tests/cluster/host/test_cnxman_join.c (op-05 adopt, the four joiner cases, slot-not-derivable) per transition; the simulator replays the reference joiner. R4 for OVMX^n: the two-node genesis rig (tests/qemu/run_cluster_genesis_2node.sh). Joining a REAL VAX to MEMBER stays lab-deferred (connection-manager$real-vax-join, absent) and still needs E31 (the VMS$VAXcluster connect-data identity) so a real VAX does not REJECT it.\n",
+   "notes": "FC-P3.3, executive-resident and pure. Drives the wire spec sec 4(L)/(m)/(o) sequence: this node's own SCS$DIRECTORY client round, the MSCP$DISK connect + served-unit walk, the VMS$VAXcluster VC, the server half (accepting every member's own connect), the op-0d echo recipe and the hand-off into the barrier. Reached from the boot path: FC-P3.9's VMS_IOCTL_CLUSTER_START starts the connection manager and drives the join when a real system has been discovered to join THROUGH. The join reaches the barrier, completes the dialogue, AND reaches MEMBER on an OVMX^n cluster (see connection-manager$membership, R4-verified). The CSID mechanism is now GROUNDED on a real-VMS own-lab capture (E30, resolved) and CORRECTS an earlier misread: the coordinator ASSIGNS the joiner a round-robin, monotonically-advancing CSV slot (a node's SCSSYSTEMID 1030 was assigned slot 4, then slot 5 on rejoin \u2014 NEVER `SCSSYSTEMID & 0x3ff` = 6), carried per member in a cat-0x01 op-0x05 membership record (sysid at body[20:24], assigned CSID at body[36:40], CSV index at body[40:42]). The joiner ADOPTS the CSID from the record naming its own SCSSYSTEMID and re-adopts every admission; it does NOT self-derive `generation<<16 | sysid&0x3ff` (that computed an inexpressible slot and could never self-select \u2014 the deleted bug). op-0x06 is the lock-rebuild push to the joiner, not the membership record. PROVEN AT R1/R2: tests/cluster/host/test_cnxman_join.c (op-05 adopt, the four joiner cases, slot-not-derivable) per transition; the simulator replays the reference joiner. R4 for OVMX^n: the two-node genesis rig (tests/qemu/run_cluster_genesis_2node.sh). REJOIN now live-proven 2-node own-lab (k3s-worker): a node evacuated (kill -9) and relaunched with the same SYSGEN identity, while the survivor holds its CSB inside RECNXINTERVAL, reaches member=1/cn2 (vms-4838/#1216 + vms-c06/#1218, RIG_MODE=rejoin). The rejoiner drives readmission on the MEMBER-INITIATED VMS$VAXcluster connection (join_cm_take_held reads the executive record + suppresses a second connect), wire-confirmed on a transmit-capturing rig (vms-175/#1217): its own capture sees self-TX (connect_req_from_self=4) yet vaxcluster_connect_req_from_self=0 is a REAL zero. NOT verified: no oracle byte-gate and no real-VAX rejoin (own-lab OVMX<->OVMX only). Joining a REAL VAX to MEMBER stays lab-deferred (connection-manager$real-vax-join, absent) and still needs E31 (the VMS$VAXcluster connect-data identity) so a real VAX does not REJECT it.\n",
    "plan_ref": "vms-694"
   },
   {
@@ -2794,7 +2840,7 @@
    "scope_1_0": "in",
    "evidence": "src/kernel-core/vms_cnxman_barrier_fsm.c",
    "verified_against": null,
-   "notes": "FC-P3.5 (participant) + FC-P3.12 (coordinator) + the shared Phase 2 commit (vms_cnxman_phase2.c), all pure and executive-resident. The coordinator runs the documented collision back-off rather than assuming it wins. Quorum cells are copied proposed->effective only from REAL running CLUB values; asserting a quorum of zero is refused outright. PROVEN AT R1/R2: test_cnxman_barrier.c, test_cnxman_coord.c, and the simulator's 3-8 node join/departure loops. NOT claimed: a barrier run against a real VAX coordinator (R5, lab-deferred).\n",
+   "notes": "FC-P3.5 (participant) + FC-P3.12 (coordinator) + the shared Phase 2 commit (vms_cnxman_phase2.c), all pure and executive-resident. The coordinator runs the documented collision back-off rather than assuming it wins. Quorum cells are copied proposed->effective only from REAL running CLUB values; asserting a quorum of zero is refused outright. PROVEN AT R1/R2: test_cnxman_barrier.c, test_cnxman_coord.c, and the simulator's 3-8 node join/departure loops. BARRIER-RELEASE now live-proven + HARD-asserted on the 2-node genesis proof (vms-c06/#1218): the coordinator's barrier releases (participant_lost + coordinator_lost wired off the CSB connectivity-loss ladder; the founder's JOIN FSM routes foreign barrier steps on instead of eating them; a committed member no longer self-admits op-0x02), RIG_MODE=proof 6/6 with the release hard-asserted, no coordinator role-swap. The earlier latent barrier-stall was BENIGN for the shipped ops (all commit PRE-barrier \u2014 no V0.6-16 recall) and is now fixed. OPEN (vms-f7c): a joined member that LATER coordinates a transition still has op-0b steps consumed one FSM short \u2014 latent, cannot arise on the 2-node rig. NOT claimed: a barrier run against a real VAX coordinator (R5, lab-deferred).\n",
    "plan_ref": "vms-694"
   },
   {
@@ -2824,7 +2870,7 @@
    "scope_1_0": "in",
    "evidence": "src/kernel-core/vms_cnxman_quorum.c",
    "verified_against": null,
-   "notes": "FC-P3.7, executive-resident (the arithmetic moved out of the deleted daemon). Recomputed on every membership transition from the CLUB's own state: per-node VOTES come from each CSB's advertised PARAMS record and are NOT counted until `params_valid` is set -- an un-advertised VOTES is not an advertised zero. EXPECTED_VOTES is this node's own SYSGEN value. TRACKING ONLY, and this is the honest limit: the figures are computed and readable, but nothing in the tree yet BLOCKS on lost quorum -- no cluster state transition is gated on it -- because a booted node has never been a member. Quorum ENFORCEMENT is a later item. PROVEN AT R1: test_cnxman_quorum.c reproduces the documented worked example. R5 (agreement with a real VAX's own figures) lab-deferred.\n",
+   "notes": "FC-P3.7, executive-resident (the arithmetic moved out of the deleted daemon). Recomputed on every membership transition from the CLUB's own state: per-node VOTES come from each CSB's advertised PARAMS record and are NOT counted until `params_valid` is set -- an un-advertised VOTES is not an advertised zero. EXPECTED_VOTES is this node's own SYSGEN value. Recompute runs on the JOINER too, not just the founder (vms-d0d/#1201): a member does the SAME arithmetic on the VOTES it learned from the peer's op-01 PARAMS, so a symmetric CN=2 non-founder reports real CEVOTES/QUORUM, not uncomputed zeros. ENFORCEMENT NOW EXISTS (vms-b6d/#1203) -- the earlier \"tracking only, nothing blocks on lost quorum\" limit is RETIRED: on real quorum loss the executive STALLS clustered $ENQ grants on the wait queue (VMS quorum-hang -- SS$_NORMAL, granted_mode=0, not an error, not a fabricated grant; $DEQ still works) and RESUMES the same request on regain. Join-transient safe via a quorum_armed latch (enforce only after quorum was once perceived, so the honest-zero join window never freezes); quorum read live from the club via an include-free seam (INV-6, no cached copy). Live 2-node evacuate->stall->resume proven. PROVEN AT R1: test_cnxman_quorum.c reproduces the documented worked example. R5 (agreement with a real VAX's own figures) lab-deferred.\n",
    "plan_ref": "vms-694"
   },
   {
@@ -2914,7 +2960,7 @@
    "scope_1_0": "in",
    "evidence": "src/vmsdcl/dcl_parser.c:448",
    "verified_against": "tests/dcl/test_ivqual_gate_structural.sh \u2014 anti-cheat tripwire: revert the .quals wiring and every IVQUAL/IVKEYW assertion goes red; positive controls (real /LOG,/KEEP,/REVERSE,/DATE=MODIFIED still pass) plus authentic $STATUS %X000008F0 (IVQUAL) / %X000008F4 (IVKEYW)",
-   "notes": "dcl_validate_qualifiers() (dcl_parser.c) is the structural enforcement point; called from dispatch (dcl_exec.c) before every handler. Closes the universal silent-accept hole for the retrofit tranche.",
+   "notes": "dcl_validate_qualifiers() (dcl_parser.c:448) is the structural enforcement point; called from dispatch (dcl_exec.c) before every handler. Closes the universal silent-accept hole for the retrofit tranche.",
    "plan_ref": "vms-8ad"
   },
   {
@@ -2929,7 +2975,7 @@
    "scope_1_0": "in",
    "evidence": "src/vmsdcl/dcl_builtin.c",
    "verified_against": null,
-   "notes": "29 verbs carry a real q_* qualifier table (ANALYZE ASSIGN ATTACH BACKUP CONVERT COPY CREATE DEASSIGN DEFINE DELETE DIRECTORY DUMP INQUIRE LINK MOUNT OPEN PING PRINT PRODUCT PURGE RECALL RENAME REPLY SEARCH SORT SPAWN STOP SUBMIT TYPE); 17 more use q_none (empty table = reject-all, honest over-restriction for verbs whose VMS qualifiers OVMX has not retrofit). 46 of 58 validate.",
+   "notes": "29 verbs carry a real q_* qualifier table (ANALYZE ASSIGN ATTACH BACKUP CONVERT COPY CREATE DEASSIGN DEFINE DELETE DIRECTORY DUMP INQUIRE LINK MOUNT OPEN PING PRINT PRODUCT PURGE RECALL RENAME REPLY SEARCH SORT SPAWN STOP SUBMIT TYPE); 17 more use q_none (empty table = reject-all, honest over-restriction for verbs whose VMS qualifiers OVMX has not retrofit); 12 remain quals == NULL (accept-all). 46 of 58 validate.",
    "plan_ref": "vms-8ad"
   },
   {
@@ -2944,7 +2990,7 @@
    "scope_1_0": "in",
    "evidence": "src/vmsdcl/dcl_parser.c:451",
    "verified_against": null,
-   "notes": "12 verbs still have quals == NULL in builtin_verbs[]; dcl_validate_qualifiers() returns SS$_NORMAL for them ('not retrofit'), so any /QUALIFIER is silently accepted rather than rejected with IVQUAL. SET/SHOW mitigate at the sub-verb level (cmd_set_password/accounting/volume run their own shim validators; unknown SET/SHOW keywords still get IVKEYW), and HELP is deliberately accept-all. The remaining ~10 are the Phase-1 follow-up (vms-097).",
+   "notes": "12 verbs still have quals == NULL in builtin_verbs[]; dcl_validate_qualifiers() returns SS$_NORMAL for them ('not retrofit', dcl_parser.c:451), so any /QUALIFIER is silently accepted rather than rejected with IVQUAL. SET/SHOW mitigate at the sub-verb level (cmd_set_password/accounting/volume run their own shim validators; unknown SET/SHOW keywords still get IVKEYW), and HELP is deliberately accept-all (a /token after HELP is a qualifier TOPIC, vms-01b). The remaining ones are the Phase-1 follow-up (vms-097).",
    "plan_ref": "vms-8ad"
   },
   {
@@ -3002,9 +3048,9 @@
    "status": "partial",
    "authenticity": "real",
    "scope_1_0": "in",
-   "evidence": "src/vmsdcl/dcl_exec.c",
+   "evidence": "src/vmsdcl/dcl_exec.c:1392",
    "verified_against": null,
-   "notes": "Real but narrower than VMS's full condition-handling model (severity classes, nested handler stacks).",
+   "notes": "Real one-shot error action armed at the current command level (dcl_exec.c:1392), but narrower than VMS's full condition-handling model (severity classes, nested handler stacks).",
    "plan_ref": "vms-8ad"
   },
   {
@@ -3017,9 +3063,9 @@
    "status": "implemented",
    "authenticity": "real",
    "scope_1_0": "in",
-   "evidence": "src/vmsdcl/dcl_exec.c:1354",
+   "evidence": "src/vmsdcl/dcl_exec.c:1367",
    "verified_against": null,
-   "notes": "Landed since last census. CALL gives the subroutine a new command level with its own P1-P8 and local-symbol frame; RETURN pops it and propagates status (dcl_script.c:231/271/302). Exercised by tests/dcl/test_scripting_status_call_deck.sh (SUB_P1P2, RETURN_STATUS_PROPAGATED).",
+   "notes": "CALL gives the subroutine a new command level with its own P1-P8 and local-symbol frame; SUBROUTINE/ENDSUBROUTINE markers at dcl_exec.c:1367/1377; RETURN pops the level and propagates status (dcl_script.c). Exercised by tests/dcl/test_scripting_status_call_deck.sh (SUB_P1P2, RETURN_STATUS_PROPAGATED).",
    "plan_ref": "vms-8ad"
   },
   {
@@ -3034,7 +3080,7 @@
    "scope_1_0": "in",
    "evidence": "src/vmsdcl/dcl_cmd_process.c:1659",
    "verified_against": null,
-   "notes": "Landed since last census (vms-3983). A DECK block reads in-stream lines verbatim to the EOD sentinel instead of parsing them as commands; former facade-risk retired. Exercised by test_scripting_status_call_deck.sh (DOLLAR_DATA_LINE_KEPT, AFTER_DECK).",
+   "notes": "A DECK block (vms-3983) reads in-stream lines verbatim to the EOD sentinel instead of parsing them as commands (dcl_cmd_process.c:1664-1677); former facade-risk retired. Exercised by test_scripting_status_call_deck.sh (DOLLAR_DATA_LINE_KEPT, AFTER_DECK).",
    "plan_ref": "vms-8ad"
   },
   {
@@ -3047,9 +3093,9 @@
    "status": "implemented",
    "authenticity": "real",
    "scope_1_0": "in",
-   "evidence": "src/vmsdcl/dcl_symbol.c:33",
+   "evidence": "src/vmsdcl/dcl_symbol.c",
    "verified_against": null,
-   "notes": "Landed since last census (vms-2af frames). Each @ invocation / CALL gets its own local-symbol frame (SYM_MAX_FRAMES), inner levels read outer locals, the frame is torn down on RETURN, and SET SYMBOL/SCOPE=([NO]LOCAL,[NO]GLOBAL) is honoured. Former facade-risk (flat leaking table) retired. Exercised by test_symbol_scope.sh / test_symbol_scope_domain.sh with EXPECT_NOT isolation controls.",
+   "notes": "vms-2af frames: each @ invocation / CALL gets its own local-symbol table (SYM_MAX_FRAMES), inner levels read outer locals, the frame is torn down on RETURN, and SET SYMBOL/SCOPE=([NO]LOCAL,[NO]GLOBAL) is honoured. Former facade-risk (flat leaking table) retired. Exercised by test_symbol_scope.sh / test_symbol_scope_domain.sh with EXPECT_NOT isolation controls.",
    "plan_ref": "vms-8ad"
   },
   {
@@ -3062,9 +3108,9 @@
    "status": "implemented",
    "authenticity": "real",
    "scope_1_0": "in",
-   "evidence": "src/vmsdcl/dcl_exec.c:98",
+   "evidence": "src/vmsdcl/dcl_exec.c:165",
    "verified_against": null,
-   "notes": "Fixed since last census: $STATUS is stored VMS-style as the 32-bit condition value and rendered %Xhhhhhhhh (dcl_exec.c:98/157); IF/arithmetic reads it radix-aware. Former facade-risk (plain decimal) retired.",
+   "notes": "$STATUS is stored VMS-style as the 32-bit condition value and rendered %X%08X (dcl_set_status, dcl_exec.c:165/172); IF/arithmetic reads it radix-aware. Former facade-risk (plain decimal) retired.",
    "plan_ref": "vms-8ad"
   },
   {
@@ -3077,9 +3123,9 @@
    "status": "implemented",
    "authenticity": "real",
    "scope_1_0": "in",
-   "evidence": "src/vmsdcl/dcl_exec.c:1531",
+   "evidence": "src/vmsdcl/dcl_exec.c:1534",
    "verified_against": null,
-   "notes": "Fixed since last census \u2014 the highest-impact former bug. Command-not-found now calls dcl_set_status(ctx, SS$_IVVERB) on the single shared dispatch path used by both the REPL and .COM execution, so IF .NOT.$STATUS THEN GOTO err catches a typo'd command anywhere. Verb handlers and qualifier validation also set $STATUS. Exercised by test_scripting_status_call_deck.sh (STATUS_FALSE_ON_ERROR).",
+   "notes": "The highest-impact former bug. Command-not-found calls dcl_set_status(ctx, SS$_IVVERB) on the single shared dispatch path (dcl_exec.c:1534) used by both the REPL and .COM execution, so IF .NOT.$STATUS THEN GOTO err catches a typo'd command anywhere. Verb handlers and qualifier validation also set $STATUS (dcl_exec.c:1465/1470/1490). Exercised by test_scripting_status_call_deck.sh (STATUS_FALSE_ON_ERROR).",
    "plan_ref": "vms-8ad"
   },
   {
@@ -3092,7 +3138,7 @@
    "status": "partial",
    "authenticity": "advisory",
    "scope_1_0": "in",
-   "evidence": "src/vmsdcl/dcl_lexical.c:624",
+   "evidence": "src/vmsdcl/dcl_lexical.c",
    "verified_against": null,
    "notes": "Reports only INTERACTIVE vs BATCH from ctx->interactive; NETWORK/OTHER modes not distinguished. Honest two-value report of what OVMX tracks, not a fabrication \u2014 advisory, not facade-risk.",
    "plan_ref": "vms-8ad"
@@ -3107,9 +3153,9 @@
    "status": "partial",
    "authenticity": "real",
    "scope_1_0": "in",
-   "evidence": "src/vmsdcl/dcl_builtin.c",
+   "evidence": "src/vmsdcl/dcl_builtin.c:401",
    "verified_against": null,
-   "notes": "58 of ~150 verbs present in builtin_verbs[] (ACCOUNTING ANALYZE APPEND ASSIGN ATTACH BACKUP CLOSE CONTINUE CONVERT COPY CREATE DEASSIGN DEFINE DELETE DIFFERENCES DIRECTORY DISMOUNT DUMP EDIT EXIT FTP HELP INITIALIZE INQUIRE INSTALL LIBRARY LINK LOGOUT MAIL MONITOR MOUNT OPEN PHONE PING PIPE PRINT PRODUCT PURGE READ RECALL RENAME REPLY REQUEST RUN SEARCH SET SHOW SORT SPAWN STOP SUBMIT SYSGEN SYSMAN TCPIP TELNET TYPE WAIT WRITE). Real breadth gap, not a facade.",
+   "notes": "58 of ~150 verbs present in builtin_verbs[] (ACCOUNTING ANALYZE APPEND ASSIGN ATTACH BACKUP CLOSE CONTINUE CONVERT COPY CREATE DEASSIGN DEFINE DELETE DIFFERENCES DIRECTORY DISMOUNT DUMP EDIT EXIT FTP HELP INQUIRE INSTALL INITIALIZE LIBRARY LINK LOGOUT MAIL MONITOR MOUNT OPEN PHONE PING PIPE PRINT PRODUCT PURGE RECALL READ RENAME REPLY REQUEST RUN SEARCH SET SHOW SORT SPAWN STOP SUBMIT SYSGEN SYSMAN TCPIP TELNET TYPE WAIT WRITE). Real breadth gap, not a facade.",
    "plan_ref": "vms-8ad"
   },
   {
@@ -3122,9 +3168,9 @@
    "status": "implemented",
    "authenticity": "real",
    "scope_1_0": "in",
-   "evidence": "src/vmsdcl/dcl_exec.c:1354",
+   "evidence": "src/vmsdcl/dcl_exec.c:1367",
    "verified_against": null,
-   "notes": "Landed since last census: CALL transfers to a labelled SUBROUTINE block with its own command level and P1-P8, RETURN propagates status (dcl_exec.c:1354/1367/1377, dcl_script.c). Exercised by tests/dcl/test_scripting_status_call_deck.sh.",
+   "notes": "CALL transfers to a labelled SUBROUTINE block with its own command level and P1-P8; SUBROUTINE/ENDSUBROUTINE markers at dcl_exec.c:1367/1377 act as EXIT for a fallen-into block; RETURN propagates status (dcl_script.c). Exercised by tests/dcl/test_scripting_status_call_deck.sh. See dcl-scripting.yaml.",
    "plan_ref": "vms-8ad"
   },
   {
@@ -3139,7 +3185,22 @@
    "scope_1_0": "in",
    "evidence": "src/vmsdcl/dcl_cmd_process.c:1659",
    "verified_against": null,
-   "notes": "Landed since last census (vms-3983): DECK suspends the first-'$'-line terminator so an in-stream data block is read verbatim to the EOD sentinel (default $EOD; DECK/DOLLAR=string names another). Former facade-risk (data lines mis-parsed as commands) retired. See dcl-scripting.yaml.",
+   "notes": "DECK (vms-3983) suspends the first-'$'-line terminator so an in-stream data block is read verbatim to the EOD sentinel (default $EOD; DECK/DOLLAR=string names another; deck_term at dcl_cmd_process.c:1665). Former facade-risk (data lines mis-parsed as commands) retired. See dcl-scripting.yaml.",
+   "plan_ref": "vms-8ad"
+  },
+  {
+   "domain": "command-language",
+   "facility": "dcl-verbs",
+   "facility_name": "DCL Command Verbs (breadth)",
+   "id": "dcl-verbs$set-host",
+   "kind": "command",
+   "vms": "SET HOST \u2014 DECnet/LAT terminal connection to another node",
+   "status": "partial",
+   "authenticity": "real",
+   "scope_1_0": "in",
+   "evidence": "src/vmsdcl/dcl_cmd_set.c:1765",
+   "verified_against": null,
+   "notes": "Landed since last census (vms-f54, #1093): SET HOST <node> opens a real interactive DECnet CTERM session to Session Control object 42 (cmd_set_host, dcl_cmd_set.c:1765), resolving the node from DECnet config; /USERNAME sets the CTERM access-control name. Honest failure when DECNETD.EXE is not staged (DECnet not available -> error, no fake session). Partial: outbound DECnet only; LAT SET HOST and inbound not via this verb. Depends on the DECnet lane (see decnet facility).",
    "plan_ref": "vms-8ad"
   },
   {
@@ -3170,21 +3231,6 @@
    "evidence": "",
    "verified_against": null,
    "notes": "",
-   "plan_ref": "vms-8ad"
-  },
-  {
-   "domain": "command-language",
-   "facility": "dcl-verbs",
-   "facility_name": "DCL Command Verbs (breadth)",
-   "id": "dcl-verbs$set-host",
-   "kind": "command",
-   "vms": "SET HOST \u2014 DECnet/LAT terminal connection to another node",
-   "status": "absent",
-   "authenticity": "n/a",
-   "scope_1_0": "in",
-   "evidence": "src/vmsdcl/dcl_cmd_set.c",
-   "verified_against": null,
-   "notes": "A cmd_set_host SET sub-verb exists but the DECnet/LAT terminal-connection semantics depend on the networking lane (out until DECnet/LAT land).",
    "plan_ref": "vms-8ad"
   },
   {
@@ -3257,9 +3303,9 @@
    "status": "partial",
    "authenticity": "real",
    "scope_1_0": "in",
-   "evidence": "src/vmsdcl/dcl_cmd_set.c:2145",
+   "evidence": "src/vmsdcl/dcl_cmd_set.c",
    "verified_against": null,
-   "notes": "SET dispatches 22 real sub-handlers (DEFAULT PROMPT VERIFY TERMINAL PROTECTION PASSWORD ON/NOON SYMBOL MESSAGE CONTROL PROCESS FILE UIC WORKING_SET TIME HOST AUDIT ACCOUNTING VOLUME ENTRY QUEUE) rejecting unknown keywords with %DCL-W-IVKEYW; SHOW dispatches 28 real sub-handlers (dcl_cmd_show.c). Each real, not facaded, but short of VMS's ~30-each full set.",
+   "notes": "Re-measured 2026-09-14 on origin/main: SET dispatches 20 real cmd_set_* sub-handlers (ACCOUNTING AUDIT CONTROL DEFAULT ENTRY FILE HOST MESSAGE PASSWORD PROCESS PROMPT PROTECTION QUEUE SYMBOL TERMINAL TIME UIC VERIFY VOLUME WORKING_SET), rejecting unknown keywords with %DCL-W-IVKEYW; SHOW dispatches 29 real cmd_show_* sub-handlers (dcl_cmd_show.c: ACCOUNTING AUDIT CLUSTER CPU DEFAULT DEVICE ENTRY ERROR INTRUSION LICENSE LOGICAL MEMORY NETWORK PROCESS PROCESS_PRIVILEGES PROCESS_QUOTAS PROTECTION QUEUE QUOTA ROOT STATUS SYMBOL SYSTEM TERMINAL TIME TRANSLATION USERS VERIFY WORKING_SET). Each real, not facaded, but short of VMS's ~30-each full set.",
    "plan_ref": "vms-8ad"
   },
   {
@@ -3469,7 +3515,7 @@
    "scope_1_0": "in",
    "evidence": "src/vmsrms/rms_parse.c",
    "verified_against": null,
-   "notes": "Syntax sets NAM$M_NODE and parses/reconstructs the node prefix. DCL COPY now ACTS on it (rd vms-8c2): a NODE:: spec routes to the DECnet FAL/DAP path and, since the outbound COPY-over-datalink client is not yet wired into a DCL process, reports honestly (%COPY-I-NETNOTWIRED) rather than mis-copying it as a local file \u2014 src/vmsdcl/dcl_cmd_file.c copy_spec_has_node. Full outbound DCL->datalink bridge is a tracked follow-on.",
+   "notes": "Syntax sets NAM$M_NODE and parses/reconstructs the node prefix. DCL COPY now ACTS on it (rd vms-8c2): a NODE:: spec routes to the DECnet FAL/DAP path and, since the outbound COPY-over-datalink client is not yet wired into a DCL process, reports honestly (%COPY-I-NETNOTWIRED) rather than mis-copying it as a local file \u2014 src/vmsdcl/dcl_cmd_file.c copy_spec_has_node. The outbound COPY command layer now EXISTS at host floor (DECNETD.EXE --copy / --copy-selftest, dnet_nodespec.c splitter; rd vms-ea8/vms-6a4 \u2014 see decnet$fal); the full outbound DCL->live-datalink bridge is the tracked follow-on.",
    "plan_ref": "vms-30e"
   },
   {
@@ -3499,7 +3545,7 @@
    "scope_1_0": "in",
    "evidence": "src/vmsdecnet/fal/dnet_fal.c",
    "verified_against": "DECNETD.EXE --fal-accept-test in the booted acceptance battery (tests/qemu/lib/dcl_acceptance_battery.sh): real SYSUAF/Purdy auth (GUEST/GUEST accepted, a wrong password + DISABLED/DISUSER refused) then a sequential file transferred BOTH directions through real DAP over an NSP link + real RMS over the ACP, byte-verified",
-   "notes": "SECURITY SURFACE. An inbound object-17 connect CARRIES the username+password (oracle \u00a71 \u2014 the OPPOSITE of CTERM's empty creds); FAL authenticates them through THE ONE faithful authenticator (sysuaf_lookup + sysuaf_authenticate Purdy + the disabled-account gate, the SAME path LOGINOUT/SSHD use) BEFORE accepting the link, and REFUSES with an NSP Disconnect on a bad password \u2014 the FAL analogue of the no-auth-CTERM hole (INV-6, no file served on an unauthenticated connect). The connect-carried creds are decoded by a bounded, fuzz-clean decoder (dnet_fal_access_decode) that never over-reads and wipes the password after the check. File I/O is rms_textfile_* (RMS over the ODS-2 ACP), fail-honest with no /dev/vms \u2014 no userspace fallback that fakes a transfer (Rule 9). No fork/exec/openpty/dup2, no raw-fd/termios file mechanics. HONEST FLOOR (no executive, runs anywhere): DECNETD.EXE --fal-selftest proves the client emits a real object-17 connect carrying the creds + the honest refusal + the DAP-over-NSP transport pump. NOT yet (filed follow-ons, never faked): the outbound COPY client wired into a DCL process over the live datalink; advanced DAP (indexed/relative files, wildcards, DIRECTORY, block mode, proxy-instead-of-password access); byte-level stock-VAX FAL wire interop; network-access-class (NETMBX) enforcement distinct from the password/DISUSER gates.",
+   "notes": "SECURITY SURFACE. An inbound object-17 connect CARRIES the username+password (oracle \u00a71 \u2014 the OPPOSITE of CTERM's empty creds); FAL authenticates them through THE ONE faithful authenticator (sysuaf_lookup + sysuaf_authenticate Purdy + the disabled-account gate, the SAME path LOGINOUT/SSHD use) BEFORE accepting the link, and REFUSES with an NSP Disconnect on a bad password \u2014 the FAL analogue of the no-auth-CTERM hole (INV-6, no file served on an unauthenticated connect). The connect-carried creds are decoded by a bounded, fuzz-clean decoder (dnet_fal_access_decode) that never over-reads and wipes the password after the check. File I/O is rms_textfile_* (RMS over the ODS-2 ACP), fail-honest with no /dev/vms \u2014 no userspace fallback that fakes a transfer (Rule 9). No fork/exec/openpty/dup2, no raw-fd/termios file mechanics. HONEST FLOOR (no executive, runs anywhere): DECNETD.EXE --fal-selftest proves the client emits a real object-17 connect carrying the creds + the honest refusal + the DAP-over-NSP transport pump. OUTBOUND COPY COMMAND LAYER (rd vms-ea8/vms-6a4): DECNETD.EXE --copy SRC DST is the outbound `$ COPY` client (decnetd.c run_copy_loop) whose command-layer floor is proven host-side + CI by --copy-selftest (run_copy_selftest); the NODE\"user pw acct\"::spec splitter is dnet_nodespec.c (bounds/control-byte-hardened, fuzzed ASan/UBSan-clean, tests/vmsdecnet/test_dnet_nodespec.c). NOT yet (filed follow-ons, never faked): the outbound COPY client wired into a DCL process over the LIVE datalink (the command layer + host floor exist; the DCL->live-datalink bridge does not); advanced DAP (indexed/relative files, wildcards, DIRECTORY, block mode, proxy-instead-of-password access); byte-level stock-VAX FAL wire interop; network-access-class (NETMBX) enforcement distinct from the password/DISUSER gates.",
    "plan_ref": "vms-30e"
   },
   {
@@ -3827,9 +3873,9 @@
    "status": "stub",
    "authenticity": "advisory",
    "scope_1_0": "in",
-   "evidence": "src/vmsdcl/dcl_cmd_misc.c:2615",
+   "evidence": "src/vmsdcl/dcl_cmd_misc.c",
    "verified_against": null,
-   "notes": "accepted but ignored with an informational message (%CONVERT-I-FDL); no FDL file is read or written",
+   "notes": "accepted but ignored with an informational message (%CONVERT-I-FDL, printed near dcl_cmd_misc.c:3127); no FDL file is read or written",
    "plan_ref": "vms-801"
   },
   {
@@ -3872,7 +3918,7 @@
    "status": "partial",
    "authenticity": "advisory",
    "scope_1_0": "in",
-   "evidence": "src/vmsfs/vmsfs_translate.c:901",
+   "evidence": "src/vmsfs/vmsfs_translate.c",
    "verified_against": null,
    "notes": "directory-translate leaves it as a marker; recursion is handled by DIRECTORY's own layer, not the translator",
    "plan_ref": "vms-801"
@@ -3934,7 +3980,7 @@
    "scope_1_0": "in",
    "evidence": "src/vmsdcl/dcl_help.c",
    "verified_against": null,
-   "notes": "Real HLB-backed help library walk (tests/dcl/test_help_engine.c, test_help_content.sh assert HELP_TOPLEVEL_LISTS / HELP_TOPIC_TEXT_OK against the real topic tree, and test_help_hlb.sh the library). Downgraded verified->implemented 2026-08-31: those are plain local self-tests, not an oracle/negctl gate.",
+   "notes": "Real HLB-backed help library walk (tests/dcl/test_help_engine.c, test_help_content.sh assert HELP_TOPLEVEL_LISTS / HELP_TOPIC_TEXT_OK against the real topic tree, and test_help_hlb.sh the library). Implemented (not verified): those are plain local self-tests, not an oracle/negctl gate.",
    "plan_ref": "vms-8ad"
   },
   {
@@ -4067,8 +4113,8 @@
    "status": "verified",
    "authenticity": "real",
    "scope_1_0": "in",
-   "evidence": ".github/workflows/ci.yml:1495",
-   "verified_against": "CI job install-boot-e2e (ci.yml:1495, vms-96ec) \u2014 runs tests/qemu/run_install_boot_e2e.sh on non-PR events; FATAL if the gate is skipped (never a silent skip). Re-census 2026-08-31 refreshed the line ref (was :752).",
+   "evidence": ".github/workflows/ci.yml:1458",
+   "verified_against": "CI job install-boot-e2e (ci.yml:1458, vms-96ec) \u2014 runs tests/qemu/run_install_boot_e2e.sh on non-PR events (push/merge_group/schedule/workflow_dispatch); a real PRODUCT INSTALL of a kit, boot of the installed target, and login. Re-census 2026-09-14: job present, line ref refreshed (was :1495).",
    "notes": "",
    "plan_ref": "vms-718"
   },
@@ -4219,7 +4265,7 @@
    "scope_1_0": "undecided",
    "evidence": "",
    "verified_against": null,
-   "notes": "0 files on origin/main.",
+   "notes": "0 files on origin/main. Operator scope call (vms-082).",
    "plan_ref": "vms-082"
   },
   {
@@ -4234,7 +4280,7 @@
    "scope_1_0": "undecided",
    "evidence": "",
    "verified_against": null,
-   "notes": "0 files. Depends on OTS$ packed-decimal (absent).",
+   "notes": "0 files. Depends on OTS$ packed-decimal (OTS$CVT_T_P/CVT_P_T absent per ots.yaml).",
    "plan_ref": "vms-082"
   },
   {
@@ -4249,7 +4295,7 @@
    "scope_1_0": "undecided",
    "evidence": "",
    "verified_against": null,
-   "notes": "0 files. Depends on varying-string descriptors (absent).",
+   "notes": "0 files. Depends on varying-string descriptors (DSC$K_CLASS_VS declared in descrip.h but unmarshalled).",
    "plan_ref": "vms-082"
   },
   {
@@ -4294,7 +4340,7 @@
    "scope_1_0": "in",
    "evidence": "docs/compat/facilities/ots.yaml",
    "verified_against": null,
-   "notes": "Catalogued in domain A. Partial: OTS$ packed-decimal + comparison families and descriptor classes A/VS are absent \u2014 exactly the pieces COBOL/BASIC/Fortran need.",
+   "notes": "Catalogued in domain A. Partial: OTS$ packed-decimal conversions (OTS$CVT_T_P/CVT_P_T) and descriptor classes A/VS are absent \u2014 exactly the pieces COBOL/BASIC/Fortran need. Real for what is present (STR$/LIB$ common cases), not a facade.",
    "plan_ref": "vms-082"
   },
   {
@@ -4324,7 +4370,7 @@
    "scope_1_0": "in",
    "evidence": "src/vmsdcl/dcl_lexical.c",
    "verified_against": null,
-   "notes": "41 of ~43 present and real; only F$FID_TO_NAME absent.",
+   "notes": "41 present and real in the F$ dispatch table (CONTEXT CSID CUNITS CVSI CVTIME CVUI DELTA_TIME DEVICE DIRECTORY EDIT ELEMENT ENVIRONMENT EXTRACT FAO FILE_ATTRIBUTES GETDVI GETJPI GETQUI GETSYI IDENTIFIER INTEGER LENGTH LICENSE LOCATE LOGICAL MESSAGE MODE MULTIPATH PARSE PID PRIVILEGE PROCESS SEARCH SETPRV STRING TIME TRNLNM TYPE UNIQUE USER VERIFY); only F$FID_TO_NAME absent.",
    "plan_ref": "vms-8ad"
   },
   {
@@ -4352,9 +4398,9 @@
    "status": "verified",
    "authenticity": "real",
    "scope_1_0": "in",
-   "evidence": "src/vmsdcl/dcl_lexical.c:3119",
+   "evidence": "src/vmsdcl/dcl_lexical.c:3399",
    "verified_against": "lab-Alpha VMS Alpha V8.4 oracle, 11-AUG-2026: F$SETPRV(\"NOOPER,GROUP\") -> \"OPER,GROUP\"",
-   "notes": "Routes through vms_kif_setprv directly.",
+   "notes": "lex_setprv (dcl_lexical.c:3399) routes through vms_kif_setprv directly (dcl_lexical.c:3462).",
    "plan_ref": "vms-8ad"
   },
   {
@@ -4444,7 +4490,7 @@
    "scope_1_0": "in",
    "evidence": "src/vmsdcl/dcl_lexical.c",
    "verified_against": null,
-   "notes": "Previously a facade; fixed and oracle-grounded to return the authentic IVFNAM condition.",
+   "notes": "Previously a facade; fixed and oracle-grounded to return the authentic IVFNAM condition. F$BOGUS is the test sentinel exercising this path.",
    "plan_ref": "vms-8ad"
   },
   {
@@ -4768,13 +4814,13 @@
    "facility_name": "LIB$ Run-Time Library",
    "id": "lib$_other",
    "kind": "routine",
-   "vms": "Remaining LIB$ routines beyond the groups enumerated above (VMS ships ~450+ total LIB$ entry points; OVMX header declares 207, all backed by real implementations except the named gaps in this file)",
+   "vms": "Remaining LIB$ routines beyond the groups enumerated above (VMS ships ~450+ total LIB$ entry points; OVMX implements 116 in rtl/lib_*.c, all backed by real implementations except the named gaps in this file)",
    "status": "partial",
    "authenticity": "real",
    "scope_1_0": "stretch",
    "evidence": "src/libvms/rtl/",
    "verified_against": null,
-   "notes": "broad genuine coverage; no stub markers remain in the 207 declared",
+   "notes": "broad genuine coverage; 116 distinct LIB$ symbols defined across rtl/lib_*.c",
    "plan_ref": "vms-801"
   },
   {
@@ -4969,7 +5015,7 @@
    "scope_1_0": "in",
    "evidence": "src/vmslnm/lnm_translate.c",
    "verified_against": null,
-   "notes": "",
+   "notes": "rooted system logicals seeded CONCEALED|TERMINAL to match the oracle (vms-762); SYS$SYSROOT/SYS$COMMON derive the per-node system-root token (vms-a01)",
    "plan_ref": "vms-96e2"
   },
   {
@@ -5074,7 +5120,7 @@
    "scope_1_0": "in",
    "evidence": "src/vmslink/mk_mmk.sh",
    "verified_against": null,
-   "notes": "Built as an OVMX-native image (mk_mmk.sh) and as host ctests toolchain-mmk-parse / -component-plan / -component-build / -link-selfhost-plan (tests/toolchain). Parse+plan proven end-to-end via real lib$table_parse + CLI$ compiled-CLD + MMK's own parse_store (run_mmk_parse.sh, oracle = the descrip.mms itself). Actual command EXECUTION (subprocess drive) is a separately-tracked deferred gap (vms-ec70).",
+   "notes": "Built as an OVMX-native image (mk_mmk.sh) and as host ctests toolchain-mmk-parse / -component-plan / -component-build / -link-selfhost-plan (tests/toolchain). MMK.EXE now also runs AS a native OVMX image (S3 spine, like LINK/TCC/LIBRARIAN): mk_mmk.sh links a PT_INTERP=IMGACT.EXE executable (19 objects \u2014 13 MadGoat corpus TUs + the vms-486 grammar + 5 OVMX companions) that IMGACT.EXE activates (no ld/ld.so), pulling the seven-producer shareable graph from .vms$imp, and the ACTIVATED MMK opens a real multi-TU descrip.mms through OVMX RMS and parses+expands it \u2014 proven by src/imgact/test/run_mmk_native.sh (CI leg mmk-native, vms-16d/vms-ec70). Parse+plan proven end-to-end via real lib$table_parse + CLI$ compiled-CLD + MMK's own parse_store (run_mmk_parse.sh, oracle = the descrip.mms itself). PARTIAL: actual command EXECUTION (subprocess/mailbox/AST drive) is a separately-tracked deferred gap (vms-ec70) \u2014 the run half is not built.",
    "plan_ref": "vms-59a"
   },
   {
@@ -5104,7 +5150,7 @@
    "scope_1_0": "in",
    "evidence": "src/kernel-core/vms_mscp_srv.c",
    "verified_against": null,
-   "notes": "EXECUTIVE-RESIDENT SERVER LANDED (FC-P6.3), earning back the capability the 2026-09-02 reset voided when it deleted the userspace daemon (src/vmsscs/scs_mscp_srv.c). `vms_mscp_srv_fsm.c` (UQB/HQB/HRB, the Controller-Available/Online state machine) + `vms_mscp_srv.c` glue serve the executive's own mounted volumes via `exec_blockdev_*`/the ACP as `$<ALLOCLASS>$DUAn`; SCC/GUS/ONLINE/READ/WRITE built+parsed through the FC-P6.2 codec at measured lengths; MSCP$DISK LISTENs only when a serveable unit exists; write-protect honest (ST.WPR with the real Table B-2 reason sub-code, zero blocks written). status=implemented, authenticity=real, NOT verified: R1 = test_mscp_srv (167 checks) + R4-lite = FC-P3.4's real class-driver discovery FSM walks this real server end-to-end (SCC x2 + MD.NXU walk, 2 units). NOT YET: R5 real-VAX MOUNT (FC-P6.4, lab-deferred); the WRITE block-transfer INITIATION direction is lab-ungrounded (READ, what a MOUNT needs, is fully grounded); MSCP_SERVE_ALL bit semantics undecoded (any non-zero = serve). `mscp-serve$online-end` stays stub (no byte-exact oracle).\n",
+   "notes": "EXECUTIVE-RESIDENT SERVER LANDED (FC-P6.3), earning back the capability the 2026-09-02 reset voided when it deleted the userspace daemon (src/vmsscs/scs_mscp_srv.c). `vms_mscp_srv_fsm.c` (UQB/HQB/HRB, the Controller-Available/Online state machine) + `vms_mscp_srv.c` glue serve the executive's own mounted volumes via `exec_blockdev_*`/the ACP as `$<ALLOCLASS>$DUAn`; SCC/GUS/ONLINE/READ/WRITE built+parsed through the FC-P6.2 codec at measured lengths; MSCP$DISK LISTENs only when a serveable unit exists; write-protect honest (ST.WPR with the real Table B-2 reason sub-code, zero blocks written). status=implemented, authenticity=real, NOT verified: R1 = test_mscp_srv (167 checks) + R4-lite = FC-P3.4's real class-driver discovery FSM walks this real server end-to-end (SCC x2 + MD.NXU walk, 2 units). NOT YET: R5 real-VAX MOUNT (FC-P6.4, lab-deferred); the WRITE block-transfer INITIATION direction is lab-ungrounded (READ, what a MOUNT needs, is fully grounded); MSCP_SERVE_ALL bit semantics undecoded (any non-zero = serve). `mscp-serve$online-end` is implemented (real serve-side handler) but below verified \u2014 no byte-exact real-VAX-accepted oracle yet.\n",
    "plan_ref": "vms-6e1"
   },
   {
@@ -5114,12 +5160,12 @@
    "id": "mscp-serve$online-end",
    "kind": "feature",
    "vms": "ONLINE END (0x89) response",
-   "status": "absent",
-   "authenticity": "n/a",
+   "status": "implemented",
+   "authenticity": "real",
    "scope_1_0": "in",
-   "evidence": "docs/cluster-protocol-spec.md",
+   "evidence": "src/kernel-core/vms_mscp_srv_fsm.c",
    "verified_against": null,
-   "notes": "Retired with the server above (FC-P3.9). It was book-only and unproven even then (laid out from Table A-7 with no capture in the corpus containing one -- the captured joiner never mounts); the layout survives as spec.\n",
+   "notes": "Executive-resident serve-side handler (vms-600), no longer book-only: h_cmd_online (vms_mscp_srv_fsm.c) parses an inbound ONLINE command and srv_send_online_end builds+sends the 44-byte ONLINE-END via the codec's vms_mscp_online_end_build (\"44 bytes MEASURED\"). The P.UNFL echo runs serve-side (host_unfl | unit_flags, host_unfl recorded on the HQB from the host's own ONLINE cmd) and P.UNTI = (SCSSYSTEMID<<16)|unit. GROUNDED on vaxlab-9: the 44-byte measured length, the P.UNFL echo rule, and P.UNTI. NOT verified: there is no byte-exact capture of OVMX's OWN ONLINE-END being ACCEPTED by a real VAX end-to-end (SCC + GUS have goldens; ONLINE-END does not) -- that is the R5 mount-acceptance lab run (vms-36a8/vms-600), so this stays implemented, below verified, until the oracle capture exists.\n",
    "plan_ref": "vms-6e1"
   },
   {
@@ -5158,13 +5204,13 @@
    "facility_name": "MTH$ Mathematics RTL",
    "id": "mth$_trig_transcendental",
    "kind": "routine",
-   "vms": "Trigonometric/exponential/log/power group (MTH$SIN, MTH$COS, MTH$EXP, MTH$LOG, MTH$SQRT, ...; VMS ships ~45 total)",
+   "vms": "Trigonometric/exponential/log/power group (MTH$SIN, MTH$COS, MTH$EXP, MTH$LOG, MTH$SQRT, ...; 55 declared in mth$routines.h)",
    "status": "implemented",
    "authenticity": "real",
    "scope_1_0": "in",
    "evidence": "src/libvms/rtl/mth_routines.c",
    "verified_against": null,
-   "notes": "42/45 declared, wraps libm",
+   "notes": "42 of 55 declared implemented, wraps libm",
    "plan_ref": "vms-801"
   },
   {
@@ -5357,9 +5403,9 @@
    "status": "implemented",
    "authenticity": "real",
    "scope_1_0": "in",
-   "evidence": "src/vmsfs/vmsfs_translate.c",
+   "evidence": "src/vmsfs/vmsfs_case.c",
    "verified_against": null,
-   "notes": "",
+   "notes": "case-insensitive/case-preserving resolution (VMS stores uppercase); dedicated module, still live in LIBVMSFS$SHR",
    "plan_ref": "vms-0f3"
   },
   {
@@ -5458,7 +5504,7 @@
    "facility_name": "OTS$ Object-Time-System RTL",
    "id": "ots$_other_implemented",
    "kind": "routine",
-   "vms": "Remaining implemented OTS$ numeric<->string conversion routines beyond the four named above (33/43 declared routines are implemented; VMS ships ~50 total)",
+   "vms": "Remaining implemented OTS$ numeric<->string conversion routines beyond the four named above (32 of the 44 declared routines are implemented)",
    "status": "implemented",
    "authenticity": "real",
    "scope_1_0": "in",
@@ -5614,7 +5660,7 @@
    "scope_1_0": "in",
    "evidence": "src/kernel-core/vms_access.c:93",
    "verified_against": "lab-VAX SDA (docs/oracle/vax73-privileges.md \u00a72) \u2014 caught SETPRV mismapped to DETACH bit, fixed",
-   "notes": "vms_ioctl_setmode; re-census 2026-08-31 refreshed the line ref (was :108-130).",
+   "notes": "vms_ioctl_setmode. Re-census 2026-09-14: line ref stable (:93).",
    "plan_ref": "vms-8ad"
   },
   {
@@ -5629,7 +5675,7 @@
    "scope_1_0": "in",
    "evidence": "src/kernel-core/vms_access.c:320",
    "verified_against": "lab-VAX SDA READ SYS$SYSTEM:SYSDEF.STB (docs/oracle/vax73-privileges.md \u00a72)",
-   "notes": "vms_ioctl_setprv; SETPRV can only narrow within the authorized mask, never exceed it. Re-census 2026-08-31 refreshed the line ref (was :290).",
+   "notes": "vms_ioctl_setprv; SETPRV can only narrow within the authorized mask, never exceed it. Re-census 2026-09-14: line ref stable (:320).",
    "plan_ref": "vms-8ad"
   },
   {
@@ -5642,9 +5688,9 @@
    "status": "partial",
    "authenticity": "real",
    "scope_1_0": "in",
-   "evidence": "src/kernel-core/vmsfs_acp.c:861",
+   "evidence": "src/kernel-core/vmsfs_acp.c:1053",
    "verified_against": null,
-   "notes": "RE-CENSUS 2026-08-31: was absent/facade-risk. vms-165 retired the old vmsfs_blkdev_permission() (uid==0/gid only) and the Files-11 ACP's acp_check_access (vmsfs_acp.c:861) now applies privilege overrides: BYPASS (bit 29) lifts all access control, READALL (bit 35) grants read, SYSPRV (bit 28) confers the SYSTEM protection category. GRPPRV is NOT handled \u2014 hence partial, not implemented. Real (does the real thing for the three it honors), so no longer facade-risk. Tracked vms-f15/vms-36d. Cross-listed to protection-acl.",
+   "notes": "vms-165 retired the old vmsfs_blkdev_permission() (uid==0/gid only); the Files-11 ACP's acp_check_access (vmsfs_acp.c:1022) applies privilege overrides (defines vmsfs_acp.c:999-1001, apply :1053-1056): BYPASS (bit 29) lifts all access control, READALL (bit 35) grants read, SYSPRV (bit 28) confers the SYSTEM protection category. GRPPRV is NOT handled \u2014 hence partial, not implemented. Real (does the real thing for the three it honors), not facade-risk. Tracked vms-f15/vms-36d. Cross-listed to protection-acl. Re-census 2026-09-14: unchanged, line refs refreshed (was :861).",
    "plan_ref": "vms-8ad"
   },
   {
@@ -5657,9 +5703,9 @@
    "status": "verified",
    "authenticity": "real",
    "scope_1_0": "in",
-   "evidence": "src/kernel-core/vmsfs_acp.c:861",
-   "verified_against": "tests/qemu/test_syssvc_acp_access.c \u2014 SOGW/UIC enforcement proven against a real /dev/vms over the real-VAX ODS-2 fixture (tests/ods2/real_vax_ods2.dsk). Point 6: a re-exec'd child that setgid/setuid'd to [100,100] is refused SS$_NOPRIV where the system-group parent succeeds; point 7: per-file-class protections (SYSUAF World:none, RIGHTSLIST World:R, DCL.EXE World:RE) each pinned. Built by CMake glob + run by tests/qemu/init.sh against a real vms.ko in the positive kernel-executive CI job.",
-   "notes": "RE-CENSUS 2026-08-31: upgraded implemented->verified. vms-165 moved SOGW/UIC enforcement into acp_check_access (nibble-per-category System/Owner/Group/World, set-bit-denies; directory read maps to EXECUTE traversal, vms-548b).",
+   "evidence": "src/kernel-core/vmsfs_acp.c:1022",
+   "verified_against": "tests/qemu/test_syssvc_acp_access.c \u2014 SOGW/UIC enforcement proven against a real /dev/vms over the real-VAX ODS-2 fixture (tests/ods2/real_vax_ods2.dsk). A re-exec'd child that setgid/setuid'd to [100,100] is refused SS$_NOPRIV where the system-group parent succeeds; per-file-class protections (SYSUAF World:none, RIGHTSLIST World:R, DCL.EXE World:RE) each pinned. Built by CMake glob + run by tests/qemu/init.sh against a real vms.ko in the positive kernel-executive CI job.",
+   "notes": "vms-165 moved SOGW/UIC enforcement into acp_check_access (nibble-per-category System/Owner/Group/World, set-bit-denies; directory read maps to EXECUTE traversal, vms-548b). Re-census 2026-09-14: unchanged, line ref refreshed (was :861).",
    "plan_ref": "vms-8ad"
   },
   {
@@ -5672,9 +5718,9 @@
    "status": "stub",
    "authenticity": "advisory",
    "scope_1_0": "in",
-   "evidence": "src/kernel-core/vmsfs_acp.c:861",
+   "evidence": "src/kernel-core/vmsfs_acp.c:1022",
    "verified_against": null,
-   "notes": "RE-CENSUS 2026-08-31: acp_check_access wants only Read/Write (and Execute for directory traversal); the Delete bit is never a wanted right in the check, so it is not enforced \u2014 advisory. Unchanged in effect since 2026-08-13, now confirmed against the ACP path.",
+   "notes": "acp_check_access wants only Read/Write (and Execute for directory traversal); the Delete bit is never a wanted right in the check, so it is not enforced \u2014 advisory. Re-census 2026-09-14: unchanged, line ref refreshed (was :861).",
    "plan_ref": "vms-8ad"
   },
   {
@@ -5687,9 +5733,9 @@
    "status": "implemented",
    "authenticity": "advisory",
    "scope_1_0": "in",
-   "evidence": "src/libvms/syssvc/sys_security.c",
+   "evidence": "src/libvms/syssvc/sys_security.c:151",
    "verified_against": null,
-   "notes": "RE-CENSUS 2026-08-31: correct logic, still ZERO OVMX callers (only starlet.h decl + shr.vec export) \u2014 computed but unused, honestly inert. The ACP enforces access directly (fileprot$sogw_uic), not via $CHKPRO.",
+   "notes": "Correct logic, still ZERO OVMX production callers (only starlet.h decl + shr.vec export) \u2014 computed but unused, honestly inert. The ACP enforces access directly (fileprot$sogw_uic), not via $CHKPRO. Re-census 2026-09-14: unchanged.",
    "plan_ref": "vms-8ad"
   },
   {
@@ -5719,7 +5765,7 @@
    "scope_1_0": "stretch",
    "evidence": "src/libvms/include/acldef.h",
    "verified_against": null,
-   "notes": "Constants only, not built",
+   "notes": "Constants only; no ACE machinery on origin/main (grep for acl_entry/ace_apply/check_acl: zero hits). Re-census 2026-09-14: unchanged.",
    "plan_ref": "vms-8ad"
   },
   {
@@ -5732,9 +5778,9 @@
    "status": "partial",
    "authenticity": "real",
    "scope_1_0": "in",
-   "evidence": "src/kernel-core/vmsfs_acp.c:861",
+   "evidence": "src/kernel-core/vmsfs_acp.c:1053",
    "verified_against": null,
-   "notes": "RE-CENSUS 2026-08-31: was absent/facade-risk. acp_check_access now honors BYPASS (lifts all), READALL (grants read), and SYSPRV (SYSTEM category) \u2014 real. GRPPRV is not consulted, hence partial. Tracked vms-f15/vms-36d. Full detail under privileges; cross-listed here as the file-access-facing half.",
+   "notes": "acp_check_access honors BYPASS (lifts all), READALL (grants read), and SYSPRV (SYSTEM category) \u2014 real. GRPPRV is not consulted, hence partial. Tracked vms-f15/vms-36d. Full detail under privileges; cross-listed here as the file-access-facing half. Re-census 2026-09-14: unchanged, line ref refreshed (was :861).",
    "plan_ref": "vms-8ad"
   },
   {
@@ -5794,7 +5840,7 @@
    "scope_1_0": "in",
    "evidence": "src/vmsqueue/vmsqueue.c",
    "verified_against": null,
-   "notes": "Honestly documented absence: jobs queue but are never dequeued/run (no dequeue-and-execute path in vmsqueue or ovmx_job_control, which is boot plumbing). Any software or SYSTARTUP procedure that submits a batch job and waits on it hangs forever. The 1.0 gap for this facility.",
+   "notes": "Honestly documented absence: jobs queue and an entry can be marked EXECUTING (vmsqueue.c:567) but are never actually dequeued/run (no dequeue-and-execute path in vmsqueue or ovmx_job_control, which is $CREPRC(LOGINOUT) boot plumbing). Any software or SYSTARTUP procedure that submits a batch job and waits on it hangs forever. The 1.0 gap for this facility.",
    "plan_ref": "vms-8ad"
   },
   {
@@ -5839,7 +5885,7 @@
    "scope_1_0": "in",
    "evidence": "src/ovmx_job_control/ovmx_job_control.c",
    "verified_against": null,
-   "notes": "ovmx_job_control (JOB_CONTROL.EXE): real detached-process boot plumbing, not the VMS batch queue execution engine.",
+   "notes": "ovmx_job_control (JOB_CONTROL.EXE): real detached-process boot plumbing via $CREPRC(LOGINOUT.EXE), not the VMS batch queue execution engine.",
    "plan_ref": "vms-8ad"
   },
   {
@@ -5854,7 +5900,7 @@
    "scope_1_0": "in",
    "evidence": "src/libvms/rtl/rightslist.c",
    "verified_against": null,
-   "notes": "RE-CENSUS 2026-08-31: unchanged. The world-readable RIGHTSLIST.DAT is read back through the ACP over a real /dev/vms (tests/qemu/test_syssvc_rightslist.c, vms-5f0); F$IDENTIFIER traverses the concealed-rooted path to it.",
+   "notes": "Re-census 2026-09-14: unchanged. The world-readable RIGHTSLIST.DAT is read back through the ACP over a real /dev/vms (tests/qemu/test_syssvc_rightslist.c, vms-5f0); F$IDENTIFIER traverses the concealed-rooted path to it. Not verified: the QEMU read-back proves the executive path, not an oracle byte-match against real VMS.",
    "plan_ref": "vms-8ad"
   },
   {
@@ -5884,7 +5930,7 @@
    "scope_1_0": "in",
    "evidence": "src/vmsrms/rms_core.c",
    "verified_against": null,
-   "notes": "local open() on caller fd; filespec resolves via executive LNM$SYSTEM (vms-96e2)",
+   "notes": "executive-present path is $ASSIGN + IO$_ACCESS over the Files-11 ODS-2 ACP (rms_acp_open_file); filespec composes through executive directory/concealed logicals (vms-f05). rms_posix_open is the executive-absent fallback only (vms-5f0)",
    "plan_ref": "vms-801"
   },
   {
@@ -5899,7 +5945,7 @@
    "scope_1_0": "in",
    "evidence": "src/vmsrms/rms_core.c",
    "verified_against": null,
-   "notes": "local open()/creat() on caller fd",
+   "notes": "executive-present path is IO$_CREATE(+ACCESS) of a fresh versioned file over the ACP (vms-bc7), fanning through directory/concealed logicals; rms_posix_create is the executive-absent fallback (vms-5f0). Active investigation: create into a user subdirectory ([USERS.GUEST]) can return RMS-E-CRE (vms-93b) \u2014 the common top-level/system-dir case is real",
    "plan_ref": "vms-801"
   },
   {
@@ -5914,7 +5960,7 @@
    "scope_1_0": "in",
    "evidence": "src/vmsrms/rms_core.c",
    "verified_against": null,
-   "notes": "local unlink() on caller fd",
+   "notes": "executive-present path is IO$_DELETE over the ACP; rms_posix_erase (local unlink) is the executive-absent fallback",
    "plan_ref": "vms-801"
   },
   {
@@ -6125,6 +6171,21 @@
    "evidence": "src/vmsrms/rms_search.c",
    "verified_against": null,
    "notes": "ACP $SEARCH; distinguishes RMS$_DNF (no such dir) from RMS$_NMF (no match)",
+   "plan_ref": "vms-801"
+  },
+  {
+   "domain": "programming-interfaces",
+   "facility": "rms-api",
+   "facility_name": "RMS programmatic API \u2014 entry points, control blocks, file organizations",
+   "id": "crtl$rms_stdio_veneer",
+   "kind": "feature",
+   "vms": "C RTL stdio FILE* (fopen/fwrite/fread/fclose) as a thin veneer over RMS",
+   "status": "implemented",
+   "authenticity": "real",
+   "scope_1_0": "in",
+   "evidence": "src/vmsrms/crtl_rms_stdio.c",
+   "verified_against": null,
+   "notes": "vms-47e/126/3c1: fopen/fwrite/fread/fclose drive sys$create/$open/$connect/$put/$get/$close against the real ODS-2 volume over the ACP (do-it-like-VMS: CRTL is a thin RMS veneer, not musl POSIX). Byte-exact FIX put/read + fail-honest no-POSIX-fallback; chunked >64KiB writes + delete-on-close temps (vms-126). Proven by tests/qemu/test_syssvc_crtl_rms_veneer.c (host ctest, not a real-VMS oracle -> implemented, not verified)",
    "plan_ref": "vms-801"
   },
   {
@@ -6349,7 +6410,7 @@
    "scope_1_0": "in",
    "evidence": "src/vmsrms/rms_prolog3.c",
    "verified_against": null,
-   "notes": "genuine Files-11 Prolog-3 over the ACP: primary + alternate keys authored from the XABKEY chain (rms_idx_author_p3, rms_core.c:1940/2137) and read by key-of-reference via SIDR descent (rms_p3_get_by_key, rms_prolog3.c:389). Honest narrower gap: index key compression rejected fail-honest (RMS$_PLG). The primary-key-only limitation was the DEAD .rms_idx sidecar (executive-absent defer, vms-165), not the live path (corrected vms-df8)",
+   "notes": "genuine Files-11 Prolog-3 over the ACP: primary + alternate keys authored from the XABKEY chain (rms_idx_author_p3) and read by key-of-reference via SIDR descent (rms_p3_get_by_key). Honest narrower gap: index key compression rejected fail-honest (RMS$_PLG). The primary-key-only limitation was the DEAD .rms_idx sidecar (executive-absent defer, vms-165), not the live path (corrected vms-df8)",
    "plan_ref": "vms-801"
   },
   {
@@ -6364,7 +6425,7 @@
    "scope_1_0": "in",
    "evidence": "src/vmsrms/rms_prolog3.c",
    "verified_against": null,
-   "notes": "RAB$B_REF key-of-reference is real over the ACP: secondaries authored from the XABKEY chain, read via SIDR descent (rms_p3_get_by_key -> rms_p3_sidr_lookup). Proven byte-exact by tests/vmsrms/test_prolog3_seckey.c (create + add secondary + rebind sees 2 keys + SIDR byte-exact across bucket splits/dup/delete-purge; host-runnable ctest vmsrms_prolog3_seckey). Was falsely reported absent/facade-risk against the dead rms_idx.c sidecar (corrected vms-df8)",
+   "notes": "RAB$B_REF key-of-reference is real over the ACP: secondaries authored from the XABKEY chain, read via SIDR descent (rms_p3_get_by_key -> rms_p3_sidr_lookup). Proven byte-exact by tests/vmsrms/test_prolog3_seckey.c (create + add secondary + rebind sees 2 keys + SIDR byte-exact across bucket splits/dup/delete-purge; host-runnable ctest -> implemented, not a real-VMS oracle). Was falsely reported absent/facade-risk against the dead rms_idx.c sidecar (corrected vms-df8)",
    "plan_ref": "vms-801"
   },
   {
@@ -6379,7 +6440,7 @@
    "scope_1_0": "in",
    "evidence": "src/kernel-core/vms_scs_fsm.c",
    "verified_against": null,
-   "notes": "FC-P2.2/P2.4. A pure [state][event] CDT table (ten frozen states, connect/ accept/reject/disconnect half-exchanges, the credit ledger, the SB path-block CDT queue and the VC-break scan) plus vms_scs.c's glue, which binds it DOWN to the port and registers SCS$DIRECTORY. Every send SPENDS a real credit; SCS never retries and never re-opens a connection on its own. PROVEN AT R1/R2/R3, in CI: tests/cluster/host/test_scs_fsm.c, test_scs_fsm_credit.c, test_scs_fsm_vcdown.c, test_scs_glue_conn.c, test_scs_directory.c; the N-node simulator (tests/cluster/sim); tests/qemu/test_cluster_conn.sh drives CLUSTER_DIAG_CONN against a real /dev/vms. NOT claimed: a graded two-node OVMX connection over the wire, or any interoperation with a real VAX \u2014 R4-multi-node and R5 are lab-deferred.\n",
+   "notes": "FC-P2.2/P2.4. A pure [state][event] CDT table (ten frozen states, connect/ accept/reject/disconnect half-exchanges, the credit ledger, the SB path-block CDT queue and the VC-break scan) plus vms_scs.c's glue, which binds it DOWN to the port and registers SCS$DIRECTORY. Every send SPENDS a real credit; SCS never retries and never re-opens a connection on its own. PROVEN AT R1/R2/R3, in CI: tests/cluster/host/test_scs_fsm.c, test_scs_fsm_credit.c, test_scs_fsm_vcdown.c, test_scs_glue_conn.c, test_scs_directory.c; the N-node simulator (tests/cluster/sim); tests/qemu/test_cluster_conn.sh drives CLUSTER_DIAG_CONN against a real /dev/vms. NOT claimed: a graded two-node OVMX connection over the wire, or any interoperation with a real VAX \u2014 R4-multi-node and R5 are lab-deferred. NEVER-CRASH-A-PEER (vms-5339/#1200+#1202), build-enforced: the whole cluster peer-RECEIVE decode surface -- the DLM body decoders + CM PARAMS + the hello/scs/cm/vc/blk frame codecs (24 decoders; MSCP gate-deferred) -- is fuzzed under ASan/UBSan (~3M inputs total) as a CI gate: no over-read / OOB / UB / crash on any malformed, truncated, or hostile peer frame, and each fuzz asserts dispatch-count>0 (non-vacuity) so a silently-never-reached decoder fails the gate rather than shipping a green facade (INV-6). Locks the never-crash-a-peer invariant as a build-time fact, not an aspiration.\n",
    "plan_ref": "vms-694"
   },
   {
@@ -6589,7 +6650,7 @@
    "scope_1_0": "in",
    "evidence": "src/libvms/include/starlet.h",
    "verified_against": null,
-   "notes": "~86-192 sys$ symbols declared depending on build config, vs several hundred in real VMS",
+   "notes": "109 distinct sys$ symbols declared, vs several hundred in real VMS",
    "plan_ref": "vms-801"
   },
   {
@@ -8179,7 +8240,7 @@
    "scope_1_0": "in",
    "evidence": "tools/vms_sysgen.c",
    "verified_against": null,
-   "notes": "RE-CENSUS 2026-08-31: unchanged. ~6 of ~600 VMS tunables; thin but genuinely dynamic (SET/SHOW round-trips to a real parameter file), not a facade.",
+   "notes": "Re-census 2026-09-14: unchanged. A thin subset of the ~600 VMS tunables; genuinely dynamic (SET/SHOW round-trips to a real binary parameter file over vmsfs, not a bare Linux path), not a facade. WRITE CURRENT persists.",
    "plan_ref": "vms-8ad"
   },
   {
@@ -8194,7 +8255,7 @@
    "scope_1_0": "in",
    "evidence": "",
    "verified_against": null,
-   "notes": "No separate implementation found.",
+   "notes": "No separate implementation found on origin/main.",
    "plan_ref": "vms-8ad"
   },
   {
@@ -8222,7 +8283,7 @@
    "status": "implemented",
    "authenticity": "real",
    "scope_1_0": "in",
-   "evidence": "src/libvms/rtl/sysuaf.c:319",
+   "evidence": "src/libvms/rtl/sysuaf.c:320",
    "verified_against": null,
    "notes": "",
    "plan_ref": "vms-8ad"
@@ -8237,9 +8298,9 @@
    "status": "implemented",
    "authenticity": "real",
    "scope_1_0": "in",
-   "evidence": "src/libvms/rtl/sysuaf.c:389",
+   "evidence": "src/libvms/rtl/sysuaf.c:390",
    "verified_against": null,
-   "notes": "vms-c8fa (re-census 2026-08-31): now READ at login. sysuaf_interactive_login_permitted() checks DISUSER|DISACNT and is enforced BEFORE start_session() in both console LOGINOUT (tools/vms_login.c:~740) and SSH (src/vmsssh/sshd_auth.c:41) \u2014 a disabled account is refused with the same generic failure text even with the correct password. Was absent/facade-risk on 2026-08-13.",
+   "notes": "vms-c8fa: READ at login. sysuaf_interactive_login_permitted() checks DISUSER|DISACNT and is enforced BEFORE start_session() in both console LOGINOUT (tools/vms_login.c) and SSH (src/vmsssh/sshd_auth.c) \u2014 a disabled account is refused with the same generic failure text even with the correct password. Was absent/facade-risk on 2026-08-13. Re-census 2026-09-14: unchanged, line ref refreshed (was :389).",
    "plan_ref": "vms-8ad"
   },
   {
@@ -8252,9 +8313,9 @@
    "status": "implemented",
    "authenticity": "real",
    "scope_1_0": "in",
-   "evidence": "src/libvms/rtl/sysuaf.c:399",
+   "evidence": "src/libvms/rtl/sysuaf.c:400",
    "verified_against": null,
-   "notes": "vms-c8fa (re-census 2026-08-31): sysuaf_account_captive() now read. SSH auth passes --captive to vmsdcl (src/vmsssh/sshd_auth.c:151); DCL enforces it (src/vmsdcl/dcl_main.c:614+ \u2014 Ctrl-Y disabled, REPL suppressed, logs out after the login procedure). Was absent/facade-risk on 2026-08-13.",
+   "notes": "vms-c8fa: sysuaf_account_captive() read. SSH auth passes --captive to vmsdcl (src/vmsssh/sshd_auth.c); DCL enforces it (src/vmsdcl/dcl_main.c \u2014 Ctrl-Y disabled, REPL suppressed, logs out after the login procedure). Was absent/facade-risk on 2026-08-13. Re-census 2026-09-14: unchanged, line ref refreshed (was :399).",
    "plan_ref": "vms-8ad"
   },
   {
@@ -8269,8 +8330,23 @@
    "scope_1_0": "in",
    "evidence": "src/libvms/rtl/sysuaf.c:418",
    "verified_against": null,
-   "notes": "vms-c6df: NOW ENFORCED. sysuaf_password_expired() (src/libvms/rtl/sysuaf.c) reads UAI$M_PWD_EXPIRED and UAF$Q_PWD_DATE+UAF$Q_PWD_LIFETIME straight from the binary $UAFDEF record (NOT the flag-name string, which omits the transient bit) against sys$gettim; an expired password is REFUSED at login on both front-ends \u2014 console LOGINOUT (tools/vms_login.c, %OVMX-F-PWDEXPIRED before start_session) and SSH (src/vmsssh/sshd_auth.c ovmx_sshd_check_login). On-disk UAF$Q_PWD_LIFETIME field added at [OVMX] offset 0x188 (sysuaf.h). authenticity=advisory (not real): VMS FORCES a password change at login; OVMX honestly REFUSES instead (INV-6) \u2014 the interactive force-change flow is the tracked follow-up vms-91f. Proof: tests/libvms/test_sysuaf_login_flags.c (predicate + LOGINOUT source guard), tests/vmsssh/test_sshd_auth.c (real SSH decision fn vs expired binary records), tests/qemu/test_syssvc_loginout_acp.c (expired account authored + read back over the ODS-2 ACP). Was absent/facade-risk (zero readers, expired pwd logged in normally) on 2026-08-31.",
+   "notes": "vms-c6df: ENFORCED. sysuaf_password_expired() reads UAI$M_PWD_EXPIRED and UAF$Q_PWD_DATE+UAF$Q_PWD_LIFETIME straight from the binary $UAFDEF record (NOT the flag-name string, which omits the transient bit) against sys$gettim; an expired password is REFUSED at login on both front-ends \u2014 console LOGINOUT (tools/vms_login.c, %OVMX-F-PWDEXPIRED before start_session) and SSH (src/vmsssh/sshd_auth.c). On-disk UAF$Q_PWD_LIFETIME field at [OVMX] offset 0x188 (sysuaf.h). authenticity=advisory (not real): VMS FORCES a password change at login; OVMX honestly REFUSES instead (INV-6) \u2014 interactive force-change is the tracked follow-up vms-91f. Proof: tests/libvms/test_sysuaf_login_flags.c, tests/vmsssh/test_sshd_auth.c, tests/qemu/test_syssvc_loginout_acp.c (expired account authored + read back over the ODS-2 ACP). Re-census 2026-09-14: unchanged.",
    "plan_ref": "vms-8ad"
+  },
+  {
+   "domain": "system-management",
+   "facility": "sysuaf",
+   "facility_name": "SYSUAF \u2014 Accounts + Login Authentication",
+   "id": "sysuaf$network_login_permit",
+   "kind": "feature",
+   "vms": "NETWORK-class login authorization \u2014 DISNETWORK/DISUSER/DISACNT/expired gates for a pre-authenticated (SSH) session",
+   "status": "partial",
+   "authenticity": "advisory",
+   "scope_1_0": "in",
+   "evidence": "tools/vms_login.c:933",
+   "verified_against": null,
+   "notes": "vms-843a/vms-16b (2026-09-12, #1199): loginout_network_permit() is a pure, fail-closed AUTHORIZATION DECISION for the faithful SSH->$CREPRC(LOGINOUT) handoff (Option A \u2014 SSH authenticates in-protocol against the same SYSUAF/Purdy authority, so LOGINOUT does not re-read the password). Permits a network login only if the account is enabled (DISUSER/DISACNT), UAI$M_DISNETWORK is clear, and the password is not expired; grants nothing beyond the SYSUAF record. Real, honest logic but DELIBERATELY UNWIRED into any live login path (dead until the session-establish + executive-identity conveyance land, lab-gated vms-101) \u2014 hence partial/advisory, not a facade. Proof is a plain host-side ctest (loginout_network_permit_selftest, tools/CMakeLists.txt:48, 6 cases clean->permit / DISNETWORK|DISUSER|DISACNT|expired|NULL->refuse) \u2014 a self-test, not an oracle, so NOT verified. Design: docs/design-ssh-loginout-handoff.md.",
+   "plan_ref": "vms-843a"
   },
   {
    "domain": "system-management",
@@ -8284,7 +8360,7 @@
    "scope_1_0": "in",
    "evidence": "src/vmsssh/vmssshd.c:612",
    "verified_against": null,
-   "notes": "vms-49e/vms-6ae (re-census 2026-08-31): FIXED. vmssshd now (a) establishes the authenticated identity in the executive via vms_kif_setident, fail-closed _exit(1) on refusal (vmssshd.c:~446, INV-6), and (b) performs a permanent setgid-before-setuid UIC drop via ovmx_cred_drop_to_uic() (vmssshd.c:612) BEFORE execl of vmsdcl, fatal on failure. Unit-tested (tests/vmsssh/test_cred_drop.c, test_ssh_ident.c). Was absent/facade-risk (session ran as euid=0/root) on 2026-08-13.",
+   "notes": "vms-49e/vms-6ae: vmssshd (a) establishes the authenticated identity in the executive via vms_kif_setident, fail-closed _exit(1) on refusal (INV-6), and (b) performs a permanent setgid-before-setuid UIC drop via ovmx_cred_drop_to_uic() BEFORE execl of vmsdcl, fatal on failure (%OVMX-F-NOUIC). Unit-tested (tests/vmsssh/test_cred_drop.c, test_ssh_ident.c). Was absent/facade-risk (session ran as euid=0/root) on 2026-08-13. Re-census 2026-09-14: unchanged.",
    "plan_ref": "vms-8ad"
   },
   {
@@ -8359,7 +8435,7 @@
    "scope_1_0": "in",
    "evidence": "src/vmstcpip/services/tcpip_inetd.h",
    "verified_against": null,
-   "notes": "Proven against a real /dev/vms by tests/qemu/test_syssvc_tcpip_inetd.c (vms-cdb9). Until vms-21b the aux server could not run on a BOOTED distro: TCPIP$INETD.EXE was never staged into the image, and it launched service images by a raw execv of a Linux path (service images are ODS-2-resident at SYS$SYSTEM:, not on the boot initramfs VFS). vms-21b stages it at SYS$SYSTEM: and launches service images the VMS way \u2014 materialize off the Files-11 ACP (the shared rms_stage_over_acp DCL RUN + PID1 use) then execve. NOT auto-started in the shipped default (operator security-posture call; enforced by tests/integration/test_tcpip_posture_guard.sh). Precondition that unblocks the OpenSSH sshd ladder (vms-9ef).",
+   "notes": "Proven against a real /dev/vms by tests/qemu/test_syssvc_tcpip_inetd.c (vms-cdb9). Until vms-21b the aux server could not run on a BOOTED distro: TCPIP$INETD.EXE was never staged into the image, and it launched service images by a raw execv of a Linux path (service images are ODS-2-resident at SYS$SYSTEM:, not on the boot initramfs VFS). vms-21b stages it at SYS$SYSTEM: and launches service images the VMS way \u2014 materialize off the Files-11 ACP (the shared rms_stage_over_acp DCL RUN + PID1 use) then execve. NOT auto-started in the shipped default (operator security-posture call; enforced by tests/integration/test_tcpip_posture_guard.sh). R4-HARDENED (the gate before any reading/privileged service): each spawned service drops to its own SYSUAF run-as account (the SERVICE.DAT username field -> vms_kif_setident + Linux cred drop) BEFORE execv, FAIL-CLOSED \u2014 an empty/unknown/refused account _exit(125)s and the service never launches, never as SYSTEM (vms-8bd, tcpip_inetd_ident.c); and concurrent service children are capped (TCPIP_INETD_MAXCHILD, accept back-pressure) so a network fork-flood cannot exhaust the system (vms-bb4). Both proven by the fail-closed CHECKs in test_syssvc_tcpip_inetd.c and the daytime cold-boot e2e (DAYTIME launches under the low-priv TCPIP$DAYTIME account). Precondition that unblocks the OpenSSH sshd ladder (vms-9ef).",
    "plan_ref": "vms-67f"
   },
   {
@@ -8374,7 +8450,7 @@
    "scope_1_0": "in",
    "evidence": "src/vmstcpip/services/tcpip_daytime.h",
    "verified_against": null,
-   "notes": "First genuine standalone service image INETD launches end to end; proven by tests/qemu/test_syssvc_tcpip_daytime.c against a real /dev/vms (vms-477). That KE-harness proof injects a literal Linux image path; on the SHIPPED distro the image is ODS-2-resident at SYS$SYSTEM: and the aux server activates it over the ACP (materialize->execve, vms-21b) \u2014 proven answerable on a cold boot by tests/qemu/run_tcpip_daytime_boot_e2e.sh. DISABLED in the shipped default SERVICE.DAT (operator-enabled; the shipped image auto-starts no service \u2014 posture-guarded by tests/integration/test_tcpip_posture_guard.sh); the cold-boot proof enables it via a test overlay only.",
+   "notes": "First genuine standalone service image INETD launches end to end; proven by tests/qemu/test_syssvc_tcpip_daytime.c against a real /dev/vms (vms-477). That KE-harness proof injects a literal Linux image path; on the SHIPPED distro the image is ODS-2-resident at SYS$SYSTEM: and the aux server activates it over the ACP (materialize->execve, vms-21b) \u2014 proven answerable on a cold boot by tests/qemu/run_tcpip_daytime_boot_e2e.sh. DISABLED in the shipped default SERVICE.DAT (operator-enabled; the shipped image auto-starts no service \u2014 posture-guarded by tests/integration/test_tcpip_posture_guard.sh); the cold-boot proof enables it via a test overlay only. Under R4 (vms-8bd) the aux server launches it under the low-privilege TCPIP$DAYTIME SYSUAF service account (UIC [128,134], TMPMBX/NETMBX), NOT SYSTEM \u2014 the cold-boot e2e proves the persona drop end to end.",
    "plan_ref": "vms-67f"
   },
   {
@@ -8404,7 +8480,7 @@
    "scope_1_0": "in",
    "evidence": "src/vmstcpip/mgmt/tcpip_config.h",
    "verified_against": null,
-   "notes": "Host name/domain/address configured the VMS way land in the executive-resident LNM$SYSTEM table (shared cross-process over /dev/vms), read back through the independent sys$trnlnm, and the address is applied to the interface over the substrate stack. Proven against a real /dev/vms (tests/qemu/test_syssvc_tcpip_config) + a host honest-degradation DCL test; SS$_NOSUCHDEV with no executive (vms-67f).",
+   "notes": "Host name/domain/address configured the VMS way land in the executive-resident LNM$SYSTEM table (shared cross-process over /dev/vms), read back through the independent sys$trnlnm, and the address is applied to the interface over the substrate stack. Proven against a real /dev/vms (tests/qemu/test_syssvc_tcpip_config) + a host honest-degradation DCL test; SS$_NOSUCHDEV with no executive (vms-67f). CONFIG NOW PERSISTS ACROSS REBOOT: host/interface/route/name-service settings are written to TCPIP$HOST/INTERFACE/ROUTE/NAMESERVICE.DAT via RMS over the Files-11 ACP (apply/persist split) and reapplied at startup by the C 'TCPIP REAPPLY' verb from @SYS$STARTUP:TCPIP$STARTUP \u2014 proven by tests/qemu/run_tcpip_reboot_e2e.sh (double-boot: settings survive, store proven no-growth). Config persistence shipped; a persistent INETD SERVICE database (#878) remains deferred.",
    "plan_ref": "vms-67f"
   },
   {
@@ -8413,13 +8489,28 @@
    "facility_name": "TCP/IP Services (UCX QIO + Sockets + BGn:/ETH0:)",
    "id": "tcpip-services$dcl-tcpip-verb",
    "kind": "command",
-   "vms": "DCL TCPIP verb (show interface/route/host/version/configuration, set host/interface/route/name_service)",
+   "vms": "DCL TCPIP verb (show interface/route/host/version/configuration/service, set host/interface/route/name_service/service, enable/disable/delete service)",
    "status": "implemented",
    "authenticity": "real",
    "scope_1_0": "in",
    "evidence": "src/vmsdcl/dcl_cmd_misc.c",
    "verified_against": null,
-   "notes": "SHOW INTERFACE/ROUTE is Linux-substrate introspection (SIOCGIF*/proc). SET INTERFACE applies the address AND records TCPIP$INET_HOSTADDR in the executive; SHOW CONFIGURATION reads the TCPIP$ SYSTEM logicals back (honest %TCPIP-W-NOEXEC with no executive).",
+   "notes": "SHOW INTERFACE/ROUTE is Linux-substrate introspection (SIOCGIF*/proc). SET INTERFACE applies the address AND records TCPIP$INET_HOSTADDR in the executive; SHOW CONFIGURATION reads the TCPIP$ SYSTEM logicals back (honest %TCPIP-W-NOEXEC with no executive). SET HOST/INTERFACE/ROUTE/NAME_SERVICE additionally PERSIST their settings to TCPIP$*.DAT over the Files-11 ACP, and TCPIP REAPPLY (invoked at boot from @SYS$STARTUP:TCPIP$STARTUP) reapplies them on the next cold boot (apply/persist split; proven by run_tcpip_reboot_e2e.sh). SET/SHOW/ENABLE/DISABLE/DELETE SERVICE manage the persistent INETD service database (see the service-db row, #878). SHOW INTERFACE/ROUTE and the live SET ROUTE apply remain Linux-substrate introspection ('ip route')-- honestly disclosed, not fabricated.",
+   "plan_ref": "vms-67f"
+  },
+  {
+   "domain": "networking",
+   "facility": "tcpip-services",
+   "facility_name": "TCP/IP Services (UCX QIO + Sockets + BGn:/ETH0:)",
+   "id": "tcpip-services$service-db",
+   "kind": "subsystem",
+   "vms": "Persistent INETD service database \u2014 TCPIP {SET,SHOW,ENABLE,DISABLE,DELETE} SERVICE manage SYS$SYSTEM:TCPIP$SERVICE.DAT, the database TCPIP$INETD binds from at aux-server start",
+   "status": "implemented",
+   "authenticity": "real",
+   "scope_1_0": "in",
+   "evidence": "src/vmstcpip/mgmt/tcpip_service_db.h",
+   "verified_against": "tests/qemu/test_syssvc_tcpip_service_db.c \u2014 a service SET+ENABLEd through the engine over a REAL Files-11 ACP is read back through the INDEPENDENT aux-server parser (tcpip_inetd_parse_db, the same code TCPIP$INETD runs to decide what to bind); DISABLE removes it from the bound set (record retained as a '!'-line), DELETE drops it; with no executive the persistent WRITE fails ENOEXEC (honest SS$_NOSUCHDEV class, never a per-process fake); + the facility_defects negctl gate 'tcpip-svcdb-enable-not-persisted' (vms-71b)",
+   "notes": "The management/persistence plane the DCL SERVICE verbs drive (#878). The database was already ACP-resident and read at boot; this adds the VMS-way management surface (was hand-edit-only) \u2014 SET SERVICE defines/updates a record, ENABLE/DISABLE toggle the '!'-disabled convention the aux-server parser already honours, DELETE removes it, and the change is persisted over the ACP the same apply/persist way the config stores are (rms_textfile_*), so a DCL-enabled service survives reboot and is reapplied on the next TCPIP$INETD start. Line format is the SAME OVMX design choice tcpip_inetd.h documents (Rule 8). A new service defaults DISABLED (operator posture). The end-to-end cold-boot double-boot serving proof (a DCL-enabled service answered on the next boot \u2014 the 'verified' oracle gate) is the tracked follow-on.",
    "plan_ref": "vms-67f"
   },
   {
@@ -8428,13 +8519,13 @@
    "facility_name": "TCP/IP Services (UCX QIO + Sockets + BGn:/ETH0:)",
    "id": "tcpip-services$deferred-rungs",
    "kind": "feature",
-   "vms": "DHCP client, multiple interfaces / TCPIP$INET_HOSTADDRn, persistent service/proxy databases",
+   "vms": "DHCP client, multiple interfaces / TCPIP$INET_HOSTADDRn, a raw NIC-as-VMS-device data path (EWA0:)",
    "status": "absent",
    "authenticity": "n/a",
    "scope_1_0": "stretch",
    "evidence": "docs/design-tcpip-services-ovmx.md",
    "verified_against": null,
-   "notes": "Honestly deferred; single static interface + in-memory service enablement today.",
+   "notes": "Honestly deferred; single static interface today. NOTE: CONFIG persistence (host/interface/route/name-service) shipped over the Files-11 ACP with a boot-time TCPIP REAPPLY (config-plane + dcl-tcpip-verb rows), and the PERSISTENT INETD SERVICE database (#878) is now managed the VMS way (service-db row) \u2014 both are NO LONGER deferred.",
    "plan_ref": "vms-67f"
   },
   {
@@ -8464,7 +8555,7 @@
    "scope_1_0": "in",
    "evidence": "tools/vms_sysgen.c",
    "verified_against": null,
-   "notes": "SET/SHOW round-trips a real parameter and enforces its range (tests/dcl/test_sysgen.sh). Downgraded verified->implemented 2026-08-31: that test is a plain local self-test, not an oracle/negctl gate.",
+   "notes": "SET/SHOW round-trips a real parameter and enforces its range (tests/dcl/test_sysgen.sh). Implemented (not verified): that test is a plain local self-test, not an oracle/negctl gate.",
    "plan_ref": "vms-8ad"
   },
   {
@@ -8524,7 +8615,7 @@
    "scope_1_0": "in",
    "evidence": "src/vmsdcl/dcl_cmd_misc.c",
    "verified_against": null,
-   "notes": "Wired to real KFE VMS$KNOWN_IMAGES.DAT; was quietly broken, now fixed.",
+   "notes": "Wired to real KFE VMS$KNOWN_IMAGES.DAT.",
    "plan_ref": "vms-8ad"
   },
   {
@@ -8597,9 +8688,9 @@
    "status": "implemented",
    "authenticity": "real",
    "scope_1_0": "in",
-   "evidence": "src/vmsdcl/dcl_cmd_misc.c",
+   "evidence": "src/vmsdcl/dcl_cmd_misc.c:194",
    "verified_against": null,
-   "notes": "SORT/KEY=(POSITION:n,SIZE:m[,DESCENDING]) sorts on the [pos,size] field, not the whole line; /KEY is a declared CDU_VT_LIST qualifier and is no longer silently ignored (vms-e76). /REVERSE and whole-line (no /KEY) unchanged. Follow-ups (documented gaps, not facades): secondary keys (multiple /KEY tie-breaking) use the first key only, and MERGE is a separate absent utility.",
+   "notes": "SORT/KEY=(POSITION:n,SIZE:m[,DESCENDING]) sorts on the [pos,size] field, not the whole line (dcl_cmd_misc.c:199-201); /KEY is a declared CDU_VT_LIST qualifier and is no longer silently ignored (vms-e76, facade-risk -> real). /REVERSE and whole-line (no /KEY) unchanged. Documented gaps, not facades: secondary keys (multiple /KEY tie-breaking) use the first key only, and MERGE is a separate absent utility.",
    "plan_ref": "vms-8ad"
   },
   {
@@ -8627,9 +8718,9 @@
    "status": "partial",
    "authenticity": "facade-risk",
    "scope_1_0": "in",
-   "evidence": "src/vmsdcl/dcl_cmd_misc.c:2604",
+   "evidence": "src/vmsdcl/dcl_cmd_misc.c:3158",
    "verified_against": null,
-   "notes": "/FDL emits an honest %CONVERT-I-FDL 'accepted but ignored' informational, but the body is a line-by-line fgets/fputs copy that prints '%CONVERT-S-CONVERTED, N records converted' \u2014 claiming a record-format conversion it did not perform. Real RMS record-format CONVERT tracked vms-558e. Still facade-risk.",
+   "notes": "/FDL emits an honest %CONVERT-I-FDL 'accepted but ignored' informational (dcl_cmd_misc.c:3127), but the body is a line-by-line fgets/fputs copy that prints '%CONVERT-S-CONVERTED, N records converted' (dcl_cmd_misc.c:3158) \u2014 claiming a record-format conversion it did not perform. Real RMS record-format CONVERT tracked vms-558e. Still facade-risk.",
    "plan_ref": "vms-8ad"
   },
   {
@@ -8687,7 +8778,7 @@
    "status": "stub",
    "authenticity": "real",
    "scope_1_0": "in",
-   "evidence": "tools/vms_analyze.c:557",
+   "evidence": "tools/vms_analyze.c",
    "verified_against": null,
    "notes": "Honest stub: %ANALYZE-I-NOTIMPL, object file analysis not available.",
    "plan_ref": "vms-8ad"
@@ -8749,7 +8840,7 @@
    "scope_1_0": "in",
    "evidence": "src/vmsdcl/dcl_editor.c",
    "verified_against": null,
-   "notes": "Minimal line-mode EDT; no screen mode. Exercised by tests/dcl/test_edit_command.sh. Downgraded verified->implemented 2026-08-31: plain local self-test, not an oracle/negctl gate.",
+   "notes": "Minimal line-mode EDT; no screen mode. Exercised by tests/dcl/test_edit_command.sh \u2014 a plain local self-test, not an oracle, so implemented (not verified).",
    "plan_ref": "vms-8ad"
   },
   {
