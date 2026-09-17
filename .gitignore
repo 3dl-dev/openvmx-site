@@ -4,3 +4,6 @@ package.json
 package-lock.json
 # intermediate capture; only the composed card (og-demo.png) is committed
 og-terminal.png
+
+# cleanup coordination scaffold — never commit
+LANE-STATE.md
