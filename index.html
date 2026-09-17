@@ -586,8 +586,8 @@ footer{background:var(--paper-2)}
         <div class="ix">
           <div class="ixhead"><span class="n">06</span><span class="nm">Cluster interop</span>
             <span class="dots"></span><span class="cd">SCS · NISCA</span></div>
-          <p class="ds">An implementation of the VMScluster wire protocol, so OpenVMX nodes can join
-            and serve storage as a cluster. In active research.</p>
+          <p class="ds">An implementation of the VMScluster wire protocol. OpenVMX nodes join a real
+            cluster today; serving storage across it is in active research.</p>
         </div>
       </div>
     </div>
@@ -629,33 +629,33 @@ footer{background:var(--paper-2)}
       <div class="chap"><span class="cn">4.0</span><h2>Clusters &amp; interoperability</h2></div>
       <p class="deck2">OpenVMX does not emulate a cluster — it implements the machinery. OpenVMX nodes
         form a real cluster among themselves over the SCS / NISCA wire, with an executive-resident lock
-        manager and membership. Interoperating with a genuine VMS-family VAX — a real VAX joining and
-        mounting OpenVMX-served storage — is the bar the work is driving to now.</p>
+        manager and membership. Serving and mounting genuine ODS-2 storage across the cluster, and
+        interoperating with a genuine VMS-family VAX joining that cluster, is the bar the work is
+        driving to now.</p>
 
       <div class="manual pad-b">
         <div class="marg">
           <h4>What's real today</h4>
           <ul>
             <li>A real distributed lock manager over the <b>SCS</b> wire — cross-node locks.</li>
-            <li>Executive-resident <b>membership</b>: join, quorum, and <b>SHOW CLUSTER</b>.</li>
-            <li><b>MSCP-serves</b> a genuine ODS-2 volume — the node's actual disk — over NISCA.</li>
+            <li>Executive-resident <b>membership</b>: join, quorum computation, and <b>SHOW CLUSTER</b>.</li>
             <li>Multi-node OpenVMX clusters form in the lab.</li>
             <li>Wire formats read off the wire, not vendor source.</li>
           </ul>
           <h4 style="margin-top:22px">In progress</h4>
           <ul>
-            <li>A <b>real VAX</b> joining and mounting the served volume, byte-for-byte.</li>
+            <li>Serving and mounting a genuine ODS-2 volume across the cluster over MSCP.</li>
+            <li>A <b>real VAX</b> joining the cluster, byte-for-byte.</li>
           </ul>
         </div>
         <div class="text">
           <p>The cluster machinery is real, not staged. An executive-resident lock manager grants and
             releases locks across nodes over the SCS wire; membership, quorum, and
-            <span class="mono">SHOW CLUSTER</span> are served from executive state. OpenVMX MSCP-serves a
-            genuine ODS-2 volume — the node's actual disk, not a placeholder image staged to look served —
-            and multi-node OpenVMX clusters form and hold together in the lab.</p>
-          <p>The remaining bar is interoperation with the real thing: a genuine VMS-family VAX joining the
-            cluster and mounting OpenVMX-served storage byte-for-byte. That wire-fidelity work is
-            <b>in progress and not yet proven</b> — the honest status, tracked on the
+            <span class="mono">SHOW CLUSTER</span> are served from executive state, and multi-node
+            OpenVMX clusters form and hold together in the lab.</p>
+          <p>The remaining bar is serving and mounting genuine ODS-2 storage across the cluster over
+            MSCP, and interoperation with the real thing: a genuine VMS-family VAX joining the cluster.
+            That work is <b>in progress and not yet proven</b> — the honest status, tracked on the
             <a href="/roadmap/">roadmap</a>.</p>
           <p>The wire formats were worked out by watching a reference VAX and Alpha cluster and reading
             the public documentation, never from vendor source.</p>

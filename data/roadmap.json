@@ -1,11 +1,11 @@
 {
  "meta": {
-  "generated": "2026-09-10",
+  "generated": "2026-09-17",
   "source": "OVMX release board (rd)",
   "note": "Derived, milestone-level public view. Regenerated each checkpoint; do not hand-edit.",
   "scrubbed": "trademark scrub applied on render (public site)",
   "nextPointRelease": {
-   "version": "V0.6-15",
+   "version": "V0.6-17",
    "theme": "Actively landing on the current line."
   }
  },
@@ -72,23 +72,23 @@
    "theme": "Cluster wire fidelity — the SCS/MSCP connection manager answers a real VAX byte-for-byte.",
    "status": "in_progress",
    "progress": {
-    "done": 1,
-    "open": 5,
+    "done": 4,
+    "open": 4,
     "blocked": 0,
-    "total": 6,
-    "pct": 17
+    "total": 8,
+    "pct": 50
    }
   },
   {
    "version": "0.8",
    "theme": "Rejoin and satellite boot — a removed node rejoins under its own identity; diskless satellites boot from a served disk.",
-   "status": "planned",
+   "status": "in_progress",
    "progress": {
-    "done": 0,
-    "open": 3,
+    "done": 1,
+    "open": 2,
     "blocked": 0,
     "total": 3,
-    "pct": 0
+    "pct": 33
    }
   },
   {
@@ -108,11 +108,11 @@
    "theme": "Hardened and proven — feature-frozen on 0.9: authenticity enforced by the executive, not by convention, and the whole system proven on real hardware and in extended cluster interop against a real VAX. The release you trust; fixes only.",
    "status": "goal",
    "progress": {
-    "done": 32,
-    "open": 25,
-    "blocked": 8,
-    "total": 57,
-    "pct": 56
+    "done": 40,
+    "open": 24,
+    "blocked": 5,
+    "total": 64,
+    "pct": 62
    }
   }
  ],
@@ -145,9 +145,9 @@
    "lands_by": "0.5-0.9",
    "status": "in_progress",
    "progress": {
-    "done": 17,
-    "total": 23,
-    "pct": 74
+    "done": 19,
+    "total": 24,
+    "pct": 79
    }
   },
   {
@@ -167,9 +167,9 @@
    "lands_by": "0.5-0.9",
    "status": "in_progress",
    "progress": {
-    "done": 17,
-    "total": 31,
-    "pct": 55
+    "done": 24,
+    "total": 55,
+    "pct": 44
    }
   },
   {
@@ -178,9 +178,9 @@
    "lands_by": "0.9",
    "status": "in_progress",
    "progress": {
-    "done": 15,
-    "total": 39,
-    "pct": 38
+    "done": 26,
+    "total": 58,
+    "pct": 45
    }
   },
   {
@@ -208,6 +208,14 @@
  ],
  "releases": [
   {
+   "tag": "V0.6-16",
+   "note": "Point release."
+  },
+  {
+   "tag": "V0.6-15",
+   "note": "Point release."
+  },
+  {
    "tag": "V0.6-14",
    "note": "Cluster genesis and networking hardening. OpenVMX becomes a first-class founding cluster member: the executive can now FORM a VMScluster from nothing (authentic VMS formation, quorum-grounded) — a genesis, not only a join of an existing cluster — running on the real executive-resident membership machinery. A cluster crash-fix closes a host-kernel panic on a clustered node's shared network buffer and a founder self-demotion. Networking: a valid SYSUAF user now lands at a DCL prompt over the wrapped OpenSSH sshd end to end (real ACP SYSUAF authentication, the earlier pubkey-root overclaim dropped from the register), the DECnet routing receive path gains ASan/UBSan fuzzing and bound proofs with CI-enforced sanitizer teeth, and the libdatalink DECnet datalink is wire-proven on live NetBSD/VAX. Honest scope: interoperation with a REAL VAX cluster — a genuine VAX joining and mounting OpenVMX-served storage — remains in progress and unproven."
   },
@@ -230,14 +238,6 @@
   {
    "tag": "V0.6-9",
    "note": "Four increments up the self-hosting and networking long poles. DECnet Phase IV gets its first real engine: a userspace daemon (DECNETD.EXE) opens an Ethernet datalink, emits and receives the routing HELLO on cadence, and drives a per-neighbour adjacency state machine — the raw socket hidden behind a VMS-authentic surface (an executor node, a circuit, SHOW ADJACENT NODES), the same way the cluster's SCS daemon hides its datalink; proven byte-exact against a real-VAX capture and live on the wire between two nodes. VMS condition handling gains its first authentic rung: SYS$SETEXV establishes real per-thread exception vectors and the dispatcher walks the genuine call-frame chain in the VMS four-stage search order with a real mechanism array, replacing a flat handler-stack emulation (the deeper frame-transfer unwind and hardware-exception unification are staged behind it). The compiler port's file workload is proven over genuine Files-11 ODS-2 through the executive ACP — versioning (a file created twice yields ;1 and ;2, which a POSIX overwrite cannot), wildcard directory enumeration with real File IDs, and fail-honest RMS$_FNF — though the port image's own C-RTL binding to that RMS engine (versus the bootstrap POSIX path) remains separate follow-on work. And a phantom is retired: the alpha cross-compiler's reported -O0 union-type-pun 'miscompile' was the VMS data model itself (long is 32-bit, matching DEC C), not a compiler defect — the test was corrected and a DEC C behavior-compatibility architecture drafted. No cluster-participation claim: the cluster machinery is real, but a booted OVMX auto-joining a cluster is not yet built."
-  },
-  {
-   "tag": "V0.6-8",
-   "note": "A runtime-fidelity cleanup. $CREPRC no longer leaks debug text to the error stream: two unconditional diagnostic writes fired on stderr on every single process creation (visible in the boot and harness logs), which real VMS never does. They are removed — process creation is now silent on the error path — with no change to $CREPRC behavior, only its output."
-  },
-  {
-   "tag": "V0.6-7",
-   "note": "An authenticity fix on the process-creation path. A RUN/UIC identity override requested by an unauthenticated creator is correctly refused with SS$_NOPRIV — but until now that refusal left a phantom process: $CREPRC named and registered the subprocess in the executive before deciding whether the /UIC override could be honored, so on refusal a live process control block persisted under the refused name and $GETJPI could find it. $CREPRC now takes the stamp-versus-refuse decision from its own arguments before it registers or names anything, so a refused override touches the executive not at all — no PCB, nothing to find. The authorized-override and plain-detached paths are unchanged and the LARP guard is not weakened; this closes the gap by construction, since a refused grandchild issues zero executive calls."
   }
  ]
 }

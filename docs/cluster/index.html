@@ -232,7 +232,7 @@ footer{background:var(--paper-2);margin-top:clamp(46px,6vw,84px)}
         with the distributed lock manager. What is not implemented yet is stated plainly.</p>
       <div class="plate">
         <div><span>Order number</span><b>AA&ndash;OVMX3&ndash;CL</b></div>
-        <div><span>Applies to</span><b>OpenVMX <span data-ovmx-version>V0.6-1</span></b></div>
+        <div><span>Applies to</span><b>OpenVMX <span data-ovmx-version>V0.6-16</span></b></div>
         <div><span>Edition</span><b>First</b></div>
         <div><span>Date</span><b>August 2026</b></div>
       </div>
@@ -250,7 +250,7 @@ footer{background:var(--paper-2);margin-top:clamp(46px,6vw,84px)}
 
     <div class="call">
       <span class="lab">About this manual</span>
-      This edition applies to OpenVMX <span data-ovmx-version>V0.6-1</span>. Nothing here is described
+      This edition applies to OpenVMX <span data-ovmx-version>V0.6-16</span>. Nothing here is described
       as working unless a real code path ships it over the real executive at <code>/dev/vms</code>
       (Rule&nbsp;9 / INV-6). OpenVMX is under development; parts of a VMScluster that are not
       implemented yet are marked in the text and listed in Appendix&nbsp;B. The operator content of
@@ -370,7 +370,7 @@ footer{background:var(--paper-2);margin-top:clamp(46px,6vw,84px)}
 
     <h3 class="sec" id="s1-3"><span class="sn">1.3</span>The reference lab</h3>
     <p>The cluster behaviour OpenVMX reproduces is grounded against a reference lab of genuine
-      OpenVMS VAX systems that the project operates. That lab is an observation oracle only. Nothing
+      VMS VAX systems that the project operates. That lab is an observation oracle only. Nothing
       OpenVMX ships is copied from VMS: see the clean-room statement in Appendix&nbsp;A.</p>
 
     <!-- ============ CHAPTER 2 ============ -->
@@ -575,8 +575,8 @@ footer{background:var(--paper-2);margin-top:clamp(46px,6vw,84px)}
     <p>The <em>semantic</em> field values the DLM carries are authentic <code>$LCKDEF</code> &mdash;
       the grant modes, the <code>$ENQ</code> flags, and the 16-byte lock value block &mdash; and the
       routing algorithm is the documented directory/master resolution. But the <b>on-wire lock-manager
-      SCS opcodes and body byte offsets are an OpenVMX design choice</b>, not VMS-authentic: VSI/HPE
-      do not publish the lock manager's SCS byte layout, so OpenVMX defines its own and labels it as
+      SCS opcodes and body byte offsets are an OpenVMX design choice</b>, not VMS-authentic: the
+      vendor does not publish the lock manager's SCS byte layout, so OpenVMX defines its own and labels it as
       such. They will be replaced with the authentic layout once a real VAX DLM capture grounds it.
       Every byte-level detail, and the GROUNDED / inferred / unknown labeling of each field, is in the
       cluster protocol specification cited in Appendix&nbsp;A.</p>
@@ -633,9 +633,9 @@ cluster-logicals
     <h2 class="chap" id="ca"><span class="cn">A</span>Appendix A. Clean-room provenance</h2>
     <p>Everything OpenVMX knows about the VMScluster wire &mdash; SCS/NISCA framing, the membership
       handshake, the DLM message class &mdash; is derived <b>only</b> from (a) observing the wire on
-      the project's own reference labs and (b) public OpenVMS documentation (the Cluster Systems
+      the project's own reference labs and (b) public VMS documentation (the Cluster Systems
       manual, <code>$ENQ</code>/<code>$DEQ</code>/<code>$LCKDEF</code>, and documented
-      SDA/SYSGEN/SYSMAN tool output). No VSI/HPE VMS source or binary was ever disassembled,
+      SDA/SYSGEN/SYSMAN tool output). No vendor VMS source or binary was ever disassembled,
       decompiled, or consulted.</p>
     <p>Where the public documentation does not publish a byte-level layout, OpenVMX defines its own
       representation and labels it an <b>OVMX design choice</b> &mdash; it is never presented as

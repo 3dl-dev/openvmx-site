@@ -590,7 +590,13 @@ DISMOUNT VDA100:
                           a real item), or the cut fails as a stale manual --
                           that capability graduated and must be documented.
          MAPPING of Appendix C to register tokens:
-           * "Networking as a VMS device" -> tcpip-services, decnet.
+           * "Networking as a VMS device" -> tcpip-services and decnet are now
+             documented as WORKING (covers), not deferred: both carry real
+             implemented/verified items in the register (routing, NSP transport,
+             node database, outbound SET HOST for decnet; config plane, client
+             tools, NIC device face for tcpip-services). Sub-facilities that are
+             still absent/partial (e.g. decnet task-to-task) are left to the
+             compatibility surface page, not restated here.
            * "Cluster membership / joining and serving a cluster" -> the
              user-facing cluster capabilities that are genuinely absent:
              cluster-dlm, cluster-logicals. NOTE: the lower-level cluster
@@ -612,9 +618,10 @@ DISMOUNT VDA100:
 install
 devices
 boot
+tcpip-services
+decnet
 <!-- ovmx:covers:end -->
 <!-- ovmx:not-yet:begin -->
-decnet
 cluster-logicals
 <!-- ovmx:not-yet:end -->
     </div>
@@ -742,9 +749,11 @@ cluster-logicals
         parameter-feedback pass, no page or swap file sizing, and no security, audit, or ACME
         server bring-up. The install produces a directly bootable disk.</li>
       <li><b>Networking as a VMS device.</b> TCP/IP Services ships as a layered product in V0.6
-        (configuration plane, <code>TCPIP$</code> logicals, <code>PING</code>) &mdash; see the
-        <em>TCP/IP Configuration Guide</em>. The install itself does not configure networking, and
-        the VMS network device face (<code>EWA0:</code>) and DECnet are not wired yet.</li>
+        (configuration plane, <code>TCPIP$</code> logicals, <code>PING</code>, the NIC as
+        <code>ETH0:</code>) &mdash; see the <em>TCP/IP Configuration Guide</em>. DECnet Phase&nbsp;IV
+        routing, NSP transport, the node database, and outbound <code>SET HOST</code> ship as well.
+        The install itself does not configure networking; see the
+        <a href="/compat/">compatibility surface</a> for what each protocol supports today.</li>
       <li><b>Cluster membership.</b> V0.6 makes OpenVMX a cluster participant (distributed lock
         manager over the interconnect, membership in the executive, <code>SHOW CLUSTER</code>).
         Standing up and configuring a cluster is described in <em>Cluster Systems</em>. Quorum/votes
