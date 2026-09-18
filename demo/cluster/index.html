@@ -35,7 +35,7 @@
   <div class="nodes">
     <div class="node">
       <header>Node A — OVMX/x86_64 (qemu-wasm) · MAC 52:54:00:00:00:0A</header>
-      <iframe id="nodeA" src="node.html?mac=52:54:00:00:00:0A" title="OVMX/x86 node A"
+      <iframe id="nodeA" title="OVMX/x86 node A"
               allow="cross-origin-isolated"></iframe>
     </div>
     <div class="node placeholder">Node B — OVMX/VAX (pcjs)<br><small>attaches via CONTRACT.md when the DELQA NIC lands</small></div>
@@ -91,6 +91,14 @@
 
   window.__hub = hub;
   window.__switch = sw;
+
+  // Boot Node A only now that the hub + switch are ready to relay. The parent's
+  // ?initramfs= (a config-injected, cluster-configured image) and ?mac= route into the node.
+  const _pq = new URLSearchParams(location.search);
+  let _src = 'node.html?mac=' + encodeURIComponent(_pq.get('mac') || '52:54:00:00:00:0A');
+  if (_pq.get('initramfs')) _src += '&initramfs=' + encodeURIComponent(_pq.get('initramfs'));
+  iframeA.src = _src;
+
   window.__demoReady = true;
 
   const hudEl = document.getElementById('hudline');
