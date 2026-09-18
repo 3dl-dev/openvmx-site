@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>OVMX cluster node</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link rel="stylesheet" href="boot/assets/xterm.css">
+<style>
+  :root { color-scheme: dark; }
+  html, body { height:100%; margin:0; background:#140d00; }
+  #terminal { position:fixed; inset:0; }
+  #terminal .xterm, #terminal .xterm-viewport, #terminal .xterm-screen { width:100% !important; height:100% !important; }
+  .xterm-viewport { scrollbar-width:thin; scrollbar-color:rgba(255,178,50,.4) transparent; }
+</style>
+</head>
+<body>
+<div id="terminal"></div>
+
+<!-- Cross-origin isolation (SharedArrayBuffer) — inherited from the isolated parent;
+     harmless no-op on a header-capable host. -->
+<script src="coi-serviceworker.js"></script>
+<!-- xterm renderer stays on the iframe's page thread; qemu runs in node-worker.js. -->
+<script src="boot/assets/xterm.js"></script>
+
+<script type="module">
+  // NODE side of the frozen L2 seam (CONTRACT.md): pipe the guest NIC <-> the parent switch.
+  import { connectNicPipe } from './lib/port-postmessage.mjs';
+
+  // Per-node config from this iframe's own query params (?mac=..&initramfs=..).
+  const qp = new URLSearchParams(location.search);
+  const NODE_CFG = {
+    mac: qp.get('mac') || '52:54:00:00:00:0A',
+    initramfs: qp.get('initramfs') || undefined,   // undefined -> worker default (shipped image)
+    sysdisk: qp.get('sysdisk') || undefined,       // config-injected ODS-2 system disk (VAXCLUSTER=2)
+  };
+
+  // Harness/introspection handle — proves the wiring loaded without waiting for a boot.
+  const state = window.__nodeState = {
+    mac: NODE_CFG.mac,
+    crossOriginIsolated: self.crossOriginIsolated === true,
+    workerSpawned: false,
+    pipeReady: false,
+    firstOut: false,
+    nicTxCount: 0,
+    nicRxCount: 0,
+    workerError: null,
+    consoleText: '',        // accumulated guest serial console (diagnostics; capped)
+  };
+
+  const term = new Terminal({
+    cols: 100, rows: 34, convertEol: true,
+    fontFamily: '"DejaVu Sans Mono", ui-monospace, Menlo, monospace', fontSize: 14, lineHeight: 1.12,
+    theme: { background: '#140d00', foreground: '#ffb232', cursor: '#ffb232' },
+  });
+  term.open(document.getElementById('terminal'));
+  window.__nodeTerm = term;
+
+  const worker = new Worker('node-worker.js');
+  window.__nodeWorker = worker;
+  state.workerSpawned = true;
+
+  term.onData((d) => worker.postMessage({ t: 'in', d }));
+
+  // The L2 pipe: worker nic-tx -> pipe.nicTx -> postMessage up to the parent switch;
+  // parent switch -> pipe.toNicRx -> worker nic-rx -> guest RX.
+  const pipe = connectNicPipe({
+    postUp: (m, t) => window.parent.postMessage(m, '*', t),
+    addMessageListener: (h) => { const f = (e) => h(e); window.addEventListener('message', f); return () => window.removeEventListener('message', f); },
+    toNicRx: (frameU8) => { state.nicRxCount++; worker.postMessage({ t: 'nic-rx', frame: frameU8.buffer }, [frameU8.buffer]); },
+    fromParent: (e) => e.source === window.parent,
+  });
+  window.__nodePipe = pipe;
+  state.pipeReady = true;
+
+  worker.onmessage = (e) => {
+    const m = e.data;
+    if (m.t === 'out') { state.firstOut = true; term.write(m.d);
+      try { const s = typeof m.d === 'string' ? m.d : new TextDecoder().decode(m.d);
+        state.consoleText = (state.consoleText + s).slice(-40000); } catch (e2) {} }
+    else if (m.t === 'nic-tx') { state.nicTxCount++; pipe.nicTx(new Uint8Array(m.frame)); }
+    else if (m.t === 'progress') { /* cosmetic; parent orchestrates the UI */ }
+    else if (m.t === 'halt') { state.halt = m.m; }
+    else if (m.t === 'err' || m.t === 'nic-err') { state.workerError = m.m; }
+  };
+  worker.onerror = (ev) => { state.workerError = '' + (ev.message || ev); };
+
+  // Kick the boot with this node's per-node config (MAC + optional injected initramfs).
+  worker.postMessage({ t: 'cfg', mac: NODE_CFG.mac, initramfs: NODE_CFG.initramfs, sysdisk: NODE_CFG.sysdisk });
+</script>
+</body>
+</html>

@@ -1,0 +1,3 @@
+# Generated per-node config-injected boot images (produced by inject-cluster-config.sh / the vms-f0f generator)
+initramfs-ovmx-*.cpio.gz
+e2e-result.json

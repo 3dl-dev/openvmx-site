@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>OpenVMX cluster demo</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<style>
+  :root { color-scheme: dark; }
+  body { background:#0b0e14; color:#c9d1d9; font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif; margin:0; padding:1rem 1rem 2rem; }
+  main { max-width: 1100px; margin: 0 auto; }
+  h1 { font-size:1.35rem; margin:.2rem 0 .3rem; }
+  p.muted { color:#8b949e; font-size:.9rem; margin:.2rem 0 .8rem; }
+  .real { color:#3fb950; font-weight:600; }
+  code { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; color:#e3b341; }
+  .nodes { display:grid; grid-template-columns:1fr; gap:.75rem; }
+  @media (min-width: 900px) { .nodes { grid-template-columns:repeat(3, 1fr); } }
+  .node { border:1px solid #21262d; border-radius:8px; overflow:hidden; background:#0f141c; display:flex; flex-direction:column; }
+  .node header { font-family:ui-monospace,Menlo,monospace; font-size:.78rem; color:#c98a2e; padding:.4rem .6rem; border-bottom:1px solid #21262d; background:#140d00; }
+  .node iframe { width:100%; height:52vh; border:0; background:#140d00; }
+  .node.placeholder { align-items:center; justify-content:center; color:#6b7280; font-size:.85rem; min-height:52vh; text-align:center; padding:1rem; }
+  #hudline { font-family:ui-monospace,Menlo,monospace; font-size:.78rem; color:#8b949e; margin:.6rem 0; }
+</style>
+</head>
+<body>
+<main>
+  <h1>OpenVMX in-browser VMScluster <span class="muted">— demo skeleton</span></h1>
+  <p class="muted">
+    The <span class="real">parent page is a virtual Ethernet switch</span> (a dumb L2 broadcast hub): each node is an
+    iframe/port; a raw Ethernet frame in on one port floods to every other, verbatim — the exact bytes the real
+    executive's NIC emits (SCA/cluster <code>0x6007</code>). One OVMX/x86 node is wired in below; Nodes B (OVMX/VAX)
+    and C (real VMS) attach through the same frozen <code>CONTRACT.md</code> seam as the pcjs DELQA NIC lands.
+  </p>
+  <div id="hudline">hub: initializing…</div>
+
+  <div class="nodes">
+    <div class="node">
+      <header>Node A — OVMX/x86_64 (qemu-wasm) · MAC 52:54:00:00:00:0A</header>
+      <iframe id="nodeA" title="OVMX/x86 node A"
+              allow="cross-origin-isolated"></iframe>
+    </div>
+    <div class="node placeholder">Node B — OVMX/VAX (pcjs)<br><small>attaches via CONTRACT.md when the DELQA NIC lands</small></div>
+    <div class="node placeholder">Node C — real VMS VAX (pcjs)<br><small>a genuine VMS-family system (VSI/DEC's original) OVMX interoperates with; attaches via CONTRACT.md when the DELQA NIC lands</small></div>
+  </div>
+</main>
+
+<!-- Cross-origin isolation shim (self-hosted, same-origin). No-op on a header-capable host
+     (coi-server); on GitHub Pages it injects COOP/COEP and reloads once. -->
+<script src="coi-serviceworker.js"></script>
+
+<script type="module">
+  // PARENT = the in-page L2 switch. Pure JS in the visitor's own tab; no server (CONTRACT.md §model).
+  import { L2Hub } from './lib/hub.mjs';
+  import { attachSwitch } from './lib/port-postmessage.mjs';
+  import { ethertypeOf } from './lib/wire.mjs';
+
+  // E2E-HARNESS TAP: a headless harness asserts a real 0x6007 SCA frame traversed the switch.
+  // Record { port, ethertype, len } for EVERY frame the hub is asked to flood. ethertype = bytes 12..13.
+  window.__hubframes = [];
+
+  const hub = new L2Hub({
+    onDrop: (reason, port) => console.warn('[hub] drop', reason, 'from', port),
+    onError: (err, port) => console.warn('[hub] port send threw', port, err),
+  });
+
+  // Tap by wrapping each port handle's emit (the flood entry point) — captures every frame a
+  // node transmits into the hub, independent of how many other ports exist to flood to.
+  const _origAddPort = hub.addPort.bind(hub);
+  hub.addPort = (spec) => {
+    const handle = _origAddPort(spec);
+    const _origEmit = handle.emit;
+    handle.emit = (frame) => {
+      const u8 = frame instanceof Uint8Array ? frame : new Uint8Array(frame);
+      window.__hubframes.push({ port: handle.name, ethertype: ethertypeOf(u8), len: u8.byteLength });
+      updateHud();
+      return _origEmit(frame);
+    };
+    return handle;
+  };
+
+  const iframeA = document.getElementById('nodeA');
+  const nodes = [{
+    name: 'OVMXA',
+    post: (msg, transfer) => iframeA.contentWindow.postMessage(msg, '*', transfer),
+    match: (event) => event.source === iframeA.contentWindow,
+  }];
+
+  const sw = attachSwitch(hub, {
+    addMessageListener: (h) => { const f = (e) => h(e); window.addEventListener('message', f); return () => window.removeEventListener('message', f); },
+    nodes,
+  });
+
+  window.__hub = hub;
+  window.__switch = sw;
+
+  // Boot Node A only now that the hub + switch are ready to relay. The parent's
+  // ?initramfs= (a config-injected, cluster-configured image) and ?mac= route into the node.
+  const _pq = new URLSearchParams(location.search);
+  let _src = 'node.html?mac=' + encodeURIComponent(_pq.get('mac') || '52:54:00:00:00:0A');
+  if (_pq.get('initramfs')) _src += '&initramfs=' + encodeURIComponent(_pq.get('initramfs'));
+  if (_pq.get('sysdisk')) _src += '&sysdisk=' + encodeURIComponent(_pq.get('sysdisk'));
+  iframeA.src = _src;
+
+  window.__demoReady = true;
+
+  const hudEl = document.getElementById('hudline');
+  function updateHud() {
+    const n = window.__hubframes.length;
+    const sca = window.__hubframes.filter((f) => f.ethertype === 0x6007).length;
+    hudEl.textContent = `hub: ${hub.size} port(s) · ${n} frame(s) flooded · ${sca} SCA(0x6007)`;
+  }
+  updateHud();
+</script>
+</body>
+</html>

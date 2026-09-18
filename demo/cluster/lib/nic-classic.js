@@ -1,0 +1,165 @@
+// GENERATED — DO NOT EDIT. Emitted by demo/cluster/build-nic-classic.mjs from
+// lib/qemu-socket-framing.mjs + lib/qemu-ws-shim.mjs (the ONE tested source).
+// Regenerate: node build-nic-classic.mjs   Parity gate: test/nic-classic-parity.test.mjs
+
+// qemu-socket-framing.mjs — QEMU `socket` netdev stream framing (de/enframe).
+//
+// QEMU's socket netdev in stream/connect (TCP) mode prefixes each Ethernet frame
+// on the wire with a 4-byte BIG-ENDIAN length (net/socket.c net_socket_send: it
+// writes htonl(size) then the frame). The transport under it (here the Emscripten
+// SOCKFS WebSocket) is a BYTE STREAM, not message-aligned to frames — so inbound
+// bytes arrive split and/or coalesced and must be REASSEMBLED. This module is the
+// reassembling parser (guest TX → Ethernet frames) and the symmetric writer
+// (Ethernet frames → framed bytes for guest RX). Pure, zero-dependency, testable.
+
+const LEN_PREFIX = 4;
+// Upper bound on a single framed packet; a declared length beyond this means the
+// stream has desynced/corrupted — we reset rather than buffer unbounded.
+const MAX_FRAME_BYTES = 65535;
+
+/** Prepend the 4-byte big-endian length: Ethernet frame -> framed bytes. */
+function enframe(frame) {
+  const u8 = frame instanceof Uint8Array ? frame
+    : (frame instanceof ArrayBuffer ? new Uint8Array(frame) : null);
+  if (!u8) throw new TypeError('enframe expects a Uint8Array/ArrayBuffer');
+  const n = u8.byteLength;
+  const out = new Uint8Array(LEN_PREFIX + n);
+  out[0] = (n >>> 24) & 0xff;
+  out[1] = (n >>> 16) & 0xff;
+  out[2] = (n >>> 8) & 0xff;
+  out[3] = n & 0xff;
+  out.set(u8, LEN_PREFIX);
+  return out;
+}
+
+/**
+ * A reassembling deframer for the QEMU socket-netdev stream.
+ * Feed arbitrary byte chunks with push(); it returns the complete Ethernet frames
+ * recovered so far (each a fresh Uint8Array). Partial data is buffered across calls.
+ */
+class Deframer {
+  /** @param {(reason:string)=>void} [onError] called on a desync (then the buffer resets) */
+  constructor(onError = null) {
+    this._buf = new Uint8Array(0);
+    this._onError = onError;
+  }
+
+  /** @param {Uint8Array|ArrayBuffer} chunk  @returns {Uint8Array[]} complete frames */
+  push(chunk) {
+    const c = chunk instanceof Uint8Array ? chunk
+      : (chunk instanceof ArrayBuffer ? new Uint8Array(chunk) : null);
+    if (!c) throw new TypeError('push expects a Uint8Array/ArrayBuffer');
+    // Append to the running buffer.
+    if (this._buf.byteLength === 0) {
+      this._buf = c.slice();
+    } else {
+      const merged = new Uint8Array(this._buf.byteLength + c.byteLength);
+      merged.set(this._buf, 0);
+      merged.set(c, this._buf.byteLength);
+      this._buf = merged;
+    }
+    const frames = [];
+    let off = 0;
+    const b = this._buf;
+    while (b.byteLength - off >= LEN_PREFIX) {
+      const len = ((b[off] << 24) | (b[off + 1] << 16) | (b[off + 2] << 8) | b[off + 3]) >>> 0;
+      if (len > MAX_FRAME_BYTES) {
+        // Desync/corruption: don't buffer unbounded. Report + reset the stream.
+        if (this._onError) this._onError(`framed length ${len} exceeds max ${MAX_FRAME_BYTES}`);
+        this._buf = new Uint8Array(0);
+        return frames;
+      }
+      if (b.byteLength - off - LEN_PREFIX < len) break;   // frame not fully arrived yet
+      frames.push(b.slice(off + LEN_PREFIX, off + LEN_PREFIX + len));
+      off += LEN_PREFIX + len;
+    }
+    // Retain the unconsumed tail.
+    this._buf = off === 0 ? b : b.slice(off);
+    return frames;
+  }
+
+  /** Bytes currently buffered awaiting more input (diagnostics/tests). */
+  get pending() { return this._buf.byteLength; }
+}
+
+// qemu-ws-shim.mjs — the in-worker fake WebSocket that turns the QEMU socket-netdev
+// stream into per-Ethernet-frame callbacks, and vice versa.
+//
+// The empirical PROXY_TO_PTHREAD probe (vms-b16) showed QEMU's SOCKFS socket op is
+// proxied to the qemu-worker scope, so this shim installs `scope.WebSocket` in
+// qemu-worker.js BEFORE importScripts('out.js'). When QEMU's `-netdev socket,connect=`
+// opens, Emscripten constructs one WebSocket here instead of a real one:
+//   guest TX (framed bytes) -> ws.send() -> Deframer -> onNicTx(frame)
+//   onNicRx(frame) -> deliverToGuest() -> enframe -> ws.onmessage -> guest RX
+// The frame handoff is the FROZEN L2 contract's unit (a raw Ethernet frame); the
+// worker wires onNicTx/onNicRx to postMessage {nic-tx}/{nic-rx} to the iframe,
+// which runs connectNicPipe (contract v1) to the parent switch.
+
+
+/**
+ * @param {object}   opts
+ * @param {object}   opts.scope     the global to install WebSocket on (self, in qemu-worker)
+ * @param {(frameU8:Uint8Array)=>void} opts.onNicTx  called per Ethernet frame the guest transmits
+ * @param {(reason:string)=>void} [opts.onError]     called on a stream desync
+ * @returns {{ deliverToGuest:(frame)=>boolean, connected:()=>boolean, uninstall:()=>void }}
+ */
+function installQemuNicWebSocket({ scope, onNicTx, onError = null }) {
+  if (!scope) throw new TypeError('installQemuNicWebSocket needs a scope');
+  if (typeof onNicTx !== 'function') throw new TypeError('onNicTx must be a function');
+  let active = null;
+
+  class FakeWebSocket {
+    constructor(url) {
+      this.url = String(url);
+      this.binaryType = 'blob';        // Emscripten overwrites to 'arraybuffer'
+      this.readyState = FakeWebSocket.CONNECTING;
+      this.onopen = this.onmessage = this.onerror = this.onclose = null;
+      this._l = { open: [], message: [], error: [], close: [] };
+      this._deframer = new Deframer(onError);
+      active = this;
+      // Open asynchronously: Emscripten waits for the open event before writing.
+      queueMicrotask(() => {
+        if (this.readyState !== FakeWebSocket.CONNECTING) return;
+        this.readyState = FakeWebSocket.OPEN;
+        this._emit('open', { type: 'open' });
+      });
+    }
+    addEventListener(t, fn) { (this._l[t] || (this._l[t] = [])).push(fn); }
+    removeEventListener(t, fn) { const a = this._l[t]; if (a) { const i = a.indexOf(fn); if (i >= 0) a.splice(i, 1); } }
+    _emit(t, ev) {
+      const h = this['on' + t]; if (typeof h === 'function') h.call(this, ev);
+      for (const fn of (this._l[t] || []).slice()) fn.call(this, ev);
+    }
+    // guest -> us: the QEMU 4-byte-length-framed stream. Deframe to Ethernet frames.
+    send(data) {
+      const u8 = data instanceof ArrayBuffer ? new Uint8Array(data)
+        : (ArrayBuffer.isView(data) ? new Uint8Array(data.buffer, data.byteOffset, data.byteLength)
+          : (typeof data === 'string' ? new TextEncoder().encode(data) : null));
+      if (!u8) return;
+      for (const frame of this._deframer.push(u8)) onNicTx(frame);
+    }
+    close() {
+      if (this.readyState === FakeWebSocket.CLOSED) return;
+      this.readyState = FakeWebSocket.CLOSED;
+      this._emit('close', { type: 'close', wasClean: true });
+      if (active === this) active = null;
+    }
+  }
+  FakeWebSocket.CONNECTING = 0; FakeWebSocket.OPEN = 1; FakeWebSocket.CLOSING = 2; FakeWebSocket.CLOSED = 3;
+
+  const prev = scope.WebSocket;
+  scope.WebSocket = FakeWebSocket;
+
+  return {
+    // us -> guest RX: enframe an Ethernet frame and deliver it as an inbound message.
+    deliverToGuest(frame) {
+      if (!active || active.readyState !== FakeWebSocket.OPEN) return false;
+      active._emit('message', { type: 'message', data: enframe(frame).buffer });
+      return true;
+    },
+    connected: () => !!active && active.readyState === FakeWebSocket.OPEN,
+    uninstall: () => { scope.WebSocket = prev; if (active) active.close(); },
+  };
+}
+
+self.OVMXNic = { enframe, Deframer, installQemuNicWebSocket };
