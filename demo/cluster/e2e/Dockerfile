@@ -8,6 +8,9 @@
 # initramfs + sysdisk at its top level. PASS (rc 0) = a real 0x6007 SCA frame
 # reached the hub. Needs a >=48GB host (the wasm cold boot OOMs a small host).
 FROM mcr.microsoft.com/playwright:v1.55.0-jammy
+# The playwright base image ships the browsers but not the `playwright` npm pkg
+# our harness require()s — install it (matches the browser version).
+RUN npm i -g playwright@1.55.0
 COPY . /harness/e2e
 RUN chmod +x /harness/e2e/run-e2e.sh
 ENTRYPOINT ["/harness/e2e/run-e2e.sh"]
