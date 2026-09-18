@@ -1,6 +1,6 @@
 const http=require('http'),fs=require('fs'),path=require('path');
 const root=process.argv[2], port=+process.argv[3];
-const mime={'.html':'text/html','.js':'text/javascript','.css':'text/css','.wasm':'application/wasm',
+const mime={'.html':'text/html','.js':'text/javascript','.mjs':'text/javascript','.css':'text/css','.wasm':'application/wasm',
   '.json':'application/json','.data':'application/octet-stream','.gz':'application/gzip','.cpio':'application/octet-stream'};
 http.createServer((req,res)=>{
   let u=decodeURIComponent(req.url.split('?')[0]); if(u.endsWith('/'))u+='index.html';
