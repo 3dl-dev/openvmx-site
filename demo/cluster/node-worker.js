@@ -59,7 +59,10 @@ function boot(cfg) {
   const MAC = (cfg && cfg.mac) || '52:54:00:00:00:0A';
   // Per-node initramfs URL (config injection carries CLUSTER_AUTHORIZE.DAT etc.); default = shipped image.
   const INITRAMFS_URL = (cfg && cfg.initramfs) || 'boot/initramfs-ovmx.cpio.gz';
-  self.postMessage({ t: 'out', d: '\r\n%NIC-CFG, initramfs=' + INITRAMFS_URL + ' mac=' + MAC + '\r\n' });
+  // The cluster config (VAXCLUSTER=2 etc.) is ODS-2-resident on the SYSTEM DISK, so a
+  // config-injected node boots a config-injected sysdisk (default = shipped image).
+  const SYSDISK_URL = (cfg && cfg.sysdisk) || 'boot/sysdisk.qcow2.gz';
+  self.postMessage({ t: 'out', d: '\r\n%NIC-CFG, initramfs=' + INITRAMFS_URL + ' sysdisk=' + SYSDISK_URL + ' mac=' + MAC + '\r\n' });
 
   // Install the fake-WebSocket NIC shim BEFORE out.js runs (see header (b)).
   nic = self.OVMXNic.installQemuNicWebSocket({
@@ -93,7 +96,7 @@ function boot(cfg) {
       Promise.all([
         xhrGet('boot/vmlinuz', 0, loaded, total, report),
         xhrGet(INITRAMFS_URL, 1, loaded, total, report),
-        xhrGet('boot/sysdisk.qcow2.gz', 2, loaded, total, report),
+        xhrGet(SYSDISK_URL, 2, loaded, total, report),
       ]).then(([k, i, dz]) => {
         self.postMessage({ t: 'progress', frac: 0.88, label: 'Unpacking…' });
         return inflate(dz).then((d) => {

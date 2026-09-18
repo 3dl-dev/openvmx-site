@@ -31,6 +31,7 @@
   const NODE_CFG = {
     mac: qp.get('mac') || '52:54:00:00:00:0A',
     initramfs: qp.get('initramfs') || undefined,   // undefined -> worker default (shipped image)
+    sysdisk: qp.get('sysdisk') || undefined,       // config-injected ODS-2 system disk (VAXCLUSTER=2)
   };
 
   // Harness/introspection handle — proves the wiring loaded without waiting for a boot.
@@ -84,7 +85,7 @@
   worker.onerror = (ev) => { state.workerError = '' + (ev.message || ev); };
 
   // Kick the boot with this node's per-node config (MAC + optional injected initramfs).
-  worker.postMessage({ t: 'cfg', mac: NODE_CFG.mac, initramfs: NODE_CFG.initramfs });
+  worker.postMessage({ t: 'cfg', mac: NODE_CFG.mac, initramfs: NODE_CFG.initramfs, sysdisk: NODE_CFG.sysdisk });
 </script>
 </body>
 </html>
