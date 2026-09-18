@@ -37,13 +37,26 @@ PORT=8110 demo/cluster/e2e/run-e2e.sh <serve-root> initramfs-ovmx-nodeA.cpio.gz 
 ```
 
 ## Result
-- **rc 0** + `e2e-result.json {"pass":true, sca>0}` — a real 0x6007 frame from the
-  guest's PEDRIVER reached the hub. **This is the gate.**
-- **rc 2** — booted but no 0x6007 in the deadline. `e2e-result.json.console_tail` shows
-  how far STARTUP got + whether SCS/`%OVMX-I-SCSNODE` shows the injected SCSNODE (OVMXA)
-  and VAXCLUSTER=2. If SCSNODE=OVMX, the config didn't land (sysdisk not injected).
-- The harness logs a `%NIC-CFG, initramfs=.. sysdisk=.. mac=..` marker at boot so you can
-  confirm the node booted the injected images.
+- **rc 0** + `e2e-result.json {"pass":true, clustered:true, scaByPort:{…}}` — a real 0x6007 frame
+  from **each** node's PEDRIVER reached the hub. **This is the gate** (CN=N by real evidence).
+- **rc 2** — booted but not every node emitted 0x6007 in the deadline. `scaByPort` shows which
+  node(s) fell short; `console_tail` shows how far STARTUP got + whether `%OVMX-I-SCSNODE` shows the
+  injected SCSNODE (OVMXA/OVMXB) + VAXCLUSTER=2. If SCSNODE=OVMX, the config didn't land.
+- The harness logs a `%NIC-CFG, initramfs=.. sysdisk=.. mac=..` marker at boot per node.
+
+## CN=N (multi-node) gate — the anti-LARP bar
+The gate is **per-node**: PASS iff a real guest-emitted `0x6007` from **EVERY** node in the page's
+roster (`window.__roster`) reached the hub — never a scripted/static count. Node-A-only run →
+`roster=[OVMXA]` (the single-node gate). Add the pcjs nodes with the env below and they enter the
+roster + must each emit a real 0x6007 for CN=3 to pass:
+
+```
+NODE_B='https://vax.3dl.network/machines/dec/vax/browser/ovmx-cluster.html?rom=<ka655x.bin>&diskgz=<OVMX/VAX cluster vol>.gz' \
+NODE_C='https://vax.3dl.network/machines/dec/vax/browser/ovmx-cluster.html?rom=<ka655x.bin>&diskgz=<real-VMS 5.5 cluster vol>.gz' \
+  run-e2e.sh <serve-root> initramfs-ovmx-nodeA.cpio.gz sysdisk-nodeA.qcow2.gz
+```
+(`NODE_B`/`NODE_C` route into `index.html?nodeB=..&nodeC=..`, which materialises the staged Node B/C
+iframes as `node-pcjs.html?machine=..` ports on the switch — otherwise they stay dormant placeholders.)
 
 ## Env knobs
-`DEADLINE_MS` (default 600000), `MAC` (default `52:54:00:00:00:0A`), `PORT`, `OUT_DIR`.
+`DEADLINE_MS` (default 600000), `MAC`, `NODE_B`, `NODE_C` (pcjs cluster-machine URLs), `PORT`, `OUT_DIR`.

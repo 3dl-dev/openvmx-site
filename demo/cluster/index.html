@@ -38,8 +38,8 @@
       <iframe id="nodeA" title="OVMX/x86 node A"
               allow="cross-origin-isolated"></iframe>
     </div>
-    <div class="node placeholder">Node B — OVMX/VAX (pcjs)<br><small>attaches via CONTRACT.md when the DELQA NIC lands</small></div>
-    <div class="node placeholder">Node C — real VMS VAX (pcjs)<br><small>a genuine VMS-family system (VSI/DEC's original) OVMX interoperates with; attaches via CONTRACT.md when the DELQA NIC lands</small></div>
+    <div class="node placeholder" id="slotB"><header>Node B — OVMX/VAX (pcjs) · MAC …0B</header><small>goes live when its cluster machine + OVMX/VAX volume (VAXCLUSTER=2) land</small></div>
+    <div class="node placeholder" id="slotC"><header>Node C — real VMS VAX (pcjs) · MAC …0C</header><small>a genuine VMS-family system (VSI/DEC's original) OVMX interoperates with; goes live when its cluster machine + VMS 5.5 cluster volume land</small></div>
   </div>
 </main>
 
@@ -77,28 +77,50 @@
     return handle;
   };
 
-  const iframeA = document.getElementById('nodeA');
-  const nodes = [{
-    name: 'OVMXA',
-    post: (msg, transfer) => iframeA.contentWindow.postMessage(msg, '*', transfer),
-    match: (event) => event.source === iframeA.contentWindow,
-  }];
+  const _pq = new URLSearchParams(location.search);
+  const enc = encodeURIComponent;
+
+  // ROSTER (STAGED). Node A (OVMX/x86) is always live. Node B/C (pcjs) go live ONLY when their
+  // cluster-machine URL is supplied (?nodeB=/?nodeC= = the ovmx-cluster.html endpoint carrying
+  // ?rom=&diskgz=<cluster volume>). So the page is Node-A-only until B/C's machine + volumes land —
+  // never a half-wired multi-node claim. CN=3 is asserted by the e2e gate (a real 0x6007 from EACH
+  // node), NEVER shown as a scripted static count.
+  function nodeASrc() {
+    let s = 'node.html?mac=' + enc(_pq.get('mac') || '52:54:00:00:00:0A');
+    if (_pq.get('initramfs')) s += '&initramfs=' + enc(_pq.get('initramfs'));
+    if (_pq.get('sysdisk')) s += '&sysdisk=' + enc(_pq.get('sysdisk'));
+    return s;
+  }
+  const roster = [{ name: 'OVMXA', frameId: 'nodeA', src: nodeASrc() }];
+  if (_pq.get('nodeB')) roster.push({ name: 'OVMXB', slotId: 'slotB', src: 'node-pcjs.html?mac=52:54:00:00:00:0B&machine=' + enc(_pq.get('nodeB')) });
+  if (_pq.get('nodeC')) roster.push({ name: 'VAXC', slotId: 'slotC', src: 'node-pcjs.html?mac=52:54:00:00:00:0C&machine=' + enc(_pq.get('nodeC')) });
+
+  // Materialise each node's iframe (Node A exists in the DOM; a live B/C replaces its placeholder slot),
+  // register it as a switch port, then boot it.
+  const nodes = roster.map((n) => {
+    let f = n.frameId ? document.getElementById(n.frameId) : null;
+    if (!f && n.slotId) {
+      const slot = document.getElementById(n.slotId);
+      slot.classList.remove('placeholder');
+      slot.innerHTML = '<header>Node ' + (n.name === 'OVMXB' ? 'B — OVMX/VAX' : 'C — real VMS VAX') + ' (pcjs)</header>';
+      f = document.createElement('iframe');
+      f.title = n.name; f.setAttribute('allow', 'cross-origin-isolated'); f.style.cssText = 'width:100%;height:52vh;border:0;background:#140d00';
+      slot.appendChild(f);
+    }
+    return { name: n.name, frame: f, src: n.src };
+  });
 
   const sw = attachSwitch(hub, {
-    addMessageListener: (h) => { const f = (e) => h(e); window.addEventListener('message', f); return () => window.removeEventListener('message', f); },
-    nodes,
+    addMessageListener: (h) => { const g = (e) => h(e); window.addEventListener('message', g); return () => window.removeEventListener('message', g); },
+    nodes: nodes.map((n) => ({ name: n.name, post: (msg, t) => n.frame.contentWindow.postMessage(msg, '*', t), match: (e) => e.source === n.frame.contentWindow })),
   });
 
   window.__hub = hub;
   window.__switch = sw;
+  window.__roster = nodes.map((n) => n.name);
 
-  // Boot Node A only now that the hub + switch are ready to relay. The parent's
-  // ?initramfs= (a config-injected, cluster-configured image) and ?mac= route into the node.
-  const _pq = new URLSearchParams(location.search);
-  let _src = 'node.html?mac=' + encodeURIComponent(_pq.get('mac') || '52:54:00:00:00:0A');
-  if (_pq.get('initramfs')) _src += '&initramfs=' + encodeURIComponent(_pq.get('initramfs'));
-  if (_pq.get('sysdisk')) _src += '&sysdisk=' + encodeURIComponent(_pq.get('sysdisk'));
-  iframeA.src = _src;
+  // Boot each node now that the hub + switch are ready to relay.
+  for (const n of nodes) n.frame.src = n.src;
 
   window.__demoReady = true;
 
