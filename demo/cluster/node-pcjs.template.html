@@ -1,0 +1,63 @@
+<!doctype html><meta charset="utf8">
+<title>OVMX cluster node — pcjs (TEMPLATE)</title>
+<!--
+  node-pcjs.template.html — REFERENCE node page for a pcjs cluster node (Node B: OVMX/VAX,
+  Node C: real VMS). NOT wired to a live machine yet — it is the drop-in bridge the pcjs lane
+  completes once the pcjs VAX machine is browser-embeddable with the DELQA (see PCJS-NODE-BRIDGE.md).
+  It mirrors node.html (the qemu-wasm node) so every node family wires to the parent switch identically:
+  the DELQA HubPort's two hooks <-> connectNicPipe <-> parent L2 switch. Frame = contract-v1 raw
+  Ethernet frame (Uint8Array). Do NOT ship this template as a node until the two TODO hooks are real.
+-->
+<body style="margin:0;background:#140d00;color:#e8b100;font:13px monospace">
+<div id="term" style="padding:8px">pcjs node — waiting for the DELQA HubPort (nic-ready)…</div>
+<script type="module">
+  import { connectNicPipe } from './lib/port-postmessage.mjs';
+
+  const qp = new URLSearchParams(location.search);
+  const NODE_CFG = {
+    mac: qp.get('mac') || '52:54:00:00:00:0B',      // Node B default; Node C = ...0C
+    machine: qp.get('machine') || undefined,        // URL of the pcjs VAX cluster machine
+  };
+  const state = window.__nodeState = { mac: NODE_CFG.mac, kind: 'pcjs',
+    crossOriginIsolated: self.crossOriginIsolated === true, nicReady: false,
+    nicTxCount: 0, nicRxCount: 0, err: null };
+
+  // ── The pcjs DELQA HubPort endpoint ──────────────────────────────────────────
+  // The pcjs machine (its DELQA ethlink-hubport.js running in the machine worker)
+  // MUST surface its two frame hooks to this page as the SAME {t:'nic-tx'|'nic-rx'}
+  // postMessage protocol node-worker.js uses (see PCJS-NODE-BRIDGE.md):
+  //   machine -> page:  {t:'nic-tx', frame:<ArrayBuffer>}   (guest DELQA transmitted a frame)
+  //   page -> machine:  {t:'nic-rx', frame:<ArrayBuffer>}   (deliver a frame into the DELQA RX)
+  //   machine -> page:  {t:'nic-ready'}                     (HubPort is up)
+  //
+  // TODO(pcjs lane): create the machine endpoint. Options:
+  //   (a) a nested cross-origin iframe to NODE_CFG.machine whose page posts these messages, or
+  //   (b) a Worker running the pcjs machine that posts these messages.
+  // Until then this stays a template. Replace `machineEndpoint` with the real one:
+  let machineEndpoint = null;   // must expose .postMessage(msg, transfer) + emit 'message' events
+
+  // ── The bridge: identical to node.html; endpoint-agnostic ────────────────────
+  const pipe = connectNicPipe({
+    postUp: (m, t) => window.parent.postMessage(m, '*', t),
+    addMessageListener: (h) => { const f = (e) => h(e); window.addEventListener('message', f); return () => window.removeEventListener('message', f); },
+    // parent switch -> guest DELQA RX
+    toNicRx: (frameU8) => { state.nicRxCount++; if (machineEndpoint) machineEndpoint.postMessage({ t: 'nic-rx', frame: frameU8.buffer }, [frameU8.buffer]); },
+    fromParent: (e) => e.source === window.parent,
+  });
+
+  // guest DELQA TX -> parent switch  (+ nic-ready gate)
+  function onMachineMessage(e) {
+    const m = e.data; if (!m || typeof m !== 'object') return;
+    if (m.t === 'nic-ready') { state.nicReady = true; document.getElementById('term').textContent = 'pcjs node NIC ready (' + NODE_CFG.mac + ')'; return; }
+    if (m.t === 'nic-tx') { state.nicTxCount++; pipe.nicTx(new Uint8Array(m.frame)); return; }
+  }
+
+  // Wire the endpoint once the pcjs lane provides it.
+  if (machineEndpoint) {
+    machineEndpoint.addEventListener ? machineEndpoint.addEventListener('message', onMachineMessage)
+                                     : (machineEndpoint.onmessage = onMachineMessage);
+  } else {
+    state.err = 'no machine endpoint — template not yet wired to a pcjs DELQA machine (see PCJS-NODE-BRIDGE.md)';
+    console.warn('[node-pcjs] ' + state.err);
+  }
+</script>
