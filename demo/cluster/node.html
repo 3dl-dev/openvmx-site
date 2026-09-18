@@ -43,6 +43,7 @@
     nicTxCount: 0,
     nicRxCount: 0,
     workerError: null,
+    consoleText: '',        // accumulated guest serial console (diagnostics; capped)
   };
 
   const term = new Terminal({
@@ -72,7 +73,9 @@
 
   worker.onmessage = (e) => {
     const m = e.data;
-    if (m.t === 'out') { state.firstOut = true; term.write(m.d); }
+    if (m.t === 'out') { state.firstOut = true; term.write(m.d);
+      try { const s = typeof m.d === 'string' ? m.d : new TextDecoder().decode(m.d);
+        state.consoleText = (state.consoleText + s).slice(-40000); } catch (e2) {} }
     else if (m.t === 'nic-tx') { state.nicTxCount++; pipe.nicTx(new Uint8Array(m.frame)); }
     else if (m.t === 'progress') { /* cosmetic; parent orchestrates the UI */ }
     else if (m.t === 'halt') { state.halt = m.m; }

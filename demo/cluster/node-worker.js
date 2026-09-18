@@ -59,6 +59,7 @@ function boot(cfg) {
   const MAC = (cfg && cfg.mac) || '52:54:00:00:00:0A';
   // Per-node initramfs URL (config injection carries CLUSTER_AUTHORIZE.DAT etc.); default = shipped image.
   const INITRAMFS_URL = (cfg && cfg.initramfs) || 'boot/initramfs-ovmx.cpio.gz';
+  self.postMessage({ t: 'out', d: '\r\n%NIC-CFG, initramfs=' + INITRAMFS_URL + ' mac=' + MAC + '\r\n' });
 
   // Install the fake-WebSocket NIC shim BEFORE out.js runs (see header (b)).
   nic = self.OVMXNic.installQemuNicWebSocket({
