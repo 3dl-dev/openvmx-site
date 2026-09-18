@@ -24,6 +24,7 @@
   const MACHINE = qp.get('machine');                        // ovmx-cluster.html URL (?rom=&diskgz=)
   const state = window.__nodeState = { mac: MAC, kind: 'pcjs',
     crossOriginIsolated: self.crossOriginIsolated === true, nicReady: false,
+    acpOk: false,            // real ODS-2 ACP mount confirmed by the machine ({t:'acp-ok'}); facade never sends it
     nicTxCount: 0, nicRxCount: 0, err: null };
 
   const machineFrame = document.getElementById('machine');
@@ -45,6 +46,7 @@
     if (e.source !== machineFrame.contentWindow) return;    // only the embedded machine
     const m = e.data; if (!m || typeof m !== 'object') return;
     if (m.t === 'nic-ready') { state.nicReady = true; return; }
+    if (m.t === 'acp-ok') { state.acpOk = true; return; }   // real ODS-2 ACP mount seen (PCJS-NODE-BRIDGE.md)
     if (m.t === 'nic-tx') { state.nicTxCount++; pipe.nicTx(new Uint8Array(m.frame)); return; }
   });
 

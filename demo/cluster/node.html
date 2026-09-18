@@ -45,6 +45,7 @@
     nicRxCount: 0,
     workerError: null,
     consoleText: '',        // accumulated guest serial console (diagnostics; capped)
+    acpOk: false,           // real ODS-2 ACP mount seen (product-authenticity; a host-mode /vms facade never emits it)
   };
 
   const term = new Terminal({
@@ -76,7 +77,12 @@
     const m = e.data;
     if (m.t === 'out') { state.firstOut = true; term.write(m.d);
       try { const s = typeof m.d === 'string' ? m.d : new TextDecoder().decode(m.d);
-        state.consoleText = (state.consoleText + s).slice(-40000); } catch (e2) {} }
+        state.consoleText = (state.consoleText + s).slice(-40000);
+        // Real ODS-2 ACP mount tell (product-authenticity): SYSDISK mounting -> MOUNTED. A host-mode
+        // /vms passthrough never emits it (the ACP refuses the masquerade). Assert the pair.
+        if (!state.acpOk && /%OVMX-I-SYSDISK,\s*mounting system disk/.test(state.consoleText)
+            && /%OVMX-I-MOUNTED,\s*system disk \S+ mounted/.test(state.consoleText)) state.acpOk = true;
+      } catch (e2) {} }
     else if (m.t === 'nic-tx') { state.nicTxCount++; pipe.nicTx(new Uint8Array(m.frame)); }
     else if (m.t === 'progress') { /* cosmetic; parent orchestrates the UI */ }
     else if (m.t === 'halt') { state.halt = m.m; }
