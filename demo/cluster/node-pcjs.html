@@ -1,0 +1,58 @@
+<!doctype html><meta charset="utf8">
+<title>OVMX cluster node — pcjs</title>
+<!--
+  node-pcjs.html — cluster-node page for a pcjs VAX node (Node B: OVMX/VAX, Node C: real VMS 5.5).
+  Embeds the pcjs machine endpoint (ovmx-cluster.html, cross-origin) and RELAYS its DELQA HubPort
+  frames to the parent in-page L2 switch via connectNicPipe — drop-in uniform with node.html (Node A).
+  Contract: PCJS-NODE-BRIDGE.md. Frame = contract-v1 raw Ethernet frame.
+
+    parent(index.html) <--connectNicPipe/{ovmx-l2}--> node-pcjs.html <--{nic-*}--> ovmx-cluster.html(machine)
+
+  URL: node-pcjs.html?mac=52:54:00:00:00:0B&machine=<ovmx-cluster.html URL ?rom=..&diskgz=<cluster vol>.gz>
+  The chosen ?diskgz volume is what makes it a cluster member:
+    Node B = the OVMX/VAX cluster volume (ODS-2-injected: VAXCLUSTER=2, SCSNODE, group 257).
+    Node C = the pinned real-VMS 5.5 cluster oracle (group 257).
+-->
+<body style="margin:0;background:#140d00;color:#e8b100;font:13px monospace;height:100vh">
+<iframe id="machine" title="pcjs VAX machine" allow="cross-origin-isolated"
+        style="width:100%;height:100%;border:0;background:#140d00"></iframe>
+<script type="module">
+  import { connectNicPipe } from './lib/port-postmessage.mjs';
+
+  const qp = new URLSearchParams(location.search);
+  const MAC = qp.get('mac') || '52:54:00:00:00:0B';        // Node B default; Node C = ...0C
+  const MACHINE = qp.get('machine');                        // ovmx-cluster.html URL (?rom=&diskgz=)
+  const state = window.__nodeState = { mac: MAC, kind: 'pcjs',
+    crossOriginIsolated: self.crossOriginIsolated === true, nicReady: false,
+    nicTxCount: 0, nicRxCount: 0, err: null };
+
+  const machineFrame = document.getElementById('machine');
+
+  // The bridge: parent switch <-> this page <-> the machine child, identical in shape to node.html.
+  const pipe = connectNicPipe({
+    postUp: (m, t) => window.parent.postMessage(m, '*', t),
+    addMessageListener: (h) => { const f = (e) => h(e); window.addEventListener('message', f); return () => window.removeEventListener('message', f); },
+    // parent switch -> guest DELQA RX: hand the frame DOWN to the machine child (transfer; own copy from the hub).
+    toNicRx: (frameU8) => {
+      state.nicRxCount++;
+      try { const b = frameU8.buffer; machineFrame.contentWindow.postMessage({ t: 'nic-rx', frame: b }, '*', [b]); } catch (e) {}
+    },
+    fromParent: (e) => e.source === window.parent,          // contract-v1 frames only from the DEMO parent
+  });
+
+  // machine child -> us: guest DELQA TX + readiness. (connectNicPipe ignores these: wrong source + wrong tag.)
+  window.addEventListener('message', (e) => {
+    if (e.source !== machineFrame.contentWindow) return;    // only the embedded machine
+    const m = e.data; if (!m || typeof m !== 'object') return;
+    if (m.t === 'nic-ready') { state.nicReady = true; return; }
+    if (m.t === 'nic-tx') { state.nicTxCount++; pipe.nicTx(new Uint8Array(m.frame)); return; }
+  });
+
+  // Boot the machine (append this node's MAC to the machine URL).
+  if (!MACHINE) {
+    state.err = 'no ?machine= URL — node-pcjs.html needs the ovmx-cluster.html endpoint (see PCJS-NODE-BRIDGE.md)';
+    document.body.insertAdjacentHTML('afterbegin', '<pre style="padding:8px">' + state.err + '</pre>');
+  } else {
+    machineFrame.src = MACHINE + (MACHINE.includes('?') ? '&' : '?') + 'mac=' + encodeURIComponent(MAC);
+  }
+</script>
