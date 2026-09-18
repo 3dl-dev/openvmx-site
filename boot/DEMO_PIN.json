@@ -1,0 +1,5 @@
+{
+  "pinned_to": "V0.6-16",
+  "blocked_from": "V0.7",
+  "reason": "The in-browser homepage demo boots the V0.6-16 image; the V0.7 demo redeploy (rebuilding the demo boot artifacts from the V0.7 tag) is pending. This pin honestly acknowledges the demo trails the latest release (INV-0 no-silent-lag) rather than pretending it is V0.7. Advance pinned_to (and clear blocked_from) when the V0.7 demo image is deployed."
+}
