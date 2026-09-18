@@ -37,17 +37,19 @@ PORT=8110 demo/cluster/e2e/run-e2e.sh <serve-root> initramfs-ovmx-nodeA.cpio.gz 
 ```
 
 ## Result
-- **rc 0** + `e2e-result.json {"pass":true, clustered:true, scaByPort:{…}}` — a real 0x6007 frame
-  from **each** node's PEDRIVER reached the hub. **This is the gate** (CN=N by real evidence).
-- **rc 2** — booted but not every node emitted 0x6007 in the deadline. `scaByPort` shows which
-  node(s) fell short; `console_tail` shows how far STARTUP got + whether `%OVMX-I-SCSNODE` shows the
-  injected SCSNODE (OVMXA/OVMXB) + VAXCLUSTER=2. If SCSNODE=OVMX, the config didn't land.
+- **rc 0** + `e2e-result.json {"pass":true, clustered:true, scaByPort:{…}, acpByPort:{…}}` — **each** node
+  showed BOTH a real 0x6007 at the hub AND `acpOk` (the genuine ODS-2 ACP mount). **This is the gate.**
+- **rc 2** — some node fell short of BOTH halves. `scaByPort` shows which node(s) lacked a real 0x6007;
+  `acpByPort` shows which ran a **host-mode `/vms` facade** (no real ODS-2 ACP mount) rather than the real
+  product; `console_tail` shows STARTUP + whether `%OVMX-I-SCSNODE` shows the injected SCSNODE + VAXCLUSTER=2.
 - The harness logs a `%NIC-CFG, initramfs=.. sysdisk=.. mac=..` marker at boot per node.
 
 ## CN=N (multi-node) gate — the anti-LARP bar
-The gate is **per-node**: PASS iff a real guest-emitted `0x6007` from **EVERY** node in the page's
-roster (`window.__roster`) reached the hub — never a scripted/static count. Node-A-only run →
-`roster=[OVMXA]` (the single-node gate). Add the pcjs nodes with the env below and they enter the
+The gate is **per-node** and **sufficient**, not just necessary. PASS iff **EVERY** node in the page's
+roster (`window.__roster`) shows BOTH: (a) a real guest-emitted `0x6007` at the hub (the **cluster** is
+real) AND (b) `acpOk` — the genuine ODS-2 ACP mount marker (the **product** is real, not a host-mode
+`/vms` facade). Never a scripted count. A facade's executive-backed cluster stack can still emit 0x6007,
+so (b) is what stops a facade node from passing. Node-A-only run → `roster=[OVMXA]` (the single-node gate). Add the pcjs nodes with the env below and they enter the
 roster + must each emit a real 0x6007 for CN=3 to pass:
 
 ```

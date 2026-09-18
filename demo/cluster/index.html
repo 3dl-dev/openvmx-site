@@ -118,6 +118,13 @@
   window.__hub = hub;
   window.__switch = sw;
   window.__roster = nodes.map((n) => n.name);
+  // Per-node introspection for the e2e gate (real-ACP product-authenticity + counters). Same-origin
+  // node pages (node.html / node-pcjs.html) expose __nodeState.acpOk; the machine iframe is cross-origin.
+  window.__nodeStateByName = () => {
+    const m = {};
+    for (const n of nodes) { try { m[n.name] = n.frame.contentWindow.__nodeState || null; } catch (e) { m[n.name] = null; } }
+    return m;
+  };
 
   // Boot each node now that the hub + switch are ready to relay.
   for (const n of nodes) n.frame.src = n.src;

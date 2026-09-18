@@ -56,6 +56,17 @@ cross-origin to the demo parent), that:
 3. **Signals readiness**: fire `ovmx-nic-ready` (a DOM event or a `postMessage({t:'nic-ready'})`) once the
    DELQA HubPort is up, so the node page wires the hooks only after they exist.
 
+4. **Signals real-ACP product authenticity** (required for the CN=N gate): post `{t:'nic-ready'}`-style
+   `{t:'acp-ok'}` to the parent once the guest console shows the **genuine ODS-2 ACP mount** — the pair
+   `%OVMX-I-SYSDISK, mounting system disk <dev>:` → `%OVMX-I-MOUNTED, system disk <dev>: mounted`
+   (`<dev>` = **VDA0:** on x86 (virtio) / **DUA0:** on VAX (MSCP, backed by the raw ODS-2 partition — e.g.
+   `disk unit DUA0: -> ra0e`, an even stronger tell that SYS$DISK *is* the real Files-11 ODS-2 volume, not a
+   host-mode path). This is the tell a **host-mode `/vms` passthrough facade cannot
+   fabricate** — the executive ACP explicitly refuses that masquerade (vms-165 retired passthrough, INV-6).
+   The e2e CN=N gate treats a node as clustered ONLY when it has BOTH a real 0x6007 at the hub AND `acp-ok`,
+   so a facade filesystem fails the gate even though its (executive-backed) cluster stack can still emit
+   0x6007. The machine must run the **real ODS-2 ACP product** (not the host-mode facade) and emit this.
+
 That's the whole contract. It is the pcjs analogue of the qemu-wasm node's
 `installQemuNicWebSocket({ onNicTx, deliverToGuest })` (`lib/qemu-ws-shim.mjs`) — same two directions,
 same frame unit — so the parent switch and `attachSwitch` treat every node identically.
