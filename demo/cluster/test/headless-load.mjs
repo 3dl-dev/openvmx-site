@@ -1,7 +1,12 @@
 // headless-load.mjs — WIRING smoke test for the cluster-demo skeleton.
 //
-// Serves demo/cluster/ with the repo's coi-server (COOP/COEP so SharedArrayBuffer works)
-// and loads index.html in headless Chromium. Asserts ONLY that the wiring loads clean:
+// Serves the WHOLE openvmx-site repo root with the repo's coi-server (COOP/COEP so
+// SharedArrayBuffer works) and loads demo/cluster/index.html in headless Chromium — not
+// demo/cluster/ alone, because the page links the site's shared /assets/site.css (the
+// same chrome/design-system stylesheet index.html uses); serving demo/cluster/ in
+// isolation would 404 that request and this test treats any requestfailed as fatal
+// (see below), so the root must contain both demo/cluster/ and assets/.
+// Asserts ONLY that the wiring loads clean:
 //   - the parent page + its ES modules loaded (window.__demoReady, window.__hubframes[])
 //   - the L2 switch has the Node-A port attached (hub.size === 1)
 //   - the node iframe loaded, spawned its worker, and built the NIC pipe (__nodeState)
@@ -19,7 +24,7 @@ import net from 'node:net';
 
 const PW = '/home/baron/projects/openvmx-site/node_modules/playwright/index.js';
 const here = dirname(fileURLToPath(import.meta.url));
-const demoRoot = join(here, '..');                 // demo/cluster
+const siteRoot = join(here, '../../..');           // openvmx-site repo root (demo/cluster + assets/)
 const coiServer = join(here, '../../../tools/webdemo/coi-server.js');
 
 function freePort() {
@@ -36,8 +41,8 @@ async function main() {
   const chromium = pw.chromium || (pw.default && pw.default.chromium);
   const port = await freePort();
 
-  // start coi-server rooted at demo/cluster
-  const srv = spawn('node', [coiServer, demoRoot, String(port)], { stdio: ['ignore', 'pipe', 'pipe'] });
+  // start coi-server rooted at the whole site (demo/cluster/ + assets/)
+  const srv = spawn('node', [coiServer, siteRoot, String(port)], { stdio: ['ignore', 'pipe', 'pipe'] });
   srv.stdout.on('data', () => {});
   srv.stderr.on('data', (d) => console.error('[coi-server]', '' + d));
   await sleep(400);
@@ -60,7 +65,7 @@ async function main() {
     errors.push('requestfailed: ' + r.url() + ' — ' + (f && f.errorText || 'unknown'));
   });
 
-  const url = `http://localhost:${port}/index.html`;
+  const url = `http://localhost:${port}/demo/cluster/index.html`;
   let loadErr = null;
   try {
     await page.goto(url, { waitUntil: 'load', timeout: 20000 });
