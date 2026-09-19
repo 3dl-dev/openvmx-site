@@ -79,7 +79,7 @@
       <div class="cover">
         <p class="pn"><b>OpenVMX</b> · Live demonstration · <a href="/#clusters">Clusters &amp; interoperability</a></p>
         <h1 class="coverh">A real <span class="blue">VMScluster</span>, running live in your browser.</h1>
-        <p class="deck">This page hosts real, executive-backed OpenVMS-compatible systems —
+        <p class="deck">This page hosts real, executive-backed VMS-compatible systems —
           not a simulation or a recording. Every node is a genuine, cold-booted VM running
           inside your browser tab.</p>
         <p class="deck"><b>Node A (OVMX/x86_64) is live</b>: it boots the real OVMX kernel
@@ -87,13 +87,13 @@
           frames (SCA, ethertype <span class="mono">0x6007</span>) onto an in-page virtual
           Ethernet switch — pure JavaScript in your tab, no server, nothing shared between
           visitors.</p>
-        <p class="deck"><b>Node B (OVMX/VAX) and Node C (a genuine OpenVMS 5.5 system)</b> are
+        <p class="deck"><b>Node B (OVMX/VAX) and Node C (a genuine VMS-family 5.5 system, the original DEC/VSI article)</b> are
           staged, not faked: their panels exist but stay dormant until each node's real cluster
           join is independently proven. This page will never show a cluster member count it did
           not read live off a real executive's own membership state.</p>
         <p class="deck">What's emulation, what's real: the CPUs are software emulation
           (QEMU-in-WASM / a JS VAX emulator). What runs on them is the genuine, unmodified
-          article — OpenVMX's real executive, and real OpenVMS on Node C.</p>
+          article — OpenVMX's real executive, and real VMS on Node C.</p>
       </div>
     </div>
   </div>
@@ -121,7 +121,7 @@
           <small>Goes live when its cluster machine + OVMX/VAX volume (VAXCLUSTER=2) land and the join is proven.</small>
         </div>
         <div class="node placeholder" id="slotC">
-          <header><span class="who"><b>C</b> — real OpenVMS VAX (pcjs)</span><span class="tag staged">Staged</span></header>
+          <header><span class="who"><b>C</b> — real VMS VAX (pcjs)</span><span class="tag staged">Staged</span></header>
           <small>A genuine VMS-family system (the original DEC/VSI article) OVMX interoperates with. Goes live when its cluster machine + VMS 5.5 cluster volume land.</small>
         </div>
       </div>
