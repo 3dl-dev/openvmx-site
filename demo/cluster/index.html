@@ -2,50 +2,192 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>OpenVMX cluster demo</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<style>
-  :root { color-scheme: dark; }
-  body { background:#0b0e14; color:#c9d1d9; font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif; margin:0; padding:1rem 1rem 2rem; }
-  main { max-width: 1100px; margin: 0 auto; }
-  h1 { font-size:1.35rem; margin:.2rem 0 .3rem; }
-  p.muted { color:#8b949e; font-size:.9rem; margin:.2rem 0 .8rem; }
-  .real { color:#3fb950; font-weight:600; }
-  code { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; color:#e3b341; }
-  .nodes { display:grid; grid-template-columns:1fr; gap:.75rem; }
-  @media (min-width: 900px) { .nodes { grid-template-columns:repeat(3, 1fr); } }
-  .node { border:1px solid #21262d; border-radius:8px; overflow:hidden; background:#0f141c; display:flex; flex-direction:column; }
-  .node header { font-family:ui-monospace,Menlo,monospace; font-size:.78rem; color:#c98a2e; padding:.4rem .6rem; border-bottom:1px solid #21262d; background:#140d00; }
-  .node iframe { width:100%; height:52vh; border:0; background:#140d00; }
-  .node.placeholder { align-items:center; justify-content:center; color:#6b7280; font-size:.85rem; min-height:52vh; text-align:center; padding:1rem; }
-  #hudline { font-family:ui-monospace,Menlo,monospace; font-size:.78rem; color:#8b949e; margin:.6rem 0; }
-</style>
-</head>
-<body>
-<main>
-  <h1>OpenVMX in-browser VMScluster <span class="muted">— demo skeleton</span></h1>
-  <p class="muted">
-    The <span class="real">parent page is a virtual Ethernet switch</span> (a dumb L2 broadcast hub): each node is an
-    iframe/port; a raw Ethernet frame in on one port floods to every other, verbatim — the exact bytes the real
-    executive's NIC emits (SCA/cluster <code>0x6007</code>). One OVMX/x86 node is wired in below; Nodes B (OVMX/VAX)
-    and C (real VMS) attach through the same frozen <code>CONTRACT.md</code> seam as the pcjs DELQA NIC lands.
-  </p>
-  <div id="hudline">hub: initializing…</div>
-
-  <div class="nodes">
-    <div class="node">
-      <header>Node A — OVMX/x86_64 (qemu-wasm) · MAC 52:54:00:00:00:0A</header>
-      <iframe id="nodeA" title="OVMX/x86 node A"
-              allow="cross-origin-isolated"></iframe>
-    </div>
-    <div class="node placeholder" id="slotB"><header>Node B — OVMX/VAX (pcjs) · MAC …0B</header><small>goes live when its cluster machine + OVMX/VAX volume (VAXCLUSTER=2) land</small></div>
-    <div class="node placeholder" id="slotC"><header>Node C — real VMS VAX (pcjs) · MAC …0C</header><small>a genuine VMS-family system (VSI/DEC's original) OVMX interoperates with; goes live when its cluster machine + VMS 5.5 cluster volume land</small></div>
-  </div>
-</main>
-
+<title>Cluster demo — OpenVMX</title>
+<meta name="description" content="A real, executive-backed VMScluster running live in your browser tab — not a simulation or a recording.">
+<meta name="theme-color" content="#16359e" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0b0c11" media="(prefers-color-scheme: dark)">
 <!-- Cross-origin isolation shim (self-hosted, same-origin). No-op on a header-capable host
      (coi-server); on GitHub Pages it injects COOP/COEP and reloads once. -->
 <script src="coi-serviceworker.js"></script>
+<!-- SHARED site design system (tokens, masthead, footer, hero/chapter typography) —
+     the SAME stylesheet index.html links. Do not fork a page-local copy of these
+     rules; this page only adds its OWN component styles below, reading the tokens. -->
+<link rel="stylesheet" href="/assets/site.css">
+<style>
+  /* ---- cluster-demo-local component styles (read the shared tokens only) ---- */
+  .nodes{display:grid;grid-template-columns:1fr;gap:clamp(16px,2vw,24px);
+    margin-top:clamp(22px,3vw,32px)}
+  @media (min-width:900px){.nodes{grid-template-columns:repeat(3,1fr)}}
+  .node{border:var(--hair) solid var(--ink);background:var(--paper-2);
+    display:flex;flex-direction:column}
+  .node header{font-family:var(--f-mono);font-size:11px;letter-spacing:.04em;
+    color:var(--ink-2);padding:10px 14px;border-bottom:var(--hair) solid var(--ink);
+    background:var(--paper-3);display:flex;justify-content:space-between;
+    align-items:baseline;gap:10px;flex-wrap:wrap}
+  .node header .who{color:var(--ink);font-weight:700}
+  .node header .who b{color:var(--blue)}
+  .node header .tag{font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+    font-weight:700;white-space:nowrap}
+  .node header .tag.live{color:var(--blue)}
+  .node header .tag.live::before{content:"";display:inline-block;width:6px;height:6px;
+    border-radius:50%;background:var(--blue);margin-right:6px;vertical-align:1px}
+  .node header .tag.staged{color:var(--ink-3)}
+  /* the console screen itself stays a fixed dark "phosphor" regardless of site theme —
+     a machine doesn't invert (same convention the homepage's .machine-screen uses). */
+  .node iframe{width:100%;height:52vh;border:0;background:#140d00;display:block}
+  .node.placeholder{align-items:center;justify-content:center;text-align:center;
+    padding:28px 20px;min-height:52vh;border-style:dashed;border-color:var(--blue-line);
+    background:transparent}
+  .node.placeholder header{background:transparent;border-bottom:0;justify-content:center;
+    text-align:center;padding-bottom:0}
+  .node.placeholder small{display:block;margin-top:10px;font-family:var(--f-sans);
+    font-size:13.5px;line-height:1.5;max-width:32ch;color:var(--ink-3)}
+  #hudline{font-family:var(--f-mono);font-size:12px;letter-spacing:.02em;
+    color:var(--ink-3);margin:0}
+  .switchnote{font-family:var(--f-mono);font-size:11px;letter-spacing:.06em;
+    text-transform:uppercase;color:var(--ink-3);margin:0 0 8px}
+</style>
+</head>
+<body>
+
+<!-- ================= MASTHEAD (shared markup — see index.html) ================= -->
+<header class="mast">
+  <div class="wrap row">
+    <a href="/" aria-label="OpenVMX home" class="mark" style="text-decoration:none">
+      <span class="m">Open</span><span class="m fill">VMX</span>
+    </a>
+    <span class="partno">AA–OVMX2–TE</span>
+    <nav aria-label="Primary">
+      <a class="txt" href="/#overview">Overview</a>
+      <a class="txt" href="/#system">System</a>
+      <a class="txt" href="/#clusters">Clusters</a>
+      <a class="txt" href="/roadmap/">Roadmap</a>
+      <a class="txt" href="/#compat">Compatibility</a>
+      <a class="txt" href="/docs/">Docs</a>
+      <a class="gh" href="https://github.com/3dl-dev/vms">GitHub&nbsp;↗</a>
+      <button class="tgl" id="themebtn" type="button" aria-label="Toggle color scheme">Screen</button>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+
+  <!-- ================= HERO — honest-scope intro (INV-0 approved copy) ================= -->
+  <div class="hero">
+    <div class="wrap inner">
+      <div class="cover">
+        <p class="pn"><b>OpenVMX</b> · Live demonstration · <a href="/#clusters">Clusters &amp; interoperability</a></p>
+        <h1 class="coverh">A real <span class="blue">VMScluster</span>, running live in your browser.</h1>
+        <p class="deck">This page hosts real, executive-backed OpenVMS-compatible systems —
+          not a simulation or a recording. Every node is a genuine, cold-booted VM running
+          inside your browser tab.</p>
+        <p class="deck"><b>Node A (OVMX/x86_64) is live</b>: it boots the real OVMX kernel
+          executive under QEMU-in-WebAssembly, and its virtual NIC emits real cluster-protocol
+          frames (SCA, ethertype <span class="mono">0x6007</span>) onto an in-page virtual
+          Ethernet switch — pure JavaScript in your tab, no server, nothing shared between
+          visitors.</p>
+        <p class="deck"><b>Node B (OVMX/VAX) and Node C (a genuine OpenVMS 5.5 system)</b> are
+          staged, not faked: their panels exist but stay dormant until each node's real cluster
+          join is independently proven. This page will never show a cluster member count it did
+          not read live off a real executive's own membership state.</p>
+        <p class="deck">What's emulation, what's real: the CPUs are software emulation
+          (QEMU-in-WASM / a JS VAX emulator). What runs on them is the genuine, unmodified
+          article — OpenVMX's real executive, and real OpenVMS on Node C.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= THE SWITCH + THE THREE NODES ================= -->
+  <section id="nodes">
+    <div class="wrap pad-b">
+      <div class="chap"><span class="cn">§</span><h2>The in-page cluster switch</h2></div>
+      <p class="deck2">The parent page is a virtual Ethernet switch (a dumb L2 broadcast hub):
+        each node below is an iframe/port; a raw Ethernet frame in on one port floods to every
+        other, verbatim — the exact bytes the real executive's NIC emits. Nodes B and C attach
+        through the same frozen wire contract as soon as their own join is proven.</p>
+
+      <p class="switchnote">Switch status</p>
+      <div id="hudline">hub: initializing…</div>
+
+      <div class="nodes">
+        <div class="node">
+          <header><span class="who"><b>A</b> — OVMX/x86_64 (qemu-wasm)</span><span class="tag live">Live</span></header>
+          <iframe id="nodeA" title="OVMX/x86 node A"
+                  allow="cross-origin-isolated"></iframe>
+        </div>
+        <div class="node placeholder" id="slotB">
+          <header><span class="who"><b>B</b> — OVMX/VAX (pcjs)</span><span class="tag staged">Staged</span></header>
+          <small>Goes live when its cluster machine + OVMX/VAX volume (VAXCLUSTER=2) land and the join is proven.</small>
+        </div>
+        <div class="node placeholder" id="slotC">
+          <header><span class="who"><b>C</b> — real OpenVMS VAX (pcjs)</span><span class="tag staged">Staged</span></header>
+          <small>A genuine VMS-family system (the original DEC/VSI article) OVMX interoperates with. Goes live when its cluster machine + VMS 5.5 cluster volume land.</small>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ================= COLOPHON (shared markup — see index.html) ================= -->
+<footer>
+  <div class="wrap">
+    <div class="colo">
+      <div>
+        <a href="/#top" class="mark lg" style="text-decoration:none">
+          <span class="m">Open</span><span class="m fill">VMX</span>
+        </a>
+        <p style="margin-top:18px">The DEC operating environment, rebuilt from the syscall floor up.</p>
+        <p>Free to build, free to run, free to read.</p>
+        <p><span class="badge">Free &amp; open source</span></p>
+      </div>
+      <div>
+        <h5>Project</h5>
+        <a href="https://github.com/3dl-dev/vms">Source repository ↗</a>
+        <a href="https://github.com/3dl-dev/vms/blob/main/docs/architecture.md">Architecture</a>
+        <a href="https://github.com/3dl-dev/vms/blob/main/docs/building.md">Building</a>
+        <a href="https://github.com/3dl-dev/vms/issues">Issues ↗</a>
+      </div>
+      <div>
+        <h5>Reference</h5>
+        <a href="/#system">System components</a>
+        <a href="/#arch">Architecture matrix</a>
+        <a href="/#clusters">Clusters &amp; interop</a>
+        <a href="/compat/">Compatibility surface</a>
+        <a href="/docs/">Manuals</a>
+        <a href="/#roadmap">Roadmap &amp; releases</a>
+        <a href="/#build">Build &amp; boot</a>
+      </div>
+    </div>
+    <div class="wrap disclaim" style="padding-inline:0">
+      <span>OpenVMX is an independent, open-source project. DEC, VAX, Alpha, and related names are
+        used only to describe compatibility and heritage.</span>
+      <span class="r">AA–OVMX2–TE<br>Open source · <span id="yr"></span></span>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var root=document.documentElement;
+
+  /* theme toggle — verbatim copy of index.html's chrome script, same tokens/attr. */
+  var btn=document.getElementById('themebtn');
+  try{var saved=localStorage.getItem('ovmx-theme'); if(saved)root.setAttribute('data-theme',saved);}catch(e){}
+  function isDark(){var t=root.getAttribute('data-theme');
+    return t==='dark' || (!t && window.matchMedia('(prefers-color-scheme:dark)').matches);}
+  function label(){btn.textContent = isDark() ? 'Paper' : 'Screen';}
+  label();
+  btn.addEventListener('click',function(){
+    root.setAttribute('data-theme', isDark()?'light':'dark');
+    try{localStorage.setItem('ovmx-theme',root.getAttribute('data-theme'));}catch(e){}
+    label();
+  });
+
+  document.getElementById('yr').textContent = new Date().getFullYear();
+})();
+</script>
 
 <script type="module">
   // PARENT = the in-page L2 switch. Pure JS in the visitor's own tab; no server (CONTRACT.md §model).
@@ -102,7 +244,8 @@
     if (!f && n.slotId) {
       const slot = document.getElementById(n.slotId);
       slot.classList.remove('placeholder');
-      slot.innerHTML = '<header>Node ' + (n.name === 'OVMXB' ? 'B — OVMX/VAX' : 'C — real VMS VAX') + ' (pcjs)</header>';
+      slot.innerHTML = '<header><span class="who"><b>' + (n.name === 'OVMXB' ? 'B' : 'C') + '</b> — '
+        + (n.name === 'OVMXB' ? 'OVMX/VAX' : 'real VMS VAX') + ' (pcjs)</span><span class="tag live">Live</span></header>';
       f = document.createElement('iframe');
       f.title = n.name; f.setAttribute('allow', 'cross-origin-isolated'); f.style.cssText = 'width:100%;height:52vh;border:0;background:#140d00';
       slot.appendChild(f);
