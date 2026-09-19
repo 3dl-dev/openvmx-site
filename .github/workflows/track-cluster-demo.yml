@@ -1,0 +1,120 @@
+name: track-cluster-demo
+
+# Post-cut follow-on for the browser cluster demo (rd vms-cdbd, vms-f0f). Fired
+# by the SAME repository_dispatch (release-tagged) track-release.yml listens
+# for -- NOT inline in vms's release.yml critical path, so a demo-build
+# failure here can never block or hold a release tag. Builds
+# build-cluster-demo <TAG> (tools/cluster-web-demo/, from the vms repo at
+# that tag) against this release's boot artifacts and deploys the bundle to
+# demo/cluster/releases/<TAG>/, honest-pinning on failure exactly like
+# track-release.yml's boot/DEMO_PIN.json.
+#
+# STATUS (2026-09-19, rd vms-4a5 lane): drafted, NOT yet exercised against a
+# real release tag -- the repository_dispatch sender does not exist yet on
+# the vms side (release.yml has no dispatch step; conductor to wire once a
+# cross-repo dispatch credential is provisioned, see the PR description).
+# Runs today only via workflow_dispatch (manual) until that lands.
+
+on:
+  repository_dispatch:
+    types: [release-tagged]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'vms release tag to build the cluster demo for (e.g. V0.7)'
+        required: true
+
+permissions:
+  contents: write
+
+concurrency: track-cluster-demo
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Resolve the tag
+        id: r
+        run: |
+          TAG='${{ github.event.inputs.tag || github.event.client_payload.tag }}'
+          [ -n "$TAG" ] || { echo "no tag given (neither workflow_dispatch input nor dispatch payload)."; exit 1; }
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "building the cluster demo for $TAG"
+
+      - name: Check out vms at the tag (generator + injectors + node-identity SSOT)
+        run: git clone --depth 1 --branch "${{ steps.r.outputs.tag }}" https://github.com/3dl-dev/vms vmssrc
+
+      - name: Obtain this tag's x86 boot assets (prefer published Release, else build from source)
+        # Identical to track-release.yml's "Obtain boot assets" step -- reuse, don't
+        # fork. build-cluster-demo consumes these; it does not rebuild them.
+        env: { GH_TOKEN: '${{ secrets.GITHUB_TOKEN }}' }
+        run: |
+          T='${{ steps.r.outputs.tag }}'; mkdir -p rel
+          if gh release download "$T" --repo 3dl-dev/vms -D rel \
+               -p vmlinuz -p initramfs-ovmx-slim.cpio.gz -p ovmx-distrib.img 2>/dev/null \
+             && [ -f rel/ovmx-distrib.img ]; then
+            echo "using PUBLISHED release assets for $T (no build needed)"
+          else
+            echo "no release assets for $T — building the bootable image from source"
+            sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/lib/android /opt/hostedtoolcache/CodeQL || true
+            ( cd vmssrc && docker build -f distro/Dockerfile.bootable -t ovmx-boot . )
+            cid=$(docker create ovmx-boot)
+            docker cp "$cid:/boot/vmlinuz" rel/vmlinuz
+            docker cp "$cid:/boot/initramfs-ovmx-slim.cpio.gz" rel/initramfs-ovmx-slim.cpio.gz
+            docker cp "$cid:/boot/ovmx-distrib.img" rel/ovmx-distrib.img
+            docker rm "$cid" >/dev/null
+          fi
+
+      - name: Install qemu-img (the generator's ODS-2/qcow2 conversion dependency)
+        run: sudo apt-get update && sudo apt-get install -y qemu-utils
+
+      - name: Run build-cluster-demo (Node A only -- Node B/C stay staged until vms-613/pcjs-embed land)
+        id: build
+        run: |
+          set -e
+          chmod +x vmssrc/tools/cluster-web-demo/build-cluster-demo
+          vmssrc/tools/cluster-web-demo/build-cluster-demo "${{ steps.r.outputs.tag }}" \
+            --out "$PWD/demo/cluster/releases" \
+            --x86-vmlinuz rel/vmlinuz \
+            --x86-initramfs rel/initramfs-ovmx-slim.cpio.gz \
+            --x86-sysdisk rel/ovmx-distrib.img \
+            --site-dir "$PWD" \
+            --boot-dir "$PWD/demo/cluster/boot"
+
+      - name: Commit the deployed bundle (honest success path)
+        if: success()
+        run: |
+          TAG='${{ steps.r.outputs.tag }}'
+          # A clean demo build for this tag supersedes any earlier pin.
+          git rm -q --ignore-unmatch demo/cluster/CLUSTER_DEMO_PIN.json || rm -f demo/cluster/CLUSTER_DEMO_PIN.json
+          echo "$TAG" > demo/cluster/DEPLOYED_TAG
+          git config user.name 'ovmx-release-bot'; git config user.email 'bot@3dl.dev'
+          git add demo/cluster
+          if git diff --cached --quiet; then echo "no change"; exit 0; fi
+          git commit -m "cluster-demo: build ${TAG} (rd vms-f0f/vms-cdbd, Node A live, B/C staged)"
+          for i in 1 2 3 4 5; do
+            git pull --rebase --autostash origin main && git push origin HEAD:main && exit 0
+            echo "push $i rejected, retrying…"; sleep 5
+          done
+          echo "push failed after retries"; exit 1
+
+      - name: Honest-pin on failure (TRY-THEN-HONESTLY-PIN, mirrors boot/DEMO_PIN.json)
+        if: failure()
+        run: |
+          TAG='${{ steps.r.outputs.tag }}'
+          DEPLOYED=$(cat demo/cluster/DEPLOYED_TAG 2>/dev/null || echo none)
+          REASON="cluster-demo build FAILED for ${TAG} on $(date -u +%Y-%m-%d) (see the failed run's logs). The demo honestly stays at ${DEPLOYED}."
+          python3 -c 'import json,sys; json.dump({"pinned_to":sys.argv[1],"blocked_from":sys.argv[2],"reason":sys.argv[3]}, open("demo/cluster/CLUSTER_DEMO_PIN.json","w"), indent=2)' "$DEPLOYED" "$TAG" "$REASON"
+          mkdir -p demo/cluster
+          git config user.name 'ovmx-release-bot'; git config user.email 'bot@3dl.dev'
+          git add demo/cluster/CLUSTER_DEMO_PIN.json
+          if git diff --cached --quiet; then echo "pin already current"; exit 0; fi
+          git commit -m "cluster-demo: auto-pin at ${DEPLOYED} — ${TAG} build failed (honest try-then-pin)"
+          for i in 1 2 3 4 5; do
+            git pull --rebase --autostash origin main && git push origin HEAD:main && exit 0
+            echo "pin push $i rejected, retrying…"; sleep 5
+          done
+          echo "pin push failed after retries — NOT re-failing the job (this step must never block the release)."
