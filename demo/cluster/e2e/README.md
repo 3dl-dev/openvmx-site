@@ -9,7 +9,14 @@ and doubles as the demo's per-release reproducibility gate (vms-f0f).
 The clustering boot **cannot** use the single-node snapshot-resume (`loadvm`) — live
 SCS/VC state can't be frozen per-node — so it's a full ~120s+ wasm TCG cold boot at
 256MB guest RAM. A small host OOMs / exit-144s the headless chromium mid-boot. **Run on
-a >=48GB host (k3s-worker).** (heavy-runtime rule.)
+a >=48GB host (k3s-worker).** (heavy-runtime rule.) **CPU contention matters too, not
+just RAM**: measured 2026-09-19 on a shared dev host running unrelated CPU-bound jobs
+(600%+ core usage from other tenants) — Node A's own console capture visibly stalled
+early (a fraction of a normal boot's output) while its NIC kept transmitting periodic
+HELLOs, and a 15-minute CN=2 attempt against the pinned Node-C volume did not converge.
+The mechanism proved real (Node A emitted 247 real `0x6007` HELLOs at the hub trying to
+join a genuine VAX/VMS peer) but wall-clock convergence needs an **uncontended** host,
+not just a big one.
 
 ## Inputs (from the generator / injectors)
 A **serve-root** directory containing:
@@ -59,6 +66,21 @@ NODE_C='https://vax.3dl.network/machines/dec/vax/browser/ovmx-cluster.html?rom=<
 ```
 (`NODE_B`/`NODE_C` route into `index.html?nodeB=..&nodeC=..`, which materialises the staged Node B/C
 iframes as `node-pcjs.html?machine=..` ports on the switch — otherwise they stay dormant placeholders.)
+
+`acpOk` for a **real VMS** node (Node C) needed its own tell (pcjsvax-636, 2026-09-19): the two
+OVMX-specific ACP_TELL alternatives never appear in genuine VAX/VMS 5.5's boot transcript, so
+`acpOk` never fired against the pinned `vms55-nodeC-cluster.dsk.gz` volume until `ovmx-cluster.html`
+gained a third alternative — the `"VAX/VMS Version Vn.n-xxx"` boot banner, which only genuine
+DEC/VSI OpenVMS prints (OVMX never claims to BE VMS). Fixed upstream in the pcjs fork
+(`baron-3dl/pcjs#2`); verified firing at t=18s against the real Node-C boot.
+
+When `NODE_C` is set, `e2e-result.json` also carries `nodeCConsoleTail` — Node C's own console
+transcript for the run, captured as a **diagnostic**, not parsed into `pass` (no positive ground
+truth for VMS 5.5's cluster-join OPCOM broadcast text has been captured yet — see the vms-735
+CN=2 landmark session notes). A CN=2 attempt on 2026-09-19 measured Node A emitting 247 real
+`0x6007` HELLOs at the hub (real join *attempt* against the real VAX/VMS peer) but did not observe
+Node C register it as a member within 15 minutes on a CPU-contended host — re-run on an
+uncontended host before concluding anything about the join itself.
 
 ## Env knobs
 `DEADLINE_MS` (default 600000), `MAC`, `NODE_B`, `NODE_C` (pcjs cluster-machine URLs), `PORT`, `OUT_DIR`.
