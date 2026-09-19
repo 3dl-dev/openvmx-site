@@ -4,35 +4,18 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Cluster demo — OpenVMX</title>
-<meta name="description" content="A real, executive-backed VMScluster running live in your browser tab — not a simulation or a recording.">
+<meta name="description" content="Three real machines, live in your browser: OpenVMX/x86_64, OpenVMX/VAX, and a genuine VMS-family VAX, wired onto one virtual Ethernet switch.">
 <meta name="theme-color" content="#16359e" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0b0c11" media="(prefers-color-scheme: dark)">
 <!-- Cross-origin isolation shim (self-hosted, same-origin). No-op on a header-capable host
      (coi-server); on GitHub Pages it injects COOP/COEP and reloads once. -->
 <script src="coi-serviceworker.js"></script>
-<!-- SHARED site design system (tokens, masthead, footer, hero/chapter typography) —
-     the SAME stylesheet index.html links. Do not fork a page-local copy of these
-     rules; this page only adds its OWN component styles below, reading the tokens. -->
+<!-- SHARED site design system (tokens, masthead, footer, hero/chapter typography, the
+     .machines/.machine/.idle/.bootbtn click-to-boot chrome) — the SAME stylesheet
+     index.html links. This page adds NO local rules: every class it uses (.machines,
+     .machine, .machine-top, .live, .dot, .plate, .machine-screen, .scan, .sweep, .idle,
+     .rdy, .cur, .bootbtn, .bootmeta, .machine-cap) already exists there, verbatim. -->
 <link rel="stylesheet" href="/assets/site.css">
-<style>
-  /* ---- cluster-demo-local component styles ----
-     Each node panel REUSES the home page's .machine/.machine-top/.machine-screen/
-     .machine-cap chrome VERBATIM (defined once in the shared /assets/site.css) so a
-     console here is pixel-identical to the home page's amber-CRT machines — only the
-     3-up grid wrapper and the staged-placeholder note are page-local. */
-  .nodes{display:grid;grid-template-columns:1fr;gap:clamp(20px,2.6vw,32px);
-    margin-top:clamp(22px,3vw,32px)}
-  @media (min-width:900px){.nodes{grid-template-columns:repeat(3,1fr)}}
-  /* .machine-screen already centers/sizes an <iframe> (site.css); a STAGED screen instead
-     holds this note, centered in the same dark "phosphor" area — cleared by JS on go-live. */
-  .staged-note{position:relative;z-index:2;height:100%;display:flex;align-items:center;
-    justify-content:center;text-align:center;padding:1.5rem;font-family:var(--f-sans);
-    font-size:13.5px;line-height:1.55;color:#b58a4a;max-width:30ch;margin:0 auto}
-  #hudline{font-family:var(--f-mono);font-size:12px;letter-spacing:.02em;
-    color:var(--ink-3);margin:0}
-  .switchnote{font-family:var(--f-mono);font-size:11px;letter-spacing:.06em;
-    text-transform:uppercase;color:var(--ink-3);margin:0 0 8px}
-</style>
 </head>
 <body>
 
@@ -58,100 +41,84 @@
 
 <main id="top">
 
-  <!-- ================= HERO — honest-scope intro (INV-0 approved copy) ================= -->
+  <!-- ================= HERO — three stacked machines, same shape as index.html's cover ================= -->
   <div class="hero">
     <div class="wrap inner">
       <div class="cover">
-        <p class="pn"><b>OpenVMX</b> · Live demonstration · <a href="/#clusters">Clusters &amp; interoperability</a></p>
-        <h1 class="coverh">A real <span class="blue">VMScluster</span>, running live in your browser.</h1>
-        <p class="deck">This page hosts real, executive-backed VMS-compatible systems —
-          not a simulation or a recording. Every node is a genuine, cold-booted VM running
-          inside your browser tab.</p>
-        <p class="deck"><b>Node A (OVMX/x86_64) is live</b>: it boots the real OVMX kernel
-          executive under QEMU-in-WebAssembly, and its virtual NIC emits real cluster-protocol
-          frames (SCA, ethertype <span class="mono">0x6007</span>) onto an in-page virtual
-          Ethernet switch — pure JavaScript in your tab, no server, nothing shared between
-          visitors.</p>
-        <p class="deck"><b>Node B (OVMX/VAX) and Node C (a genuine VMS-family 5.5 system, the original DEC/VSI article)</b> are
-          staged, not faked: their panels exist but stay dormant until each node's real cluster
-          join is independently proven. This page will never show a cluster member count it did
-          not read live off a real executive's own membership state.</p>
-        <p class="deck">What's emulation, what's real: the CPUs are software emulation
-          (QEMU-in-WASM / a JS VAX emulator). What runs on them is the genuine, unmodified
-          article — OpenVMX's real executive, and real VMS on Node C.</p>
+        <p class="pn"><b>OpenVMX</b> · Live cluster demonstration</p>
+        <h1 class="coverh">Three real machines. One <span class="blue">VMScluster</span>.</h1>
+
+        <div class="machines">
+
+          <!-- Node A — OVMX/x86_64 (qemu-wasm). Click-to-boot, exactly like index.html's
+               cover machine; the iframe (node.html) carries the cluster NIC wiring. -->
+          <figure class="machine" id="machine-a">
+            <figcaption class="machine-top">
+              <span class="live"><i class="dot"></i>OpenVMX</span>
+              <span class="plate">OVMX · x86_64 · console</span>
+            </figcaption>
+            <div class="machine-screen" id="screen-a">
+              <div class="idle" id="idle-a" role="button" tabindex="0" aria-label="Boot OpenVMX in your browser">
+                <div class="scan" aria-hidden="true"></div>
+                <div class="sweep" aria-hidden="true"></div>
+                <p class="rdy">OVMXA · HALTED · READY TO BOOT<span class="cur" aria-hidden="true"></span></p>
+                <button class="bootbtn" id="bootbtn-a" type="button">▶ Boot OpenVMX</button>
+                <p class="bootmeta"><b>One-time ~60&nbsp;MB download</b>, cached after the first visit.
+                  Emulated, so interaction is slow.</p>
+              </div>
+            </div>
+            <figcaption class="machine-cap">Presentation only, not VMS-authentic. Emulated (QEMU
+              compiled to WebAssembly); TCG is slow.</figcaption>
+          </figure>
+
+          <!-- Node B — OVMX/VAX (pcjs KA655, cluster-configured volume). -->
+          <figure class="machine" id="machine-b">
+            <figcaption class="machine-top">
+              <span class="live"><i class="dot"></i>OpenVMX</span>
+              <span class="plate">OVMX/VAX · MicroVAX 3900 · console</span>
+            </figcaption>
+            <div class="machine-screen" id="screen-b">
+              <div class="idle" id="idle-b" role="button" tabindex="0" aria-label="Boot OpenVMX on an emulated VAX in your browser">
+                <div class="scan" aria-hidden="true"></div>
+                <div class="sweep" aria-hidden="true"></div>
+                <p class="rdy">OVMXB · HALTED · READY TO BOOT<span class="cur" aria-hidden="true"></span></p>
+                <button class="bootbtn" id="bootbtn-b" type="button">▶ Boot OpenVMX/VAX</button>
+                <p class="bootmeta">A real MicroVAX 3900 (KA655), emulated. Cold boot is slow — the
+                  1977 ISA, live.</p>
+              </div>
+            </div>
+            <figcaption class="machine-cap">Presentation only, not VMS-authentic. Emulated (pcjs
+              KA655, JS); slow.</figcaption>
+          </figure>
+
+          <!-- Node C — a genuine VMS-family VAX (pcjs KA655, the original DEC/VSI article).
+               Labelled "VMS", never "OpenVMX" and never the bare vendor trademark string. -->
+          <figure class="machine" id="machine-c">
+            <figcaption class="machine-top">
+              <span class="live"><i class="dot"></i>VMS</span>
+              <span class="plate">real VMS · MicroVAX 3900 · console</span>
+            </figcaption>
+            <div class="machine-screen" id="screen-c">
+              <div class="idle" id="idle-c" role="button" tabindex="0" aria-label="Boot a genuine VMS-family VAX in your browser">
+                <div class="scan" aria-hidden="true"></div>
+                <div class="sweep" aria-hidden="true"></div>
+                <p class="rdy">VAXC · HALTED · READY TO BOOT<span class="cur" aria-hidden="true"></span></p>
+                <button class="bootbtn" id="bootbtn-c" type="button">▶ Boot real VMS</button>
+                <p class="bootmeta">A real MicroVAX 3900 (KA655), emulated. Cold boot is slow.</p>
+              </div>
+            </div>
+            <figcaption class="machine-cap">Presentation only, not VMS-authentic. Emulated (pcjs
+              KA655, JS); slow. Not OpenVMX.</figcaption>
+          </figure>
+
+        </div>
+
+        <div class="go">
+          <a class="golink" href="https://github.com/3dl-dev/vms">View the source on GitHub <span class="ar">→</span></a>
+        </div>
       </div>
     </div>
   </div>
-
-  <!-- ================= THE SWITCH + THE THREE NODES ================= -->
-  <section id="nodes">
-    <div class="wrap pad-b">
-      <div class="chap"><span class="cn">§</span><h2>The in-page cluster switch</h2></div>
-      <p class="deck2">The parent page is a virtual Ethernet switch (a dumb L2 broadcast hub):
-        each node below is an iframe/port; a raw Ethernet frame in on one port floods to every
-        other, verbatim — the exact bytes the real executive's NIC emits. Nodes B and C attach
-        through the same frozen wire contract as soon as their own join is proven.</p>
-
-      <p class="switchnote">Switch status</p>
-      <div id="hudline">hub: initializing…</div>
-
-      <div class="nodes">
-        <!-- Node A — LIVE. Same .machine chrome as the home page; no .idle teaser/boot
-             button (the demo auto-boots) — the iframe sits directly in .machine-screen. -->
-        <figure class="machine">
-          <figcaption class="machine-top">
-            <span class="live"><i class="dot"></i>OpenVMX</span>
-            <span class="plate">OVMX · x86_64 · console · MAC 52:54:00:00:00:0A</span>
-          </figcaption>
-          <div class="machine-screen">
-            <div class="scan" aria-hidden="true"></div>
-            <div class="sweep" aria-hidden="true"></div>
-            <iframe id="nodeA" title="OVMX/x86 node A" allow="cross-origin-isolated"></iframe>
-          </div>
-          <figcaption class="machine-cap">The amber CRT styling is presentation, not VMS-authentic.
-            Runs under QEMU compiled to WebAssembly; TCG emulation is slow. Live — this node's real
-            executive joins the cluster over the switch.</figcaption>
-        </figure>
-
-        <!-- Node B — STAGED. Same .machine chrome; .machine-screen holds a note until
-             ?nodeB= materialises the live iframe (JS below clears the note, appends it). -->
-        <figure class="machine">
-          <figcaption class="machine-top">
-            <span class="live"><i class="dot"></i>OpenVMX</span>
-            <span class="plate">OVMX/VAX · MicroVAX 3900 · console · MAC …0B</span>
-          </figcaption>
-          <div class="machine-screen" id="slotB">
-            <div class="scan" aria-hidden="true"></div>
-            <div class="sweep" aria-hidden="true"></div>
-            <div class="staged-note">Staged — goes live when its cluster machine + OVMX/VAX volume
-              (VAXCLUSTER=2) land and the join is proven.</div>
-          </div>
-          <figcaption class="machine-cap">PCjs KA655 emulator (JS), running OpenVMX/VAX over a
-            NetBSD-VAX kernel — the same OS as the x86_64 panel. Emulated, so it's slow. Staged —
-            not yet part of this live demo.</figcaption>
-        </figure>
-
-        <!-- Node C — STAGED. Real VMS-family VAX (DEC/VSI's original); label the .live dot
-             truthfully as VMS, never "OpenVMX" (it is not OVMX), and never the bare vendor
-             trademark string (the trademark gate bans it in tracked *.html). -->
-        <figure class="machine">
-          <figcaption class="machine-top">
-            <span class="live"><i class="dot"></i>VMS</span>
-            <span class="plate">real VMS · MicroVAX 3900 · console · MAC …0C</span>
-          </figcaption>
-          <div class="machine-screen" id="slotC">
-            <div class="scan" aria-hidden="true"></div>
-            <div class="sweep" aria-hidden="true"></div>
-            <div class="staged-note">Staged — a genuine VMS-family system (the original DEC/VSI
-              article) OVMX interoperates with. Goes live when its cluster machine + volume land.</div>
-          </div>
-          <figcaption class="machine-cap">PCjs KA655 emulator (JS), running a genuine VMS-family
-            5.5 system — not OpenVMX. Emulated, so it's slow. Staged — not yet part of this live
-            demo.</figcaption>
-        </figure>
-      </div>
-    </div>
-  </section>
 
 </main>
 
@@ -216,12 +183,16 @@
 
 <script type="module">
   // PARENT = the in-page L2 switch. Pure JS in the visitor's own tab; no server (CONTRACT.md §model).
+  // Uses the frozen hub.mjs/wire.mjs primitives directly rather than the attachSwitch() convenience
+  // wrapper: attachSwitch binds a FIXED node list at call time, but here each node's iframe (and
+  // therefore its hub port) is created lazily, on its own boot click — three heavy emulators must
+  // never all auto-boot at once (kills the tab), matching index.html's click-to-boot machines.
   import { L2Hub } from './lib/hub.mjs';
-  import { attachSwitch } from './lib/port-postmessage.mjs';
-  import { ethertypeOf } from './lib/wire.mjs';
+  import { makeDataMessage, parseMessage, ethertypeOf } from './lib/wire.mjs';
 
   // E2E-HARNESS TAP: a headless harness asserts a real 0x6007 SCA frame traversed the switch.
   // Record { port, ethertype, len } for EVERY frame the hub is asked to flood. ethertype = bytes 12..13.
+  // (No visible on-page counter — a visitor sees the consoles, not a frame tally.)
   window.__hubframes = [];
 
   const hub = new L2Hub({
@@ -229,8 +200,6 @@
     onError: (err, port) => console.warn('[hub] port send threw', port, err),
   });
 
-  // Tap by wrapping each port handle's emit (the flood entry point) — captures every frame a
-  // node transmits into the hub, independent of how many other ports exist to flood to.
   const _origAddPort = hub.addPort.bind(hub);
   hub.addPort = (spec) => {
     const handle = _origAddPort(spec);
@@ -238,79 +207,104 @@
     handle.emit = (frame) => {
       const u8 = frame instanceof Uint8Array ? frame : new Uint8Array(frame);
       window.__hubframes.push({ port: handle.name, ethertype: ethertypeOf(u8), len: u8.byteLength });
-      updateHud();
       return _origEmit(frame);
     };
     return handle;
   };
 
-  const _pq = new URLSearchParams(location.search);
-  const enc = encodeURIComponent;
-
-  // ROSTER (STAGED). Node A (OVMX/x86) is always live. Node B/C (pcjs) go live ONLY when their
-  // cluster-machine URL is supplied (?nodeB=/?nodeC= = the ovmx-cluster.html endpoint carrying
-  // ?rom=&diskgz=<cluster volume>). So the page is Node-A-only until B/C's machine + volumes land —
-  // never a half-wired multi-node claim. CN=3 is asserted by the e2e gate (a real 0x6007 from EACH
-  // node), NEVER shown as a scripted static count.
-  function nodeASrc() {
-    let s = 'node.html?mac=' + enc(_pq.get('mac') || '52:54:00:00:00:0A');
-    if (_pq.get('initramfs')) s += '&initramfs=' + enc(_pq.get('initramfs'));
-    if (_pq.get('sysdisk')) s += '&sysdisk=' + enc(_pq.get('sysdisk'));
-    return s;
-  }
-  const roster = [{ name: 'OVMXA', frameId: 'nodeA', src: nodeASrc() }];
-  if (_pq.get('nodeB')) roster.push({ name: 'OVMXB', slotId: 'slotB', src: 'node-pcjs.html?mac=52:54:00:00:00:0B&machine=' + enc(_pq.get('nodeB')) });
-  if (_pq.get('nodeC')) roster.push({ name: 'VAXC', slotId: 'slotC', src: 'node-pcjs.html?mac=52:54:00:00:00:0C&machine=' + enc(_pq.get('nodeC')) });
-
-  // Materialise each node's iframe (Node A exists in the DOM; a live B/C replaces its placeholder slot),
-  // register it as a switch port, then boot it.
-  const nodes = roster.map((n) => {
-    let f = n.frameId ? document.getElementById(n.frameId) : null;
-    if (!f && n.slotId) {
-      // slotId is now the .machine-screen div itself (scan/sweep overlays + a
-      // .staged-note child) — drop only the note, keep the CRT overlay siblings,
-      // and mark the panel's figcaptions live (same .machine chrome, no rebuild).
-      const slot = document.getElementById(n.slotId);
-      const note = slot.querySelector('.staged-note');
-      if (note) note.remove();
-      const figure = slot.closest('figure.machine');
-      const cap = figure && figure.querySelector('.machine-cap');
-      if (cap) cap.textContent = cap.textContent.replace(/\s*Staged\s*—\s*not yet part of this live demo\.?$/, ' Live — joined the cluster over the switch.');
-      f = document.createElement('iframe');
-      f.title = n.name; f.setAttribute('allow', 'cross-origin-isolated'); f.style.cssText = 'width:100%;height:100%;border:0;background:#140d00';
-      slot.appendChild(f);
+  // Registry of MATERIALISED (booted) nodes, grown one entry per boot click. A single shared
+  // message listener dispatches to whichever registry entry's iframe sent the event — the same
+  // match-by-source semantics attachSwitch uses internally (l2/port-postmessage.mjs), just over a
+  // list that grows at runtime instead of being fixed at attach time.
+  const registry = [];
+  window.addEventListener('message', (event) => {
+    for (const r of registry) {
+      if (event.source !== r.frame.contentWindow) continue;
+      const parsed = parseMessage(event.data);
+      if (parsed) r.handle.emit(parsed.frame);
+      return;
     }
-    return { name: n.name, frame: f, src: n.src };
   });
-
-  const sw = attachSwitch(hub, {
-    addMessageListener: (h) => { const g = (e) => h(e); window.addEventListener('message', g); return () => window.removeEventListener('message', g); },
-    nodes: nodes.map((n) => ({ name: n.name, post: (msg, t) => n.frame.contentWindow.postMessage(msg, '*', t), match: (e) => e.source === n.frame.contentWindow })),
-  });
+  function registerNode(name, frame) {
+    const handle = hub.addPort({
+      name,
+      send: (frameU8) => {
+        const { msg, transfer } = makeDataMessage(frameU8);
+        frame.contentWindow.postMessage(msg, '*', transfer);
+      },
+    });
+    registry.push({ name, frame, handle });
+    window.__roster = registry.map((r) => r.name);
+  }
 
   window.__hub = hub;
-  window.__switch = sw;
-  window.__roster = nodes.map((n) => n.name);
+  window.__roster = [];
   // Per-node introspection for the e2e gate (real-ACP product-authenticity + counters). Same-origin
   // node pages (node.html / node-pcjs.html) expose __nodeState.acpOk; the machine iframe is cross-origin.
   window.__nodeStateByName = () => {
     const m = {};
-    for (const n of nodes) { try { m[n.name] = n.frame.contentWindow.__nodeState || null; } catch (e) { m[n.name] = null; } }
+    for (const r of registry) { try { m[r.name] = r.frame.contentWindow.__nodeState || null; } catch (e) { m[r.name] = null; } }
     return m;
   };
+  window.__demoReady = true;   // the switch + dispatch loop are ready; each node boots on its own click.
 
-  // Boot each node now that the hub + switch are ready to relay.
-  for (const n of nodes) n.frame.src = n.src;
+  const _pq = new URLSearchParams(location.search);
+  const enc = encodeURIComponent;
 
-  window.__demoReady = true;
-
-  const hudEl = document.getElementById('hudline');
-  function updateHud() {
-    const n = window.__hubframes.length;
-    const sca = window.__hubframes.filter((f) => f.ethertype === 0x6007).length;
-    hudEl.textContent = `hub: ${hub.size} port(s) · ${n} frame(s) flooded · ${sca} SCA(0x6007)`;
+  // ---- click-to-boot wiring, one per node (mirrors index.html's boot()/bootVax()) ----
+  function wireBoot(idleId, btnId, screenId, bootFn) {
+    const idleEl = document.getElementById(idleId);
+    const btnEl = document.getElementById(btnId);
+    let booted = false;
+    function go() {
+      if (booted) return; booted = true;
+      const screenEl = document.getElementById(screenId);
+      const f = document.createElement('iframe');
+      f.setAttribute('allow', 'cross-origin-isolated');
+      f.style.cssText = 'width:100%;height:100%;border:0;background:#140d00';
+      if (idleEl) idleEl.remove();
+      screenEl.appendChild(f);
+      bootFn(f);
+    }
+    if (btnEl) btnEl.addEventListener('click', go);
+    if (idleEl) idleEl.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); }
+    });
   }
-  updateHud();
+
+  // Node A — OVMX/x86_64 (qemu-wasm), cluster-wired node.html. ?mac=/?initramfs=/?sysdisk= stay as
+  // generator/e2e-gate overrides (build-cluster-demo <TAG>, demo/cluster/e2e) — not visitor-facing.
+  wireBoot('idle-a', 'bootbtn-a', 'screen-a', (f) => {
+    f.title = 'OVMX/x86 node A';
+    f.id = 'nodeA';
+    let s = 'node.html?mac=' + enc(_pq.get('mac') || '52:54:00:00:00:0A');
+    if (_pq.get('initramfs')) s += '&initramfs=' + enc(_pq.get('initramfs'));
+    if (_pq.get('sysdisk')) s += '&sysdisk=' + enc(_pq.get('sysdisk'));
+    f.src = s;
+    registerNode('OVMXA', f);
+  });
+
+  // Node B / Node C — pcjs KA655 cluster nodes, via node-pcjs.html (same-origin bridge) embedding
+  // ovmx-cluster.html (cross-origin, vax.3dl.network — the pcjs deploy, same host index.html's own
+  // VAX pane already embeds). ?nodeB=/?nodeC= remain optional machine-URL overrides for testing —
+  // both nodes are ALWAYS present with a real boot button; nothing here gates visibility on them.
+  const PCJS_ROM = 'https://vax.3dl.network/machines/dec/vax/browser/ka655x.bin';
+  function pcjsMachineUrl(diskgz) {
+    return 'https://vax.3dl.network/machines/dec/vax/browser/ovmx-cluster.html' +
+      '?rom=' + enc(PCJS_ROM) + '&diskgz=' + enc(diskgz);
+  }
+  wireBoot('idle-b', 'bootbtn-b', 'screen-b', (f) => {
+    f.title = 'OVMX/VAX node B';
+    const machine = _pq.get('nodeB') || pcjsMachineUrl('https://vax.3dl.network/machines/dec/vax/browser/ovmx-vax-nodeB.img.gz');
+    f.src = 'node-pcjs.html?mac=52:54:00:00:00:0B&machine=' + enc(machine);
+    registerNode('OVMXB', f);
+  });
+  wireBoot('idle-c', 'bootbtn-c', 'screen-c', (f) => {
+    f.title = 'real VMS node C';
+    const machine = _pq.get('nodeC') || pcjsMachineUrl('https://vax.3dl.network/machines/dec/vax/browser/vms55-nodeC-cluster.dsk.gz');
+    f.src = 'node-pcjs.html?mac=52:54:00:00:00:0C&machine=' + enc(machine);
+    registerNode('VAXC', f);
+  });
 </script>
 </body>
 </html>

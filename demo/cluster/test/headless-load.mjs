@@ -69,6 +69,9 @@ async function main() {
   let loadErr = null;
   try {
     await page.goto(url, { waitUntil: 'load', timeout: 20000 });
+    // Every node is click-to-boot (2026-09-19, matching index.html's cover machines) — click
+    // Node A's boot button to materialise its iframe/hub-port, same as the e2e gate does.
+    await page.click('#bootbtn-a');
     // Poll for the wiring signals (NOT a boot). The node iframe must load, spawn its
     // worker and build the pipe; the parent must attach the port.
     const deadline = Date.now() + 20000;
