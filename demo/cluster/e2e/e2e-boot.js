@@ -75,6 +75,13 @@ const snap = () => {
   page.on('pageerror', e => console.log('[pageerr]', e.message));
   console.log('e2e goto', url());
   await page.goto(url(), { waitUntil: 'load' });
+  // Every node is now click-to-boot (2026-09-19, matching index.html's cover machines —
+  // three heavy emulators must never all auto-boot at once). Click Node A always; Node B/C
+  // only when their env URL is given (their boot buttons exist regardless, but the gate only
+  // drives the nodes this run actually wants in the roster).
+  await page.click('#bootbtn-a').catch((e) => console.log('[warn] could not click #bootbtn-a:', e.message));
+  if (NODE_B) await page.click('#bootbtn-b').catch((e) => console.log('[warn] could not click #bootbtn-b:', e.message));
+  if (NODE_C) await page.click('#bootbtn-c').catch((e) => console.log('[warn] could not click #bootbtn-c:', e.message));
   const t0 = Date.now(); let pass = false, lastLen = 0, lastNodeCLen = 0;
   while (Date.now() - t0 < DEADLINE_MS) {
     const s = await page.evaluate(snap).catch(() => ({ total: 0, sca: 0, types: [], nicTx: null, console: '' }));
