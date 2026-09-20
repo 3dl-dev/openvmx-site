@@ -73,6 +73,39 @@
   window.__nodePipe = pipe;
   state.pipeReady = true;
 
+  // OPA0: operator-console wake (OVMX vms-2213, ported from boot/index.html's
+  // finishResume()). LOGINOUT does not print "Username:" the instant STARTUP
+  // finishes -- it blocks until the operator strikes RETURN (the classic "press
+  // RETURN to log in" console behaviour, faithful VMS, unrelated to which OVMX
+  // release is booted). boot/index.html's homepage demo already strikes it for
+  // the visitor; this node.html path never did, so every Node A boot silently
+  // parks right after the STARTUP dialog and looks hung (vms-e287). Same fix:
+  // wait until the last startup-dialog line (%RUN-S-PROC_ID/JOB_CONTROL) has
+  // appeared AND the console has gone quiet for SILENT_MS (dialog finished,
+  // guest genuinely blocked on the gate), THEN send exactly ONE RETURN -- not a
+  // blind spray, which would echo a blank line into the middle of a still-live
+  // dialog (the console is in COOKED/ECHO-ON mode during boot). A real visitor
+  // can still press RETURN themselves at any time via term.onData below; this
+  // only spares them a mystery silent screen. RENUDGE_MS is a lost-keystroke
+  // insurance re-strike, set well above LOGINOUT's observed wasm/TCG wake
+  // latency so the first strike always wins the race.
+  const LOGIN_READY = /%RUN-S-PROC_ID|JOB_CONTROL/;
+  const SILENT_MS = 1500;
+  const RENUDGE_MS = 30000;
+  let wakeLastLen = 0, wakeLastChange = performance.now(), wakeNudged = false;
+  const wakeTimer = setInterval(() => {
+    if (/Username:/.test(state.consoleText)) { clearInterval(wakeTimer); return; }
+    if (state.consoleText.length !== wakeLastLen) { wakeLastLen = state.consoleText.length; wakeLastChange = performance.now(); }
+    const quiet = performance.now() - wakeLastChange;
+    if (!wakeNudged) {
+      if (LOGIN_READY.test(state.consoleText) && quiet >= SILENT_MS) {
+        worker.postMessage({ t: 'in', d: '\r' }); wakeNudged = true; wakeLastChange = performance.now();
+      }
+      return;
+    }
+    if (quiet >= RENUDGE_MS) { worker.postMessage({ t: 'in', d: '\r' }); wakeLastChange = performance.now(); }
+  }, 500);
+
   worker.onmessage = (e) => {
     const m = e.data;
     if (m.t === 'out') { state.firstOut = true; term.write(m.d);
@@ -85,10 +118,10 @@
       } catch (e2) {} }
     else if (m.t === 'nic-tx') { state.nicTxCount++; pipe.nicTx(new Uint8Array(m.frame)); }
     else if (m.t === 'progress') { /* cosmetic; parent orchestrates the UI */ }
-    else if (m.t === 'halt') { state.halt = m.m; }
-    else if (m.t === 'err' || m.t === 'nic-err') { state.workerError = m.m; }
+    else if (m.t === 'halt') { state.halt = m.m; clearInterval(wakeTimer); }
+    else if (m.t === 'err' || m.t === 'nic-err') { state.workerError = m.m; clearInterval(wakeTimer); }
   };
-  worker.onerror = (ev) => { state.workerError = '' + (ev.message || ev); };
+  worker.onerror = (ev) => { state.workerError = '' + (ev.message || ev); clearInterval(wakeTimer); };
 
   // Kick the boot with this node's per-node config (MAC + optional injected initramfs).
   worker.postMessage({ t: 'cfg', mac: NODE_CFG.mac, initramfs: NODE_CFG.initramfs, sysdisk: NODE_CFG.sysdisk });
