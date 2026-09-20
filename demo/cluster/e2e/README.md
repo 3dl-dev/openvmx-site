@@ -5,6 +5,27 @@ in-page L2 hub, and **PASSES iff a real guest-emitted `0x6007` SCA frame reaches
 hub** — never mere netdev link-up. This is the anti-LARP gate for vms-b16 (Node-A NIC)
 and doubles as the demo's per-release reproducibility gate (vms-f0f).
 
+## `default-boot-gate.js` — the PRODUCTION-DEFAULT boot gate
+
+A separate, simpler gate: boots demo/cluster/index.html exactly as a live visitor does
+(click #bootbtn-a, no `?initramfs=`/`?sysdisk=` overrides), so it exercises whatever
+`boot/{vmlinuz,initramfs-ovmx.cpio.gz,sysdisk.qcow2.gz}` the site actually ships — the
+same assets the homepage single-node PoC boots too. **PASSES iff the guest's own serial
+console prints `Username:`** in the real qemu-wasm/`-accel tcg` path.
+
+Run this (or an equivalent headless-chromium check) before EVERY `boot/` asset deploy.
+**A headless-KVM boot proof is not sufficient evidence for this gate** — vms-e287: the
+V0.7 deploy in PR #47 was KVM-proven to reach `Username:` on k3s-worker, but hung after
+LOGINOUT process creation in this exact real (wasm/TCG) path, never reaching it. KVM's
+speed can mask a TCG-timing-sensitive stall that will hang every real visitor's browser.
+
+```
+node demo/cluster/e2e/coi-server.js <repo-root> 8123 &
+PORT=8123 node demo/cluster/e2e/default-boot-gate.js
+```
+Writes `default-boot-result.json` `{pass, mountLineAt, acpOkAt, elapsed_s, console_tail}`
+plus periodic screenshots to `OUT_DIR` (default: this directory).
+
 ## Why not run it on the 11GB dev host
 The clustering boot **cannot** use the single-node snapshot-resume (`loadvm`) — live
 SCS/VC state can't be frozen per-node — so it's a full ~120s+ wasm TCG cold boot at
