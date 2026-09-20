@@ -31,7 +31,7 @@ master.activate(page);
 
 // Cache-busted payload download with real byte progress (reported to the page).
 const ASSET_VER = 'cw1';  // bump when the qemu-wasm binary changes
-const PAYLOAD_VER = 'V0.6-16-1676';
+const PAYLOAD_VER = 'V0.7-1';
 function xhrGet(url, i, loaded, total, report) {
   return new Promise((res, rej) => {
     const x = new XMLHttpRequest();

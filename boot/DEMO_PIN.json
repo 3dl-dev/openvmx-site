@@ -1,6 +1,0 @@
-{
-  "pinned_to": "V0.6-16",
-  "blocked_from": "V0.7",
-  "reason": "The in-browser homepage demo and Node A (cluster demo) boot the V0.6-16 image. A V0.7 deploy (#47) landed V0.7's boot/{vmlinuz,initramfs,sysdisk} but was measured (headless-chromium, wasm/TCG -- the real browser path, not KVM) to hang the guest after process creation, before printing 'Username:' -- reproduced identically under native qemu-system-x86_64 -accel tcg (both with and without a NIC device), so it is a V0.7 boot-artifact/kernel stall, not a wasm-only or NIC-only issue. Reverted rather than shipping a hung demo. This pin honestly acknowledges the demo trails the latest release (INV-0 no-silent-lag) rather than pretending it is V0.7. Advance pinned_to (and clear blocked_from) once a V0.7 (or later) payload is proven to reach Username: in the real headless-chromium wasm/TCG path.",
-  "tracking": "vms-e287"
-}
