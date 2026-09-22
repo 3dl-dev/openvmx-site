@@ -171,6 +171,52 @@ function boot(cfg) {
   } catch (e) {
     self.postMessage({ t: 'nic-diag', d: { t: 'sockfs-patch-error', m: '' + e } });
   }
+
+  // rd vms-0cd2 CANDIDATE FIX: xterm_pty_old_poll (out.js's ONE poll(2) syscall
+  // implementation for every fd, PTY or socket -- see ___syscall_poll) computes,
+  // per pollfd, `mask = stream.stream_ops.poll(stream,-1); mask &= events|8|16;`
+  // where `events` is whatever QEMU's OWN compiled C code put in the pollfd it
+  // asked to poll. The prior diagnostic pass proved sock_ops.poll() DOES correctly
+  // report the injected frame as readable (mask 0->65 exactly when recv_queue
+  // filled) -- yet recvmsg() is NEVER subsequently called, for this socket, ever.
+  // The remaining place that result can get lost before QEMU acts on it is this
+  // `mask &= events|...` line: if QEMU's netdev backend polls this fd without
+  // POLLIN(1)/POLLRDNORM(64) in `events` (e.g. it only asks for write-readiness/
+  // connection-health, and expects reads to be pushed some other way that never
+  // got wired for the browser path -- Module["websocket"].on('message',...) is
+  // never registered, per the earlier grep of this exact build), a genuinely
+  // readable socket gets silently masked back to "not readable" and QEMU never
+  // issues the read. Force POLLIN|POLLRDNORM into every polled fd's `events`
+  // field before the real poll runs, so real readiness can never be masked away.
+  // JS-only (a plain global function out.js leaves reassignable) -- no wasm rebuild.
+  try {
+    const origXtermPoll = self.xterm_pty_old_poll;
+    if (typeof origXtermPoll === 'function') {
+      let patchedCalls = 0, forcedCount = 0;
+      self.xterm_pty_old_poll = function (fds, nfds, timeout) {
+        try {
+          const fdsAddr = fds >>> 0;
+          for (let i = 0; i < nfds; i++) {
+            const evOff = (fdsAddr + 8 * i + 4) >>> 1;
+            const before = self.HEAP16[evOff];
+            const after = before | 1 | 64;
+            if (after !== before) { self.HEAP16[evOff] = after; forcedCount++; }
+          }
+        } catch (e2) { /* best-effort; fall through to the real poll either way */ }
+        patchedCalls++;
+        const r = origXtermPoll(fds, nfds, timeout);
+        if (patchedCalls === 1 || forcedCount === 1) {
+          self.postMessage({ t: 'nic-diag', d: { t: 'xterm-poll-patched-active', patchedCalls, forcedSoFar: forcedCount, result: r } });
+        }
+        return r;
+      };
+      self.postMessage({ t: 'nic-diag', d: { t: 'xterm-poll-patch-installed', ok: true } });
+    } else {
+      self.postMessage({ t: 'nic-diag', d: { t: 'xterm-poll-patch-missing-fn' } });
+    }
+  } catch (e) {
+    self.postMessage({ t: 'nic-diag', d: { t: 'xterm-poll-patch-error', m: '' + e } });
+  }
 }
 
 // rd vms-0cd2 diagnostic counters: RX reaches the hub + the page (node.html's own
