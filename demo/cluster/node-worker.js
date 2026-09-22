@@ -125,6 +125,52 @@ function boot(cfg) {
   };
   importScripts('boot/load-rom.js');             // adds the pc-bios ROM preRun (reads global Module)
   importScripts('boot/out.js?v=' + ASSET_VER);   // runs, inits Module in THIS worker
+
+  // rd vms-0cd2: nic.deliverToGuest's synthetic 'message' event fires the SOCKFS
+  // onmessage handler (proven: nic-diag onmessage-set/deliver-result), which pushes
+  // into sock.recv_queue and calls Module["websocket"].emit('message', fd) -- but
+  // nothing ever registers Module["websocket"].on('message', ...), so that emit is
+  // observably a no-op. The open question is whether QEMU's OWN host-side event
+  // loop ever calls poll()/recvmsg() again on this fd to notice recv_queue is
+  // non-empty and drain it (same class of bug boot/index.html's PTY poll override
+  // above already had to fix for the console chardev -- JS-only, no wasm rebuild).
+  // Patch SOCKFS.websocket_sock_ops directly (out.js leaves it a plain global var,
+  // not module-closed) to observe every poll()/recvmsg() call on this socket.
+  try {
+    if (self.SOCKFS && self.SOCKFS.websocket_sock_ops) {
+      const wso = self.SOCKFS.websocket_sock_ops;
+      const stats = { pollCalls: 0, pollMaskWithPOLLIN: 0, recvmsgCalls: 0, recvmsgWithData: 0, lastQueueLen: -1 };
+      const origPoll = wso.poll;
+      wso.poll = function (sock) {
+        stats.pollCalls++;
+        const r = origPoll.call(this, sock);
+        if (sock.recv_queue && sock.recv_queue.length !== stats.lastQueueLen) {
+          stats.lastQueueLen = sock.recv_queue.length;
+          self.postMessage({ t: 'nic-diag', d: { t: 'sockfs-poll-queuechange', recvQueueLen: sock.recv_queue.length, mask: r, pollCallsSoFar: stats.pollCalls } });
+        }
+        if (r & 1) stats.pollMaskWithPOLLIN++;
+        return r;
+      };
+      const origRecvmsg = wso.recvmsg;
+      wso.recvmsg = function (sock, length) {
+        stats.recvmsgCalls++;
+        const before = sock.recv_queue ? sock.recv_queue.length : -1;
+        const r = origRecvmsg.call(this, sock, length);
+        if (before > 0) {
+          stats.recvmsgWithData++;
+          self.postMessage({ t: 'nic-diag', d: { t: 'sockfs-recvmsg-drained', recvQueueLenBefore: before, gotBytes: r && r.buffer ? r.buffer.length : null, recvmsgCallsSoFar: stats.recvmsgCalls } });
+        }
+        return r;
+      };
+      self.__sockfsStats = stats;
+      setInterval(() => self.postMessage({ t: 'nic-diag', d: { t: 'sockfs-snapshot', ...stats } }), 5000);
+      self.postMessage({ t: 'nic-diag', d: { t: 'sockfs-patched', ok: true } });
+    } else {
+      self.postMessage({ t: 'nic-diag', d: { t: 'sockfs-missing' } });
+    }
+  } catch (e) {
+    self.postMessage({ t: 'nic-diag', d: { t: 'sockfs-patch-error', m: '' + e } });
+  }
 }
 
 // rd vms-0cd2 diagnostic counters: RX reaches the hub + the page (node.html's own
