@@ -48,6 +48,7 @@ async function nodeState(page) {
       nicRxWorkerCount: ns.nicRxWorkerCount, nicRxDeliverCalls: ns.nicRxDeliverCalls,
       nicRxDeliverOk: ns.nicRxDeliverOk, nicRxHadNic: ns.nicRxHadNic,
       acpOk: ns.acpOk, workerError: ns.workerError,
+      nicDiag: ns.nicDiag ? ns.nicDiag.slice() : [],
     };
   }).catch(() => null);
 }
@@ -156,6 +157,20 @@ async function nodeState(page) {
   const postInjectState = await nodeState(page);
   rec('post-inject nodeState (page/worker layers)=', JSON.stringify(postInjectState));
 
+  // ---- rd vms-0cd2 framing-parity + handler-attachment check ----
+  // Compare a REAL TX frame's on-wire prefix (ground truth, what QEMU itself writes
+  // and expects to read back) against our injected frame's deliver-attempt prefix,
+  // and confirm SOCKFS actually attached its onmessage handler before we delivered.
+  const diag = (postInjectState && postInjectState.nicDiag) || [];
+  const sendRaw = diag.filter((d) => d.t === 'send-raw');
+  const onmessageSet = diag.filter((d) => d.t === 'onmessage-set');
+  const deliverAttempt = diag.filter((d) => d.t === 'deliver-attempt');
+  const deliverResult = diag.filter((d) => d.t === 'deliver-result');
+  rec('nicDiag onmessage-set events=', JSON.stringify(onmessageSet));
+  rec('nicDiag sample real TX send-raw (ground truth framing)=', JSON.stringify(sendRaw.slice(0, 2)));
+  rec('nicDiag our deliver-attempt (injected frame framing)=', JSON.stringify(deliverAttempt.slice(-1)));
+  rec('nicDiag our deliver-result (hadHandler at delivery)=', JSON.stringify(deliverResult.slice(-1)));
+
   const afterConsole = await showLocalPorts();
   rec('post-inject SHOW CLUSTER/LOCAL_PORTS tail:');
   rec(afterConsole.slice(-1200));
@@ -182,6 +197,7 @@ async function nodeState(page) {
       deliverOk_delta: (finalState ? finalState.nicRxDeliverOk : null) - (baselineState ? baselineState.nicRxDeliverOk : null),
       execRx_delta: finalExec && baselineExec ? finalExec.rx - baselineExec.rx : null,
     },
+    diagSummary: { onmessageSet, sendRawSample: sendRaw.slice(0, 3), deliverAttempt, deliverResult },
     console_tail: afterConsole.slice(-3000),
   };
   fs.writeFileSync(OUT, JSON.stringify(result, null, 1));

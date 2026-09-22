@@ -69,6 +69,9 @@ function boot(cfg) {
     scope: self,
     onNicTx: (f) => self.postMessage({ t: 'nic-tx', frame: f.buffer }, [f.buffer]),
     onError: (r) => self.postMessage({ t: 'nic-err', m: '' + r }),
+    // rd vms-0cd2: forward the shim's own wiring diagnostics (onmessage-set /
+    // send-raw framing / deliver-attempt+result) up to the page for bisection.
+    onDiag: (d) => self.postMessage({ t: 'nic-diag', d }),
   });
 
   self.Module = {
