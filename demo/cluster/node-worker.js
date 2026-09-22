@@ -228,12 +228,18 @@ function boot(cfg) {
         const forced = forceReadableEvents(fds, nfds);
         forcedTotal += forced;
         const r = origTableFn(fds, nfds, timeout);
-        if (calls === 1 || forced > 0) {
+        // rd vms-0cd2: `forced>0` fires on nearly EVERY call (events never
+        // naturally carries POLLIN/POLLRDNORM), which floods nicDiag's 200-entry
+        // cap and evicts the far rarer, far more informative onmessage-set /
+        // deliver-attempt / sockfs-recvmsg-drained entries. Log only the first
+        // call (proves the patch is live) plus a periodic snapshot below.
+        if (calls === 1) {
           self.postMessage({ t: 'nic-diag', d: { t: 'proxytable-poll-patched-active', calls, forced, forcedTotal, result: r } });
         }
         return r;
       };
       self.postMessage({ t: 'nic-diag', d: { t: 'proxytable-poll-patch-installed', ok: true, tableLen: self.proxiedFunctionTable.length } });
+      setInterval(() => self.postMessage({ t: 'nic-diag', d: { t: 'proxytable-poll-snapshot', calls, forcedTotal } }), 5000);
     } else {
       self.postMessage({ t: 'nic-diag', d: { t: 'proxytable-poll-patch-missing', isArray: Array.isArray(self.proxiedFunctionTable), entry30: typeof (self.proxiedFunctionTable && self.proxiedFunctionTable[30]) } });
     }

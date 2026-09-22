@@ -120,7 +120,7 @@
       } catch (e2) {} }
     else if (m.t === 'nic-tx') { state.nicTxCount++; pipe.nicTx(new Uint8Array(m.frame)); }
     else if (m.t === 'nic-rx-ack') { state.nicRxWorkerCount = m.worker; state.nicRxDeliverCalls = m.deliverCalls; state.nicRxDeliverOk = m.deliverOk; state.nicRxHadNic = m.hadNic; }
-    else if (m.t === 'nic-diag') { state.nicDiag.push(m.d); if (state.nicDiag.length > 200) state.nicDiag.shift(); }
+    else if (m.t === 'nic-diag') { state.nicDiag.push(m.d); if (state.nicDiag.length > 2000) state.nicDiag.shift(); }
     else if (m.t === 'progress') { /* cosmetic; parent orchestrates the UI */ }
     else if (m.t === 'halt') { state.halt = m.m; clearInterval(wakeTimer); }
     else if (m.t === 'err' || m.t === 'nic-err') { state.workerError = m.m; clearInterval(wakeTimer); }
