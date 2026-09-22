@@ -42,7 +42,14 @@
     pipeReady: false,
     firstOut: false,
     nicTxCount: 0,
-    nicRxCount: 0,
+    nicRxCount: 0,             // frames the parent switch delivered to THIS page (before the worker)
+    // rd vms-0cd2 per-layer RX localization (worker side). #49 landed the readyState fix but
+    // stripped these counters, which blinded the first full-page cluster run; keep them on main
+    // so an RX regression (frames reach the page but not the guest executive) can't hide again.
+    nicRxWorkerCount: 0,       // frames the worker received via postMessage{nic-rx}
+    nicRxDeliverCalls: 0,      // times the worker called nic.deliverToGuest
+    nicRxDeliverOk: 0,         // times deliverToGuest returned true (FakeWebSocket OPEN + handler present)
+    nicRxHadNic: null,         // was the NIC shim installed when a frame arrived
     workerError: null,
     consoleText: '',        // accumulated guest serial console (diagnostics; capped)
     acpOk: false,           // real ODS-2 ACP mount seen (product-authenticity; a host-mode /vms facade never emits it)
@@ -117,6 +124,7 @@
             && /%OVMX-I-MOUNTED,\s*system disk \S+ mounted/.test(state.consoleText)) state.acpOk = true;
       } catch (e2) {} }
     else if (m.t === 'nic-tx') { state.nicTxCount++; pipe.nicTx(new Uint8Array(m.frame)); }
+    else if (m.t === 'nic-rx-ack') { state.nicRxWorkerCount = m.worker; state.nicRxDeliverCalls = m.deliverCalls; state.nicRxDeliverOk = m.deliverOk; state.nicRxHadNic = m.hadNic; }  // rd vms-0cd2 per-layer RX counters
     else if (m.t === 'progress') { /* cosmetic; parent orchestrates the UI */ }
     else if (m.t === 'halt') { state.halt = m.m; clearInterval(wakeTimer); }
     else if (m.t === 'err' || m.t === 'nic-err') { state.workerError = m.m; clearInterval(wakeTimer); }

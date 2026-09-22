@@ -124,10 +124,25 @@ function boot(cfg) {
   importScripts('boot/out.js?v=' + ASSET_VER);   // runs, inits Module in THIS worker
 }
 
+// rd vms-0cd2 per-layer RX diagnostic counters. #49 fixed the readyState root cause but
+// stripped these; the first full-page cluster run then flew blind (frames reached the page's
+// nicRxCount but the guest executive's SHOW CLUSTER/LOCAL_PORTS rx stayed 0, and nothing on
+// the page said which layer dropped them). These + the {t:'nic-rx-ack'} report back let a
+// harness bisect "worker never got the postMessage" (nicRxWorkerCount) vs "worker got it but
+// the NIC shim was null" (hadNic) vs "deliverToGuest ran but returned false — no active/OPEN
+// FakeWebSocket" (nicRxDeliverCalls vs nicRxDeliverOk), from the page side, with no rebuild.
+let nicRxWorkerCount = 0, nicRxDeliverCalls = 0, nicRxDeliverOk = 0;
+
 self.onmessage = (e) => {
   const m = e.data;
   if (!m) return;
-  if (m.t === 'nic-rx') { if (nic) nic.deliverToGuest(new Uint8Array(m.frame)); return; }
+  if (m.t === 'nic-rx') {
+    nicRxWorkerCount++;
+    let ok = false;
+    if (nic) { nicRxDeliverCalls++; ok = !!nic.deliverToGuest(new Uint8Array(m.frame)); if (ok) nicRxDeliverOk++; }
+    self.postMessage({ t: 'nic-rx-ack', worker: nicRxWorkerCount, deliverCalls: nicRxDeliverCalls, deliverOk: nicRxDeliverOk, hadNic: !!nic, ok });
+    return;
+  }
   if (m.t === 'cfg') { boot(m); return; }
   if (m.t === 'in' && inputHandler) inputHandler(m.d);
   else if (m.t === 'resize' && resizeHandler) resizeHandler({ cols: m.cols, rows: m.rows });
