@@ -63,6 +63,27 @@ export function installQemuNicWebSocket({ scope, onNicTx, onError = null }) {
     }
   }
   FakeWebSocket.CONNECTING = 0; FakeWebSocket.OPEN = 1; FakeWebSocket.CLOSING = 2; FakeWebSocket.CLOSED = 3;
+  // rd vms-0cd2 ROOT-CAUSE FIX: the WHATWG WebSocket API exposes these readyState
+  // constants on INSTANCES (via the interface prototype), not only as static class
+  // properties. Emscripten SOCKFS reads them off the live socket object — out.js
+  // websocket_sock_ops.poll does `dest.socket.readyState === dest.socket.OPEN` and
+  // sendmsg/recvmsg compare `dest.socket.CONNECTING/CLOSING/CLOSED`. With the constants
+  // only static, `dest.socket.OPEN` is undefined, so `1 === undefined` is false and
+  // SOCKFS.poll NEVER sets POLLOUT for this socket. QEMU opens the socket-netdev fd
+  // non-blocking (SOCKFS connect throws EINPROGRESS) and registers net_socket_connect
+  // as the fd's WRITE/POLLOUT handler (net/socket.c:444) to detect connect completion;
+  // that handler is what calls net_socket_read_poll(true) to install the RX read handler.
+  // No POLLOUT => net_socket_connect never fires => recv() is never called even though
+  // inbound frames sit in recv_queue and poll() reports POLLIN — the guest never RXes.
+  // TX still worked because sendmsg only *throws* on CONNECTING/CLOSING/CLOSED (all
+  // `=== undefined` = false) and otherwise falls through to send(). Mirror the spec on
+  // the prototype so instance reads resolve. Pure JS — no qemu-wasm rebuild. Proven at
+  // the real executive: injected 0x6007 drives SOCKFS mask 65->69 (POLLOUT set), recvmsg
+  // is finally called, and SHOW CLUSTER/LOCAL_PORTS rx climbs 0->1 in-browser.
+  FakeWebSocket.prototype.CONNECTING = 0;
+  FakeWebSocket.prototype.OPEN = 1;
+  FakeWebSocket.prototype.CLOSING = 2;
+  FakeWebSocket.prototype.CLOSED = 3;
 
   const prev = scope.WebSocket;
   scope.WebSocket = FakeWebSocket;
