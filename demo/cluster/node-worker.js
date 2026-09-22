@@ -180,39 +180,62 @@ function boot(cfg) {
   // report the injected frame as readable (mask 0->65 exactly when recv_queue
   // filled) -- yet recvmsg() is NEVER subsequently called, for this socket, ever.
   // The remaining place that result can get lost before QEMU acts on it is this
-  // `mask &= events|...` line: if QEMU's netdev backend polls this fd without
-  // POLLIN(1)/POLLRDNORM(64) in `events` (e.g. it only asks for write-readiness/
-  // connection-health, and expects reads to be pushed some other way that never
-  // got wired for the browser path -- Module["websocket"].on('message',...) is
-  // never registered, per the earlier grep of this exact build), a genuinely
-  // readable socket gets silently masked back to "not readable" and QEMU never
-  // issues the read. Force POLLIN|POLLRDNORM into every polled fd's `events`
-  // field before the real poll runs, so real readiness can never be masked away.
-  // JS-only (a plain global function out.js leaves reassignable) -- no wasm rebuild.
+  // `mask &= events|...` line. Force POLLIN|POLLRDNORM into every polled fd's
+  // `events` field before the real poll runs, so real readiness can never be
+  // masked away. JS-only -- no wasm rebuild.
+  //
+  // FIRST ATTEMPT (reassigning the plain global `xterm_pty_old_poll`) measurably
+  // did NOT fire: this qemu-wasm build is pthread-enabled, and xterm_pty_old_poll
+  // itself starts `if (ENVIRONMENT_IS_PTHREAD) return proxyToMainThread(30, 1,
+  // fds, nfds, timeout);` -- the vcpu/io-thread(s) that actually call poll() are
+  // SEPARATE Worker realms, so almost every real call is proxied by NUMERIC INDEX
+  // into `proxiedFunctionTable` (out.js's own array, index 30 = xterm_pty_old_poll
+  // by position -- verified by counting the literal), which captured the ORIGINAL
+  // function BY VALUE when that array literal was built, before we ever get a
+  // chance to patch. Reassigning the bare `xterm_pty_old_poll` variable is
+  // invisible to that path (proven: 2.8M sock_ops.poll() calls observed via the
+  // object-property patch above, ZERO xterm-poll-patched-active diagnostics from
+  // the variable-reassignment patch). Patch the TABLE ENTRY in place instead --
+  // proxiedFunctionTable is a mutable array; an index assignment IS visible to
+  // every subsequent proxied dispatch.
+  function forceReadableEvents(fds, nfds) {
+    let forced = 0;
+    try {
+      const fdsAddr = fds >>> 0;
+      for (let i = 0; i < nfds; i++) {
+        const evOff = (fdsAddr + 8 * i + 4) >>> 1;
+        const before = self.HEAP16[evOff];
+        const after = before | 1 | 64;
+        if (after !== before) { self.HEAP16[evOff] = after; forced++; }
+      }
+    } catch (e2) { /* best-effort */ }
+    return forced;
+  }
   try {
     const origXtermPoll = self.xterm_pty_old_poll;
     if (typeof origXtermPoll === 'function') {
-      let patchedCalls = 0, forcedCount = 0;
       self.xterm_pty_old_poll = function (fds, nfds, timeout) {
-        try {
-          const fdsAddr = fds >>> 0;
-          for (let i = 0; i < nfds; i++) {
-            const evOff = (fdsAddr + 8 * i + 4) >>> 1;
-            const before = self.HEAP16[evOff];
-            const after = before | 1 | 64;
-            if (after !== before) { self.HEAP16[evOff] = after; forcedCount++; }
-          }
-        } catch (e2) { /* best-effort; fall through to the real poll either way */ }
-        patchedCalls++;
-        const r = origXtermPoll(fds, nfds, timeout);
-        if (patchedCalls === 1 || forcedCount === 1) {
-          self.postMessage({ t: 'nic-diag', d: { t: 'xterm-poll-patched-active', patchedCalls, forcedSoFar: forcedCount, result: r } });
+        forceReadableEvents(fds, nfds);
+        return origXtermPoll(fds, nfds, timeout);
+      };
+      self.postMessage({ t: 'nic-diag', d: { t: 'xterm-poll-var-patched', ok: true } });
+    }
+    if (Array.isArray(self.proxiedFunctionTable) && typeof self.proxiedFunctionTable[30] === 'function') {
+      const origTableFn = self.proxiedFunctionTable[30];
+      let calls = 0, forcedTotal = 0;
+      self.proxiedFunctionTable[30] = function (fds, nfds, timeout) {
+        calls++;
+        const forced = forceReadableEvents(fds, nfds);
+        forcedTotal += forced;
+        const r = origTableFn(fds, nfds, timeout);
+        if (calls === 1 || forced > 0) {
+          self.postMessage({ t: 'nic-diag', d: { t: 'proxytable-poll-patched-active', calls, forced, forcedTotal, result: r } });
         }
         return r;
       };
-      self.postMessage({ t: 'nic-diag', d: { t: 'xterm-poll-patch-installed', ok: true } });
+      self.postMessage({ t: 'nic-diag', d: { t: 'proxytable-poll-patch-installed', ok: true, tableLen: self.proxiedFunctionTable.length } });
     } else {
-      self.postMessage({ t: 'nic-diag', d: { t: 'xterm-poll-patch-missing-fn' } });
+      self.postMessage({ t: 'nic-diag', d: { t: 'proxytable-poll-patch-missing', isArray: Array.isArray(self.proxiedFunctionTable), entry30: typeof (self.proxiedFunctionTable && self.proxiedFunctionTable[30]) } });
     }
   } catch (e) {
     self.postMessage({ t: 'nic-diag', d: { t: 'xterm-poll-patch-error', m: '' + e } });
