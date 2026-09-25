@@ -31,6 +31,7 @@ master.activate(page);
 
 // Cache-busted payload download with real byte progress (reported to the page).
 const ASSET_VER = 'cw1';  // bump when the qemu-wasm binary changes
+const BOOT_VER  = 'v0.7-1p'; // bump when boot/vmlinuz or the per-node images change
 const PAYLOAD_VER = 'V0.7-1';
 function xhrGet(url, i, loaded, total, report) {
   return new Promise((res, rej) => {
@@ -93,10 +94,16 @@ function boot(cfg) {
         const f = Math.min(l / t, 1);
         self.postMessage({ t: 'progress', frac: f * 0.85, label: 'Downloading OpenVMX… ' + Math.round(f * 100) + '%' });
       };
+      // BOOT_VER busts the HTTP cache on the three boot assets together. The
+      // kernel lives at a fixed path (boot/vmlinuz) shared with the homepage
+      // PoC, while this page's initramfs/sysdisk are per-node files -- so a
+      // returning visitor could otherwise pair a CACHED OLD kernel with a NEW
+      // initramfs, and vms.ko is version-locked to its kernel: the executive
+      // would simply fail to load. Bump on every boot-asset deploy.
       Promise.all([
-        xhrGet('boot/vmlinuz', 0, loaded, total, report),
-        xhrGet(INITRAMFS_URL, 1, loaded, total, report),
-        xhrGet(SYSDISK_URL, 2, loaded, total, report),
+        xhrGet('boot/vmlinuz?v=' + BOOT_VER, 0, loaded, total, report),
+        xhrGet(INITRAMFS_URL + '?v=' + BOOT_VER, 1, loaded, total, report),
+        xhrGet(SYSDISK_URL + '?v=' + BOOT_VER, 2, loaded, total, report),
       ]).then(([k, i, dz]) => {
         self.postMessage({ t: 'progress', frac: 0.88, label: 'Unpacking…' });
         return inflate(dz).then((d) => {
