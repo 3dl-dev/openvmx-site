@@ -1,3 +1,7 @@
 # Generated per-node config-injected boot images (produced by inject-cluster-config.sh / the vms-f0f generator)
 initramfs-ovmx-*.cpio.gz
+# ...except Node A's, which is DEPLOYED (the cluster page boots it by
+# default). The rule above silently dropped it from the deploy commit and
+# the live page 404'd on it while its sysdisk went out fine (rd vms-e18e).
+!nodeA/initramfs-ovmx-nodeA.cpio.gz
 e2e-result.json
