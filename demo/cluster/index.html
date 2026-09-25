@@ -277,9 +277,17 @@
   wireBoot('idle-a', 'bootbtn-a', 'screen-a', (f) => {
     f.title = 'OVMX/x86 node A';
     f.id = 'nodeA';
+    // Node A boots the CLUSTER-INJECTED pair by default (rd vms-e18e). The
+    // shipped boot/{initramfs-ovmx.cpio.gz,sysdisk.qcow2.gz} that node.html's
+    // worker falls back to are deliberately UNINJECTED -- the homepage's
+    // single-node PoC boots those same two files through the demo/cluster/boot
+    // symlink, and a config-injected node with no join partner sits in CNXMAN
+    // "waiting to form or join" instead of reaching Username: (rd vms-f0f, and
+    // the reason PR #47 shipped the plain pair). So the cluster page names its
+    // own injected copies here, and boot/ stays the single-node PoC's.
     let s = 'node.html?mac=' + enc(_pq.get('mac') || '52:54:00:00:00:0A');
-    if (_pq.get('initramfs')) s += '&initramfs=' + enc(_pq.get('initramfs'));
-    if (_pq.get('sysdisk')) s += '&sysdisk=' + enc(_pq.get('sysdisk'));
+    s += '&initramfs=' + enc(_pq.get('initramfs') || 'nodeA/initramfs-ovmx-nodeA.cpio.gz');
+    s += '&sysdisk=' + enc(_pq.get('sysdisk') || 'nodeA/sysdisk-nodeA.qcow2.gz');
     f.src = s;
     registerNode('OVMXA', f);
   });
