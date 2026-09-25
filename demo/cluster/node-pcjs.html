@@ -1,7 +1,7 @@
 <!doctype html><meta charset="utf8">
 <title>OVMX cluster node — pcjs</title>
 <!--
-  node-pcjs.html — cluster-node page for a pcjs VAX node (Node B: OVMX/VAX, Node C: real VMS 5.5).
+  node-pcjs.html — cluster-node page for a pcjs VAX node (Node B: OVMX/VAX, Node C: real OpenVMS VAX V7.3).
   Embeds the pcjs machine endpoint (ovmx-cluster.html, cross-origin) and RELAYS its DELQA HubPort
   frames to the parent in-page L2 switch via connectNicPipe — drop-in uniform with node.html (Node A).
   Contract: PCJS-NODE-BRIDGE.md. Frame = contract-v1 raw Ethernet frame.
@@ -11,7 +11,7 @@
   URL: node-pcjs.html?mac=52:54:00:00:00:0B&machine=<ovmx-cluster.html URL ?rom=..&diskgz=<cluster vol>.gz>
   The chosen ?diskgz volume is what makes it a cluster member:
     Node B = the OVMX/VAX cluster volume (ODS-2-injected: VAXCLUSTER=2, SCSNODE, group 257).
-    Node C = the pinned real-VMS 5.5 cluster oracle (group 257).
+    Node C = the pinned real-OpenVMS-VAX V7.3 cluster oracle (group 257).
 -->
 <body style="margin:0;background:#140d00;color:#e8b100;font:13px monospace;height:100vh">
 <!-- credentialless: this page is embedded under COEP:require-corp (propagated from index.html,
