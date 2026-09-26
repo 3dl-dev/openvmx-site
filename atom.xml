@@ -5,8 +5,15 @@
   <link href="https://openvmx.3dl.dev/atom.xml" rel="self"/>
   <link href="https://openvmx.3dl.dev/" rel="alternate"/>
   <id>tag:openvmx.3dl.dev,2026:releases</id>
-  <updated>2026-09-25T09:57:51-04:00</updated>
+  <updated>2026-09-26T01:07:07-04:00</updated>
   <author><name>OpenVMX</name></author>
+  <entry>
+    <title>V0.7-2</title>
+    <id>tag:openvmx.3dl.dev,2026:release/V0.7-2</id>
+    <updated>2026-09-26T01:07:07-04:00</updated>
+    <link href="https://openvmx.3dl.dev/roadmap/" rel="alternate"/>
+    <summary>Point release.</summary>
+  </entry>
   <entry>
     <title>V0.7-1</title>
     <id>tag:openvmx.3dl.dev,2026:release/V0.7-1</id>
@@ -55,12 +62,5 @@
     <updated>2026-09-09T18:01:55-04:00</updated>
     <link href="https://openvmx.3dl.dev/roadmap/" rel="alternate"/>
     <summary>DECnet Phase IV SET HOST reaches an authenticated interactive login. An inbound SET HOST session now runs the full connect-through-LOGINOUT dialogue (P0-P5) bidirectionally against the real binary SYSUAF, so a remote terminal lands at a genuine DCL prompt with full SYSUAF login-flag authenticity. Alpha activates its symbol-vector shareables on the live executive; the VAX rail builds them, with runtime activation isolated to a cross-image cross-call marshalling bug (tracked RED). Plus CI-backlog optimization across the release gates.</summary>
-  </entry>
-  <entry>
-    <title>V0.6-11</title>
-    <id>tag:openvmx.3dl.dev,2026:release/V0.6-11</id>
-    <updated>2026-09-05T19:27:26-04:00</updated>
-    <link href="https://openvmx.3dl.dev/roadmap/" rel="alternate"/>
-    <summary>The cluster claim, made good: a booted OpenVMX node joins a real, running VMS Cluster and is counted as a member. On the lab's two-node VAXcluster, a fresh-booted OVMX node — with CAP_NET_RAW dropped, so the executive itself, not an ambient Linux capability, drove the Ethernet — brought up its cluster port, opened an SCS virtual circuit to a live VAX, connected the VMS$VAXcluster connection manager, and was admitted through the membership transition. The existing members' own accounting counted it: VAX1's F$GETSYI("CLUSTER_NODES") reported 3, sustained for the full ten-minute run; SHOW CLUSTER listed the node with STATUS=MEMBER; SDA showed a genuine, sequential Cluster System Block (CSID 00010003, following the VAXes' 00010001/00010002) with the member flag. The whole join runs inside the executive (vms.ko) — SCS, the connection manager, the PE/virtual-circuit transport, the DLM rebuild, and the state-transition barrier — not a userspace daemon. And it is crash-safe: both real VAXes stayed up the entire run with zero bugchecks, the release-gating invariant that OpenVMX must never emit a frame that can crash a peer. That safety is enforced two ways — a runtime emit-guard that drops any frame violating the measured crash-safe envelope, and a post-hoc wire-safety audit calibrated against 234k real cluster frames — after a hunt (E55–E85) that found and closed every crash-vector in the lab, never in production, the last being a transaction-close frame whose mandatory field VMS asserts nonzero. Honest scope: this edition JOINS an existing cluster (it does not boot satellites or form a cluster from nothing); quorum votes are computed and displayed but not yet enforced; and the member committed the transition without an on-wire barrier-release frame, a tracked follow-on. Configure it the VMS way: @SYS$MANAGER:CLUSTER_CONFIG_LAN.COM (docs/cluster-configuration.md). (V0.7 correction: this counted CN=3 — F$GETSYI=3, SDA CSID 00010003 — was a real observation, but the admission completed only on a circuit the VAX REFORMED in response to an OpenVMX defect, not a clean single-circuit join; the wire also still carried one latent unaddressed frame that survived by luck here and crash-looped later builds. A clean single-circuit admission, crash-safe, is V0.7's milestone.)</summary>
   </entry>
 </feed>
