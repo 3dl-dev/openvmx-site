@@ -31,7 +31,7 @@ master.activate(page);
 
 // Cache-busted payload download with real byte progress (reported to the page).
 const ASSET_VER = 'cw1';  // bump when the qemu-wasm binary changes
-const BOOT_VER  = 'v0.7-1p'; // bump when boot/vmlinuz or the per-node images change
+const BOOT_VER  = 'v0.7-2'; // bump when boot/vmlinuz or the per-node images change
 const PAYLOAD_VER = 'V0.7-1';
 function xhrGet(url, i, loaded, total, report) {
   return new Promise((res, rej) => {
