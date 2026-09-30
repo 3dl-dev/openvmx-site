@@ -5,8 +5,15 @@
   <link href="https://openvmx.3dl.dev/atom.xml" rel="self"/>
   <link href="https://openvmx.3dl.dev/" rel="alternate"/>
   <id>tag:openvmx.3dl.dev,2026:releases</id>
-  <updated>2026-09-29T22:04:21-04:00</updated>
+  <updated>2026-09-30T16:43:28-04:00</updated>
   <author><name>OpenVMX</name></author>
+  <entry>
+    <title>V0.7-5</title>
+    <id>tag:openvmx.3dl.dev,2026:release/V0.7-5</id>
+    <updated>2026-09-30T16:43:28-04:00</updated>
+    <link href="https://openvmx.3dl.dev/roadmap/" rel="alternate"/>
+    <summary>Point release.</summary>
+  </entry>
   <entry>
     <title>V0.7-4</title>
     <id>tag:openvmx.3dl.dev,2026:release/V0.7-4</id>
@@ -55,12 +62,5 @@
     <updated>2026-09-11T20:03:30-04:00</updated>
     <link href="https://openvmx.3dl.dev/roadmap/" rel="alternate"/>
     <summary>Point release.</summary>
-  </entry>
-  <entry>
-    <title>V0.6-14</title>
-    <id>tag:openvmx.3dl.dev,2026:release/V0.6-14</id>
-    <updated>2026-09-10T13:49:58-04:00</updated>
-    <link href="https://openvmx.3dl.dev/roadmap/" rel="alternate"/>
-    <summary>Cluster genesis and networking hardening. OpenVMX becomes a first-class founding cluster member: the executive can now FORM a VMScluster from nothing (authentic VMS formation, quorum-grounded) — a genesis, not only a join of an existing cluster — running on the real executive-resident membership machinery. A cluster crash-fix closes a host-kernel panic on a clustered node's shared network buffer and a founder self-demotion. Networking: a valid SYSUAF user now lands at a DCL prompt over the wrapped OpenSSH sshd end to end (real ACP SYSUAF authentication, the earlier pubkey-root overclaim dropped from the register), the DECnet routing receive path gains ASan/UBSan fuzzing and bound proofs with CI-enforced sanitizer teeth, and the libdatalink DECnet datalink is wire-proven on live NetBSD/VAX. Honest scope: interoperation with a REAL VAX cluster — a genuine VAX joining and mounting OpenVMX-served storage — remains in progress and unproven.</summary>
   </entry>
 </feed>
