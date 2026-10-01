@@ -23,6 +23,20 @@
      are plain same-origin-to-itself fetches), so credentialless mode is transparent to it. -->
 <iframe id="machine" title="pcjs VAX machine" allow="cross-origin-isolated" credentialless
         style="width:100%;height:100%;border:0;background:#140d00"></iframe>
+<!-- BOOT WATCHDOG overlay (rd vms-bfdd): hidden unless the embedded machine never shows a single
+     sign of life (not even 'nic-ready', the earliest message vaxworker.js emits). Covers both
+     observed failure shapes: the cross-origin iframe document never executing at all (credentialless
+     load starved under heavy main-thread contention), and a worker/fetch that silently stalls. Never
+     fabricates progress; it only tells the visitor the truth and offers to try again. -->
+<div id="watchdog" style="display:none;position:absolute;inset:0;background:#140d00;color:#ffb232;
+     font:13px monospace;flex-direction:column;align-items:center;justify-content:center;
+     gap:10px;text-align:center;padding:16px">
+  <p style="margin:0;max-width:34em">This node did not start. That can happen under heavy load in your
+     browser tab — nothing was lost, it just never got a turn to boot.</p>
+  <button id="watchdog-retry" type="button"
+          style="font:13px monospace;background:#2a1d00;color:#ffb232;border:1px solid #e8b10066;
+                 padding:6px 14px;cursor:pointer">Retry</button>
+</div>
 <script type="module">
   import { connectNicPipe } from './lib/port-postmessage.mjs';
 
@@ -32,9 +46,58 @@
   const state = window.__nodeState = { mac: MAC, kind: 'pcjs',
     crossOriginIsolated: self.crossOriginIsolated === true, nicReady: false,
     acpOk: false,            // real ODS-2 ACP mount confirmed by the machine ({t:'acp-ok'}); facade never sends it
-    nicTxCount: 0, nicRxCount: 0, err: null };
+    nicTxCount: 0, nicRxCount: 0, err: null,
+    started: false,          // ANY sign of life from the embedded machine (rd vms-bfdd watchdog)
+    watchdogFired: false, retries: 0 };
 
   const machineFrame = document.getElementById('machine');
+  const watchdogEl = document.getElementById('watchdog');
+  const retryBtn = document.getElementById('watchdog-retry');
+
+  // ---- boot watchdog (rd vms-bfdd) ----
+  // Captured live (tests/lab/captures/vms-deploy-v075-20261001/): one run in twelve, Node B's
+  // console sat at 0 bytes with ZERO hub frames for 586s while a 5-of-5 cold-load control of Node B
+  // ALONE booted every time -- the failure only showed up under contention with the other panels, and
+  // produced no error, no message, nothing a visitor could act on. A control proved the image/deploy
+  // were not at fault, so this does not retry the fetch differently or change boot media -- it just
+  // stops the silence: if NOTHING has come back from the embedded machine (not even the 'nic-ready'
+  // worker startup message, which fires well before the guest OS has booted) within WATCHDOG_MS, the
+  // panel says so and offers a retry, instead of sitting blank for the rest of the visit.
+  // WATCHDOG_MS is well above the slowest HONEST nic-ready observed (page-order-throttled4, cpu x4:
+  // other nodes' first SCA traffic by t=76s, so nic-ready landed earlier than that) with headroom for
+  // a visitor's own slower/throttled device.
+  // ?_wdms= is TEST-ONLY (not visitor-facing; same convention as the rest of the demo's query-param
+  // overrides) so the watchdog gate can be proven on a human timescale instead of waiting 120s per run.
+  const WATCHDOG_MS = +qp.get('_wdms') || 120000;
+  const MAX_AUTO_RETRIES = 1;        // one silent self-heal attempt before asking the visitor
+  let watchdogTimer = null;
+
+  function markStarted() {
+    if (state.started) return;
+    state.started = true;
+    clearWatchdog();
+  }
+  function clearWatchdog() {
+    if (watchdogTimer) { clearTimeout(watchdogTimer); watchdogTimer = null; }
+    watchdogEl.style.display = 'none';
+  }
+  function armWatchdog() {
+    clearWatchdog();
+    watchdogTimer = setTimeout(() => {
+      if (state.started) return;
+      if (state.retries < MAX_AUTO_RETRIES) { retry(true); return; }
+      state.watchdogFired = true;
+      watchdogEl.style.display = 'flex';
+    }, WATCHDOG_MS);
+  }
+  function retry(auto) {
+    state.retries++;
+    state.started = false;
+    watchdogEl.style.display = 'none';
+    bootMachine();
+    armWatchdog();
+  }
+  retryBtn.addEventListener('click', () => retry(false));
 
   // The bridge: parent switch <-> this page <-> the machine child, identical in shape to node.html.
   const pipe = connectNicPipe({
@@ -52,17 +115,42 @@
   window.addEventListener('message', (e) => {
     if (e.source !== machineFrame.contentWindow) return;    // only the embedded machine
     const m = e.data; if (!m || typeof m !== 'object') return;
+    markStarted();                                          // ANY real message = the machine is alive
     if (m.t === 'nic-ready') { state.nicReady = true; return; }
     if (m.t === 'acp-ok') { state.acpOk = true; return; }   // real ODS-2 ACP mount seen (PCJS-NODE-BRIDGE.md)
     if (m.t === 'nic-tx') { state.nicTxCount++; pipe.nicTx(new Uint8Array(m.frame)); return; }
   });
 
-  // Boot the machine (append this node's MAC to the machine URL).
-  if (!MACHINE) {
-    state.err = 'no ?machine= URL — node-pcjs.html needs the ovmx-cluster.html endpoint (see PCJS-NODE-BRIDGE.md)';
-    document.body.insertAdjacentHTML('afterbegin', '<pre style="padding:8px">' + state.err + '</pre>');
-  } else {
+  // ?machine= is allowlisted to the known pcjs deploy (or this page's own origin, for local testing),
+  // not a free-form redirect target: this page's whole job is to set an iframe's src from a URL query
+  // parameter, which is exactly CodeQL's "client-side XSS via location" / "client-side URL redirect"
+  // shape -- a plain http(s)-only check still lets a crafted link point this at an arbitrary attacker
+  // site (an open redirect, which is the actual vulnerability class, not just a scheme trick). The
+  // frozen contract (PCJS-NODE-BRIDGE.md) only ever points this at vax.3dl.network's ovmx-cluster.html;
+  // nothing in this repo exercises any other host. Checked as an ANCHORED prefix match directly on the
+  // value (rather than through a URL object + a separate named helper) so it is both a real fix and a
+  // guard shape CodeQL's taint tracking recognizes as a sanitizer at the point of use.
+  const SAME_ORIGIN_PREFIX = location.origin + '/';
+
+  // Boot the machine (append this node's MAC to the machine URL). A retry bumps _wd= so the iframe
+  // navigates even when the target URL is otherwise identical (assigning the SAME src again is a
+  // no-op in some browsers, which would make a retry silently do nothing).
+  function bootMachine() {
+    const safe = typeof MACHINE === 'string' &&
+      (MACHINE.startsWith('https://vax.3dl.network/') || MACHINE.startsWith(SAME_ORIGIN_PREFIX));
+    if (!safe) {
+      state.err = MACHINE
+        ? 'refusing a ?machine= URL outside the allowed hosts (see PCJS-NODE-BRIDGE.md)'
+        : 'no ?machine= URL — node-pcjs.html needs the ovmx-cluster.html endpoint (see PCJS-NODE-BRIDGE.md)';
+      document.body.insertAdjacentHTML('afterbegin', '<pre style="padding:8px">' + state.err + '</pre>');
+      return;
+    }
     machineFrame.credentialless = true;               // belt-and-suspenders: set the IDL property too
-    machineFrame.src = MACHINE + (MACHINE.includes('?') ? '&' : '?') + 'mac=' + encodeURIComponent(MAC);
+    const sep = MACHINE.includes('?') ? '&' : '?';
+    const retryTag = state.retries ? '&_wd=' + state.retries : '';
+    machineFrame.src = MACHINE + sep + 'mac=' + encodeURIComponent(MAC) + retryTag;
   }
+
+  bootMachine();
+  if (MACHINE) armWatchdog();
 </script>
