@@ -79,7 +79,16 @@ function boot(cfg) {
       '-netdev', 'socket,id=vmnic,connect=127.0.0.1:8888',
       '-device', 'virtio-net-pci,netdev=vmnic,mac=' + MAC,
       '-kernel', '/pack-kernel/vmlinuz', '-initrd', '/pack-initramfs/initramfs-ovmx.cpio.gz',
-      '-append', 'console=ttyS0 loglevel=3 quiet', '-drive', 'file=/pack-disk/sysdisk.qcow2,format=qcow2,if=virtio', '-no-reboot'],
+      // no_timer_check (rd vms-4ff): the i8254/IO-APIC timer-calibration self-test
+      // (arch/x86/kernel/apic/io_apic.c check_timer()) can mis-measure under host
+      // CPU contention -- this worker's own qemu-wasm TCG loop is one of THREE
+      // heavy Workers on the cluster demo page, each timesharing whatever cores the
+      // visitor's tab gets, and a starved calibration busy-loop reads a bogus
+      // interval and panics with "IO-APIC + timer doesn't work!" even though the
+      // IO-APIC/PIT here are fully QEMU-emulated and never actually broken. The
+      // flag just skips that diagnostic (it exists for real, possibly-flaky
+      // hardware); it changes nothing about how the emulated timer actually behaves.
+      '-append', 'console=ttyS0 loglevel=3 quiet no_timer_check', '-drive', 'file=/pack-disk/sysdisk.qcow2,format=qcow2,if=virtio', '-no-reboot'],
     // Emscripten SOCKFS opens WebSockets against this base; our shim intercepts the construction.
     websocket: { url: 'ws://ovmx/' },
     locateFile: (p) => new URL('boot/' + p, self.location.href).href + '?v=' + ASSET_VER,

@@ -46,7 +46,11 @@ async function inflate(buf) {
 self.Module = {
   arguments: ['-nographic', '-M', 'pc', '-m', '256M', '-accel', 'tcg,tb-size=500', '-L', '/pack-rom/',
     '-nic', 'none', '-kernel', '/pack-kernel/vmlinuz', '-initrd', '/pack-initramfs/initramfs-ovmx.cpio.gz',
-    '-append', 'console=ttyS0 loglevel=3 quiet', '-drive', 'file=/pack-disk/sysdisk.qcow2,format=qcow2,if=virtio', '-no-reboot'],
+    // no_timer_check (rd vms-4ff): see demo/cluster/node-worker.js's twin comment --
+    // the IO-APIC/timer calibration self-test can false-positive under host CPU
+    // contention in a WASM-hosted TCG guest (fully emulated timer hardware is never
+    // actually broken here); the flag just skips that diagnostic.
+    '-append', 'console=ttyS0 loglevel=3 quiet no_timer_check', '-drive', 'file=/pack-disk/sysdisk.qcow2,format=qcow2,if=virtio', '-no-reboot'],
   locateFile: (p) => new URL(p, self.location.href).href + '?v=' + ASSET_VER,
   mainScriptUrlOrBlob: new URL('out.js', self.location.href).href + '?v=' + ASSET_VER,
   pty: slave,
