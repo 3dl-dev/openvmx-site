@@ -121,14 +121,20 @@
     if (m.t === 'nic-tx') { state.nicTxCount++; pipe.nicTx(new Uint8Array(m.frame)); return; }
   });
 
-  // ?machine= is an http(s)-only allowlist, not a free-form redirect target: this page's whole job
-  // is to set an iframe's src from a URL query parameter, which is exactly CodeQL's "client-side XSS
-  // via location" / "client-side URL redirect" shape if a visitor could be handed a crafted link with
-  // ?machine=javascript:... or similar. The frozen contract (PCJS-NODE-BRIDGE.md) only ever points this
-  // at an ovmx-cluster.html http(s) URL, so rejecting anything else costs the contract nothing.
+  // ?machine= is allowlisted to the known pcjs deploy (or this page's own origin, for local testing),
+  // not a free-form redirect target: this page's whole job is to set an iframe's src from a URL query
+  // parameter, which is exactly CodeQL's "client-side XSS via location" / "client-side URL redirect"
+  // shape -- a plain http(s)-only check still lets a crafted link point this at an arbitrary attacker
+  // site (an open redirect, which is the actual vulnerability class, not just a scheme trick), so the
+  // allowlist is a real fix, not cosmetic. The frozen contract (PCJS-NODE-BRIDGE.md) only ever points
+  // this at vax.3dl.network's ovmx-cluster.html; nothing in this repo exercises any other host.
+  const ALLOWED_MACHINE_HOSTS = ['vax.3dl.network'];
   function isSafeMachineUrl(u) {
-    try { const p = new URL(u, location.href); return p.protocol === 'https:' || p.protocol === 'http:'; }
-    catch (e) { return false; }
+    try {
+      const p = new URL(u, location.href);
+      if (p.protocol !== 'https:' && p.protocol !== 'http:') return false;
+      return p.hostname === location.hostname || ALLOWED_MACHINE_HOSTS.includes(p.hostname);
+    } catch (e) { return false; }
   }
 
   // Boot the machine (append this node's MAC to the machine URL). A retry bumps _wd= so the iframe
@@ -137,7 +143,7 @@
   function bootMachine() {
     if (!MACHINE || !isSafeMachineUrl(MACHINE)) {
       state.err = MACHINE
-        ? 'refusing a non-http(s) ?machine= URL (see PCJS-NODE-BRIDGE.md)'
+        ? 'refusing a ?machine= URL outside the allowed hosts (see PCJS-NODE-BRIDGE.md)'
         : 'no ?machine= URL — node-pcjs.html needs the ovmx-cluster.html endpoint (see PCJS-NODE-BRIDGE.md)';
       document.body.insertAdjacentHTML('afterbegin', '<pre style="padding:8px">' + state.err + '</pre>');
       return;
@@ -145,10 +151,7 @@
     machineFrame.credentialless = true;               // belt-and-suspenders: set the IDL property too
     const sep = MACHINE.includes('?') ? '&' : '?';
     const retryTag = state.retries ? '&_wd=' + state.retries : '';
-    // isSafeMachineUrl() above already rejected anything but http(s) -- CodeQL's static dataflow
-    // analysis does not model that custom guard as a sanitizer, so these are a reviewed, justified
-    // suppression of a real finding that is actually handled, not a blind dismissal.
-    machineFrame.src = MACHINE + sep + 'mac=' + encodeURIComponent(MAC) + retryTag; // lgtm[js/xss,js/client-side-unvalidated-url-redirection]
+    machineFrame.src = MACHINE + sep + 'mac=' + encodeURIComponent(MAC) + retryTag;
   }
 
   bootMachine();
