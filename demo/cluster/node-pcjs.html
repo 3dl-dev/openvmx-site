@@ -121,12 +121,24 @@
     if (m.t === 'nic-tx') { state.nicTxCount++; pipe.nicTx(new Uint8Array(m.frame)); return; }
   });
 
+  // ?machine= is an http(s)-only allowlist, not a free-form redirect target: this page's whole job
+  // is to set an iframe's src from a URL query parameter, which is exactly CodeQL's "client-side XSS
+  // via location" / "client-side URL redirect" shape if a visitor could be handed a crafted link with
+  // ?machine=javascript:... or similar. The frozen contract (PCJS-NODE-BRIDGE.md) only ever points this
+  // at an ovmx-cluster.html http(s) URL, so rejecting anything else costs the contract nothing.
+  function isSafeMachineUrl(u) {
+    try { const p = new URL(u, location.href); return p.protocol === 'https:' || p.protocol === 'http:'; }
+    catch (e) { return false; }
+  }
+
   // Boot the machine (append this node's MAC to the machine URL). A retry bumps _wd= so the iframe
   // navigates even when the target URL is otherwise identical (assigning the SAME src again is a
   // no-op in some browsers, which would make a retry silently do nothing).
   function bootMachine() {
-    if (!MACHINE) {
-      state.err = 'no ?machine= URL — node-pcjs.html needs the ovmx-cluster.html endpoint (see PCJS-NODE-BRIDGE.md)';
+    if (!MACHINE || !isSafeMachineUrl(MACHINE)) {
+      state.err = MACHINE
+        ? 'refusing a non-http(s) ?machine= URL (see PCJS-NODE-BRIDGE.md)'
+        : 'no ?machine= URL — node-pcjs.html needs the ovmx-cluster.html endpoint (see PCJS-NODE-BRIDGE.md)';
       document.body.insertAdjacentHTML('afterbegin', '<pre style="padding:8px">' + state.err + '</pre>');
       return;
     }
