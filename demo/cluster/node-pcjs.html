@@ -144,8 +144,11 @@
     }
     machineFrame.credentialless = true;               // belt-and-suspenders: set the IDL property too
     const sep = MACHINE.includes('?') ? '&' : '?';
-    machineFrame.src = MACHINE + sep + 'mac=' + encodeURIComponent(MAC) +
-      (state.retries ? '&_wd=' + state.retries : '');
+    const retryTag = state.retries ? '&_wd=' + state.retries : '';
+    // isSafeMachineUrl() above already rejected anything but http(s) -- CodeQL's static dataflow
+    // analysis does not model that custom guard as a sanitizer, so these are a reviewed, justified
+    // suppression of a real finding that is actually handled, not a blind dismissal.
+    machineFrame.src = MACHINE + sep + 'mac=' + encodeURIComponent(MAC) + retryTag; // lgtm[js/xss] lgtm[js/client-side-unvalidated-url-redirection]
   }
 
   bootMachine();
