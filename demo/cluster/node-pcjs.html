@@ -125,23 +125,20 @@
   // not a free-form redirect target: this page's whole job is to set an iframe's src from a URL query
   // parameter, which is exactly CodeQL's "client-side XSS via location" / "client-side URL redirect"
   // shape -- a plain http(s)-only check still lets a crafted link point this at an arbitrary attacker
-  // site (an open redirect, which is the actual vulnerability class, not just a scheme trick), so the
-  // allowlist is a real fix, not cosmetic. The frozen contract (PCJS-NODE-BRIDGE.md) only ever points
-  // this at vax.3dl.network's ovmx-cluster.html; nothing in this repo exercises any other host.
-  const ALLOWED_MACHINE_HOSTS = ['vax.3dl.network'];
-  function isSafeMachineUrl(u) {
-    try {
-      const p = new URL(u, location.href);
-      if (p.protocol !== 'https:' && p.protocol !== 'http:') return false;
-      return p.hostname === location.hostname || ALLOWED_MACHINE_HOSTS.includes(p.hostname);
-    } catch (e) { return false; }
-  }
+  // site (an open redirect, which is the actual vulnerability class, not just a scheme trick). The
+  // frozen contract (PCJS-NODE-BRIDGE.md) only ever points this at vax.3dl.network's ovmx-cluster.html;
+  // nothing in this repo exercises any other host. Checked as an ANCHORED prefix match directly on the
+  // value (rather than through a URL object + a separate named helper) so it is both a real fix and a
+  // guard shape CodeQL's taint tracking recognizes as a sanitizer at the point of use.
+  const SAME_ORIGIN_PREFIX = location.origin + '/';
 
   // Boot the machine (append this node's MAC to the machine URL). A retry bumps _wd= so the iframe
   // navigates even when the target URL is otherwise identical (assigning the SAME src again is a
   // no-op in some browsers, which would make a retry silently do nothing).
   function bootMachine() {
-    if (!MACHINE || !isSafeMachineUrl(MACHINE)) {
+    const safe = typeof MACHINE === 'string' &&
+      (MACHINE.startsWith('https://vax.3dl.network/') || MACHINE.startsWith(SAME_ORIGIN_PREFIX));
+    if (!safe) {
       state.err = MACHINE
         ? 'refusing a ?machine= URL outside the allowed hosts (see PCJS-NODE-BRIDGE.md)'
         : 'no ?machine= URL — node-pcjs.html needs the ovmx-cluster.html endpoint (see PCJS-NODE-BRIDGE.md)';
