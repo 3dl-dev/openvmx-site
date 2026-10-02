@@ -5,8 +5,15 @@
   <link href="https://openvmx.3dl.dev/atom.xml" rel="self"/>
   <link href="https://openvmx.3dl.dev/" rel="alternate"/>
   <id>tag:openvmx.3dl.dev,2026:releases</id>
-  <updated>2026-09-30T16:43:28-04:00</updated>
+  <updated>2026-10-02T01:24:22-04:00</updated>
   <author><name>OpenVMX</name></author>
+  <entry>
+    <title>V0.7-6</title>
+    <id>tag:openvmx.3dl.dev,2026:release/V0.7-6</id>
+    <updated>2026-10-02T01:24:22-04:00</updated>
+    <link href="https://openvmx.3dl.dev/roadmap/" rel="alternate"/>
+    <summary>Point release.</summary>
+  </entry>
   <entry>
     <title>V0.7-5</title>
     <id>tag:openvmx.3dl.dev,2026:release/V0.7-5</id>
@@ -53,13 +60,6 @@
     <title>V0.6-16</title>
     <id>tag:openvmx.3dl.dev,2026:release/V0.6-16</id>
     <updated>2026-09-12T21:04:43-04:00</updated>
-    <link href="https://openvmx.3dl.dev/roadmap/" rel="alternate"/>
-    <summary>Point release.</summary>
-  </entry>
-  <entry>
-    <title>V0.6-15</title>
-    <id>tag:openvmx.3dl.dev,2026:release/V0.6-15</id>
-    <updated>2026-09-11T20:03:30-04:00</updated>
     <link href="https://openvmx.3dl.dev/roadmap/" rel="alternate"/>
     <summary>Point release.</summary>
   </entry>
