@@ -24,7 +24,7 @@ self.onmessage = (e) => {
 
 // Cache-busted payload download with real byte progress (reported to the page).
 const ASSET_VER = 'cw1';  // bump when the qemu-wasm binary changes
-const PAYLOAD_VER = 'V0.7-7-3594';
+const PAYLOAD_VER = 'V0.7-8-3852';
 function xhrGet(url, i, loaded, total, report) {
   return new Promise((res, rej) => {
     const x = new XMLHttpRequest();
