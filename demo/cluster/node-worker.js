@@ -54,9 +54,27 @@ async function inflate(buf) {
 let nic = null;      // the installed NIC shim handle (deliverToGuest / connected / uninstall)
 let booted = false;
 
+// WORKER EVENT-LOOP HEARTBEAT (rd vms-4ff). When Node A stops, the page keeps
+// its console and nothing else, and "the console ends at %OVMX-I-MOUNTED" does
+// not say whether this worker is still running. Two live V0.7-7 runs failed
+// exactly that way and could not be root-caused from what was kept.
+//
+// So the worker reports its OWN event loop, once a second: a counter that only
+// grows. It is NOT a claim about the guest -- the qemu-wasm module can hold this
+// thread between yields -- which is why it is published under that name and
+// read beside the console's growth, never instead of it. Frozen ticks mean this
+// worker is not being scheduled (or the module died); advancing ticks with a
+// console that has not moved mean the worker lives and the guest is not
+// printing. Either reading is a fact; neither is a diagnosis.
+function startHeartbeat() {
+  let n = 0;
+  setInterval(() => { self.postMessage({ t: 'wtick', n: ++n }); }, 1000);
+}
+
 // Boot the guest with per-node config. Called once, on the page's {t:'cfg'} message.
 function boot(cfg) {
   if (booted) return; booted = true;
+  startHeartbeat();
   const MAC = (cfg && cfg.mac) || '52:54:00:00:00:0A';
   // Per-node initramfs URL (config injection carries CLUSTER_AUTHORIZE.DAT etc.); default = shipped image.
   const INITRAMFS_URL = (cfg && cfg.initramfs) || 'boot/initramfs-ovmx.cpio.gz';
@@ -79,15 +97,30 @@ function boot(cfg) {
       '-netdev', 'socket,id=vmnic,connect=127.0.0.1:8888',
       '-device', 'virtio-net-pci,netdev=vmnic,mac=' + MAC,
       '-kernel', '/pack-kernel/vmlinuz', '-initrd', '/pack-initramfs/initramfs-ovmx.cpio.gz',
-      // no_timer_check (rd vms-4ff): the i8254/IO-APIC timer-calibration self-test
-      // (arch/x86/kernel/apic/io_apic.c check_timer()) can mis-measure under host
-      // CPU contention -- this worker's own qemu-wasm TCG loop is one of THREE
-      // heavy Workers on the cluster demo page, each timesharing whatever cores the
-      // visitor's tab gets, and a starved calibration busy-loop reads a bogus
-      // interval and panics with "IO-APIC + timer doesn't work!" even though the
-      // IO-APIC/PIT here are fully QEMU-emulated and never actually broken. The
-      // flag just skips that diagnostic (it exists for real, possibly-flaky
-      // hardware); it changes nothing about how the emulated timer actually behaves.
+      // no_timer_check (rd vms-4ff) -- the mechanism, now MEASURED rather than
+      // reasoned about (OpenVMX tests/lab/captures/vms-4ff-timer-check-20261009/):
+      //
+      // arch/x86/kernel/apic/io_apic.c check_timer() verifies the legacy timer IRQ
+      // with timer_irq_works(), which spins in delay_with_tsc() until 40e9/HZ TSC
+      // CYCLES have passed and then demands that jiffies advanced by more than 4.
+      // Under TCG the guest TSC advances at HOST WALL-CLOCK rate while the vCPU
+      // executes orders of magnitude slower than silicon, so that window is ~18 ms
+      // of WALL time in which a software-emulated CPU must take and service FIVE
+      // IRQ0 ticks. This worker's TCG loop is one of three heavy Workers
+      // timesharing whatever cores the visitor's tab gets, so it cannot -- and the
+      // kernel then concludes its own (fully emulated, perfectly good) timer is
+      // broken. A/B on the shipped kernel, host qemu + TCG, qemu sharing one core
+      // with N spinners: ~6x slowdown tears the IO-APIC pin down and silently
+      // re-routes IRQ0 to Virtual Wire; ~12x panics "IO-APIC + timer doesn't
+      // work!"; ~12x with this flag boots.
+      //
+      // This is upstream Linux's own policy for virtual machines, not a hack:
+      // arch/x86/kernel/kvm.c and arch/x86/kernel/cpu/vmware.c both set
+      // no_timer_check = 1 for guests they identify. A qemu-wasm TCG guest is a
+      // virtual machine Linux cannot identify, so it has to be told. The flag's
+      // ONLY consumer is timer_irq_works(), so it skips the MEASUREMENT and
+      // nothing else -- the IRQ0 route kept is the same IO-APIC pin a correct
+      // measurement keeps.
       '-append', 'console=ttyS0 loglevel=3 quiet no_timer_check', '-drive', 'file=/pack-disk/sysdisk.qcow2,format=qcow2,if=virtio', '-no-reboot'],
     // Emscripten SOCKFS opens WebSockets against this base; our shim intercepts the construction.
     websocket: { url: 'ws://ovmx/' },
