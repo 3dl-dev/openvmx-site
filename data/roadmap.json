@@ -1,12 +1,12 @@
 {
  "meta": {
-  "generated": "2026-09-18",
+  "generated": "2026-10-12",
   "source": "OVMX release board (rd)",
   "note": "Derived, milestone-level public view. Regenerated each checkpoint; do not hand-edit.",
   "scrubbed": "trademark scrub applied on render (public site)",
   "nextPointRelease": {
-   "version": "V0.7-1",
-   "theme": "Cluster genesis (OpenVMX forms a cluster as a founding member), SSH-to-DCL over the executive, and DECnet routing hardening — landing now."
+   "version": "V0.7-9",
+   "theme": "Actively landing on the current line."
   }
  },
  "vocab": {
@@ -69,14 +69,14 @@
   },
   {
    "version": "0.7",
-   "theme": "Cluster wire fidelity — the SCS/MSCP connection manager answers a real VAX byte-for-byte.",
-   "status": "in_progress",
+   "theme": "Cluster wire fidelity — a booted OVMX node joins a real VAX cluster and is admitted to sustained CN=3 on a single circuit, crash-safe.",
+   "status": "shipped",
    "progress": {
-    "done": 9,
-    "open": 3,
+    "done": 10,
+    "open": 2,
     "blocked": 0,
     "total": 12,
-    "pct": 75
+    "pct": 83
    }
   },
   {
@@ -108,11 +108,11 @@
    "theme": "Hardened and proven — feature-frozen on 0.9: authenticity enforced by the executive, not by convention, and the whole system proven on real hardware and in extended cluster interop against a real VAX. The release you trust; fixes only.",
    "status": "goal",
    "progress": {
-    "done": 40,
-    "open": 24,
-    "blocked": 5,
-    "total": 64,
-    "pct": 62
+    "done": 51,
+    "open": 36,
+    "blocked": 13,
+    "total": 87,
+    "pct": 59
    }
   }
  ],
@@ -146,8 +146,8 @@
    "status": "in_progress",
    "progress": {
     "done": 19,
-    "total": 24,
-    "pct": 79
+    "total": 25,
+    "pct": 76
    }
   },
   {
@@ -167,9 +167,9 @@
    "lands_by": "0.5-0.9",
    "status": "in_progress",
    "progress": {
-    "done": 24,
-    "total": 55,
-    "pct": 44
+    "done": 31,
+    "total": 63,
+    "pct": 49
    }
   },
   {
@@ -178,9 +178,9 @@
    "lands_by": "0.9",
    "status": "in_progress",
    "progress": {
-    "done": 26,
-    "total": 58,
-    "pct": 45
+    "done": 59,
+    "total": 84,
+    "pct": 70
    }
   },
   {
@@ -208,36 +208,36 @@
  ],
  "releases": [
   {
-   "tag": "V0.7",
+   "tag": "V0.7-8",
    "note": "Point release."
   },
   {
-   "tag": "V0.6-16",
+   "tag": "V0.7-7",
    "note": "Point release."
   },
   {
-   "tag": "V0.6-15",
+   "tag": "V0.7-6",
    "note": "Point release."
   },
   {
-   "tag": "V0.6-14",
-   "note": "Cluster genesis and networking hardening. OpenVMX becomes a first-class founding cluster member: the executive can now FORM a VMScluster from nothing (authentic VMS formation, quorum-grounded) — a genesis, not only a join of an existing cluster — running on the real executive-resident membership machinery. A cluster crash-fix closes a host-kernel panic on a clustered node's shared network buffer and a founder self-demotion. Networking: a valid SYSUAF user now lands at a DCL prompt over the wrapped OpenSSH sshd end to end (real ACP SYSUAF authentication, the earlier pubkey-root overclaim dropped from the register), the DECnet routing receive path gains ASan/UBSan fuzzing and bound proofs with CI-enforced sanitizer teeth, and the libdatalink DECnet datalink is wire-proven on live NetBSD/VAX. Honest scope: interoperation with a REAL VAX cluster — a genuine VAX joining and mounting OpenVMX-served storage — remains in progress and unproven."
+   "tag": "V0.7-5",
+   "note": "Point release."
   },
   {
-   "tag": "V0.6-13",
-   "note": "DECnet Phase IV file COPY, and a substrate-agnostic login frontier. Authenticated inbound SET HOST -> LOGINOUT is now a hard release gate on all three rails (x86_64, Alpha, and VAX) — the interactive-login frontier no longer depends on the substrate. DECnet Phase IV file COPY (FAL/DAP) lands: an object-17 FAL server, a DAP codec, and a COPY client, authenticated against the real SYSUAF/Purdy, transferring over RMS-on-the-executive-ACP and byte-verified in both directions, with a Phase IV configuration and usage guide. And a compatibility-register honesty pass: four cluster distributed-lock-manager rows whose multi-node proof harness had been retired were downgraded from verified to implemented (re-establishment tracked as a follow-on), so the surface states only what a live test currently proves."
+   "tag": "V0.7-4",
+   "note": "Point release."
   },
   {
-   "tag": "V0.6-12",
-   "note": "DECnet Phase IV SET HOST reaches an authenticated interactive login. An inbound SET HOST session now runs the full connect-through-LOGINOUT dialogue (P0-P5) bidirectionally against the real binary SYSUAF, so a remote terminal lands at a genuine DCL prompt with full SYSUAF login-flag authenticity. Alpha activates its symbol-vector shareables on the live executive; the VAX rail builds them, with runtime activation isolated to a cross-image cross-call marshalling bug (tracked RED). Plus CI-backlog optimization across the release gates."
+   "tag": "V0.7-3",
+   "note": "Point release."
   },
   {
-   "tag": "V0.6-11",
-   "note": "The cluster claim, made good: a booted OpenVMX node joins a real, running VMS Cluster and is counted as a member. On the lab's two-node VAXcluster a fresh-booted OVMX node — with CAP_NET_RAW dropped, so the executive itself, not an ambient Linux capability, drove the Ethernet — brought up its cluster port, opened an SCS virtual circuit to a live VAX, connected the connection manager, and was admitted through the membership transition; the existing members' own accounting counted it (CLUSTER_NODES reported 3, SHOW CLUSTER listed it STATUS=MEMBER, SDA showed a genuine sequential Cluster System Block), sustained crash-free for the full run. The whole join runs inside the executive (vms.ko) — SCS, the connection manager, the PE/virtual-circuit transport, the DLM rebuild, and the state-transition barrier — not a userspace daemon, and it never emitted a frame that could crash a peer. Honest scope for this edition: it JOINS an existing cluster (it does not boot satellites, and cluster genesis-from-nothing lands later); quorum votes are computed and displayed but not yet enforced; and the member committed the transition without an on-wire barrier-release frame, a tracked follow-on."
+   "tag": "V0.7-2",
+   "note": "Point release."
   },
   {
-   "tag": "V0.6-10",
-   "note": "Three more rungs up the self-hosting and networking long poles, no cluster-participation claim. DECnet Phase IV gains a real transport: an NSP logical-link connection service — establish (Connect Initiate/Confirm), carry data segments with acknowledgement and in-order sequencing, tear down (Disconnect Initiate/Confirm), and give up honestly (retransmit then abandon as unreachable) — proven on the wire between two nodes, byte-identical, the layer SET HOST and file transfer will ride. VMS condition handling gains its third authentic rung: the real Alpha invocation-context primitives (LIB$GET_INVO_*) walk the genuine procedure-descriptor and register-save-area chain, so an unwind can transfer into an ancestor frame that armed no explicit anchor — the mechanism a bare 'return to main' and compiler exception handling need — replacing the last piece of emulation on the software path. And the compiler runtime's file layer gains a real RMS veneer: a C-RTL stdio surface that routes fopen/fwrite/fread/fclose to genuine RMS create/put/get/close over the executive ACP, proven un-fakeably — a file written through the veneer is then seen on the real Files-11 ODS-2 volume by an independent reader, with a genuine File ID and version a POSIX bootstrap cannot forge; wiring it into the alpha port image is scoped as tracked follow-on work."
+   "tag": "V0.7-1",
+   "note": "Point release."
   }
  ]
 }
