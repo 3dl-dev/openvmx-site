@@ -1,0 +1,235 @@
+name: track-cluster-demo
+
+# Redeploy the 3-node browser cluster demo (demo/cluster/) for a vms release
+# tag, GATED by the visitor matrix (rd vms-cdbd, vms-f0f, vms-db1).
+#
+# Fired by the SAME repository_dispatch (release-tagged) track-release.yml
+# listens for (vms #1284 sends it after a tag is published) -- never inline in
+# vms's release.yml, so a demo failure can never block or hold a release tag --
+# and by hand through workflow_dispatch.
+#
+# WHAT IT REBUILDS. Node A (OVMX/x86, qemu-wasm) is rebuilt from the tag by
+# vms's tools/cluster-web-demo/build-cluster-demo and deployed IN PLACE at
+# demo/cluster/nodeA/, with node-worker.js's BOOT_VER/PAYLOAD_VER moved to the
+# tag so a returning visitor cannot pair a cached payload with the new kernel.
+# Node B (OVMX/VAX) and Node C (the pinned real VAX/VMS V7.3 volume) are served
+# from the pcjs deploy at vax.3dl.network and are NOT rebuilt here: Node B's
+# per-tag image lands in that repo. The gate below boots whatever Node B/C the
+# page embeds, so it proves the combination a visitor will actually get.
+#
+# THE GATE. Node A's new payload is NOT committed unless every row of the
+# visitor matrix (vms tools/cluster-web-demo/gate-eval.mjs MATRIX) passes
+# against a local preview of the page carrying it: CN=3 with the real VAX
+# admitting both OVMX nodes, a quiet OVMX/VAX console, and every node -- the
+# real VAX included -- offering Username: and a logged-in DCL $ (rd vms-db1).
+# The OVMX login is read from the homepage's published hint; the real VAX's
+# password comes only from the repository secret OVMX_DEMO_VAXC_PASSWORD. On a
+# failed gate (or build) the demo honestly stays where it is, pinned in
+# demo/cluster/CLUSTER_DEMO_PIN.json with the reason.
+#
+# The boot/ assets (kernel + qemu-wasm runtime) are track-release.yml's: the
+# cluster node's vms.ko must match boot/vmlinuz, so this workflow runs only
+# once boot/DEPLOYED_TAG is the tag being deployed, and fails honestly
+# otherwise rather than pair a new node with an old kernel.
+
+on:
+  repository_dispatch:
+    types: [release-tagged]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'vms release tag to deploy the cluster demo for (e.g. V0.7-9)'
+        required: true
+      force:
+        description: rebuild + re-gate even if demo/cluster/DEPLOYED_TAG already matches
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency: track-cluster-demo
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    outputs:
+      tag: ${{ steps.r.outputs.tag }}
+      skip: ${{ steps.r.outputs.skip }}
+      cases: ${{ steps.m.outputs.cases }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Resolve the tag
+        id: r
+        run: |
+          TAG='${{ github.event.inputs.tag || github.event.client_payload.tag }}'
+          [ -n "$TAG" ] || { echo "no tag given (neither workflow_dispatch input nor dispatch payload)."; exit 1; }
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          DEPLOYED=$(cat demo/cluster/DEPLOYED_TAG 2>/dev/null || true)
+          if [ "$TAG" = "$DEPLOYED" ] && [ "${{ github.event.inputs.force }}" != "true" ]; then
+            echo "cluster demo already on $TAG."; echo "skip=1" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          BOOT=$(cat boot/DEPLOYED_TAG 2>/dev/null || true)
+          [ "$BOOT" = "$TAG" ] || {
+            echo "boot/ is at '$BOOT', not $TAG: track-release.yml deploys the kernel first, and Node A's vms.ko must match it. Re-run once it has."; exit 1; }
+
+      - name: Check out vms at the tag (generator, injectors, node-identity SSOT, visitor gate)
+        if: steps.r.outputs.skip != '1'
+        run: git clone --depth 1 --branch "${{ steps.r.outputs.tag }}" https://github.com/3dl-dev/vms vmssrc
+
+      - name: The visitor matrix this tag's gate defines
+        id: m
+        if: steps.r.outputs.skip != '1'
+        run: |
+          cd vmssrc/tools/cluster-web-demo
+          echo "cases=$(node -e "import('./gate-eval.mjs').then(m=>console.log(JSON.stringify(m.MATRIX.map(r=>r.label))))")" >> "$GITHUB_OUTPUT"
+
+      - name: Obtain this tag's x86 boot assets (published Release, else build from source)
+        if: steps.r.outputs.skip != '1'
+        env: { GH_TOKEN: '${{ secrets.GITHUB_TOKEN }}' }
+        run: |
+          T='${{ steps.r.outputs.tag }}'; mkdir -p rel
+          if gh release download "$T" --repo 3dl-dev/vms -D rel \
+               -p vmlinuz -p initramfs-ovmx-slim.cpio.gz -p ovmx-distrib.img 2>/dev/null \
+             && [ -f rel/ovmx-distrib.img ]; then
+            echo "using PUBLISHED release assets for $T"
+          else
+            echo "no release assets for $T -- building the bootable image from source"
+            sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/lib/android /opt/hostedtoolcache/CodeQL || true
+            ( cd vmssrc && docker build -f distro/Dockerfile.bootable -t ovmx-boot . )
+            cid=$(docker create ovmx-boot)
+            docker cp "$cid:/boot/vmlinuz" rel/vmlinuz
+            docker cp "$cid:/boot/initramfs-ovmx-slim.cpio.gz" rel/initramfs-ovmx-slim.cpio.gz
+            docker cp "$cid:/boot/ovmx-distrib.img" rel/ovmx-distrib.img
+            docker rm "$cid" >/dev/null
+          fi
+
+      - name: Install qemu-img (the generator's ODS-2/qcow2 conversion dependency)
+        if: steps.r.outputs.skip != '1'
+        run: sudo apt-get update && sudo apt-get install -y qemu-utils
+
+      - name: Build Node A for the tag (build-cluster-demo)
+        if: steps.r.outputs.skip != '1'
+        run: |
+          set -e
+          T='${{ steps.r.outputs.tag }}'
+          chmod +x vmssrc/tools/cluster-web-demo/build-cluster-demo
+          vmssrc/tools/cluster-web-demo/build-cluster-demo "$T" \
+            --out "$RUNNER_TEMP/demo-out" \
+            --x86-vmlinuz rel/vmlinuz \
+            --x86-initramfs rel/initramfs-ovmx-slim.cpio.gz \
+            --x86-sysdisk rel/ovmx-distrib.img \
+            --site-dir "$PWD" \
+            --boot-dir "$PWD/boot"
+          mkdir -p payload/nodeA
+          cp "$RUNNER_TEMP/demo-out/$T/nodeA/initramfs-ovmx-nodeA.cpio.gz" payload/nodeA/
+          cp "$RUNNER_TEMP/demo-out/$T/nodeA/sysdisk-nodeA.qcow2.gz" payload/nodeA/
+          cp "$RUNNER_TEMP/demo-out/$T/manifest.json" payload/manifest.json
+
+      - uses: actions/upload-artifact@v4
+        if: steps.r.outputs.skip != '1'
+        with:
+          name: cluster-demo-payload
+          path: payload/
+
+  gate:
+    needs: build
+    if: needs.build.outputs.skip != '1'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        case: ${{ fromJSON(needs.build.outputs.cases) }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with: { name: cluster-demo-payload, path: payload }
+
+      - name: Stage the preview (the page as it will be deployed)
+        run: |
+          T='${{ needs.build.outputs.tag }}'
+          cp payload/nodeA/* demo/cluster/nodeA/
+          sed -i "s/^const BOOT_VER  = '[^']*'/const BOOT_VER  = '$(echo "$T" | tr 'V' 'v')'/; s/^const PAYLOAD_VER = '[^']*'/const PAYLOAD_VER = '$T'/" \
+            demo/cluster/node-worker.js
+          grep -n "BOOT_VER  =\|PAYLOAD_VER =" demo/cluster/node-worker.js
+
+      - name: Check out vms at the tag (the visitor gate)
+        run: git clone --depth 1 --branch "${{ needs.build.outputs.tag }}" https://github.com/3dl-dev/vms vmssrc
+
+      - name: Install the gate's browser
+        run: |
+          cd vmssrc/tools/cluster-web-demo
+          npm install --no-save playwright
+          npx playwright install --with-deps chromium
+
+      - name: Visitor gate -- ${{ matrix.case }}
+        env:
+          DEMO_PASS_VAXC: ${{ secrets.OVMX_DEMO_VAXC_PASSWORD }}
+        run: |
+          node demo/cluster/e2e/coi-server.js "$PWD" 8123 &
+          sleep 2
+          cd vmssrc/tools/cluster-web-demo
+          CASE='${{ matrix.case }}' \
+          DEMO_URL=http://localhost:8123/demo/cluster/ \
+          DEMO_LOGIN_HINT_URL=http://localhost:8123/ \
+          OUT_DIR="$RUNNER_TEMP/gate" \
+            node visitor-gate.mjs
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: visitor-gate-${{ matrix.case }}
+          path: ${{ runner.temp }}/gate/
+
+  deploy:
+    needs: [build, gate]
+    if: always() && needs.build.outputs.skip != '1' && needs.build.result != 'skipped'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        if: needs.build.result == 'success' && needs.gate.result == 'success'
+        with: { name: cluster-demo-payload, path: payload }
+
+      - name: Deploy Node A for the tag (the gate passed)
+        if: needs.build.result == 'success' && needs.gate.result == 'success'
+        run: |
+          T='${{ needs.build.outputs.tag }}'
+          cp payload/nodeA/* demo/cluster/nodeA/
+          sed -i "s/^const BOOT_VER  = '[^']*'/const BOOT_VER  = '$(echo "$T" | tr 'V' 'v')'/; s/^const PAYLOAD_VER = '[^']*'/const PAYLOAD_VER = '$T'/" \
+            demo/cluster/node-worker.js
+          git rm -q --ignore-unmatch demo/cluster/CLUSTER_DEMO_PIN.json
+          echo "$T" > demo/cluster/DEPLOYED_TAG
+          git config user.name 'ovmx-release-bot'; git config user.email 'bot@3dl.dev'
+          git add demo/cluster
+          if git diff --cached --quiet; then echo "no change"; exit 0; fi
+          git commit -m "demo/cluster: redeploy Node A at ${T}, visitor gate passed (rd vms-cdbd, vms-db1)"
+          for i in 1 2 3 4 5; do
+            git pull --rebase --autostash origin main && git push origin HEAD:main && exit 0
+            echo "push $i rejected, retrying"; sleep 5
+          done
+          echo "push failed after retries"; exit 1
+
+      - name: Honest pin (the build or the visitor gate failed)
+        if: needs.build.result != 'success' || needs.gate.result != 'success'
+        run: |
+          T='${{ needs.build.outputs.tag || github.event.inputs.tag || github.event.client_payload.tag }}'
+          DEPLOYED=$(cat demo/cluster/DEPLOYED_TAG 2>/dev/null || echo unknown)
+          REASON="cluster-demo redeploy for ${T} did not pass (build=${{ needs.build.result }}, visitor gate=${{ needs.gate.result }}) on $(date -u +%Y-%m-%d); run ${{ github.run_id }}. The demo stays at ${DEPLOYED}."
+          python3 -c 'import json,sys; json.dump({"pinned_to":sys.argv[1],"blocked_from":sys.argv[2],"reason":sys.argv[3]}, open("demo/cluster/CLUSTER_DEMO_PIN.json","w"), indent=2)' "$DEPLOYED" "$T" "$REASON"
+          git config user.name 'ovmx-release-bot'; git config user.email 'bot@3dl.dev'
+          git add demo/cluster/CLUSTER_DEMO_PIN.json
+          if git diff --cached --quiet; then echo "pin already current"; exit 0; fi
+          git commit -m "demo/cluster: stays at ${DEPLOYED} -- ${T} redeploy did not pass its gate"
+          for i in 1 2 3 4 5; do
+            git pull --rebase --autostash origin main && git push origin HEAD:main && exit 0
+            echo "pin push $i rejected, retrying"; sleep 5
+          done
+          echo "pin push failed after retries"
+          exit 1
