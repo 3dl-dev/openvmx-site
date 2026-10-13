@@ -62,7 +62,7 @@
       <li>Loading…</li>
     </ul>
   </div>
-  <p class="rail-meta">Now on <b><span data-ovmx-version>V0.7-8</span></b>. <span id="rail-next"></span></p>
+  <p class="rail-meta">Now on <b><span data-ovmx-version>V0.7-9</span></b>. <span id="rail-next"></span></p>
   <a class="rail-link" href="/roadmap/">Full roadmap &rarr;</a>
   <a class="rail-link" href="/status/">Live release status &rarr;</a>
 </aside>
@@ -73,7 +73,7 @@
   <div class="hero">
     <div class="wrap inner">
       <div class="cover">
-        <p class="pn"><b>OpenVMX</b> · Software Product Description · Version <span data-ovmx-version>V0.7-8</span></p>
+        <p class="pn"><b>OpenVMX</b> · Software Product Description · Version <span data-ovmx-version>V0.7-9</span></p>
         <h1 class="coverh">DCL, RMS, and VMS from scratch on the Linux and NetBSD kernels.</h1>
         <p class="deck">The two panels below run OpenVMX in your browser: on <b>x86_64</b> (QEMU
           compiled to WebAssembly) and on a <b>MicroVAX 3900</b> (a 1977 VAX, emulated). Same OS on
@@ -308,13 +308,17 @@
             <li>A <b>real VAX</b> running VMS V7.3 counts OpenVMX nodes as cluster members.</li>
             <li>In the lab, a running workload moved from a real VAX to an OpenVMX node, taking over
               its locks while the cluster stayed up.</li>
+            <li>An OpenVMX node <b>founds</b> a cluster and a real VAX joins it and completes startup;
+              a node that boots last is admitted through any member.</li>
+            <li><b>Clusterwide logical names</b>: OpenVMX applies the other members' changes and
+              pulls the cluster's logical-name table when it joins late.</li>
             <li>Wire formats read off the wire, not vendor source.</li>
           </ul>
           <h4 style="margin-top:22px">In progress</h4>
           <ul>
             <li>Reading and serving genuine ODS-2 volumes across a mixed cluster over MSCP.</li>
-            <li>Taking over the lock trees a departing VAX hands on, and founding a cluster a VAX
-              then joins.</li>
+            <li>Taking over the lock trees a departing VAX hands on (remastering).</li>
+            <li>Originating clusterwide logical names from an OpenVMX node.</li>
           </ul>
         </div>
         <div class="text">
@@ -323,9 +327,9 @@
             <span class="mono">SHOW CLUSTER</span> are served from executive state.</p>
           <p>Mixed clusters work today. A genuine VAX running VMS V7.3 accepts OpenVMX nodes as
             members, and in the lab a workload has moved from a VAX to an OpenVMX node, its locks and
-            records carrying on without a gap while quorum held. What remains is the rest of that
-            handover: taking over the lock trees a departing VAX passes on, founding a cluster a VAX
-            then joins, and storage served across the cluster over MSCP. That work is
+            records carrying on without a gap while quorum held. An OpenVMX node can also found the
+            cluster a VAX then joins. What remains is the rest of that handover: taking over the lock
+            trees a departing VAX passes on, and storage served across the cluster over MSCP. That work is
             <b>in progress</b>, tracked on the <a href="/roadmap/">roadmap</a>.</p>
           <p>The wire formats were worked out by watching a reference VAX and Alpha cluster and reading
             the public documentation, never from vendor source.</p>
