@@ -3,10 +3,13 @@ name: track-cluster-demo
 # Redeploy the 3-node browser cluster demo (demo/cluster/) for a vms release
 # tag, GATED by the visitor matrix (rd vms-cdbd, vms-f0f, vms-db1).
 #
-# Fired by the SAME repository_dispatch (release-tagged) track-release.yml
-# listens for (vms #1284 sends it after a tag is published) -- never inline in
-# vms's release.yml, so a demo failure can never block or hold a release tag --
-# and by hand through workflow_dispatch.
+# Runs after every completed track-release.yml run (workflow_run): that
+# workflow already polls the vms tags every 10 minutes and deploys boot/ for a
+# new tag, so a new release reaches this workflow with no token and no secret.
+# The repository_dispatch (release-tagged) vms #1284 sends after a tag is
+# published is an optional speed-up (a silent no-op on the vms side without
+# its token), and workflow_dispatch runs it by hand. Never inline in vms's
+# release.yml, so a demo failure can never block or hold a release tag.
 #
 # WHAT IT REBUILDS. Node A (OVMX/x86, qemu-wasm) is rebuilt from the tag by
 # vms's tools/cluster-web-demo/build-cluster-demo and deployed IN PLACE at
@@ -22,10 +25,11 @@ name: track-cluster-demo
 # against a local preview of the page carrying it: CN=3 with the real VAX
 # admitting both OVMX nodes, a quiet OVMX/VAX console, and every node -- the
 # real VAX included -- offering Username: and a logged-in DCL $ (rd vms-db1).
-# The OVMX login is read from the homepage's published hint; the real VAX's
-# password comes only from the repository secret OVMX_DEMO_VAXC_PASSWORD. On a
-# failed gate (or build) the demo honestly stays where it is, pinned in
-# demo/cluster/CLUSTER_DEMO_PIN.json with the reason.
+# The OVMX nodes log in with the homepage's published hint; the real VAX is
+# never logged in to -- it passes on offering Username:, the proof its startup
+# completed -- so the gate needs no secret. On a failed gate (or build) the demo
+# honestly stays where it is, pinned in demo/cluster/CLUSTER_DEMO_PIN.json with
+# the reason.
 #
 # The boot/ assets (kernel + qemu-wasm runtime) are track-release.yml's: the
 # cluster node's vms.ko must match boot/vmlinuz, so this workflow runs only
@@ -33,6 +37,9 @@ name: track-cluster-demo
 # otherwise rather than pair a new node with an old kernel.
 
 on:
+  workflow_run:
+    workflows: [track-release]
+    types: [completed]
   repository_dispatch:
     types: [release-tagged]
   workflow_dispatch:
@@ -65,11 +72,21 @@ jobs:
         id: r
         run: |
           TAG='${{ github.event.inputs.tag || github.event.client_payload.tag }}'
-          [ -n "$TAG" ] || { echo "no tag given (neither workflow_dispatch input nor dispatch payload)."; exit 1; }
+          # After track-release (workflow_run), the tag is the one boot/ is now
+          # on: that workflow just deployed it (or found it current).
+          [ -n "$TAG" ] || TAG=$(cat boot/DEPLOYED_TAG 2>/dev/null || true)
+          [ -n "$TAG" ] || { echo "no tag (no input, no dispatch payload, no boot/DEPLOYED_TAG)."; exit 1; }
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
           DEPLOYED=$(cat demo/cluster/DEPLOYED_TAG 2>/dev/null || true)
           if [ "$TAG" = "$DEPLOYED" ] && [ "${{ github.event.inputs.force }}" != "true" ]; then
             echo "cluster demo already on $TAG."; echo "skip=1" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          # A tag whose redeploy already failed its gate is pinned, not retried
+          # on every track-release poll; workflow_dispatch force=true retries it.
+          if [ "${{ github.event.inputs.force }}" != "true" ] \
+             && python3 -c "import json,sys; p=json.load(open('demo/cluster/CLUSTER_DEMO_PIN.json')); sys.exit(0 if p.get('blocked_from')=='$TAG' else 1)" 2>/dev/null; then
+            echo "cluster demo is pinned against $TAG (demo/cluster/CLUSTER_DEMO_PIN.json) -- not retried; dispatch with force=true to retry."
+            echo "skip=1" >> "$GITHUB_OUTPUT"; exit 0
           fi
           BOOT=$(cat boot/DEPLOYED_TAG 2>/dev/null || true)
           [ "$BOOT" = "$TAG" ] || {
@@ -167,8 +184,6 @@ jobs:
           npx playwright install --with-deps chromium
 
       - name: Visitor gate -- ${{ matrix.case }}
-        env:
-          DEMO_PASS_VAXC: ${{ secrets.OVMX_DEMO_VAXC_PASSWORD }}
         run: |
           node demo/cluster/e2e/coi-server.js "$PWD" 8123 &
           sleep 2
