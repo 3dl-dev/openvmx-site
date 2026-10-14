@@ -51,6 +51,13 @@ on:
         description: rebuild + re-gate even if demo/cluster/DEPLOYED_TAG already matches
         type: boolean
         default: false
+      capture:
+        description: >-
+          DIAGNOSTIC: record every 0x6007 frame the in-page L2 switch carries,
+          byte for byte, into each case's frames.jsonl artifact -- and DO NOT
+          DEPLOY. For reading a bugcheck the consoles alone cannot explain.
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -177,6 +184,47 @@ jobs:
       - name: Check out vms at the tag (the visitor gate)
         run: git clone --depth 1 --branch "${{ needs.build.outputs.tag }}" https://github.com/3dl-dev/vms vmssrc
 
+      # DIAGNOSTIC CAPTURE (capture=true only). The demo page already taps the
+      # L2 hub for a frame TALLY (window.__hubframes: port/ethertype/len). A
+      # bugcheck on the real VAX cannot be read from a tally -- it needs the
+      # BYTES of the last frames the other nodes sent. Two surgical patches,
+      # both only in this runner's working copy and never in what is deployed:
+      # the page also records each 0x6007 frame's hex into a drainable buffer,
+      # and the gate drains that buffer into <case>/frames.jsonl on every poll
+      # (so memory stays bounded and the record survives the crash).
+      - name: Instrument the L2 switch to record frame bytes (diagnostic)
+        if: github.event.inputs.capture == 'true'
+        run: |
+          set -euo pipefail
+          P=demo/cluster/index.html
+          grep -q '__hubframes.push' "$P" || { echo "page tap not found -- refusing to guess"; exit 1; }
+          python3 - "$P" <<'PY'
+          import sys
+          p = sys.argv[1]; s = open(p).read()
+          old = "      window.__hubframes.push({ port: handle.name, ethertype: ethertypeOf(u8), len: u8.byteLength });"
+          assert s.count(old) == 1, "page tap line is not unique"
+          new = old + ("\n      if (ethertypeOf(u8) === 0x6007) { const _c = (window.__capframes = window.__capframes || []);"
+                       " _c.push({ t: Date.now(), port: handle.name,"
+                       " hex: Array.from(u8, c => c.toString(16).padStart(2, '0')).join('') });"
+                       " if (_c.length > 20000) _c.splice(0, _c.length - 20000); }")
+          open(p, 'w').write(s.replace(old, new))
+          print("page instrumented")
+          PY
+          G=vmssrc/tools/cluster-web-demo/visitor-gate.mjs
+          [ -f "$G" ] || { echo "gate clone missing (this step must run after the clone)"; exit 1; }
+          python3 - "$G" <<'PY'
+          import sys
+          p = sys.argv[1]; s = open(p).read()
+          old = "      R.worstDriftMs = health.drift; R.vis = health.vis; R.sca = hub;"
+          assert s.count(old) == 1, "gate poll line is not unique"
+          new = old + ("\n      try {\n"
+                       "        const cf = await page.evaluate(() => { const a = window.__capframes || []; window.__capframes = []; return a; });\n"
+                       "        if (cf.length) fs.appendFileSync(`${dir}/frames.jsonl`, cf.map(x => JSON.stringify(x)).join('\\n') + '\\n');\n"
+                       "      } catch (e) {}")
+          open(p, 'w').write(s.replace(old, new))
+          print("gate instrumented")
+          PY
+
       - name: Install the gate's browser
         run: |
           cd vmssrc/tools/cluster-web-demo
@@ -202,7 +250,11 @@ jobs:
 
   deploy:
     needs: [build, gate]
+    # A DIAGNOSTIC CAPTURE RUN NEVER DEPLOYS and never rewrites the pin: it
+    # exists to read bytes off a failing gate, and the demo's public state is
+    # not its to move.
     if: always() && needs.build.outputs.skip != '1' && needs.build.result != 'skipped'
+        && github.event.inputs.capture != 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
