@@ -62,7 +62,12 @@ on:
 permissions:
   contents: write
 
-concurrency: track-cluster-demo
+# A DIAGNOSTIC CAPTURE RUN GETS ITS OWN GROUP. The release poll fires this
+# workflow every few minutes, and a queued run of the same group is cancelled
+# by the next one -- which means a capture dispatched by hand never starts.
+# It deploys nothing, so it contends with nothing.
+concurrency: >-
+  track-cluster-demo${{ github.event.inputs.capture == 'true' && '-capture' || '' }}
 
 jobs:
   build:
