@@ -69,14 +69,24 @@ on:
         description: 'PREFLIGHT ONLY: vms ref to take the visitor gate itself from (default: `ref`). The version under test is still read from `ref`.'
         required: false
         default: ''
+      capture:
+        description: >-
+          DIAGNOSTIC: record every 0x6007 frame the in-page L2 switch carries,
+          byte for byte, into each case's frames.jsonl artifact -- and DO NOT
+          DEPLOY. For reading a bugcheck the consoles alone cannot explain.
+        type: boolean
+        default: false
 
 permissions:
   contents: write
 
-# A preflight (a vms ref gated before its tag) deploys nothing, so it runs in a
-# group of its own: in the shared group, the track-release cascade that fires
-# every 10 minutes replaced it while it was still pending.
-concurrency: ${{ github.event.inputs.preflight == 'true' && format('cluster-demo-preflight-{0}', github.run_id) || 'track-cluster-demo' }}
+# A PREFLIGHT AND A DIAGNOSTIC CAPTURE EACH GET THEIR OWN GROUP. Both deploy
+# nothing, so neither contends with the release poll -- and in the shared group
+# the track-release cascade that fires every 10 minutes replaced them while
+# they were still pending.
+concurrency: >-
+  ${{ (github.event.inputs.preflight == 'true' || github.event.inputs.capture == 'true')
+      && format('cluster-demo-diag-{0}', github.run_id) || 'track-cluster-demo' }}
 
 jobs:
   build:
@@ -295,6 +305,52 @@ jobs:
       - name: Check out the visitor gate (the tag's own -- or, for a preflight, gate_ref or the ref)
         run: git clone --depth 1 --branch "${{ needs.build.outputs.gate_src }}" https://github.com/3dl-dev/vms vmssrc
 
+      # DIAGNOSTIC CAPTURE (capture=true only). The demo page already taps the
+      # L2 hub for a frame TALLY (window.__hubframes: port/ethertype/len). A
+      # bugcheck on the real VAX cannot be read from a tally -- it needs the
+      # BYTES of the last frames the other nodes sent. Two surgical patches,
+      # both only in this runner's working copy and never in what is deployed:
+      # the page also records each 0x6007 frame's hex into a drainable buffer,
+      # and the gate drains that buffer into <case>/frames.jsonl on every poll
+      # (so memory stays bounded and the record survives the crash).
+      - name: Instrument the L2 switch to record frame bytes (diagnostic)
+        if: github.event.inputs.capture == 'true'
+        run: |
+          set -euo pipefail
+          P=demo/cluster/index.html
+          grep -q '__hubframes.push' "$P" || { echo "page tap not found -- refusing to guess"; exit 1; }
+          python3 - "$P" <<'PY'
+          import sys
+          p = sys.argv[1]; s = open(p).read()
+          old = "      window.__hubframes.push({ port: handle.name, ethertype: ethertypeOf(u8), len: u8.byteLength });"
+          assert s.count(old) == 1, "page tap line is not unique"
+          new = old + ("\n      if (ethertypeOf(u8) === 0x6007) { const _c = (window.__capframes = window.__capframes || []);"
+                       " _c.push({ t: Date.now(), port: handle.name,"
+                       " hex: Array.from(u8, c => c.toString(16).padStart(2, '0')).join('') });"
+                       " if (_c.length > 200000) _c.splice(0, _c.length - 200000); }")
+          open(p, 'w').write(s.replace(old, new))
+          print("page instrumented")
+          PY
+          G=vmssrc/tools/cluster-web-demo/visitor-gate.mjs
+          [ -f "$G" ] || { echo "gate clone missing (this step must run after the clone)"; exit 1; }
+          python3 - "$G" <<'PY'
+          import sys
+          p = sys.argv[1]; s = open(p).read()
+          old = "    R.verdict = verdictOf(R);"
+          assert s.count(old) == 1, "gate teardown line is not unique"
+          # Drained ONCE, in the teardown that runs on every exit path -- the
+          # bugcheck break included -- and NEVER inside the poll loop: draining
+          # mid-run adds main-thread work to a page whose every inter-node frame
+          # crosses four main threads, and that alone was enough to stop the
+          # bugcheck reproducing.
+          new = ("    try {\n"
+                 "      const cf = await page.evaluate(() => { const a = window.__capframes || []; window.__capframes = []; return a; });\n"
+                 "      if (cf.length) fs.appendFileSync(`${dir}/frames.jsonl`, cf.map(x => JSON.stringify(x)).join('\\n') + '\\n');\n"
+                 "    } catch (e) {}\n") + old
+          open(p, 'w').write(s.replace(old, new))
+          print("gate instrumented")
+          PY
+
       - name: Install the gate's browser
         run: |
           cd vmssrc/tools/cluster-web-demo
@@ -321,7 +377,12 @@ jobs:
 
   deploy:
     needs: [build, gate]
-    if: always() && needs.build.outputs.skip != '1' && needs.build.result != 'skipped' && needs.build.outputs.preflight != '1'
+    # NEITHER A PREFLIGHT NOR A DIAGNOSTIC CAPTURE DEPLOYS, and neither
+    # rewrites the pin: a capture exists to read bytes off a failing gate, a
+    # preflight to gate a ref before its tag, and the demo's public state is
+    # not theirs to move.
+    if: always() && needs.build.outputs.skip != '1' && needs.build.result != 'skipped'
+        && needs.build.outputs.preflight != '1' && github.event.inputs.capture != 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
