@@ -86,7 +86,7 @@ function boot(cfg) {
   // Install the fake-WebSocket NIC shim BEFORE out.js runs (see header (b)).
   nic = self.OVMXNic.installQemuNicWebSocket({
     scope: self,
-    onNicTx: (f) => self.postMessage({ t: 'nic-tx', frame: f.buffer }, [f.buffer]),
+    onNicTx: (f) => { guestTxSeen = true; self.postMessage({ t: 'nic-tx', frame: f.buffer }, [f.buffer]); },
     onError: (r) => self.postMessage({ t: 'nic-err', m: '' + r }),
   });
 
@@ -181,6 +181,12 @@ function boot(cfg) {
 // the NIC shim was null" (hadNic) vs "deliverToGuest ran but returned false — no active/OPEN
 // FakeWebSocket" (nicRxDeliverCalls vs nicRxDeliverOk), from the page side, with no rebuild.
 let nicRxWorkerCount = 0, nicRxDeliverCalls = 0, nicRxDeliverOk = 0;
+// rd vms-e79: a real Ethernet port drops frames that arrive before its driver
+// opens the interface. Until the guest transmits its first frame (proof its
+// NIC driver is up), received frames are counted and dropped here instead of
+// queued without bound into the emulator's socket while the guest is still
+// booting (Node A stalled after %OVMX-I-MOUNTED in 5/8 gate orders).
+let guestTxSeen = false, nicRxDroppedPreTx = 0;
 
 self.onmessage = (e) => {
   const m = e.data;
@@ -188,8 +194,13 @@ self.onmessage = (e) => {
   if (m.t === 'nic-rx') {
     nicRxWorkerCount++;
     let ok = false;
+    if (!guestTxSeen) {
+      nicRxDroppedPreTx++;
+      self.postMessage({ t: 'nic-rx-ack', worker: nicRxWorkerCount, deliverCalls: nicRxDeliverCalls, deliverOk: nicRxDeliverOk, droppedPreTx: nicRxDroppedPreTx, hadNic: !!nic, ok });
+      return;
+    }
     if (nic) { nicRxDeliverCalls++; ok = !!nic.deliverToGuest(new Uint8Array(m.frame)); if (ok) nicRxDeliverOk++; }
-    self.postMessage({ t: 'nic-rx-ack', worker: nicRxWorkerCount, deliverCalls: nicRxDeliverCalls, deliverOk: nicRxDeliverOk, hadNic: !!nic, ok });
+    self.postMessage({ t: 'nic-rx-ack', worker: nicRxWorkerCount, deliverCalls: nicRxDeliverCalls, deliverOk: nicRxDeliverOk, droppedPreTx: nicRxDroppedPreTx, hadNic: !!nic, ok });
     return;
   }
   if (m.t === 'cfg') { boot(m); return; }
