@@ -211,7 +211,7 @@ jobs:
           new = old + ("\n      if (ethertypeOf(u8) === 0x6007) { const _c = (window.__capframes = window.__capframes || []);"
                        " _c.push({ t: Date.now(), port: handle.name,"
                        " hex: Array.from(u8, c => c.toString(16).padStart(2, '0')).join('') });"
-                       " if (_c.length > 20000) _c.splice(0, _c.length - 20000); }")
+                       " if (_c.length > 200000) _c.splice(0, _c.length - 200000); }")
           open(p, 'w').write(s.replace(old, new))
           print("page instrumented")
           PY
@@ -223,7 +223,7 @@ jobs:
           old = "      R.worstDriftMs = health.drift; R.vis = health.vis; R.sca = hub;"
           assert s.count(old) == 1, "gate poll line is not unique"
           new = old + ("\n      try {\n"
-                       "        const cf = await page.evaluate(() => { const a = window.__capframes || []; window.__capframes = []; return a; });\n"
+                       "        const cf = await page.evaluate((lo) => { const a = window.__capframes || []; if (a.length < lo) return []; window.__capframes = []; return a; }, (Date.now() - t0) > RUN_MS - 30000 ? 1 : 5000);\n"
                        "        if (cf.length) fs.appendFileSync(`${dir}/frames.jsonl`, cf.map(x => JSON.stringify(x)).join('\\n') + '\\n');\n"
                        "      } catch (e) {}")
           open(p, 'w').write(s.replace(old, new))
