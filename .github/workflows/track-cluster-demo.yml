@@ -258,7 +258,7 @@ jobs:
         run: |
           PIN=$(python3 -c "import json; print(json.load(open('demo/cluster/pcjs/PIN.json'))['commit'])")
           git init -q pcjssrc
-          git -C pcjssrc fetch -q --depth 1 https://github.com/baron-3dl/pcjs "$PIN"
+          git -C pcjssrc fetch -q --depth 1 --filter=blob:none https://github.com/baron-3dl/pcjs "$PIN"
           sh tools/vendor-pcjs.sh --check pcjssrc
 
       - uses: actions/upload-artifact@v4
