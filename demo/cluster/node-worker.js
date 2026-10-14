@@ -21,8 +21,31 @@ importScripts('lib/nic-classic.js');            // -> self.OVMXNic { enframe, De
 importScripts('boot/assets/xterm-pty.js');      // -> self.openpty
 const { master, slave } = openpty();
 let inputHandler = null, resizeHandler = null;
+// rd vms-e79 DIAGNOSTIC (experiment branch only, never deployed): Node A's
+// console stops after %OVMX-I-MOUNTED in some gate runs although the same guest
+// boots on native QEMU every time. When that happens, ask qemu-wasm's own
+// monitor (muxed on stdio under -nographic: Ctrl-A c) where the vCPU is and
+// whether virtio-blk is still completing I/O. The answers land in the console
+// log the gate already keeps.
+let diagSawMounted = false, diagSawScsnode = false, diagStarted = false, diagLastOut = Date.now(), diagProbes = 0;
+function diagScan(data) {
+  diagLastOut = Date.now(); diagStarted = true;
+  const t = typeof data === 'string' ? data : (data && data.byteLength !== undefined ? new TextDecoder().decode(data) : '');
+  if (t.indexOf('OVMX-I-MOUNTED') >= 0) diagSawMounted = true;
+  if (t.indexOf('OVMX-I-SCSNODE') >= 0) diagSawScsnode = true;
+}
+function diagProbe() {
+  if (!inputHandler) return;
+  diagProbes++;
+  self.postMessage({ t: 'out', d: '\r\n%DIAG-E79, probe ' + diagProbes + ' at +' + Math.round(performance.now() / 1000) + 's\r\n' });
+  const seq = ['\x01c', 'info status\r', 'info cpus\r', 'info registers\r', 'info blockstats\r', '\x01c'];
+  seq.forEach((k, i) => setTimeout(() => { if (inputHandler) inputHandler(k); }, 1500 * (i + 1)));
+}
+setInterval(() => {
+  if (diagStarted && !diagSawScsnode && diagProbes < 3 && Date.now() - diagLastOut > (diagProbes ? 45000 : 90000)) diagProbe();
+}, 5000);
 const page = {                                   // stands in for the page Terminal (pty bridge)
-  write: (data, cb) => { self.postMessage({ t: 'out', d: data }); if (typeof cb === 'function') cb(); },
+  write: (data, cb) => { diagScan(data); self.postMessage({ t: 'out', d: data }); if (typeof cb === 'function') cb(); },
   onData: (h) => { inputHandler = h; return { dispose() {} }; },
   onBinary: () => ({ dispose() {} }),
   onResize: (h) => { resizeHandler = h; return { dispose() {} }; },
