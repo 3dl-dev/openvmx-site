@@ -130,7 +130,7 @@
             && /%OVMX-I-MOUNTED,\s*system disk \S+ mounted/.test(state.consoleText)) state.acpOk = true;
       } catch (e2) {} }
     else if (m.t === 'nic-tx') { state.nicTxCount++; pipe.nicTx(new Uint8Array(m.frame)); }
-    else if (m.t === 'nic-rx-ack') { state.nicRxWorkerCount = m.worker; state.nicRxDeliverCalls = m.deliverCalls; state.nicRxDeliverOk = m.deliverOk; state.nicRxHadNic = m.hadNic; }  // rd vms-0cd2 per-layer RX counters
+    else if (m.t === 'nic-rx-ack') { state.nicRxWorkerCount = m.worker; state.nicRxDeliverCalls = m.deliverCalls; state.nicRxDeliverOk = m.deliverOk; state.nicRxDroppedPreTx = m.droppedPreTx || 0; state.nicRxHadNic = m.hadNic; }  // rd vms-0cd2 per-layer RX counters
     else if (m.t === 'progress') { /* cosmetic; parent orchestrates the UI */ }
     // rd vms-4ff: the worker's own event-loop heartbeat, kept verbatim with the
     // time it last arrived. Read BESIDE the console's growth by the visitor
