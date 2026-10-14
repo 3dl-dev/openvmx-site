@@ -63,7 +63,10 @@ on:
 permissions:
   contents: write
 
-concurrency: track-cluster-demo
+# A preflight (a vms ref gated before its tag) deploys nothing, so it runs in a
+# group of its own: in the shared group, the track-release cascade that fires
+# every 10 minutes replaced it while it was still pending.
+concurrency: ${{ github.event.inputs.preflight == 'true' && format('cluster-demo-preflight-{0}', github.run_id) || 'track-cluster-demo' }}
 
 jobs:
   build:
