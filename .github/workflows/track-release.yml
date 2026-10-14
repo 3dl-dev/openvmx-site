@@ -162,8 +162,17 @@ jobs:
           for m in docs/installation/index.html; do
             [ -f "$m" ] && sed -i "s#\(data-ovmx-version>\)[^<]*\(</span>\)#\1${T}\2#g" "$m" || true
           done
+          # The /compat/ page data follows the tag too (vms deploy drift sentinel,
+          # target site-compat-data, rd vms-e17): render the register AT THIS TAG
+          # (vmsdrift, cloned by the guide-drift gate above), scrub it, and stamp
+          # meta.release so the live version is readable.
+          if [ -f vmsdrift/tools/compat/render_compat.py ]; then
+            docker run --rm -v "$PWD/vmsdrift:/w" -w /w python:3.12-slim \
+              sh -c 'pip install --quiet pyyaml && python3 tools/compat/render_compat.py'
+            python3 tools/scrub_compat.py vmsdrift/build/compat-surface.json data/compat-surface.json --release "$T"
+          fi
           git config user.name 'ovmx-release-bot'; git config user.email 'bot@3dl.dev'
-          git add index.html docs/installation/index.html atom.xml
+          git add index.html docs/installation/index.html atom.xml data/compat-surface.json
           if git diff --cached --quiet; then echo "labels/feed already current for $T"; exit 0; fi
           git commit -m "site: track OVMX ${T} — version labels + release feed"
           for i in 1 2 3 4 5; do
