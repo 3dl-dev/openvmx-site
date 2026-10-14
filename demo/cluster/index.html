@@ -293,17 +293,21 @@
   });
 
   // Node B / Node C — pcjs KA655 cluster nodes, via node-pcjs.html (same-origin bridge) embedding
-  // ovmx-cluster.html (cross-origin, vax.3dl.network — the pcjs deploy, same host index.html's own
-  // VAX pane already embeds). ?nodeB=/?nodeC= remain optional machine-URL overrides for testing —
-  // both nodes are ALWAYS present with a real boot button; nothing here gates visibility on them.
-  const PCJS_ROM = 'https://vax.3dl.network/machines/dec/vax/browser/ka655x.bin';
+  // the pcjs machine page. The machine (pcjs/, vendored at ONE pinned commit, pcjs/PIN.json) and
+  // Node B's disk (nodeB/, built from the same vms release as Node A) are served from THIS site,
+  // so the page the visitor gate previews is the page that ships: no node, and no emulator, can be
+  // older than the release it is deployed with. Node C is the pinned real VAX/VMS V7.3 volume and
+  // stays on vax.3dl.network (fetched with CORS). ?nodeB=/?nodeC= remain optional machine-URL
+  // overrides for testing — both nodes are ALWAYS present with a real boot button.
+  const HERE = new URL('.', location.href);
+  const PCJS_ROM = new URL('pcjs/machines/dec/vax/browser/ka655x.bin', HERE).href;
   function pcjsMachineUrl(diskgz) {
-    return 'https://vax.3dl.network/machines/dec/vax/browser/ovmx-cluster.html' +
+    return new URL('pcjs/machines/dec/vax/browser/ovmx-cluster.html', HERE).href +
       '?rom=' + enc(PCJS_ROM) + '&diskgz=' + enc(diskgz);
   }
   wireBoot('idle-b', 'bootbtn-b', 'screen-b', (f) => {
     f.title = 'OVMX/VAX node B';
-    const machine = _pq.get('nodeB') || pcjsMachineUrl('https://vax.3dl.network/machines/dec/vax/browser/ovmx-vax-nodeB.img.gz');
+    const machine = _pq.get('nodeB') || pcjsMachineUrl(new URL('nodeB/ovmx-vax-nodeB.img.gz', HERE).href);
     f.src = 'node-pcjs.html?mac=52:54:00:00:00:0B&machine=' + enc(machine);
     registerNode('OVMXB', f);
   });

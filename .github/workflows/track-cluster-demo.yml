@@ -11,14 +11,20 @@ name: track-cluster-demo
 # its token), and workflow_dispatch runs it by hand. Never inline in vms's
 # release.yml, so a demo failure can never block or hold a release tag.
 #
-# WHAT IT REBUILDS. Node A (OVMX/x86, qemu-wasm) is rebuilt from the tag by
-# vms's tools/cluster-web-demo/build-cluster-demo and deployed IN PLACE at
+# WHAT IT REBUILDS. Every OVMX node, from the source under test (rd: no node
+# may run a stale image). Node A (OVMX/x86, qemu-wasm) is rebuilt from the tag
+# by vms's tools/cluster-web-demo/build-cluster-demo and deployed IN PLACE at
 # demo/cluster/nodeA/, with node-worker.js's BOOT_VER/PAYLOAD_VER moved to the
 # tag so a returning visitor cannot pair a cached payload with the new kernel.
-# Node B (OVMX/VAX) and Node C (the pinned real VAX/VMS V7.3 volume) are served
-# from the pcjs deploy at vax.3dl.network and are NOT rebuilt here: Node B's
-# per-tag image lands in that repo. The gate below boots whatever Node B/C the
-# page embeds, so it proves the combination a visitor will actually get.
+# Node B (OVMX/VAX) is built from the SAME source by vms's
+# cluster-demo-nodeB.yml (run-boot.sh sysboot-single; for a tag it is on the
+# release, for a preflight ref it is that workflow's artifact -- dispatch it on
+# the ref first) and deployed at demo/cluster/nodeB/. Its manifest must name
+# the exact commit and version under test, or nothing is staged. The pcjs
+# machine both VAX nodes boot on is vendored at a pinned commit
+# (demo/cluster/pcjs/PIN.json, tools/vendor-pcjs.sh), so the emulator is part
+# of the page too. Node C is the pinned real VAX/VMS V7.3 volume, still on
+# vax.3dl.network: it is not an OVMX node and does not change per release.
 #
 # THE GATE. Node A's new payload is NOT committed unless every row of the
 # visitor matrix (vms tools/cluster-web-demo/gate-eval.mjs MATRIX) passes
@@ -59,6 +65,10 @@ on:
         description: 'run the visitor matrix against `ref` (Node A built from source) and report only: no deploy, no pin, no commit'
         type: boolean
         default: false
+      gate_ref:
+        description: 'PREFLIGHT ONLY: vms ref to take the visitor gate itself from (default: `ref`). The version under test is still read from `ref`.'
+        required: false
+        default: ''
 
 permissions:
   contents: write
@@ -78,11 +88,14 @@ jobs:
       preflight: ${{ steps.r.outputs.preflight }}
       skip: ${{ steps.r.outputs.skip }}
       cases: ${{ steps.m.outputs.cases }}
+      version: ${{ steps.v.outputs.version }}
+      gate_src: ${{ steps.r.outputs.gate_src }}
     steps:
       - uses: actions/checkout@v4
 
       - name: Resolve the tag
         id: r
+        env: { GH_TOKEN: '${{ secrets.GITHUB_TOKEN }}' }
         run: |
           TAG='${{ github.event.inputs.tag || github.event.client_payload.tag }}'
           # After track-release (workflow_run), the tag is the one boot/ is now
@@ -98,10 +111,13 @@ jobs:
             REF='${{ github.event.inputs.ref }}'
             [ -n "$REF" ] || { echo "preflight needs a ref"; exit 1; }
             echo "src=$REF" >> "$GITHUB_OUTPUT"
+            GREF='${{ github.event.inputs.gate_ref }}'
+            echo "gate_src=${GREF:-$REF}" >> "$GITHUB_OUTPUT"
             echo "preflight=1" >> "$GITHUB_OUTPUT"
             echo "PREFLIGHT: gating vms $REF as $TAG (no deploy, no pin)"; exit 0
           fi
           echo "src=$TAG" >> "$GITHUB_OUTPUT"
+          echo "gate_src=$TAG" >> "$GITHUB_OUTPUT"
           DEPLOYED=$(cat demo/cluster/DEPLOYED_TAG 2>/dev/null || true)
           if [ "$TAG" = "$DEPLOYED" ] && [ "${{ github.event.inputs.force }}" != "true" ]; then
             echo "cluster demo already on $TAG."; echo "skip=1" >> "$GITHUB_OUTPUT"; exit 0
@@ -116,16 +132,44 @@ jobs:
           BOOT=$(cat boot/DEPLOYED_TAG 2>/dev/null || true)
           [ "$BOOT" = "$TAG" ] || {
             echo "boot/ is at '$BOOT', not $TAG: track-release.yml deploys the kernel first, and Node A's vms.ko must match it. Re-run once it has."; exit 1; }
+          # Node B is built per tag by vms's cluster-demo-nodeB.yml (hours of
+          # emulated VAX) and lands on the release when done. Until it has, the
+          # tag is NOT pinned as failed -- it is simply not ready; the next
+          # track-release poll comes back for it.
+          if ! gh release view "$TAG" --repo 3dl-dev/vms --json assets --jq '.assets[].name' 2>/dev/null \
+               | grep -qx 'ovmx-vax-nodeB.img.gz'; then
+            echo "Node B for $TAG is not on the release yet (vms cluster-demo-nodeB.yml): not ready, retried on the next poll."
+            echo "skip=1" >> "$GITHUB_OUTPUT"; exit 0
+          fi
 
       - name: Check out vms at the tag (generator, injectors, node-identity SSOT, visitor gate)
         if: steps.r.outputs.skip != '1'
         run: git clone --depth 1 --branch "${{ steps.r.outputs.src }}" https://github.com/3dl-dev/vms vmssrc
 
-      - name: The visitor matrix this tag's gate defines
+      - name: The OpenVMX version under test (ovmx_identity.h of the source, the one place it is set)
+        id: v
+        if: steps.r.outputs.skip != '1'
+        run: |
+          V=$(sed -n 's/^#define OVMX_PRODUCT_VERSION[[:space:]]*"\([^"]*\)".*/\1/p' vmssrc/src/libvms/include/ovmx_identity.h)
+          [ -n "$V" ] || { echo "no OVMX_PRODUCT_VERSION in the source"; exit 1; }
+          echo "version=$V" >> "$GITHUB_OUTPUT"
+          echo "sha=$(git -C vmssrc rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          echo "source ${{ steps.r.outputs.src }} = $(git -C vmssrc rev-parse HEAD), OpenVMX $V"
+
+      - name: Check out the visitor gate (the source's own, or gate_ref for a preflight)
+        if: steps.r.outputs.skip != '1'
+        run: |
+          if [ "${{ steps.r.outputs.gate_src }}" = "${{ steps.r.outputs.src }}" ]; then
+            ln -s vmssrc vmsgate
+          else
+            git clone --depth 1 --branch "${{ steps.r.outputs.gate_src }}" https://github.com/3dl-dev/vms vmsgate
+          fi
+
+      - name: The visitor matrix this gate defines
         id: m
         if: steps.r.outputs.skip != '1'
         run: |
-          cd vmssrc/tools/cluster-web-demo
+          cd vmsgate/tools/cluster-web-demo
           echo "cases=$(node -e "import('./gate-eval.mjs').then(m=>console.log(JSON.stringify(m.MATRIX.map(r=>r.label))))")" >> "$GITHUB_OUTPUT"
 
       - name: Obtain this tag's x86 boot assets (published Release, else build from source)
@@ -170,6 +214,53 @@ jobs:
           cp "$RUNNER_TEMP/demo-out/$T/nodeA/sysdisk-nodeA.qcow2.gz" payload/nodeA/
           cp "$RUNNER_TEMP/demo-out/$T/manifest.json" payload/manifest.json
 
+      # Node B, built from this exact source by vms's cluster-demo-nodeB.yml.
+      # A tag's Node B is on its release; a preflight ref's is that workflow's
+      # artifact (run title "Node B for <ref>"). Either way its manifest must
+      # name this commit and this version -- an image of anything else is the
+      # stale node this step exists to keep out of the page.
+      - name: Obtain Node B built from this source (vms cluster-demo-nodeB)
+        if: steps.r.outputs.skip != '1'
+        env: { GH_TOKEN: '${{ secrets.GITHUB_TOKEN }}' }
+        run: |
+          set -euo pipefail
+          SRC='${{ steps.r.outputs.src }}'; T='${{ steps.r.outputs.tag }}'
+          SHA='${{ steps.v.outputs.sha }}'; V='${{ steps.v.outputs.version }}'
+          mkdir -p nodeB
+          if [ "${{ steps.r.outputs.preflight }}" != "1" ] && gh release download "$T" --repo 3dl-dev/vms -D nodeB \
+               -p ovmx-vax-nodeB.img.gz -p nodeB-manifest.json 2>/dev/null; then
+            echo "Node B from the $T release"
+          else
+            RUN=$(gh run list --repo 3dl-dev/vms --workflow cluster-demo-nodeB.yml --status success -L 100 \
+                    --json databaseId,displayTitle --jq "[.[] | select(.displayTitle == \"Node B for $SRC\")][0].databaseId // empty")
+            [ -n "$RUN" ] || { echo "no successful Node B build for $SRC: dispatch vms cluster-demo-nodeB.yml with ref=$SRC, then re-run"; exit 1; }
+            gh run download "$RUN" --repo 3dl-dev/vms -n cluster-demo-nodeB -D nodeB
+            echo "Node B from vms run $RUN"
+          fi
+          cat nodeB/nodeB-manifest.json
+          python3 - "$SHA" "$V" <<'EOF'
+          import hashlib, json, sys
+          sha, ver = sys.argv[1:3]
+          m = json.load(open("nodeB/nodeB-manifest.json"))
+          bad = []
+          if m.get("sha") != sha: bad.append("built from %s, the source is %s" % (m.get("sha"), sha))
+          if m.get("version") != ver: bad.append("OpenVMX %s, the source is %s" % (m.get("version"), ver))
+          if hashlib.sha256(open("nodeB/ovmx-vax-nodeB.img.gz", "rb").read()).hexdigest() != m.get("img_gz_sha256"):
+              bad.append("the image does not hash to its manifest")
+          if bad: sys.exit("Node B is not the build under test: " + "; ".join(bad))
+          print("Node B is OpenVMX %s built from %s" % (ver, sha))
+          EOF
+          mkdir -p payload/nodeB
+          cp nodeB/ovmx-vax-nodeB.img.gz nodeB/nodeB-manifest.json payload/nodeB/
+
+      - name: The vendored pcjs machine matches its pin
+        if: steps.r.outputs.skip != '1'
+        run: |
+          PIN=$(python3 -c "import json; print(json.load(open('demo/cluster/pcjs/PIN.json'))['commit'])")
+          git init -q pcjssrc
+          git -C pcjssrc fetch -q --depth 1 https://github.com/baron-3dl/pcjs "$PIN"
+          sh tools/vendor-pcjs.sh --check pcjssrc
+
       - uses: actions/upload-artifact@v4
         if: steps.r.outputs.skip != '1'
         with:
@@ -195,12 +286,14 @@ jobs:
         run: |
           T='${{ needs.build.outputs.tag }}'
           cp payload/nodeA/* demo/cluster/nodeA/
+          mkdir -p demo/cluster/nodeB
+          cp payload/nodeB/* demo/cluster/nodeB/
           sed -i "s/^const BOOT_VER  = '[^']*'/const BOOT_VER  = '$(echo "$T" | tr 'V' 'v')'/; s/^const PAYLOAD_VER = '[^']*'/const PAYLOAD_VER = '$T'/" \
             demo/cluster/node-worker.js
           grep -n "BOOT_VER  =\|PAYLOAD_VER =" demo/cluster/node-worker.js
 
-      - name: Check out vms at the tag (the visitor gate) -- or the preflight ref
-        run: git clone --depth 1 --branch "${{ needs.build.outputs.src }}" https://github.com/3dl-dev/vms vmssrc
+      - name: Check out the visitor gate (the tag's own -- or, for a preflight, gate_ref or the ref)
+        run: git clone --depth 1 --branch "${{ needs.build.outputs.gate_src }}" https://github.com/3dl-dev/vms vmssrc
 
       - name: Install the gate's browser
         run: |
@@ -216,6 +309,7 @@ jobs:
           CASE='${{ matrix.case }}' \
           DEMO_URL=http://localhost:8123/demo/cluster/ \
           DEMO_LOGIN_HINT_URL=http://localhost:8123/ \
+          OVMX_VERSION='${{ needs.build.outputs.version }}' \
           OUT_DIR="$RUNNER_TEMP/gate" \
             node visitor-gate.mjs
 
@@ -237,11 +331,13 @@ jobs:
         if: needs.build.result == 'success' && needs.gate.result == 'success'
         with: { name: cluster-demo-payload, path: payload }
 
-      - name: Deploy Node A for the tag (the gate passed)
+      - name: Deploy Node A and Node B for the tag (the gate passed)
         if: needs.build.result == 'success' && needs.gate.result == 'success'
         run: |
           T='${{ needs.build.outputs.tag }}'
           cp payload/nodeA/* demo/cluster/nodeA/
+          mkdir -p demo/cluster/nodeB
+          cp payload/nodeB/* demo/cluster/nodeB/
           sed -i "s/^const BOOT_VER  = '[^']*'/const BOOT_VER  = '$(echo "$T" | tr 'V' 'v')'/; s/^const PAYLOAD_VER = '[^']*'/const PAYLOAD_VER = '$T'/" \
             demo/cluster/node-worker.js
           git rm -q --ignore-unmatch demo/cluster/CLUSTER_DEMO_PIN.json
@@ -249,7 +345,7 @@ jobs:
           git config user.name 'ovmx-release-bot'; git config user.email 'bot@3dl.dev'
           git add demo/cluster
           if git diff --cached --quiet; then echo "no change"; exit 0; fi
-          git commit -m "demo/cluster: redeploy Node A at ${T}, visitor gate passed (rd vms-cdbd, vms-db1)"
+          git commit -m "demo/cluster: redeploy Node A and Node B at ${T}, visitor gate passed (rd vms-cdbd, vms-db1)"
           for i in 1 2 3 4 5; do
             git pull --rebase --autostash origin main && git push origin HEAD:main && exit 0
             echo "push $i rejected, retrying"; sleep 5
