@@ -3405,7 +3405,7 @@ var PThread = {
   }
  },
  initMainThread() {
-  var pthreadPoolSize = 4;
+  var pthreadPoolSize = 16;
   while (pthreadPoolSize--) {
    PThread.allocateUnusedWorker();
   }

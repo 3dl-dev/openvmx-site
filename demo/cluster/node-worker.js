@@ -53,7 +53,7 @@ const page = {                                   // stands in for the page Termi
 master.activate(page);
 
 // Cache-busted payload download with real byte progress (reported to the page).
-const ASSET_VER = 'cw1';  // bump when the qemu-wasm binary changes
+const ASSET_VER = 'cw1p16';  // bump when the qemu-wasm binary changes
 const BOOT_VER  = 'v0.7-7'; // bump when boot/vmlinuz or the per-node images change
 const PAYLOAD_VER = 'V0.7-7';
 function xhrGet(url, i, loaded, total, report) {
