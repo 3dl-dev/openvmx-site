@@ -51,6 +51,14 @@ on:
         description: rebuild + re-gate even if demo/cluster/DEPLOYED_TAG already matches
         type: boolean
         default: false
+      ref:
+        description: 'PREFLIGHT ONLY: vms branch/commit to build and gate instead of the tag (e.g. release-verify-v0.7-10) -- the visitor matrix BEFORE a tag'
+        required: false
+        default: ''
+      preflight:
+        description: 'run the visitor matrix against `ref` (Node A built from source) and report only: no deploy, no pin, no commit'
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -63,6 +71,8 @@ jobs:
     timeout-minutes: 90
     outputs:
       tag: ${{ steps.r.outputs.tag }}
+      src: ${{ steps.r.outputs.src }}
+      preflight: ${{ steps.r.outputs.preflight }}
       skip: ${{ steps.r.outputs.skip }}
       cases: ${{ steps.m.outputs.cases }}
     steps:
@@ -77,6 +87,18 @@ jobs:
           [ -n "$TAG" ] || TAG=$(cat boot/DEPLOYED_TAG 2>/dev/null || true)
           [ -n "$TAG" ] || { echo "no tag (no input, no dispatch payload, no boot/DEPLOYED_TAG)."; exit 1; }
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          # PREFLIGHT (rd vms-f4e follow-up: the gate ran only after a tag, so
+          # V0.7-9 went public crashing a VAX): build and gate a vms REF before
+          # it is tagged. Nothing is deployed or pinned, so the deployed-tag,
+          # pin and boot-tag checks below do not apply.
+          if [ "${{ github.event.inputs.preflight }}" = "true" ]; then
+            REF='${{ github.event.inputs.ref }}'
+            [ -n "$REF" ] || { echo "preflight needs a ref"; exit 1; }
+            echo "src=$REF" >> "$GITHUB_OUTPUT"
+            echo "preflight=1" >> "$GITHUB_OUTPUT"
+            echo "PREFLIGHT: gating vms $REF as $TAG (no deploy, no pin)"; exit 0
+          fi
+          echo "src=$TAG" >> "$GITHUB_OUTPUT"
           DEPLOYED=$(cat demo/cluster/DEPLOYED_TAG 2>/dev/null || true)
           if [ "$TAG" = "$DEPLOYED" ] && [ "${{ github.event.inputs.force }}" != "true" ]; then
             echo "cluster demo already on $TAG."; echo "skip=1" >> "$GITHUB_OUTPUT"; exit 0
@@ -94,7 +116,7 @@ jobs:
 
       - name: Check out vms at the tag (generator, injectors, node-identity SSOT, visitor gate)
         if: steps.r.outputs.skip != '1'
-        run: git clone --depth 1 --branch "${{ steps.r.outputs.tag }}" https://github.com/3dl-dev/vms vmssrc
+        run: git clone --depth 1 --branch "${{ steps.r.outputs.src }}" https://github.com/3dl-dev/vms vmssrc
 
       - name: The visitor matrix this tag's gate defines
         id: m
@@ -108,7 +130,7 @@ jobs:
         env: { GH_TOKEN: '${{ secrets.GITHUB_TOKEN }}' }
         run: |
           T='${{ steps.r.outputs.tag }}'; mkdir -p rel
-          if gh release download "$T" --repo 3dl-dev/vms -D rel \
+          if [ "${{ steps.r.outputs.preflight }}" != "1" ] && gh release download "$T" --repo 3dl-dev/vms -D rel \
                -p vmlinuz -p initramfs-ovmx-slim.cpio.gz -p ovmx-distrib.img 2>/dev/null \
              && [ -f rel/ovmx-distrib.img ]; then
             echo "using PUBLISHED release assets for $T"
@@ -174,8 +196,8 @@ jobs:
             demo/cluster/node-worker.js
           grep -n "BOOT_VER  =\|PAYLOAD_VER =" demo/cluster/node-worker.js
 
-      - name: Check out vms at the tag (the visitor gate)
-        run: git clone --depth 1 --branch "${{ needs.build.outputs.tag }}" https://github.com/3dl-dev/vms vmssrc
+      - name: Check out vms at the tag (the visitor gate) -- or the preflight ref
+        run: git clone --depth 1 --branch "${{ needs.build.outputs.src }}" https://github.com/3dl-dev/vms vmssrc
 
       - name: Install the gate's browser
         run: |
@@ -202,7 +224,7 @@ jobs:
 
   deploy:
     needs: [build, gate]
-    if: always() && needs.build.outputs.skip != '1' && needs.build.result != 'skipped'
+    if: always() && needs.build.outputs.skip != '1' && needs.build.result != 'skipped' && needs.build.outputs.preflight != '1'
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
