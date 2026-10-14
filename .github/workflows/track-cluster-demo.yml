@@ -220,12 +220,17 @@ jobs:
           python3 - "$G" <<'PY'
           import sys
           p = sys.argv[1]; s = open(p).read()
-          old = "      R.worstDriftMs = health.drift; R.vis = health.vis; R.sca = hub;"
-          assert s.count(old) == 1, "gate poll line is not unique"
-          new = old + ("\n      try {\n"
-                       "        const cf = await page.evaluate((lo) => { const a = window.__capframes || []; if (a.length < lo) return []; window.__capframes = []; return a; }, (Date.now() - t0) > RUN_MS - 30000 ? 1 : 5000);\n"
-                       "        if (cf.length) fs.appendFileSync(`${dir}/frames.jsonl`, cf.map(x => JSON.stringify(x)).join('\\n') + '\\n');\n"
-                       "      } catch (e) {}")
+          old = "    R.verdict = verdictOf(R);"
+          assert s.count(old) == 1, "gate teardown line is not unique"
+          # Drained ONCE, in the teardown that runs on every exit path -- the
+          # bugcheck break included -- and NEVER inside the poll loop: draining
+          # mid-run adds main-thread work to a page whose every inter-node frame
+          # crosses four main threads, and that alone was enough to stop the
+          # bugcheck reproducing.
+          new = ("    try {\n"
+                 "      const cf = await page.evaluate(() => { const a = window.__capframes || []; window.__capframes = []; return a; });\n"
+                 "      if (cf.length) fs.appendFileSync(`${dir}/frames.jsonl`, cf.map(x => JSON.stringify(x)).join('\\n') + '\\n');\n"
+                 "    } catch (e) {}\n") + old
           open(p, 'w').write(s.replace(old, new))
           print("gate instrumented")
           PY
