@@ -1,5 +1,5 @@
 {
   "pinned_to": "unknown",
-  "blocked_from": "V0.7-8",
-  "reason": "cluster-demo redeploy for V0.7-8 did not pass (build=success, visitor gate=failure) on 2026-10-13; run 38333892182. The demo stays at unknown."
+  "blocked_from": "V0.7-9",
+  "reason": "cluster-demo redeploy for V0.7-9 did not pass (build=success, visitor gate=failure) on 2026-10-14; run 38483472460. The demo stays at unknown."
 }
