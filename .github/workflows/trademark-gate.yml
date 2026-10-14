@@ -22,8 +22,21 @@ jobs:
           # All tracked HTML except under docs/ (docs may quote the term in prose).
           FILES=$(git ls-files '*.html' ':!:docs/**')
           echo "scanning:"; echo "$FILES"
+          # ONE exemption (Baron, 2026-10-14), by exact path AND content hash:
+          # the cluster demo's vendored pcjs machine page (third-party emulator
+          # code, pinned in demo/cluster/pcjs/PIN.json). Its "OpenVMS" hits are
+          # code comments and the regex that recognises the REAL VAX/VMS boot
+          # banner on Node C's console -- not site copy. A pcjs bump changes the
+          # hash, so the exemption lapses and the gate fails until someone
+          # re-reviews the new file and records its hash here.
+          EXEMPT_PATH=demo/cluster/pcjs/machines/dec/vax/browser/ovmx-cluster.html
+          EXEMPT_SHA256=1d3476dcb7a1f3e3f90fd6e69dfe43f57bf43c40db58d07c790ee42dc5bf1a1d
           bad=0
           for f in $FILES; do
+            if [ "$f" = "$EXEMPT_PATH" ] && [ "$(sha256sum "$f" | cut -d' ' -f1)" = "$EXEMPT_SHA256" ]; then
+              echo "exempt (reviewed vendored pcjs page, sha256 $EXEMPT_SHA256): $f"
+              continue
+            fi
             n=$(grep -c 'OpenVMS' "$f" || true)
             if [ "$n" -gt 0 ]; then
               echo "::error file=$f::found $n occurrence(s) of 'OpenVMS' — banned as identity/copy (see trademark-gate.yml)"
