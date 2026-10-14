@@ -140,6 +140,7 @@ jobs:
 
       - name: Cascade the version labels + release feed (INDEPENDENT of the demo capture)
         if: steps.r.outputs.skip != '1'
+        env: { GH_TOKEN: '${{ secrets.GITHUB_TOKEN }}' }
         run: |
           # The product-edition version shown on the site (SPD line, "Now on …")
           # and the Atom release feed follow the RELEASE TAG, not the demo image.
@@ -171,6 +172,36 @@ jobs:
               sh -c 'pip install --quiet pyyaml && python3 tools/compat/render_compat.py'
             python3 tools/scrub_compat.py vmsdrift/build/compat-surface.json data/compat-surface.json --release "$T"
           fi
+          # The homepage's single-node OVMX/VAX demo disk follows the tag too
+          # (vms deploy manifest target demo-vax-single, rd vms-208f). vms's
+          # cluster-demo-nodeB.yml builds it on the tag, proves it boots to a
+          # working DCL (run-boot.sh acceptance) and attaches it with a version
+          # sidecar. Deploy only a disk whose sidecar names THIS tag and whose
+          # bytes match it; a release without one leaves the demo where it is
+          # (the drift sentinel then reports it -- never a silent stale).
+          rm -rf vaxsingle; mkdir vaxsingle
+          if gh release download "$T" --repo 3dl-dev/vms -D vaxsingle \
+               -p ovmx-vax-single.img.gz -p vax-single-manifest.json 2>/dev/null \
+             && python3 - "$T" vaxsingle <<'PY'
+          import hashlib, json, sys
+          t, d = sys.argv[1], sys.argv[2]
+          m = json.load(open(d + "/vax-single-manifest.json"))
+          h = hashlib.sha256(open(d + "/ovmx-vax-single.img.gz", "rb").read()).hexdigest()
+          ok = m.get("version") == t and m.get("img_gz_sha256") == h
+          print("vax single disk:", m.get("version"), "sha ok" if m.get("img_gz_sha256") == h else "SHA MISMATCH")
+          sys.exit(0 if ok else 1)
+          PY
+          then
+            mkdir -p demo/vax
+            cp vaxsingle/ovmx-vax-single.img.gz vaxsingle/vax-single-manifest.json demo/vax/
+            sed -i "s#&diskgz=https://[^']*\.img\.gz[^']*'#\&diskgz=https://openvmx.3dl.dev/demo/vax/ovmx-vax-single.img.gz?v=${T}'#" index.html
+            sed -i "s#\(data-vax-demo-version>\)[^<]*\(</span>\)#\1${T}\2#" index.html
+            grep -n "diskgz=\|data-vax-demo-version" index.html
+            git add demo/vax
+          else
+            echo "no proven single-node VAX demo disk on release $T -- the VAX demo stays as it is"
+          fi
+          rm -rf vaxsingle
           git config user.name 'ovmx-release-bot'; git config user.email 'bot@3dl.dev'
           git add index.html docs/installation/index.html atom.xml data/compat-surface.json
           if git diff --cached --quiet; then echo "labels/feed already current for $T"; exit 0; fi
