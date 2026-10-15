@@ -6,24 +6,36 @@
 // reproducing headless. xterm stays on the page; only pty bytes + a few control
 // messages cross via postMessage.
 
-importScripts('assets/xterm-pty.js');            // -> self.openpty
-const { master, slave } = openpty();
-let inputHandler = null, resizeHandler = null;
-const page = {                                   // stands in for the page Terminal
-  write: (data, cb) => { self.postMessage({ t: 'out', d: data }); if (typeof cb === 'function') cb(); },
-  onData: (h) => { inputHandler = h; return { dispose() {} }; },
-  onBinary: () => ({ dispose() {} }),
-  onResize: (h) => { resizeHandler = h; return { dispose() {} }; },
-};
-master.activate(page);
+// Cache-busted payload download with real byte progress (reported to the page).
+const ASSET_VER = 'wasm-classic-pool16';  // bump when the qemu-wasm binary changes
+
+// TWO EMULATOR BUILDS (rd vms-e79): ASSET_VER is the qemu-wasm fork release tag,
+// stamped by track-release with the binaries. wasm-wasmfs-* = WASMFS (nothing
+// proxied to this thread; console on a shared-memory ring, assets/wasm-ring.js);
+// otherwise the JS filesystem with xterm-pty's TTY. See
+// demo/cluster/node-worker.js for the long version.
+importScripts('assets/wasm-ring.js');            // -> self.OVMXWasmRing
+const RINGS = self.OVMXWasmRing.isWasmfsTag(ASSET_VER);
+let inputHandler = null, resizeHandler = null, slave = null, ring = null;
+if (RINGS) {
+  ring = self.OVMXWasmRing.bridge({ onOut: (b) => self.postMessage({ t: 'out', d: b }, [b.buffer]) });
+  inputHandler = (d) => ring.consoleIn(d);
+} else {
+  importScripts('assets/xterm-pty.js');          // -> self.openpty
+  const pty = openpty();
+  slave = pty.slave;
+  pty.master.activate({                          // stands in for the page Terminal
+    write: (data, cb) => { self.postMessage({ t: 'out', d: data }); if (typeof cb === 'function') cb(); },
+    onData: (h) => { inputHandler = h; return { dispose() {} }; },
+    onBinary: () => ({ dispose() {} }),
+    onResize: (h) => { resizeHandler = h; return { dispose() {} }; },
+  });
+}
 self.onmessage = (e) => {
   const m = e.data;
   if (m.t === 'in' && inputHandler) inputHandler(m.d);
   else if (m.t === 'resize' && resizeHandler) resizeHandler({ cols: m.cols, rows: m.rows });
 };
-
-// Cache-busted payload download with real byte progress (reported to the page).
-const ASSET_VER = 'wasm-classic-pool16';  // bump when the qemu-wasm binary changes
 const PAYLOAD_VER = 'V0.7-10-4323';
 function xhrGet(url, i, loaded, total, report) {
   return new Promise((res, rej) => {
@@ -44,7 +56,7 @@ async function inflate(buf) {
 }
 
 self.Module = {
-  arguments: ['-nographic', '-M', 'pc', '-m', '256M', '-accel', 'tcg,tb-size=500', '-L', '/pack-rom/',
+  arguments: [...(RINGS ? self.OVMXWasmRing.CONSOLE_ARGS : ['-nographic']), '-M', 'pc', '-m', '256M', '-accel', 'tcg,tb-size=500', '-L', '/pack-rom/',
     '-nic', 'none', '-kernel', '/pack-kernel/vmlinuz', '-initrd', '/pack-initramfs/initramfs-ovmx.cpio.gz',
     // no_timer_check (rd vms-4ff): see demo/cluster/node-worker.js's twin comment
     // for the measured mechanism -- check_timer()'s timer_irq_works() demands five
@@ -56,9 +68,9 @@ self.Module = {
   locateFile: (p) => new URL(p, self.location.href).href + '?v=' + ASSET_VER,
   mainScriptUrlOrBlob: new URL('out.js', self.location.href).href + '?v=' + ASSET_VER,
   pty: slave,
+  ovmxRing: (...a) => { if (ring) ring.onRing(...a); },
   preRun: [(mod) => {
     mod.addRunDependency('ovmx');
-    const mk = (p) => { try { mod.FS.mkdir(p); } catch (e) {} };
     const loaded = [0, 0, 0], total = [0, 0, 0];
     const report = () => {
       const l = loaded[0] + loaded[1] + loaded[2], t = (total[0] + total[1] + total[2]) || (66 * 1048576);
@@ -72,16 +84,18 @@ self.Module = {
     ]).then(([k, i, dz]) => {
       self.postMessage({ t: 'progress', frac: 0.88, label: 'Unpacking…' });
       return inflate(dz).then((d) => {
-        mk('/pack-kernel'); mk('/pack-initramfs'); mk('/pack-disk');
-        mod.FS.writeFile('/pack-kernel/vmlinuz', k);
-        mod.FS.writeFile('/pack-initramfs/initramfs-ovmx.cpio.gz', i);
-        mod.FS.writeFile('/pack-disk/sysdisk.qcow2', d);
+        // Preloaded (both filesystems): WASMFS cannot run Wasm before its runtime is up.
+        for (const dir of ['pack-kernel', 'pack-initramfs', 'pack-disk']) mod.FS.createPath('/', dir, true, true);
+        mod.FS.createDataFile('/pack-kernel', 'vmlinuz', k, true, true, true);
+        mod.FS.createDataFile('/pack-initramfs', 'initramfs-ovmx.cpio.gz', i, true, true, true);
+        mod.FS.createDataFile('/pack-disk', 'sysdisk.qcow2', d, true, true, true);
         self.postMessage({ t: 'progress', frac: 0.90, label: 'Starting the machine…' });
         mod.removeRunDependency('ovmx');
       });
     }).catch((e) => self.postMessage({ t: 'err', m: '' + e }));
   }],
   onRuntimeInitialized: () => {
+    if (RINGS) { self.postMessage({ t: 'ready' }); return; }
     const op = Module.TTY.stream_ops.poll, pty = Module.pty;
     Module.TTY.stream_ops.poll = function (s, t) {
       if (!pty.readable) return (pty.readable ? 1 : 0) | (pty.writable ? 4 : 0);

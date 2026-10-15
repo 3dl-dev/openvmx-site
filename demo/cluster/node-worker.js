@@ -17,20 +17,40 @@
 // ../../boot/, reached here through the demo/cluster/boot symlink, so a relative 'boot/…'
 // URL resolves under coi-server regardless of whether its root is demo/cluster or the site root.
 
-importScripts('lib/nic-classic.js');            // -> self.OVMXNic { enframe, Deframer, installQemuNicWebSocket }
-importScripts('boot/assets/xterm-pty.js');      // -> self.openpty
-const { master, slave } = openpty();
-let inputHandler = null, resizeHandler = null;
-const page = {                                   // stands in for the page Terminal (pty bridge)
-  write: (data, cb) => { self.postMessage({ t: 'out', d: data }); if (typeof cb === 'function') cb(); },
-  onData: (h) => { inputHandler = h; return { dispose() {} }; },
-  onBinary: () => ({ dispose() {} }),
-  onResize: (h) => { resizeHandler = h; return { dispose() {} }; },
-};
-master.activate(page);
-
 // Cache-busted payload download with real byte progress (reported to the page).
 const ASSET_VER = 'wasm-classic-pool16';  // bump when the qemu-wasm binary changes
+
+// TWO EMULATOR BUILDS (rd vms-e79). ASSET_VER is the qemu-wasm fork release tag
+// (track-release stamps it together with the binaries it deploys), so it says
+// which glue boot/out.js is:
+//  - wasm-wasmfs-*: WASMFS. File I/O stays in Wasm on QEMU's own threads and
+//    nothing is proxied to THIS thread, so a busy or parked worker cannot starve
+//    the disk. The console and the NIC are shared-memory rings (-chardev and
+//    -netdev wasmring, boot/assets/wasm-ring.js) this thread drains and fills
+//    with Atomics only.
+//  - otherwise: the JS filesystem, where every QEMU syscall is proxied to this
+//    thread; console through xterm-pty's TTY, NIC through the SOCKFS shim below.
+importScripts('boot/assets/wasm-ring.js');      // -> self.OVMXWasmRing
+const RINGS = self.OVMXWasmRing.isWasmfsTag(ASSET_VER);
+let inputHandler = null, resizeHandler = null, slave = null, ring = null;
+if (RINGS) {
+  ring = self.OVMXWasmRing.bridge({
+    onOut: (b) => self.postMessage({ t: 'out', d: b }, [b.buffer]),
+    onFrame: (f) => self.postMessage({ t: 'nic-tx', frame: f.buffer }, [f.buffer]),
+  });
+  inputHandler = (d) => ring.consoleIn(d);       // a serial console has no window size: no resize
+} else {
+  importScripts('lib/nic-classic.js');          // -> self.OVMXNic { enframe, Deframer, installQemuNicWebSocket }
+  importScripts('boot/assets/xterm-pty.js');    // -> self.openpty
+  const pty = openpty();
+  slave = pty.slave;
+  pty.master.activate({                         // stands in for the page Terminal (pty bridge)
+    write: (data, cb) => { self.postMessage({ t: 'out', d: data }); if (typeof cb === 'function') cb(); },
+    onData: (h) => { inputHandler = h; return { dispose() {} }; },
+    onBinary: () => ({ dispose() {} }),
+    onResize: (h) => { resizeHandler = h; return { dispose() {} }; },
+  });
+}
 const BOOT_VER  = 'v0.7-7'; // bump when boot/vmlinuz or the per-node images change
 const PAYLOAD_VER = 'V0.7-7';
 function xhrGet(url, i, loaded, total, report) {
@@ -68,7 +88,11 @@ let booted = false;
 // printing. Either reading is a fact; neither is a diagnosis.
 function startHeartbeat() {
   let n = 0;
-  setInterval(() => { self.postMessage({ t: 'wtick', n: ++n }); }, 1000);
+  setInterval(() => {
+    const m = { t: 'wtick', n: ++n };
+    if (ring) m.ringDrops = ring.drops();   // what QEMU dropped because this side stopped draining
+    self.postMessage(m);
+  }, 1000);
 }
 
 // Boot the guest with per-node config. Called once, on the page's {t:'cfg'} message.
@@ -83,18 +107,24 @@ function boot(cfg) {
   const SYSDISK_URL = (cfg && cfg.sysdisk) || 'boot/sysdisk.qcow2.gz';
   self.postMessage({ t: 'out', d: '\r\n%NIC-CFG, initramfs=' + INITRAMFS_URL + ' sysdisk=' + SYSDISK_URL + ' mac=' + MAC + '\r\n' });
 
-  // Install the fake-WebSocket NIC shim BEFORE out.js runs (see header (b)).
-  nic = self.OVMXNic.installQemuNicWebSocket({
-    scope: self,
-    onNicTx: (f) => self.postMessage({ t: 'nic-tx', frame: f.buffer }, [f.buffer]),
-    onError: (r) => self.postMessage({ t: 'nic-err', m: '' + r }),
-  });
+  if (RINGS) {
+    nic = { deliverToGuest: (f) => ring.deliverFrame(f) };
+  } else {
+    // Install the fake-WebSocket NIC shim BEFORE out.js runs (see header (b)).
+    nic = self.OVMXNic.installQemuNicWebSocket({
+      scope: self,
+      onNicTx: (f) => self.postMessage({ t: 'nic-tx', frame: f.buffer }, [f.buffer]),
+      onError: (r) => self.postMessage({ t: 'nic-err', m: '' + r }),
+    });
+  }
 
   self.Module = {
-    arguments: ['-nographic', '-M', 'pc', '-m', '256M', '-accel', 'tcg,tb-size=500', '-L', '/pack-rom/',
-      // ARG FLIP: real virtio-net NIC on a QEMU socket-netdev; SOCKFS is routed through the shim
-      // by Module.websocket.url below. connect host:port is a placeholder — the shim owns the wire.
-      '-netdev', 'socket,id=vmnic,connect=127.0.0.1:8888',
+    arguments: [...(RINGS ? self.OVMXWasmRing.CONSOLE_ARGS : ['-nographic']),
+      '-M', 'pc', '-m', '256M', '-accel', 'tcg,tb-size=500', '-L', '/pack-rom/',
+      // ARG FLIP: a real virtio-net NIC. WASMFS: on the wasmring netdev. JS FS: on a QEMU
+      // socket-netdev whose SOCKFS is routed through the shim by Module.websocket.url below
+      // (connect host:port is a placeholder -- the shim owns the wire).
+      ...(RINGS ? ['-netdev', 'wasmring,id=vmnic'] : ['-netdev', 'socket,id=vmnic,connect=127.0.0.1:8888']),
       '-device', 'virtio-net-pci,netdev=vmnic,mac=' + MAC,
       '-kernel', '/pack-kernel/vmlinuz', '-initrd', '/pack-initramfs/initramfs-ovmx.cpio.gz',
       // no_timer_check (rd vms-4ff) -- the mechanism, now MEASURED rather than
@@ -124,12 +154,12 @@ function boot(cfg) {
       '-append', 'console=ttyS0 loglevel=3 quiet no_timer_check', '-drive', 'file=/pack-disk/sysdisk.qcow2,format=qcow2,if=virtio', '-no-reboot'],
     // Emscripten SOCKFS opens WebSockets against this base; our shim intercepts the construction.
     websocket: { url: 'ws://ovmx/' },
+    ovmxRing: (...a) => { if (ring) ring.onRing(...a); },
     locateFile: (p) => new URL('boot/' + p, self.location.href).href + '?v=' + ASSET_VER,
     mainScriptUrlOrBlob: new URL('boot/out.js', self.location.href).href + '?v=' + ASSET_VER,
     pty: slave,
     preRun: [(mod) => {
       mod.addRunDependency('ovmx');
-      const mk = (p) => { try { mod.FS.mkdir(p); } catch (e) {} };
       const loaded = [0, 0, 0], total = [0, 0, 0];
       const report = () => {
         const l = loaded[0] + loaded[1] + loaded[2], t = (total[0] + total[1] + total[2]) || (66 * 1048576);
@@ -149,16 +179,19 @@ function boot(cfg) {
       ]).then(([k, i, dz]) => {
         self.postMessage({ t: 'progress', frac: 0.88, label: 'Unpacking…' });
         return inflate(dz).then((d) => {
-          mk('/pack-kernel'); mk('/pack-initramfs'); mk('/pack-disk');
-          mod.FS.writeFile('/pack-kernel/vmlinuz', k);
-          mod.FS.writeFile('/pack-initramfs/initramfs-ovmx.cpio.gz', i);
-          mod.FS.writeFile('/pack-disk/sysdisk.qcow2', d);
+          // Preloaded files (both filesystems): WASMFS cannot run Wasm (FS.mkdir /
+          // FS.writeFile) before its runtime is up, so it copies these in at init.
+          for (const dir of ['pack-kernel', 'pack-initramfs', 'pack-disk']) mod.FS.createPath('/', dir, true, true);
+          mod.FS.createDataFile('/pack-kernel', 'vmlinuz', k, true, true, true);
+          mod.FS.createDataFile('/pack-initramfs', 'initramfs-ovmx.cpio.gz', i, true, true, true);
+          mod.FS.createDataFile('/pack-disk', 'sysdisk.qcow2', d, true, true, true);
           self.postMessage({ t: 'progress', frac: 0.90, label: 'Starting the machine…' });
           mod.removeRunDependency('ovmx');
         });
       }).catch((e) => self.postMessage({ t: 'err', m: '' + e }));
     }],
     onRuntimeInitialized: () => {
+      if (RINGS) { self.postMessage({ t: 'ready' }); return; }
       const op = Module.TTY.stream_ops.poll, pty = Module.pty;
       Module.TTY.stream_ops.poll = function (s, t) {
         if (!pty.readable) return (pty.readable ? 1 : 0) | (pty.writable ? 4 : 0);

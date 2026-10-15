@@ -265,7 +265,7 @@ jobs:
           cp tools/webdemo/capture-index.html "$H/index.html"
           cp qw/qemu-system-x86_64.wasm qw/out.js qw/qemu-system-x86_64.worker.js "$H/"
           cp boot/load-rom.js boot/load-rom.data boot/coi-serviceworker.js "$H/"
-          cp boot/assets/xterm.js boot/assets/xterm.css boot/assets/xterm-pty.js "$H/assets/"
+          cp boot/assets/xterm.js boot/assets/xterm.css boot/assets/xterm-pty.js boot/assets/wasm-ring.js "$H/assets/"
           cp rel/vmlinuz "$H/vmlinuz"; cp rel/initramfs-ovmx-slim.cpio.gz "$H/initramfs-ovmx.cpio.gz"
           qemu-img convert -O qcow2 rel/ovmx-distrib.img "$H/distrib.qcow2"
           gzip -9 -c "$H/distrib.qcow2" > "$H/sysdisk.qcow2.gz"; rm -f "$H/distrib.qcow2"
