@@ -76,6 +76,14 @@ on:
           DEPLOY. For reading a bugcheck the consoles alone cannot explain.
         type: boolean
         default: false
+      cases:
+        description: >-
+          DIAGNOSTIC: run only these visitor-matrix cases, comma-separated
+          (e.g. b-first). Empty runs the whole matrix. A subset never deploys
+          or re-pins, and it stages exactly the same Node A and Node B as a
+          full run: both built from the source under test (rd vms-4f4).
+        required: false
+        default: ''
 
 permissions:
   contents: write
@@ -85,7 +93,8 @@ permissions:
 # the track-release cascade that fires every 10 minutes replaced them while
 # they were still pending.
 concurrency: >-
-  ${{ (github.event.inputs.preflight == 'true' || github.event.inputs.capture == 'true')
+  ${{ (github.event.inputs.preflight == 'true' || github.event.inputs.capture == 'true'
+       || github.event.inputs.cases != '')
       && format('cluster-demo-diag-{0}', github.run_id) || 'track-cluster-demo' }}
 
 jobs:
@@ -180,7 +189,18 @@ jobs:
         if: steps.r.outputs.skip != '1'
         run: |
           cd vmsgate/tools/cluster-web-demo
-          echo "cases=$(node -e "import('./gate-eval.mjs').then(m=>console.log(JSON.stringify(m.MATRIX.map(r=>r.label))))")" >> "$GITHUB_OUTPUT"
+          # `cases` may name a subset of the matrix; empty means all of it. A
+          # name that is not in the matrix is a typo and fails here rather than
+          # quietly running nothing. A subset changes WHICH visitor orders run,
+          # never what is staged: Node A and Node B below are the same either way.
+          ONLY='${{ github.event.inputs.cases }}' \
+          node -e "import('./gate-eval.mjs').then(m=>{
+            const all = m.MATRIX.map(r=>r.label);
+            const only = (process.env.ONLY||'').split(',').map(s=>s.trim()).filter(Boolean);
+            const bad = only.filter(c=>!all.includes(c));
+            if (bad.length) { console.error('no such case: '+bad.join(',')+' (have: '+all.join(',')+')'); process.exit(1); }
+            console.log('cases='+JSON.stringify(only.length?only:all));
+          })" >> "$GITHUB_OUTPUT"
 
       - name: Obtain this tag's x86 boot assets (published Release, else build from source)
         if: steps.r.outputs.skip != '1'
@@ -298,6 +318,12 @@ jobs:
           cp payload/nodeA/* demo/cluster/nodeA/
           mkdir -p demo/cluster/nodeB
           cp payload/nodeB/* demo/cluster/nodeB/
+          # Every case, a filtered subset included, gates the Node B built from
+          # the source under test -- never whatever image the site tree holds
+          # (rd vms-4f4: a case-filtered branch staged only Node A, so its runs
+          # paired the build under test with a V0.7-7 Node B).
+          python3 -c 'import json,sys; m=json.load(open("demo/cluster/nodeB/nodeB-manifest.json")); sys.exit(0 if m.get("version")==sys.argv[1] else "staged Node B is OpenVMX %s, the build under test is %s" % (m.get("version"), sys.argv[1]))' \
+            '${{ needs.build.outputs.version }}'
           sed -i "s/^const BOOT_VER  = '[^']*'/const BOOT_VER  = '$(echo "$T" | tr 'V' 'v')'/; s/^const PAYLOAD_VER = '[^']*'/const PAYLOAD_VER = '$T'/" \
             demo/cluster/node-worker.js
           grep -n "BOOT_VER  =\|PAYLOAD_VER =" demo/cluster/node-worker.js
@@ -383,6 +409,7 @@ jobs:
     # not theirs to move.
     if: always() && needs.build.outputs.skip != '1' && needs.build.result != 'skipped'
         && needs.build.outputs.preflight != '1' && github.event.inputs.capture != 'true'
+        && github.event.inputs.cases == ''
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
