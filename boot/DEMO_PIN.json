@@ -1,0 +1,6 @@
+{
+  "pinned_to": "V0.7-10",
+  "blocked_from": "V0.7-10",
+  "reason": "Capture resume-gate failed 2026-10-15: the qemu-wasm demo did not resume into the OVMX startup/Username: from a fresh V0.7-10 capture. Last error: VERIFY FAIL: startup dialog never replayed (snapshot likely at Username, or reveal broke) ",
+  "tracking": "Auto-written by track-release.yml on a REAL resume-gate failure. The demo honestly stays at V0.7-10 until V0.7-10 is capturable. Do NOT hand-add a pin preemptively \u2014 only an actual failure writes this; a passing capture removes it."
+}
