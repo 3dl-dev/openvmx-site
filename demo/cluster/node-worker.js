@@ -17,6 +17,22 @@
 // ../../boot/, reached here through the demo/cluster/boot symlink, so a relative 'boot/…'
 // URL resolves under coi-server regardless of whether its root is demo/cluster or the site root.
 
+// rd vms-e79 EXPERIMENT (never deployed): record every JS-level Atomics.wait's
+// caller into a SharedArrayBuffer the page can read, so a worker thread that is
+// parked (and so cannot be paused or report anything) still says where it waits.
+// [0]=1 while inside a wait, [1]=start ms, [2]=byte length; text from byte 16.
+const E79_SAB = new SharedArrayBuffer(16384);
+const E79_HDR = new Int32Array(E79_SAB, 0, 4), E79_TXT = new Uint8Array(E79_SAB, 16);
+const E79_WAIT = Atomics.wait;
+Atomics.wait = function (ta, i, v, t) {
+  try {
+    const st = new TextEncoder().encode(String(new Error().stack || '').slice(0, 8000));
+    E79_TXT.fill(0); E79_TXT.set(st.subarray(0, E79_TXT.length));
+    E79_HDR[1] = Math.round(performance.now()); E79_HDR[2] = st.length; Atomics.store(E79_HDR, 0, 1);
+  } catch (e) {}
+  try { return E79_WAIT.call(Atomics, ta, i, v, t); } finally { Atomics.store(E79_HDR, 0, 0); }
+};
+self.postMessage({ t: 'e79wait', sab: E79_SAB });
 importScripts('lib/nic-classic.js');            // -> self.OVMXNic { enframe, Deframer, installQemuNicWebSocket }
 importScripts('boot/assets/xterm-pty.js');      // -> self.openpty
 const { master, slave } = openpty();
@@ -144,7 +160,9 @@ function boot(cfg) {
       // ONLY consumer is timer_irq_works(), so it skips the MEASUREMENT and
       // nothing else -- the IRQ0 route kept is the same IO-APIC pin a correct
       // measurement keeps.
-      '-append', 'console=ttyS0 loglevel=3 quiet no_timer_check', '-drive', 'file=/pack-disk/sysdisk.qcow2,format=qcow2,if=virtio', '-no-reboot'],
+      '-append', 'console=ttyS0 loglevel=3 quiet no_timer_check', '-drive', 'file=/pack-disk/sysdisk.qcow2,format=qcow2,if=virtio', '-no-reboot',
+      // rd vms-e79 EXPERIMENT: cap QEMU's block thread pool inside the 16 preallocated pthread workers.
+      '-object', 'main-loop,id=ml0,thread-pool-min=0,thread-pool-max=8'],
     // Emscripten SOCKFS opens WebSockets against this base; our shim intercepts the construction.
     websocket: { url: 'ws://ovmx/' },
     locateFile: (p) => new URL('boot/' + p, self.location.href).href + '?v=' + ASSET_VER,

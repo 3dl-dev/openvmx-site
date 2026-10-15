@@ -119,6 +119,22 @@
     if (quiet >= RENUDGE_MS) { worker.postMessage({ t: 'in', d: '\r' }); wakeLastChange = performance.now(); }
   }, 500);
 
+  // rd vms-e79 EXPERIMENT: when the worker's heartbeat stops for 60 s, print
+  // where (if anywhere) it is parked in a JS Atomics.wait, from the shared buffer.
+  let e79Sab = null, e79Told = 0;
+  setInterval(() => {
+    const at = state.workerTickAtMs;
+    if (!at || e79Told >= 2 || performance.now() - at < 60000) return;
+    e79Told++;
+    let msg = 'no wait recorder';
+    if (e79Sab) {
+      const h = new Int32Array(e79Sab, 0, 4), b = new Uint8Array(e79Sab, 16);
+      const txt = new TextDecoder().decode(b.slice(0, Math.min(h[2], b.length)));
+      msg = (Atomics.load(h, 0) ? 'IN a JS Atomics.wait since +' + h[1] + 'ms' : 'NOT in a JS Atomics.wait (last one began +' + h[1] + 'ms)') +
+            ' | ' + txt.replace(/\s+/g, ' ').slice(0, 1500);
+    }
+    term.write('\r\n%DIAG-E79-WAIT, worker heartbeat stopped ' + Math.round((performance.now() - at) / 1000) + 's ago: ' + msg + '\r\n');
+  }, 10000);
   worker.onmessage = (e) => {
     const m = e.data;
     if (m.t === 'out') { state.firstOut = true; term.write(m.d);
@@ -138,6 +154,7 @@
     // = this worker is not running; ticks with a still console = it is, and the
     // guest is not printing. Never interpreted here.
     else if (m.t === 'wtick') { state.workerTicks = m.n; state.workerTickAtMs = Math.round(performance.now()); }
+    else if (m.t === 'e79wait') { e79Sab = m.sab; }
     else if (m.t === 'halt') { state.halt = m.m; clearInterval(wakeTimer); }
     else if (m.t === 'err' || m.t === 'nic-err') { state.workerError = m.m; clearInterval(wakeTimer); }
   };
