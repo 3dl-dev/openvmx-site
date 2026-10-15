@@ -292,6 +292,13 @@ jobs:
           # later passing capture removes it (see the commit step).
           rm -rf ver; cp -r boot ver
           cp qw/qemu-system-x86_64.wasm qw/out.js qw/qemu-system-x86_64.worker.js ver/
+          # The worker picks its console path from ASSET_VER (the fork tag: a
+          # wasm-wasmfs-* glue drives a wasmring console, rd vms-e79), so stamp it
+          # here exactly as the commit step below will -- the gate must exercise
+          # the worker that will be committed, not one still naming the old glue.
+          QW='${{ steps.qw.outputs.tag }}'
+          [ -n "$QW" ] && sed -i "s/^const ASSET_VER = '[^']*';/const ASSET_VER = '$QW';/" ver/qemu-worker.js
+          grep -n "^const ASSET_VER" ver/qemu-worker.js
           cp rel/vmlinuz ver/vmlinuz
           cp rel/initramfs-ovmx-slim.cpio.gz ver/initramfs-ovmx.cpio.gz
           cp sysdisk.qcow2.gz ver/sysdisk.qcow2.gz
