@@ -102,6 +102,11 @@ async function attempt(page, n) {
   // false-positives on it.)
   for (let i = 0; i < 120; i++) {
     const scr = await readScreen(page);
+    // Until the monitor has echoed the command there is no "after" to read: the
+    // split would return the WHOLE screen, whose early "[    0.000000]" kernel
+    // lines then read as a guest reset. (The WASMFS emulator's console ring
+    // echoes a few ms later than the old pty path did -- rd vms-e79.)
+    if (!scr.includes('savevm ovmx')) { await sleep(250); continue; }
     const afterCmd = scr.split('savevm ovmx').pop() || '';
     // A guest reset can appear before the prompt returns (or the prompt may
     // never return because the machine is rebooting) — catch it either way.
