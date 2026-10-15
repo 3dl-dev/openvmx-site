@@ -7,7 +7,7 @@
 // messages cross via postMessage.
 
 // Cache-busted payload download with real byte progress (reported to the page).
-const ASSET_VER = 'wasm-classic-pool16';  // bump when the qemu-wasm binary changes
+const ASSET_VER = 'wasm-wasmfs-pool16';  // bump when the qemu-wasm binary changes
 
 // TWO EMULATOR BUILDS (rd vms-e79): ASSET_VER is the qemu-wasm fork release tag,
 // stamped by track-release with the binaries. wasm-wasmfs-* = WASMFS (nothing
@@ -36,7 +36,7 @@ self.onmessage = (e) => {
   if (m.t === 'in' && inputHandler) inputHandler(m.d);
   else if (m.t === 'resize' && resizeHandler) resizeHandler({ cols: m.cols, rows: m.rows });
 };
-const PAYLOAD_VER = 'V0.7-10-4323';
+const PAYLOAD_VER = 'V0.7-10-4378';
 function xhrGet(url, i, loaded, total, report) {
   return new Promise((res, rej) => {
     const x = new XMLHttpRequest();

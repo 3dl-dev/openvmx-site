@@ -18,7 +18,7 @@
 // URL resolves under coi-server regardless of whether its root is demo/cluster or the site root.
 
 // Cache-busted payload download with real byte progress (reported to the page).
-const ASSET_VER = 'wasm-classic-pool16';  // bump when the qemu-wasm binary changes
+const ASSET_VER = 'wasm-wasmfs-pool16';  // bump when the qemu-wasm binary changes
 
 // TWO EMULATOR BUILDS (rd vms-e79). ASSET_VER is the qemu-wasm fork release tag
 // (track-release stamps it together with the binaries it deploys), so it says
