@@ -242,12 +242,21 @@ jobs:
           npx playwright install --with-deps chromium
 
       - name: Download our qemu-wasm binary (fork Release)
+        id: qw
         if: steps.r.outputs.skip != '1' && steps.r.outputs.capture_skip != '1'
         env: { GH_TOKEN: '${{ secrets.GITHUB_TOKEN }}' }
         run: |
           mkdir -p qw
-          gh release download --repo 3dl-dev/qemu-wasm -D qw \
+          # The latest fork release (built by its build-wasm.yml, which verifies the
+          # glue preallocates the pthread pool it was asked for -- rd vms-e79). Its
+          # tag becomes the browsers' cache key for the emulator (ASSET_VER below),
+          # so a new emulator build can never be shadowed by a cached old one.
+          QW_TAG=$(gh release view --repo 3dl-dev/qemu-wasm --json tagName -q .tagName)
+          echo "qemu-wasm release: $QW_TAG"
+          echo "tag=$QW_TAG" >> "$GITHUB_OUTPUT"
+          gh release download "$QW_TAG" --repo 3dl-dev/qemu-wasm -D qw \
             -p qemu-system-x86_64.wasm -p out.js -p qemu-system-x86_64.worker.js
+          grep -o 'var pthreadPoolSize = [0-9]*' qw/out.js
 
       - name: Assemble capture harness + capture snapshot
         if: steps.r.outputs.skip != '1' && steps.r.outputs.capture_skip != '1'
@@ -337,6 +346,10 @@ jobs:
         if: steps.r.outputs.skip != '1' && steps.r.outputs.capture_skip != '1' && steps.gate.outputs.gate_ok == '1'
         run: |
           cp qw/qemu-system-x86_64.wasm qw/out.js qw/qemu-system-x86_64.worker.js boot/
+          # Emulator cache key = the fork release just verified above (never by hand).
+          QW='${{ steps.qw.outputs.tag }}'
+          [ -n "$QW" ] && sed -i "s/^const ASSET_VER = '[^']*';/const ASSET_VER = '$QW';/" boot/qemu-worker.js demo/cluster/node-worker.js
+          grep -n "^const ASSET_VER" boot/qemu-worker.js demo/cluster/node-worker.js
           cp rel/vmlinuz boot/vmlinuz
           cp rel/initramfs-ovmx-slim.cpio.gz boot/initramfs-ovmx.cpio.gz
           cp sysdisk.qcow2.gz boot/sysdisk.qcow2.gz
@@ -358,7 +371,7 @@ jobs:
           # current regardless, and a stale pin would only confuse a later reader).
           git rm -q --ignore-unmatch boot/DEMO_PIN.json || rm -f boot/DEMO_PIN.json
           git config user.name 'ovmx-release-bot'; git config user.email 'bot@3dl.dev'
-          git add boot index.html og-demo.png
+          git add boot index.html og-demo.png demo/cluster/node-worker.js
           if git diff --cached --quiet; then echo "no change"; exit 0; fi
           git commit -m "demo: auto-track OVMX ${{ steps.r.outputs.tag }}"
           # rebase-and-retry so a concurrent push to main doesn't lose the deploy
