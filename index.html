@@ -319,8 +319,10 @@
             <li>Reading and serving genuine ODS-2 volumes across a mixed cluster over MSCP.</li>
             <li>Taking over the lock trees a departing VAX hands on (remastering).</li>
             <li>Originating clusterwide logical names from an OpenVMX node.</li>
-            <li>Stopping an intermittent lock-manager bugcheck (LOCKMGRERR) a real VAX can still hit
-              in the browser cluster demo.</li>
+            <li>The OpenVMX/VAX node in the browser cluster demo sometimes runs out of memory during
+              startup and never offers a login prompt, so some join orders of the demo do not reach
+              a DCL prompt on both OpenVMX nodes. V0.7-12 fixed two ways OpenVMX crashed a real VAX
+              (LOCKMGRERR and CNXMGRERR); no VAX bugcheck was seen in the release's gate runs.</li>
           </ul>
         </div>
         <div class="text">
