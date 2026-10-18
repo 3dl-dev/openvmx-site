@@ -1,10 +1,10 @@
 {
  "meta": {
-  "generated": "2026-10-16",
+  "generated": "2026-10-18",
   "source": "docs/compat/",
   "note": "Machine export of the OVMX Compatibility Surface Register. This is an inventory with per-surface status; it deliberately carries NO coverage percentage \u2014 the total VMS surface has no known denominator. Report absolute counts; V1 progress is `overall_in_scope` (met/in_progress/not_started) against the commitment set, never a fraction of the whole.",
   "scrubbed": "trademark scrub applied on render (public site)",
-  "release": "V0.7-11"
+  "release": "V0.7-12"
  },
  "vocab": {
   "status": {
@@ -79,43 +79,43 @@
   "count": 491,
   "by_status": {
    "verified": 24,
-   "implemented": 294,
-   "partial": 67,
-   "stub": 14,
+   "implemented": 295,
+   "partial": 68,
+   "stub": 12,
    "designed": 1,
    "absent": 91
   },
   "by_authenticity": {
-   "real": 347,
+   "real": 348,
    "n/a": 92,
-   "advisory": 46,
-   "facade-risk": 6
+   "advisory": 48,
+   "facade-risk": 3
   },
-  "met": 318,
-  "in_progress": 67,
-  "not_started": 106,
-  "facade_risk": 6
+  "met": 319,
+  "in_progress": 68,
+  "not_started": 104,
+  "facade_risk": 3
  },
  "overall_in_scope": {
   "count": 445,
   "by_status": {
    "verified": 24,
-   "implemented": 294,
-   "partial": 65,
-   "stub": 10,
+   "implemented": 295,
+   "partial": 66,
+   "stub": 8,
    "designed": 1,
    "absent": 51
   },
   "by_authenticity": {
-   "real": 345,
+   "real": 346,
    "n/a": 52,
-   "advisory": 44,
-   "facade-risk": 4
+   "advisory": 46,
+   "facade-risk": 1
   },
-  "met": 318,
-  "in_progress": 65,
-  "not_started": 62,
-  "facade_risk": 4
+  "met": 319,
+  "in_progress": 66,
+  "not_started": 60,
+  "facade_risk": 1
  },
  "facilities": [
   {
@@ -1748,21 +1748,21 @@
     "by_status": {
      "verified": 0,
      "implemented": 4,
-     "partial": 0,
-     "stub": 4,
+     "partial": 1,
+     "stub": 3,
      "designed": 0,
      "absent": 3
     },
     "by_authenticity": {
      "real": 4,
-     "facade-risk": 3,
-     "advisory": 1,
+     "advisory": 2,
+     "facade-risk": 2,
      "n/a": 3
     },
     "met": 4,
-    "in_progress": 0,
-    "not_started": 7,
-    "facade_risk": 3
+    "in_progress": 1,
+    "not_started": 6,
+    "facade_risk": 2
    }
   },
   {
@@ -1778,22 +1778,21 @@
     "count": 13,
     "by_status": {
      "verified": 0,
-     "implemented": 9,
+     "implemented": 10,
      "partial": 0,
-     "stub": 1,
+     "stub": 0,
      "designed": 0,
      "absent": 3
     },
     "by_authenticity": {
-     "real": 8,
+     "real": 9,
      "advisory": 1,
-     "facade-risk": 1,
      "n/a": 3
     },
-    "met": 9,
+    "met": 10,
     "in_progress": 0,
-    "not_started": 4,
-    "facade_risk": 1
+    "not_started": 3,
+    "facade_risk": 0
    }
   },
   {
@@ -1991,14 +1990,13 @@
     },
     "by_authenticity": {
      "real": 16,
-     "advisory": 3,
-     "facade-risk": 1,
+     "advisory": 4,
      "n/a": 4
     },
     "met": 13,
     "in_progress": 5,
     "not_started": 6,
-    "facade_risk": 1
+    "facade_risk": 0
    }
   }
  ],
@@ -3065,7 +3063,7 @@
    "scope_1_0": "in",
    "evidence": "src/kernel-core/vms_cnxman_coord_fsm.c",
    "verified_against": "Lab, real VMS VAX V7.3 under SIMH: tests/lab/captures/vms-ci6-evac-20261010 run16 (VAX2 SHOW CLUSTER lists OVMXE MEMBER; OVMXE masters EVAC$WORKLOAD per SDA on VAX1; quorum never lost; no bugcheck) and the 3-node CN=3 captures tests/lab/captures/vms-e18e-cn3-live-v072-20260926, vms-1ac-cn3-achieved-20260925 (OVMX x86 + OVMX VAX + real VAX V7.3); OVMX-first founding: tests/lab/captures/vms-d52c-ovmx-first-20261012 (labd52c run 3, CN=3).",
-   "notes": "A booted OVMX node joins a real VAX V7.3 VMScluster as a counted member, holds and masters DLM locks for real VAX processes, and survives a real member leaving with REMOVE_NODE. Not an oracle byte-gate, hence implemented rather than verified. OVMX also founds a cluster that real VAXes then join (vms-d52c, #1667): in the lab (pod labd52c, tests/lab/captures/vms-d52c-ovmx-first-20261012) OVMXE founded alone and admitted both VAX V7.3 nodes, CN=3 with OVMXE as coordinator, no second cluster, 0 bugchecks. Open, tracked under vms-ci.6: a VAX admitted by an OVMX founder reaching Username: (the startup traffic OVMX withheld is answered by vms-db1 #1655, vms-52d #1668 and the 0b/04 apply of vms-94a #1677; the end-to-end startup is not yet shown in this capture), OVMX adopting a lock tree a departing VAX remasters to it (vms-50d), and the remaining demo-path frame cells (vms-562ac).\n",
+   "notes": "A booted OVMX node joins a real VAX V7.3 VMScluster as a counted member, holds and masters DLM locks for real VAX processes, and survives a real member leaving with REMOVE_NODE. Not an oracle byte-gate, hence implemented rather than verified. OVMX also founds a cluster that real VAXes then join (vms-d52c, #1667): in the lab (pod labd52c, tests/lab/captures/vms-d52c-ovmx-first-20261012) OVMXE founded alone and admitted both VAX V7.3 nodes, CN=3 with OVMXE as coordinator, no second cluster, 0 bugchecks. The mixed demo topology (a real VAX V7.3 plus two booted OVMX nodes) passed the 8-order visitor gate on the V0.7-12 build: CN=3, the VAX offered Username:, both OVMX nodes reached a logged-in DCL prompt, 0 VAX bugchecks (openvmx-site run 39101853519). Intermittent failures remain in the throttled orders (OVMXB startup wedge, vms-4029; login restart, vms-25f). Open, tracked under vms-ci.6: a VAX admitted by an OVMX founder reaching Username: (the startup traffic OVMX withheld is answered by vms-db1 #1655, vms-52d #1668 and the 0b/04 apply of vms-94a #1677; the end-to-end startup is not yet shown in this capture), OVMX adopting a lock tree a departing VAX remasters to it (vms-50d), and the remaining demo-path frame cells (vms-562ac).\n",
    "plan_ref": "vms-694"
   },
   {
@@ -8130,12 +8128,12 @@
    "id": "sys$dgblsc",
    "kind": "routine",
    "vms": "Delete a global section",
-   "status": "stub",
-   "authenticity": "facade-risk",
+   "status": "partial",
+   "authenticity": "advisory",
    "scope_1_0": "in",
    "evidence": "src/libvms/syssvc/sys_memory.c",
    "verified_against": null,
-   "notes": "validates gsdnam then returns SS$_NORMAL though no named-global-section registry exists -- a delete of an unregistered section is reported as success. Honest fix (return SS$_NOSUCHSEC, needs the status code defined) tracked vms-d91.",
+   "notes": "Proof tests/qemu/test_syssvc_dgblsc_nosuchsec.c + defects.d/dgblsc-fake-success.defect. No named-global-section registry exists (sys$crmpsc discards gsdnam), so under the executive every named delete returns SS$_NOSUCHSEC honestly (SS$_NOSUCHDEV with no executive, one-runtime rule); the delete-a-real-section success path needs the registry (not built). Was facade-risk: returned SS$_NORMAL for a section that never existed (vms-d91).",
    "plan_ref": "vms-801"
   },
   {
@@ -8370,12 +8368,12 @@
    "id": "sys$cancel",
    "kind": "routine",
    "vms": "Cancel all I/O on all channels of the calling process",
-   "status": "stub",
-   "authenticity": "facade-risk",
+   "status": "implemented",
+   "authenticity": "real",
    "scope_1_0": "in",
    "evidence": "src/libvms/syssvc/sys_process.c",
    "verified_against": null,
-   "notes": "literal no-op returning SS$_NORMAL; QIO is genuinely ASYNC (io_uring, sys_qio.c/sys_uring.c) so pending I/O CAN exist and is NOT cancelled (the old 'synchronous model' rationale was wrong). Real cancel (io_uring_prep_cancel + IOSB SS$_CANCEL + AST/EF) tracked vms-c8c.",
+   "notes": "Proof tests/qemu/test_syssvc_cancel_uring.c + defects.d/cancel-uring-noop.defect; cancel in sys_uring.c vms_uring_cancel_fd. io_uring-queued requests on the channel's descriptor are cancelled in the kernel and complete with SS$_CANCEL in the IOSB, event flag set, AST run; a request that had already completed keeps its result; pending mailbox reads complete SS$_ABORT (observed, IO.CANCEL.DONE); a channel not held is refused (vms-4a69). Was facade-risk: a no-op returning SS$_NORMAL while the I/O stayed pending (vms-c8c).",
    "plan_ref": "vms-801"
   },
   {
@@ -9196,11 +9194,11 @@
    "kind": "utility",
    "vms": "CONVERT \u2014 file/record-format conversion utility",
    "status": "partial",
-   "authenticity": "facade-risk",
+   "authenticity": "advisory",
    "scope_1_0": "in",
-   "evidence": "src/vmsdcl/dcl_cmd_misc.c:3158",
+   "evidence": "src/vmsdcl/dcl_cmd_misc.c",
    "verified_against": null,
-   "notes": "/FDL emits an honest %CONVERT-I-FDL 'accepted but ignored' informational (dcl_cmd_misc.c:3127), but the body is a line-by-line fgets/fputs copy that prints '%CONVERT-S-CONVERTED, N records converted' (dcl_cmd_misc.c:3158) \u2014 claiming a record-format conversion it did not perform. Real RMS record-format CONVERT tracked vms-558e. Still facade-risk.",
+   "notes": "Proof tests/qemu/test_syssvc_convert_dcl.c + tests/dcl/test_convert_honest.sh + defects.d/dcl-convert-claims-converted.defect. A plain CONVERT is a record-for-record text copy and silent on success (as VMS); /FDL (real organization/record-format/key conversion) is rejected as %DCL-W-IVQUAL (an unrecognized qualifier) and writes nothing. Real RMS record-format CONVERT (indexed/relative, FDL-driven) is not implemented. Was facade-risk: accepted /FDL, ignored it, and printed %CONVERT-S-CONVERTED (vms-558e).",
    "plan_ref": "vms-8ad"
   },
   {
