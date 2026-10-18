@@ -301,13 +301,18 @@
   // overrides for testing — both nodes are ALWAYS present with a real boot button.
   const HERE = new URL('.', location.href);
   const PCJS_ROM = new URL('pcjs/machines/dec/vax/browser/ka655x.bin', HERE).href;
-  function pcjsMachineUrl(diskgz) {
+  // memMB = RAM for the machine (ovmx-cluster.html ?mem=, default 16). Node B (OVMX/VAX) boots
+  // with 32 MB, a MicroVAX 3900 (KA655) configuration (the KA655 CPU module takes 16-64 MB of
+  // MS650 memory): at 16 MB the node is starved once it joins the cluster (free ~20 KB at boot;
+  // ENOSPC, get_pventry panic, a console that never offers Username:, rd vms-83d/4029).
+  // Node C (the real VMS node) keeps the default.
+  function pcjsMachineUrl(diskgz, memMB) {
     return new URL('pcjs/machines/dec/vax/browser/ovmx-cluster.html', HERE).href +
-      '?rom=' + enc(PCJS_ROM) + '&diskgz=' + enc(diskgz);
+      '?rom=' + enc(PCJS_ROM) + '&diskgz=' + enc(diskgz) + (memMB ? '&mem=' + memMB : '');
   }
   wireBoot('idle-b', 'bootbtn-b', 'screen-b', (f) => {
     f.title = 'OVMX/VAX node B';
-    const machine = _pq.get('nodeB') || pcjsMachineUrl(new URL('nodeB/ovmx-vax-nodeB.img.gz', HERE).href);
+    const machine = _pq.get('nodeB') || pcjsMachineUrl(new URL('nodeB/ovmx-vax-nodeB.img.gz', HERE).href, 32);
     f.src = 'node-pcjs.html?mac=52:54:00:00:00:0B&machine=' + enc(machine);
     registerNode('OVMXB', f);
   });
