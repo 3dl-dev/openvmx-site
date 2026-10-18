@@ -36,7 +36,7 @@ self.onmessage = (e) => {
   if (m.t === 'in' && inputHandler) inputHandler(m.d);
   else if (m.t === 'resize' && resizeHandler) resizeHandler({ cols: m.cols, rows: m.rows });
 };
-const PAYLOAD_VER = 'V0.7-11-4417';
+const PAYLOAD_VER = 'V0.7-12-4640';
 function xhrGet(url, i, loaded, total, report) {
   return new Promise((res, rej) => {
     const x = new XMLHttpRequest();
