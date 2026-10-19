@@ -1,10 +1,10 @@
 {
  "meta": {
-  "generated": "2026-10-18",
+  "generated": "2026-10-19",
   "source": "docs/compat/",
   "note": "Machine export of the OVMX Compatibility Surface Register. This is an inventory with per-surface status; it deliberately carries NO coverage percentage \u2014 the total VMS surface has no known denominator. Report absolute counts; V1 progress is `overall_in_scope` (met/in_progress/not_started) against the commitment set, never a fraction of the whole.",
   "scrubbed": "trademark scrub applied on render (public site)",
-  "release": "V0.7-12"
+  "release": "V0.7-13"
  },
  "vocab": {
   "status": {
@@ -76,45 +76,45 @@
   }
  ],
  "overall": {
-  "count": 491,
+  "count": 490,
   "by_status": {
    "verified": 24,
-   "implemented": 295,
-   "partial": 68,
-   "stub": 12,
+   "implemented": 304,
+   "partial": 71,
+   "stub": 10,
    "designed": 1,
-   "absent": 91
+   "absent": 80
   },
   "by_authenticity": {
-   "real": 348,
-   "n/a": 92,
-   "advisory": 48,
-   "facade-risk": 3
-  },
-  "met": 319,
-  "in_progress": 68,
-  "not_started": 104,
-  "facade_risk": 3
- },
- "overall_in_scope": {
-  "count": 445,
-  "by_status": {
-   "verified": 24,
-   "implemented": 295,
-   "partial": 66,
-   "stub": 8,
-   "designed": 1,
-   "absent": 51
-  },
-  "by_authenticity": {
-   "real": 346,
-   "n/a": 52,
-   "advisory": 46,
+   "real": 357,
+   "n/a": 81,
+   "advisory": 51,
    "facade-risk": 1
   },
-  "met": 319,
-  "in_progress": 66,
-  "not_started": 60,
+  "met": 328,
+  "in_progress": 71,
+  "not_started": 91,
+  "facade_risk": 1
+ },
+ "overall_in_scope": {
+  "count": 444,
+  "by_status": {
+   "verified": 24,
+   "implemented": 304,
+   "partial": 67,
+   "stub": 8,
+   "designed": 1,
+   "absent": 40
+  },
+  "by_authenticity": {
+   "real": 355,
+   "n/a": 41,
+   "advisory": 47,
+   "facade-risk": 1
+  },
+  "met": 328,
+  "in_progress": 67,
+  "not_started": 49,
   "facade_risk": 1
  },
  "facilities": [
@@ -241,25 +241,25 @@
    "tier": 1,
    "plan_ref": "vms-2e72",
    "vms_ref": "VMS Programming Concepts Manual \u2014 Condition Handling; VMS Calling Standard (Condition Handling / Exception Vectors); VMS RTL LIB$ Manual",
-   "last_reviewed": "2026-09-14",
+   "last_reviewed": "2026-10-18",
    "rollup": {
-    "count": 16,
+    "count": 15,
     "by_status": {
      "verified": 0,
      "implemented": 13,
      "partial": 0,
      "stub": 0,
      "designed": 0,
-     "absent": 3
+     "absent": 2
     },
     "by_authenticity": {
      "advisory": 10,
-     "n/a": 3,
+     "n/a": 2,
      "real": 3
     },
     "met": 13,
     "in_progress": 0,
-    "not_started": 3,
+    "not_started": 2,
     "facade_risk": 0
    }
   },
@@ -1162,24 +1162,24 @@
    "tier": 1,
    "plan_ref": "vms-801",
    "vms_ref": "VMS RTL Object Time System (OTS$) Manual",
-   "last_reviewed": "2026-09-14",
+   "last_reviewed": "2026-10-18",
    "rollup": {
     "count": 13,
     "by_status": {
      "verified": 0,
-     "implemented": 5,
+     "implemented": 10,
      "partial": 0,
      "stub": 0,
      "designed": 0,
-     "absent": 8
+     "absent": 3
     },
     "by_authenticity": {
-     "real": 5,
-     "n/a": 8
+     "real": 10,
+     "n/a": 3
     },
-    "met": 5,
+    "met": 10,
     "in_progress": 0,
-    "not_started": 8,
+    "not_started": 3,
     "facade_risk": 0
    }
   },
@@ -1657,24 +1657,24 @@
    "tier": 1,
    "plan_ref": "vms-801",
    "vms_ref": "VMS System Services Reference Manual \u2014 Lock Management Services",
-   "last_reviewed": "2026-09-14",
+   "last_reviewed": "2026-10-18",
    "rollup": {
     "count": 6,
     "by_status": {
      "verified": 0,
-     "implemented": 3,
+     "implemented": 5,
      "partial": 0,
      "stub": 0,
      "designed": 0,
-     "absent": 3
+     "absent": 1
     },
     "by_authenticity": {
-     "real": 3,
-     "n/a": 3
+     "real": 5,
+     "n/a": 1
     },
-    "met": 3,
+    "met": 5,
     "in_progress": 0,
-    "not_started": 3,
+    "not_started": 1,
     "facade_risk": 0
    }
   },
@@ -1748,21 +1748,20 @@
     "by_status": {
      "verified": 0,
      "implemented": 4,
-     "partial": 1,
-     "stub": 3,
+     "partial": 3,
+     "stub": 1,
      "designed": 0,
      "absent": 3
     },
     "by_authenticity": {
      "real": 4,
-     "advisory": 2,
-     "facade-risk": 2,
+     "advisory": 4,
      "n/a": 3
     },
     "met": 4,
-    "in_progress": 1,
-    "not_started": 6,
-    "facade_risk": 2
+    "in_progress": 3,
+    "not_started": 4,
+    "facade_risk": 0
    }
   },
   {
@@ -1773,25 +1772,25 @@
    "tier": 1,
    "plan_ref": "vms-801",
    "vms_ref": "VMS System Services Reference Manual \u2014 Process Control Services",
-   "last_reviewed": "2026-09-14",
+   "last_reviewed": "2026-10-18",
    "rollup": {
     "count": 13,
     "by_status": {
      "verified": 0,
-     "implemented": 10,
+     "implemented": 11,
      "partial": 0,
      "stub": 0,
      "designed": 0,
-     "absent": 3
+     "absent": 2
     },
     "by_authenticity": {
-     "real": 9,
+     "real": 10,
      "advisory": 1,
-     "n/a": 3
+     "n/a": 2
     },
-    "met": 10,
+    "met": 11,
     "in_progress": 0,
-    "not_started": 3,
+    "not_started": 2,
     "facade_risk": 0
    }
   },
@@ -1860,25 +1859,24 @@
    "tier": 1,
    "plan_ref": "vms-801",
    "vms_ref": "VMS System Services Reference Manual \u2014 Time and Timer Services",
-   "last_reviewed": "2026-09-14",
+   "last_reviewed": "2026-10-18",
    "rollup": {
     "count": 9,
     "by_status": {
      "verified": 0,
-     "implemented": 7,
-     "partial": 0,
+     "implemented": 8,
+     "partial": 1,
      "stub": 0,
      "designed": 0,
-     "absent": 2
+     "absent": 0
     },
     "by_authenticity": {
-     "real": 5,
-     "advisory": 2,
-     "n/a": 2
+     "real": 6,
+     "advisory": 3
     },
-    "met": 7,
-    "in_progress": 0,
-    "not_started": 2,
+    "met": 8,
+    "in_progress": 1,
+    "not_started": 0,
     "facade_risk": 0
    }
   },
@@ -2329,21 +2327,6 @@
    "evidence": "src/libvms/rtl/lib_signal.c",
    "verified_against": null,
    "notes": "re-signals a failure condition through lib$stop; success/informational conditions are resignalled untouched",
-   "plan_ref": "vms-2e72"
-  },
-  {
-   "domain": "programming-interfaces",
-   "facility": "chf",
-   "facility_name": "Condition Handling Facility (LIB$SIGNAL/ESTABLISH, SYS$UNWIND, SYS$SETEXV)",
-   "id": "lib$sig_to_stop",
-   "kind": "routine",
-   "vms": "Convert a signal to STOP severity",
-   "status": "absent",
-   "authenticity": "n/a",
-   "scope_1_0": "in",
-   "evidence": "",
-   "verified_against": null,
-   "notes": "",
    "plan_ref": "vms-2e72"
   },
   {
@@ -3063,7 +3046,7 @@
    "scope_1_0": "in",
    "evidence": "src/kernel-core/vms_cnxman_coord_fsm.c",
    "verified_against": "Lab, real VMS VAX V7.3 under SIMH: tests/lab/captures/vms-ci6-evac-20261010 run16 (VAX2 SHOW CLUSTER lists OVMXE MEMBER; OVMXE masters EVAC$WORKLOAD per SDA on VAX1; quorum never lost; no bugcheck) and the 3-node CN=3 captures tests/lab/captures/vms-e18e-cn3-live-v072-20260926, vms-1ac-cn3-achieved-20260925 (OVMX x86 + OVMX VAX + real VAX V7.3); OVMX-first founding: tests/lab/captures/vms-d52c-ovmx-first-20261012 (labd52c run 3, CN=3).",
-   "notes": "A booted OVMX node joins a real VAX V7.3 VMScluster as a counted member, holds and masters DLM locks for real VAX processes, and survives a real member leaving with REMOVE_NODE. Not an oracle byte-gate, hence implemented rather than verified. OVMX also founds a cluster that real VAXes then join (vms-d52c, #1667): in the lab (pod labd52c, tests/lab/captures/vms-d52c-ovmx-first-20261012) OVMXE founded alone and admitted both VAX V7.3 nodes, CN=3 with OVMXE as coordinator, no second cluster, 0 bugchecks. The mixed demo topology (a real VAX V7.3 plus two booted OVMX nodes) passed the 8-order visitor gate on the V0.7-12 build: CN=3, the VAX offered Username:, both OVMX nodes reached a logged-in DCL prompt, 0 VAX bugchecks (openvmx-site run 39101853519). Intermittent failures remain in the throttled orders (OVMXB startup wedge, vms-4029; login restart, vms-25f). Open, tracked under vms-ci.6: a VAX admitted by an OVMX founder reaching Username: (the startup traffic OVMX withheld is answered by vms-db1 #1655, vms-52d #1668 and the 0b/04 apply of vms-94a #1677; the end-to-end startup is not yet shown in this capture), OVMX adopting a lock tree a departing VAX remasters to it (vms-50d), and the remaining demo-path frame cells (vms-562ac).\n",
+   "notes": "A booted OVMX node joins a real VAX V7.3 VMScluster as a counted member, holds and masters DLM locks for real VAX processes, and survives a real member leaving with REMOVE_NODE. Not an oracle byte-gate, hence implemented rather than verified. OVMX also founds a cluster that real VAXes then join (vms-d52c, #1667): in the lab (pod labd52c, tests/lab/captures/vms-d52c-ovmx-first-20261012) OVMXE founded alone and admitted both VAX V7.3 nodes, CN=3 with OVMXE as coordinator, no second cluster, 0 bugchecks. The mixed demo topology (a real VAX V7.3 plus two booted OVMX nodes, Node B a 32 MB MicroVAX 3900) passed the 8-order visitor gate on the V0.7-13 release candidate with Node B built from it: 8 of 8, 0 VAX bugchecks, the VAX offered Username: and both OVMX nodes reached a logged-in DCL prompt (openvmx-site run 39187392378). The V0.7-12 build passed 6 of 8 on its tagged commit (run 39111772800). Intermittent: a rare console-input wedge after a login timeout remains (vms-25f residual, about 1 in 50 throttled runs). Open, tracked under vms-ci.6: a VAX admitted by an OVMX founder reaching Username: (the startup traffic OVMX withheld is answered by vms-db1 #1655, vms-52d #1668 and the 0b/04 apply of vms-94a #1677; the end-to-end startup is not yet shown in this capture), OVMX adopting a lock tree a departing VAX remasters to it (vms-50d), and the remaining demo-path frame cells (vms-562ac).\n",
    "plan_ref": "vms-694"
   },
   {
@@ -3093,7 +3076,7 @@
    "scope_1_0": "in",
    "evidence": "src/vmsdcl/dcl_builtin.c",
    "verified_against": null,
-   "notes": "29 verbs carry a real q_* qualifier table (ANALYZE ASSIGN ATTACH BACKUP CONVERT COPY CREATE DEASSIGN DEFINE DELETE DIRECTORY DUMP INQUIRE LINK MOUNT OPEN PING PRINT PRODUCT PURGE RECALL RENAME REPLY SEARCH SORT SPAWN STOP SUBMIT TYPE); 17 more use q_none (empty table = reject-all, honest over-restriction for verbs whose VMS qualifiers OVMX has not retrofit); 12 remain quals == NULL (accept-all). 46 of 58 validate.",
+   "notes": "31 verbs carry a real q_* qualifier table (ANALYZE ASSIGN ATTACH BACKUP CONVERT COPY CREATE DEASSIGN DEFINE DELETE DIRECTORY DUMP INQUIRE LINK MOUNT OPEN PING PRINT PRODUCT PURGE READ RECALL RENAME RUN REPLY SEARCH SORT SPAWN STOP SUBMIT TYPE); 17 more use q_none (empty table = reject-all, honest over-restriction for verbs whose VMS qualifiers OVMX has not retrofit); 10 remain quals == NULL (accept-all). 48 of 58 validate.",
    "plan_ref": "vms-8ad"
   },
   {
@@ -3102,13 +3085,13 @@
    "facility_name": "DCL Qualifier Grammar (Engine A / CLD tables)",
    "id": "dcl-qualifiers$zero-validation-verbs",
    "kind": "feature",
-   "vms": "Qualifier validation for the accept-all verbs (SET, SHOW, RUN, MAIL, READ, WRITE, INSTALL, LIBRARY, TCPIP, TELNET, FTP, HELP)",
+   "vms": "Qualifier validation for the accept-all verbs (SET, SHOW, MAIL, WRITE, INSTALL, LIBRARY, TCPIP, TELNET, FTP, HELP)",
    "status": "absent",
    "authenticity": "facade-risk",
    "scope_1_0": "in",
    "evidence": "src/vmsdcl/dcl_parser.c:451",
    "verified_against": null,
-   "notes": "12 verbs still have quals == NULL in builtin_verbs[]; dcl_validate_qualifiers() returns SS$_NORMAL for them ('not retrofit', dcl_parser.c:451), so any /QUALIFIER is silently accepted rather than rejected with IVQUAL. SET/SHOW mitigate at the sub-verb level (cmd_set_password/accounting/volume run their own shim validators; unknown SET/SHOW keywords still get IVKEYW), and HELP is deliberately accept-all (a /token after HELP is a qualifier TOPIC, vms-01b). The remaining ones are the Phase-1 follow-up (vms-097).",
+   "notes": "10 verbs still have quals == NULL in builtin_verbs[]; dcl_validate_qualifiers() returns SS$_NORMAL for them ('not retrofit', dcl_parser.c:451), so any /QUALIFIER is silently accepted rather than rejected with IVQUAL. SET/SHOW mitigate at the sub-verb level (cmd_set_password/accounting/volume run their own shim validators; unknown SET/SHOW keywords still get IVKEYW), and HELP is deliberately accept-all (a /token after HELP is a qualifier TOPIC, vms-01b). READ is retrofit (vms-097): q_read declares only the qualifiers cmd_read honours (/END_OF_FILE and /ERROR branch like GOTO, /PROMPT, /TIME_OUT); the unimplemented rest (/DELETE /INDEX /KEY /MATCH /NOLOCK) are %DCL-W-IVQUAL, proven by tests/qemu/test_syssvc_dcl_read.c + defects.d/dcl-read-quals-accept-all.defect. RUN validates its own qualifiers (run_bad_qualifier: %DCL-W-IVQUAL / %DCL-W-ABKEYW, oracle-pinned; tests/qemu/test_syssvc_dcl_run_quals.c + defects.d/dcl-run-quals-unvalidated.defect). The remaining ones are the Phase-1 follow-up (vms-097).",
    "plan_ref": "vms-8ad"
   },
   {
@@ -5772,13 +5755,13 @@
    "facility_name": "OTS$ Object-Time-System RTL",
    "id": "ots$scopy_dxdx",
    "kind": "routine",
-   "vms": "Copy dynamic descriptor to dynamic descriptor",
-   "status": "absent",
-   "authenticity": "n/a",
+   "vms": "Copy string from any descriptor to any descriptor",
+   "status": "implemented",
+   "authenticity": "real",
    "scope_1_0": "in",
-   "evidence": "",
+   "evidence": "src/libvms/rtl/ots_routines.c",
    "verified_against": null,
-   "notes": "declared in header, zero implementation \u2014 pure stub gap",
+   "notes": "Wraps the LIB$ string-descriptor engine (lib$scopy_*, lib$sget1_dd, lib$sfree1_dd); untransferred-byte count is the OTS return value. Exercised by tests/libvms/test_corpus_surface.c.",
    "plan_ref": "vms-801"
   },
   {
@@ -5787,13 +5770,13 @@
    "facility_name": "OTS$ Object-Time-System RTL",
    "id": "ots$scopy_r_dx",
    "kind": "routine",
-   "vms": "Copy fixed string to dynamic descriptor",
-   "status": "absent",
-   "authenticity": "n/a",
+   "vms": "Copy string by reference to a descriptor",
+   "status": "implemented",
+   "authenticity": "real",
    "scope_1_0": "in",
-   "evidence": "",
+   "evidence": "src/libvms/rtl/ots_routines.c",
    "verified_against": null,
-   "notes": "declared in header, zero implementation \u2014 pure stub gap",
+   "notes": "Wraps the LIB$ string-descriptor engine (lib$scopy_*, lib$sget1_dd, lib$sfree1_dd); untransferred-byte count is the OTS return value. Exercised by tests/libvms/test_corpus_surface.c.",
    "plan_ref": "vms-801"
   },
   {
@@ -5803,12 +5786,12 @@
    "id": "ots$sfree1_dd",
    "kind": "routine",
    "vms": "Free one dynamic descriptor",
-   "status": "absent",
-   "authenticity": "n/a",
+   "status": "implemented",
+   "authenticity": "real",
    "scope_1_0": "in",
-   "evidence": "",
+   "evidence": "src/libvms/rtl/ots_routines.c",
    "verified_against": null,
-   "notes": "declared in header, zero implementation \u2014 pure stub gap",
+   "notes": "Wraps the LIB$ string-descriptor engine (lib$scopy_*, lib$sget1_dd, lib$sfree1_dd); untransferred-byte count is the OTS return value. Exercised by tests/libvms/test_corpus_surface.c.",
    "plan_ref": "vms-801"
   },
   {
@@ -5818,12 +5801,12 @@
    "id": "ots$sfreen_dd",
    "kind": "routine",
    "vms": "Free N dynamic descriptors",
-   "status": "absent",
-   "authenticity": "n/a",
+   "status": "implemented",
+   "authenticity": "real",
    "scope_1_0": "in",
-   "evidence": "",
+   "evidence": "src/libvms/rtl/ots_routines.c",
    "verified_against": null,
-   "notes": "declared in header, zero implementation \u2014 pure stub gap",
+   "notes": "Wraps the LIB$ string-descriptor engine (lib$scopy_*, lib$sget1_dd, lib$sfree1_dd); untransferred-byte count is the OTS return value. Exercised by tests/libvms/test_corpus_surface.c.",
    "plan_ref": "vms-801"
   },
   {
@@ -5833,12 +5816,12 @@
    "id": "ots$sget1_dd",
    "kind": "routine",
    "vms": "Allocate one dynamic descriptor",
-   "status": "absent",
-   "authenticity": "n/a",
+   "status": "implemented",
+   "authenticity": "real",
    "scope_1_0": "in",
-   "evidence": "",
+   "evidence": "src/libvms/rtl/ots_routines.c",
    "verified_against": null,
-   "notes": "declared in header, zero implementation \u2014 pure stub gap",
+   "notes": "Wraps the LIB$ string-descriptor engine (lib$scopy_*, lib$sget1_dd, lib$sfree1_dd); untransferred-byte count is the OTS return value. Exercised by tests/libvms/test_corpus_surface.c.",
    "plan_ref": "vms-801"
   },
   {
@@ -7948,12 +7931,12 @@
    "id": "sys$getlki",
    "kind": "routine",
    "vms": "Get lock information (single item)",
-   "status": "absent",
-   "authenticity": "n/a",
+   "status": "implemented",
+   "authenticity": "real",
    "scope_1_0": "in",
-   "evidence": "",
+   "evidence": "src/libvms/syssvc/sys_lock.c",
    "verified_against": null,
-   "notes": "",
+   "notes": "Every item answered (LKI$_LOCKID/RESNAM/GRANTCOUNT/PARENT/STATE) is read from the kernel lock manager via VMS_IOCTL_GETLKI; the item-list loop only validates codes (SS$_BADPARAM for one the executive cannot answer). Proof tests/qemu/test_syssvc_getlki.c. The remaining LKI$ items are not answered.",
    "plan_ref": "vms-801"
   },
   {
@@ -7963,12 +7946,12 @@
    "id": "sys$getlkiw",
    "kind": "routine",
    "vms": "Get lock information (waits for completion)",
-   "status": "absent",
-   "authenticity": "n/a",
+   "status": "implemented",
+   "authenticity": "real",
    "scope_1_0": "in",
-   "evidence": "",
+   "evidence": "src/libvms/syssvc/sys_lock.c",
    "verified_against": null,
-   "notes": "",
+   "notes": "Same service as sys$getlki: getlki_impl completes synchronously, so $GETLKIW is $GETLKI. Proof tests/qemu/test_syssvc_getlki.c.",
    "plan_ref": "vms-801"
   },
   {
@@ -8158,12 +8141,12 @@
    "id": "sys$lkwset",
    "kind": "routine",
    "vms": "Lock pages in the working set",
-   "status": "stub",
-   "authenticity": "facade-risk",
+   "status": "partial",
+   "authenticity": "advisory",
    "scope_1_0": "out",
    "evidence": "src/libvms/syssvc/sys_memory.c",
    "verified_against": null,
-   "notes": "kernel-mode/PFN; validates args and returns SS$_NORMAL; nothing done",
+   "notes": "Proof tests/qemu/test_syssvc_lkwset.c + defects.d/lkwset-noop.defect. mlock() of the page-rounded range in the calling process (via sys$lckpag/sys$ulkpag); no VMS working-set list or WSQUOTA exists, so the lock is the Linux VMM's, SS$_LKWSETFUL is never returned. Was facade-risk: validated and returned SS$_NORMAL with nothing locked (vms-18c2).",
    "plan_ref": "vms-801"
   },
   {
@@ -8173,12 +8156,12 @@
    "id": "sys$ulwset",
    "kind": "routine",
    "vms": "Unlock pages from the working set",
-   "status": "stub",
-   "authenticity": "facade-risk",
+   "status": "partial",
+   "authenticity": "advisory",
    "scope_1_0": "out",
    "evidence": "src/libvms/syssvc/sys_memory.c",
    "verified_against": null,
-   "notes": "kernel-mode/PFN; validates args and returns SS$_NORMAL; nothing done",
+   "notes": "Proof tests/qemu/test_syssvc_lkwset.c + defects.d/lkwset-noop.defect. munlock() of the page-rounded range in the calling process (via sys$lckpag/sys$ulkpag); no VMS working-set list or WSQUOTA exists, so the lock is the Linux VMM's, SS$_LKWSETFUL is never returned. Was facade-risk: validated and returned SS$_NORMAL with nothing locked (vms-18c2).",
    "plan_ref": "vms-801"
   },
   {
@@ -8383,12 +8366,12 @@
    "id": "sys$setprn",
    "kind": "routine",
    "vms": "Set the calling process's name",
-   "status": "absent",
-   "authenticity": "n/a",
+   "status": "implemented",
+   "authenticity": "real",
    "scope_1_0": "in",
-   "evidence": "",
+   "evidence": "src/libvms/syssvc/sys_process.c",
    "verified_against": null,
-   "notes": "no $SETPRN service; only an internal vms_kif_setprn used by $CREPRC to stamp the child name",
+   "notes": "The name lives in the executive's process table: vms_kif_setprn renames this process there and the executive refuses a duplicate name in the group (SS$_DUPLNAM); only the descriptor-to-string copy is userspace. Corpus example tests/corpus/tier1-examples/sys_setprn.c.",
    "plan_ref": "vms-801"
   },
   {
@@ -8653,12 +8636,12 @@
    "id": "sys$schdwk",
    "kind": "routine",
    "vms": "Schedule wakeup",
-   "status": "absent",
-   "authenticity": "n/a",
+   "status": "partial",
+   "authenticity": "advisory",
    "scope_1_0": "in",
-   "evidence": "",
+   "evidence": "src/libvms/syssvc/sys_time.c",
    "verified_against": null,
-   "notes": "",
+   "notes": "Armed through sys$setimr as a process-local POSIX timer that $WAKEs the caller: a scheduled wakeup dies with the image that requested it (no executive timer queue holds it); a repeat interval or a target named by process name is refused. Corpus example tests/corpus/tier1-examples/sys_schdwk.c.",
    "plan_ref": "vms-801"
   },
   {
@@ -8668,12 +8651,12 @@
    "id": "sys$gettim_prec",
    "kind": "routine",
    "vms": "Get high-precision system time",
-   "status": "absent",
-   "authenticity": "n/a",
+   "status": "implemented",
+   "authenticity": "real",
    "scope_1_0": "in",
-   "evidence": "",
+   "evidence": "src/libvms/syssvc/sys_time.c",
    "verified_against": null,
-   "notes": "",
+   "notes": "The host clock read; it already has sub-tick resolution, so it never reports reduced precision. Corpus example tests/corpus/tier1-examples/sys_gettim_prec.c.",
    "plan_ref": "vms-801"
   },
   {
