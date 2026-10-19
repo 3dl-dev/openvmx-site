@@ -1,9 +1,9 @@
 {
   "node": "OVMXB",
   "scssystemid": 1988,
-  "ref": "V0.7-7",
-  "sha": "fe3b5bb6",
-  "version": "V0.7-7",
-  "img_gz_sha256": "46c049661362cdaf529737d492cf65b2996643414602d6e7a8150c75915f3a18",
-  "note": "carried over unchanged from vax.3dl.network (baron-3dl/pcjs db0b3322) when the demo began serving Node B itself; the next gated deploy replaces it with a Node B built from that release"
+  "ref": "V0.7-13",
+  "sha": "6260b6d7f875cea1f3541b65670f269fea3bfb3e",
+  "version": "V0.7-13",
+  "img_gz_sha256": "e559a514a0ca70334398f975a284bdd5d33a35a0676a28c17aff207354cfa676",
+  "raw_sha256": "72b5d358c581e8456853b039fbca7d875110942399bbe097bcc4b1f19ac7f4b9"
 }
