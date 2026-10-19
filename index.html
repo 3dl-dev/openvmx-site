@@ -319,10 +319,12 @@
             <li>Reading and serving genuine ODS-2 volumes across a mixed cluster over MSCP.</li>
             <li>Taking over the lock trees a departing VAX hands on (remastering).</li>
             <li>Originating clusterwide logical names from an OpenVMX node.</li>
-            <li>The OpenVMX/VAX node in the browser cluster demo sometimes runs out of memory during
-              startup and never offers a login prompt, so some join orders of the demo do not reach
-              a DCL prompt on both OpenVMX nodes. V0.7-12 fixed two ways OpenVMX crashed a real VAX
-              (LOCKMGRERR and CNXMGRERR); no VAX bugcheck was seen in the release's gate runs.</li>
+            <li>The browser cluster demo is not yet reliable for every visitor. V0.7-13 fixed the OpenVMX/VAX
+              node running out of memory during startup, and in the release's visitor gate (one run of
+              each of eight join orders, on the release candidate and again on the tagged commit)
+              both OpenVMX nodes reached a DCL prompt and the real VAX offered a login in every order,
+              with no VAX bugcheck. A rare console-input wedge remains: in about 1 of 50 runs during
+              development a node stopped taking input after a login timeout.</li>
           </ul>
         </div>
         <div class="text">
