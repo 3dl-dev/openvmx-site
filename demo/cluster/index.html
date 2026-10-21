@@ -108,7 +108,11 @@
               </div>
             </div>
             <figcaption class="machine-cap">Presentation only, not VMS-authentic. Emulated (pcjs
-              KA655, JS); slow. Not OpenVMX.</figcaption>
+              KA655, JS); slow. Not OpenVMX. Node C's DECnet needs your own DVNETEND license:
+              type LICENSE REGISTER … with your PAK, then LICENSE LOAD DVNETEND and
+              @SYS$STARTUP:STARTNET, and SET HOST from Node C to the OVMX nodes works. To SET HOST
+              into Node C, also load VAX-VMS and VAXCLUSTER licenses. A reload starts a fresh
+              machine, so it is lost on reload.</figcaption>
           </figure>
 
         </div>
@@ -318,7 +322,7 @@
   });
   wireBoot('idle-c', 'bootbtn-c', 'screen-c', (f) => {
     f.title = 'real VMS node C';
-    const machine = _pq.get('nodeC') || pcjsMachineUrl('https://vax.3dl.network/machines/dec/vax/browser/vms73-nodeC-cluster.dsk.gz');
+    const machine = _pq.get('nodeC') || pcjsMachineUrl('https://vax.3dl.network/machines/dec/vax/browser/vms73-nodeC-decnet-cluster.dsk.gz');
     f.src = 'node-pcjs.html?mac=52:54:00:00:00:0C&machine=' + enc(machine);
     registerNode('VAXC', f);
   });
