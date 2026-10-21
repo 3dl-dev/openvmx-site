@@ -30,7 +30,7 @@ jobs:
           # hash, so the exemption lapses and the gate fails until someone
           # re-reviews the new file and records its hash here.
           EXEMPT_PATH=demo/cluster/pcjs/machines/dec/vax/browser/ovmx-cluster.html
-          EXEMPT_SHA256=99ab5ab08105ae3038eacb2cca13656ab912cf5200506e40ec0d5db7cca49c9e
+          EXEMPT_SHA256=f282a8cd94bc79bdec71344f6fc0f0fc0c2cf03f38d517dd3d698c5ac13d5ca8   # re-reviewed for pcjs cd2f52f (rd vms-158d): the diff adds no "OpenVMS" line
           bad=0
           for f in $FILES; do
             if [ "$f" = "$EXEMPT_PATH" ] && [ "$(sha256sum "$f" | cut -d' ' -f1)" = "$EXEMPT_SHA256" ]; then
