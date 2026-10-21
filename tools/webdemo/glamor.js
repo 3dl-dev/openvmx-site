@@ -66,7 +66,7 @@ async function waitPrompt(p, secs) {
   // Cold boot: wait for the startup dialog, then wake the operator console
   // (LOGINOUT waits for a RETURN before it presents Username:), then log in.
   console.log('waiting for startup dialog…');
-  await waitFor(page, /site-specific startup|%OVMX-I-EXEC|PROC_ID/, TIMEOUT_S, 'startup');
+  await waitFor(page, /site-specific startup|%OVMX-I-EXEC|%STDRV-I-STARTUP|PROC_ID/, TIMEOUT_S, 'startup');
   await page.click('#terminal');
   for (let i = 0; i < 40; i++) {                        // nudge until Username: appears
     if (/Username:/.test(await readScreen(page))) break;

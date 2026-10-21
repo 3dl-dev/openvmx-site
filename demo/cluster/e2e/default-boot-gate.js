@@ -55,7 +55,9 @@ const snap = () => {
       lastLen = s.console.length;
       const tail = s.console.replace(/\r/g, '').split('\n').filter(Boolean).slice(-4).join(' | ');
       console.log(`t=${el}s workerErr=${s.workerError} acpOk=${s.acpOk} halt=${s.halt} :: ${tail.slice(-400)}`);
-      if (!mountLineAt && /mounting system disk/.test(s.console)) mountLineAt = el;
+      // rd vms-158d: the mount lines are OPERATOR.LOG records on new images; STDRV is printed only
+      // after the ACP mounted the system disk. Either marks the mount (old images print both).
+      if (!mountLineAt && /mounting system disk|%STDRV-I-STARTUP, OpenVMX startup begun/.test(s.console)) mountLineAt = el;
       if (!acpOkAt && s.acpOk) acpOkAt = el;
     }
     if (el - lastShot >= 30) { lastShot = el; await page.screenshot({ path: path.join(OUT_DIR, `shot-t${el}s.png`) }).catch(() => {}); }

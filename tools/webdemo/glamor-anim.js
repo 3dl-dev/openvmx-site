@@ -42,7 +42,7 @@ const lastLine = (s) => { const a = s.split('\n').filter((x) => x.trim()); retur
   // Wait (uncaptured) for the startup dialog — skip the silent kernel boot.
   console.log('waiting for startup dialog…');
   for (let i = 0; i < BOOT_TIMEOUT_S * 4; i++) {
-    if (/%OVMX-I-EXEC|SYSKRNL|executive attached/.test(await readScreen(page))) break;
+    if (/%OVMX-I-EXEC|SYSKRNL|executive attached|OpenVMX V\d/.test(await readScreen(page))) break;
     await sleep(250);
   }
   await page.click('#terminal');
