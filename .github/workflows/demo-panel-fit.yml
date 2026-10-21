@@ -1,0 +1,29 @@
+name: demo-panel-fit
+
+# The cluster demo's three consoles must each be an 80x24 VT screen that exactly fills its panel,
+# with no scroll bar anywhere, at 1280x800, 1920x1080 and 390x844 (Baron's review of the public
+# demo, finding 1). demo/cluster/test/panel-fit.mjs loads the real demo/cluster/index.html, clicks
+# the three boot buttons (media is absent in CI so nothing boots; the consoles are fed through the
+# same entry points the real boot output uses) and FAILS on any scroll bar, any non-80x24 terminal,
+# or any panel the grid does not fill.
+
+on:
+  push:
+    paths: ['demo/cluster/**', 'assets/site.css', 'tools/webdemo/coi-server.js', '.github/workflows/demo-panel-fit.yml']
+  pull_request:
+    paths: ['demo/cluster/**', 'assets/site.css', 'tools/webdemo/coi-server.js', '.github/workflows/demo-panel-fit.yml']
+
+jobs:
+  panel-fit:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install Playwright (CI-local, not committed)
+        run: |
+          npm install --no-save playwright@1.47.0
+          npx playwright install --with-deps chromium
+      - name: Panel fit (80x24, no scroll bars, 3 viewports)
+        run: node demo/cluster/test/panel-fit.mjs

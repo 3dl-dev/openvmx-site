@@ -30,7 +30,7 @@ jobs:
           # hash, so the exemption lapses and the gate fails until someone
           # re-reviews the new file and records its hash here.
           EXEMPT_PATH=demo/cluster/pcjs/machines/dec/vax/browser/ovmx-cluster.html
-          EXEMPT_SHA256=1d3476dcb7a1f3e3f90fd6e69dfe43f57bf43c40db58d07c790ee42dc5bf1a1d
+          EXEMPT_SHA256=99ab5ab08105ae3038eacb2cca13656ab912cf5200506e40ec0d5db7cca49c9e
           bad=0
           for f in $FILES; do
             if [ "$f" = "$EXEMPT_PATH" ] && [ "$(sha256sum "$f" | cut -d' ' -f1)" = "$EXEMPT_SHA256" ]; then
