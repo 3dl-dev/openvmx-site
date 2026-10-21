@@ -108,11 +108,11 @@
               </div>
             </div>
             <figcaption class="machine-cap">Presentation only, not VMS-authentic. Emulated (pcjs
-              KA655, JS); slow. Not OpenVMX. Node C's DECnet needs your own DVNETEND license:
-              type LICENSE REGISTER … with your PAK, then LICENSE LOAD DVNETEND and
-              @SYS$STARTUP:STARTNET, and SET HOST from Node C to the OVMX nodes works. To SET HOST
-              into Node C, also load VAX-VMS and VAXCLUSTER licenses. A reload starts a fresh
-              machine, so it is lost on reload.</figcaption>
+              KA655, JS); slow. Not OpenVMX. Node C's DECnet is installed but unlicensed.
+              SET HOST into VAXC needs your own VAX-VMS, VAXCLUSTER and DVNETEND (or DVNETRTG)
+              PAKs; SET HOST from VAXC needs DVNETEND. Enter each with LICENSE REGISTER and
+              LICENSE LOAD, then run @SYS$STARTUP:STARTNET. A reload starts a fresh machine, so
+              the licenses are lost on reload.</figcaption>
           </figure>
 
         </div>
