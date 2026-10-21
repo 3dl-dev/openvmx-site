@@ -7,10 +7,14 @@
 <link rel="stylesheet" href="boot/assets/xterm.css">
 <style>
   :root { color-scheme: dark; }
-  html, body { height:100%; margin:0; background:#140d00; }
-  #terminal { position:fixed; inset:0; }
-  #terminal .xterm, #terminal .xterm-viewport, #terminal .xterm-screen { width:100% !important; height:100% !important; }
-  .xterm-viewport { scrollbar-width:thin; scrollbar-color:rgba(255,178,50,.4) transparent; }
+  html, body { height:100%; margin:0; background:#140d00; overflow:hidden; }
+  /* The VMS console is an 80x24 VT screen. The panel (the parent's .machine-screen.fit80x24) has
+     the grid's aspect ratio; fit() below picks the font size at which exactly 80x24 cells fill it.
+     No scroll bar: xterm keeps its scrollback (wheel / PgUp still work) but a VT terminal shows
+     none, so the viewport's bar is suppressed. */
+  #terminal { position:fixed; inset:0; overflow:hidden; }
+  .xterm-viewport { overflow-y:scroll; scrollbar-width:none; }
+  .xterm-viewport::-webkit-scrollbar { display:none; width:0; height:0; }
 </style>
 </head>
 <body>
@@ -62,12 +66,47 @@
   };
 
   const term = new Terminal({
-    cols: 100, rows: 34, convertEol: true,
-    fontFamily: '"DejaVu Sans Mono", ui-monospace, Menlo, monospace', fontSize: 14, lineHeight: 1.12,
+    cols: 80, rows: 24, convertEol: true,
+    fontFamily: '"DejaVu Sans Mono", ui-monospace, Menlo, monospace', fontSize: 20, lineHeight: 1,
     theme: { background: '#140d00', foreground: '#ffb232', cursor: '#ffb232' },
   });
   term.open(document.getElementById('terminal'));
   window.__nodeTerm = term;
+
+  // Fit. The console is an 80x24 VT screen; the parent's panel (.machine-screen.fit80x24) is a 5:3
+  // box. xterm's DOM renderer rounds the cell HEIGHT to whole pixels, so choosing a font size per
+  // viewport can't hit the panel exactly (up to ~12% slack at phone sizes). Instead: lay the grid
+  // out ONCE at a canonical size with the line height tuned so the 80x24 grid is 5:3 (cell height =
+  // 2 x cell width, within a pixel), then scale that whole VT screen with a CSS transform to fill the
+  // panel exactly -- an 80x24 screen, scaled, never a reflowed narrow terminal.
+  const CANON_FS = 20;
+  function fitTerm() {
+    const scr = term.element && term.element.querySelector('.xterm-screen');
+    if (!scr) return;
+    const rows = term.element.querySelector('.xterm-rows');
+    if (!state.gridTuned) {
+      term.options.fontSize = CANON_FS;
+      term.options.lineHeight = 1;
+      const cw = scr.offsetWidth / 80;
+      if (!cw) return;
+      const want = Math.round(2 * cw);                         // cell height for a 5:3 grid
+      for (let lh = 1; lh < 1.6; lh += 0.01) {
+        term.options.lineHeight = lh;
+        if (rows.firstChild.offsetHeight >= want) break;
+      }
+      state.gridTuned = true;
+    }
+    const gw = scr.offsetWidth, gh = scr.offsetHeight;
+    if (!gw || !gh || !innerWidth || !innerHeight) return;
+    const k = Math.min(innerWidth / gw, innerHeight / gh);
+    const st = term.element.style;
+    st.position = 'absolute'; st.left = '50%'; st.top = '50%'; st.transformOrigin = 'center center';
+    st.transform = `translate(-50%,-50%) scale(${k})`;
+    state.fitScale = k;
+  }
+  fitTerm();
+  addEventListener('resize', fitTerm);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { state.gridTuned = false; fitTerm(); });
 
   const worker = new Worker('node-worker.js');
   window.__nodeWorker = worker;
