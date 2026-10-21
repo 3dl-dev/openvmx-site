@@ -46,7 +46,7 @@ const ATTEMPTS = +(process.env.CAPTURE_ATTEMPTS || 3);
 // "Resuming…" curtain hides the sub-second silent tail); firing late would clip
 // the executive lines, so the OVERSHOOT guard fails the run rather than ship it.
 const MARK = /Freeing unused/;
-const OVERSHOOT = /vms: |%OVMX-I-EXEC/;
+const OVERSHOOT = /vms: |%OVMX-I-EXEC|OpenVMX V\d/;   // rd vms-158d: banner on newer images
 // A fresh kernel boot line appearing UNDER the monitor after `savevm` means the
 // guest reset instead of snapshotting — treat it as a failed attempt, not a
 // snapshot. (Seen once on CI as "[    0.000000] B...".)

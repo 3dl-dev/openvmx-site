@@ -224,7 +224,7 @@
     const t0 = performance.now();
     let done = false, resumedAt = 0, lastFire = -1e9;
     // matches the first line the guest replays after the handoff snapshot
-    const BOOTLINE = /vms: |%OVMX-I-EXEC|%STARTUP-/;
+    const BOOTLINE = /vms: |%OVMX-I-EXEC|OpenVMX V\d|%STARTUP-/;   // rd vms-158d: newer images replay the banner first
     function fireResume() {
       postInput('\x01c');                                     // -> QEMU monitor
       setTimeout(() => postInput('loadvm ovmx\r'), 400);      // restore snapshot (idempotent)

@@ -62,7 +62,7 @@
     workerTicks: undefined,
     workerTickAtMs: undefined,
     consoleText: '',        // accumulated guest serial console (diagnostics; capped)
-    acpOk: false,           // real ODS-2 ACP mount seen (product-authenticity; a host-mode /vms facade never emits it)
+    acpOk: false,           // the ACP-mounted system disk booted to STDRV (product-authenticity; rd vms-158d)
   };
 
   const term = new Terminal({
@@ -163,10 +163,16 @@
     if (m.t === 'out') { state.firstOut = true; term.write(m.d);
       try { const s = typeof m.d === 'string' ? m.d : new TextDecoder().decode(m.d);
         state.consoleText = (state.consoleText + s).slice(-40000);
-        // Real ODS-2 ACP mount tell (product-authenticity): SYSDISK mounting -> MOUNTED. A host-mode
-        // /vms passthrough never emits it (the ACP refuses the masquerade). Assert the pair.
-        if (!state.acpOk && /%OVMX-I-SYSDISK,\s*mounting system disk/.test(state.consoleText)
-            && /%OVMX-I-MOUNTED,\s*system disk \S+ mounted/.test(state.consoleText)) state.acpOk = true;
+        // Product-authenticity tell (rd vms-158d). OVMX PID 1 prints "%STDRV-I-STARTUP, OpenVMX
+        // startup begun at ..." only AFTER the executive's Files-11 ACP $MOUNTed the ODS-2 system
+        // disk and found an installed system (SYS$SYSTEM:DCL.EXE) on it -- there is no other path
+        // to it since vms-165 retired the host-mode /vms passthrough -- and VMS itself prints STDRV
+        // at that point, so the tell is VMS's own line, not OVMX narration. The older pair
+        // (%OVMX-I-SYSDISK -> %OVMX-I-MOUNTED) is still accepted while a pre-vms-158d image is
+        // deployed; those lines are OPERATOR.LOG records from vms-158d on.
+        if (!state.acpOk && (/%STDRV-I-STARTUP,\s*OpenVMX startup begun at/.test(state.consoleText)
+            || (/%OVMX-I-SYSDISK,\s*mounting system disk/.test(state.consoleText)
+                && /%OVMX-I-MOUNTED,\s*system disk \S+ mounted/.test(state.consoleText)))) state.acpOk = true;
       } catch (e2) {} }
     else if (m.t === 'nic-tx') { state.nicTxCount++; pipe.nicTx(new Uint8Array(m.frame)); }
     else if (m.t === 'nic-rx-ack') { state.nicRxWorkerCount = m.worker; state.nicRxDeliverCalls = m.deliverCalls; state.nicRxDeliverOk = m.deliverOk; state.nicRxHadNic = m.hadNic; }  // rd vms-0cd2 per-layer RX counters

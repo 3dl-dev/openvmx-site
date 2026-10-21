@@ -11,7 +11,7 @@ const BASE = process.argv[2] || 'http://localhost:8098';
 const TIMEOUT_S = +(process.env.VERIFY_TIMEOUT_S || 260);
 // The startup dialog must appear (proves we resumed BEFORE it, at the handoff);
 // then the real login prompt.
-const STARTUP = /%OVMX-I-EXEC|%STARTUP-I-MOUNTED|vms: /;
+const STARTUP = /%OVMX-I-EXEC|OpenVMX V\d|%STARTUP-I-MOUNTED|vms: /;   // rd vms-158d
 const LOGIN = /Username:/;
 
 const readScreen = (p) => p.evaluate(() => {

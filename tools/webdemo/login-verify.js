@@ -29,7 +29,7 @@ const waitFor = async (p, re, secs, label) => {
 
   // The page auto-drives loadvm + reveal. Wait for the startup replay, the V0.5
   // banner, and the Username: prompt.
-  const startup = await waitFor(page, /%OVMX-I-EXEC|%OVMX-I-MOUNTED/, T, 'startup replay');
+  const startup = await waitFor(page, /%OVMX-I-EXEC|%OVMX-I-MOUNTED|%STDRV-I-STARTUP/, T, 'startup replay');
   console.log('OK: startup dialog replayed');
   const banner = await waitFor(page, /OpenVMX V0\.5/, 30, 'V0.5 banner');
   console.log('OK: banner reads V0.5');

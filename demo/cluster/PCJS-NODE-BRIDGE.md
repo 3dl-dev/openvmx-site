@@ -57,8 +57,15 @@ cross-origin to the demo parent), that:
    DELQA HubPort is up, so the node page wires the hooks only after they exist.
 
 4. **Signals real-ACP product authenticity** (required for the CN=N gate): post `{t:'nic-ready'}`-style
-   `{t:'acp-ok'}` to the parent once the guest console shows the **genuine ODS-2 ACP mount** — the pair
-   `%OVMX-I-SYSDISK, mounting system disk <dev>:` → `%OVMX-I-MOUNTED, system disk <dev>: mounted`
+   `{t:'acp-ok'}` to the parent once the guest console shows **`%STDRV-I-STARTUP, OpenVMX startup begun at`**
+   (rd vms-158d). OVMX's PID 1 prints it only after the executive's Files-11 ACP `$MOUNT`ed the ODS-2
+   system disk and found an installed system (`SYS$SYSTEM:DCL.EXE`) on it, and VMS itself prints STDRV
+   at the same point -- the tell is VMS's own console line. Since vms-165 retired the host-mode `/vms`
+   passthrough there is no other way for a boot to reach it, so what the tell proves now is: **this node
+   booted the real OVMX product from a genuine ODS-2 system disk through the executive ACP**. Images
+   before vms-158d printed the mount as the pair
+   `%OVMX-I-SYSDISK, mounting system disk <dev>:` → `%OVMX-I-MOUNTED, system disk <dev>: mounted`, which
+   is still accepted while such an image is deployed; from vms-158d those are OPERATOR.LOG records
    (`<dev>` = **VDA0:** on x86 (virtio) / **DUA0:** on VAX (MSCP, backed by the raw ODS-2 partition — e.g.
    `disk unit DUA0: -> ra0e`, an even stronger tell that SYS$DISK *is* the real Files-11 ODS-2 volume, not a
    host-mode path). This is the tell a **host-mode `/vms` passthrough facade cannot
