@@ -44,6 +44,7 @@ jobs:
 
       - name: Resolve latest release tag, compare to deployed
         id: r
+        env: { GH_TOKEN: '${{ secrets.GITHUB_TOKEN }}' }
         run: |
           # workflow_dispatch input, else the repository_dispatch payload tag (tag
           # cut), else (schedule) resolve the newest release-like tag by polling.
@@ -63,6 +64,19 @@ jobs:
           DEPLOYED=$(cat boot/DEPLOYED_TAG 2>/dev/null || true)
           echo "latest=$TAG  deployed=$DEPLOYED  force=${{ github.event.inputs.force }}"
           if [ "$TAG" = "$DEPLOYED" ] && [ "${{ github.event.inputs.force }}" != "true" ]; then
+            # The single-node VAX disk is built by vms's cluster-demo-nodeB.yml ON
+            # the tag and attached ~30 min after the cut -- usually AFTER the first
+            # poll here has run the labels step and the capture has advanced
+            # DEPLOYED_TAG. Keying "nothing to do" on DEPLOYED_TAG alone then left
+            # demo/vax stale forever (V0.7-11..13 all stayed on V0.7-10). So: when
+            # the deployed VAX disk is behind the tag and the tag now carries one,
+            # re-run the labels step only (it deploys the disk); no re-capture.
+            VAXDEP=$(python3 -c "import json; print(json.load(open('demo/vax/vax-single-manifest.json')).get('version',''))" 2>/dev/null || true)
+            if [ "$VAXDEP" != "$TAG" ] \
+               && gh release view "$TAG" --repo 3dl-dev/vms --json assets -q '.assets[].name' 2>/dev/null | grep -qx 'vax-single-manifest.json'; then
+              echo "already on $TAG, but demo/vax is on '${VAXDEP}' and $TAG now carries a VAX single disk -- labels+VAX disk only, capture skipped."
+              echo "tag=$TAG" >> "$GITHUB_OUTPUT"; echo "capture_skip=1" >> "$GITHUB_OUTPUT"; exit 0
+            fi
             echo "already on $TAG (pass force=true to re-capture)."; echo "skip=1" >> "$GITHUB_OUTPUT"; exit 0
           fi
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
