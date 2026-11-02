@@ -51,8 +51,8 @@ if (RINGS) {
     onResize: (h) => { resizeHandler = h; return { dispose() {} }; },
   });
 }
-const BOOT_VER  = 'v0.7-13'; // bump when boot/vmlinuz or the per-node images change
-const PAYLOAD_VER = 'V0.7-13';
+const BOOT_VER  = 'v0.7-14'; // bump when boot/vmlinuz or the per-node images change
+const PAYLOAD_VER = 'V0.7-14';
 function xhrGet(url, i, loaded, total, report) {
   return new Promise((res, rej) => {
     const x = new XMLHttpRequest();
