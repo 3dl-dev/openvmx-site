@@ -319,15 +319,16 @@
             <li>Reading and serving genuine ODS-2 volumes across a mixed cluster over MSCP.</li>
             <li>Taking over the lock trees a departing VAX hands on (remastering).</li>
             <li>Originating clusterwide logical names from an OpenVMX node.</li>
-            <li>The browser cluster demo is not yet reliable for every visitor. V0.7-14's visitor gate ran
-              each of eight join orders once on the release candidate and once on the tagged commit,
-              with no VAX bugcheck in any run. On the tagged commit all eight orders reached a DCL prompt
-              on both OpenVMX nodes. On the candidate, one order with a throttled CPU left the
-              OpenVMX/VAX node at its console prompt, because part of its boot command was lost while the
-              console self-test ran; it passed on a re-run, and the fix is tracked. V0.7-14 also fixes an
-              OpenVMX process rundown that could make a real VAX bugcheck (LOCKMGRERR). A rare
-              console-input wedge seen during V0.7-13 development, where a node stopped taking input
-              after a login timeout, is still open.</li>
+            <li>The browser cluster demo is not yet reliable for every visitor. V0.7-15's visitor gate ran
+              each of eight join orders once on the first release candidate and twice on the tagged commit.
+              On the tagged commit all eight orders reached a DCL prompt on both OpenVMX nodes in both runs, with
+              no VAX bugcheck. On the candidate, one order with a throttled CPU left the OpenVMX/VAX node at its
+              console prompt, because the page answered the console's terminal query late and the reply
+              swallowed the first letter of the boot command. The page now answers on the emulated machine's
+              own clock. V0.7-15 also fixes a cluster state transition that could make the real VAX bugcheck
+              (LOCKMGRERR) in some join orders, a fault present since V0.7-12. On the merged fix, 80 of 80 runs
+              across two join orders formed the cluster. A rare console-input wedge, where a node stopped taking
+              input after a login timeout, did not appear in these runs but has not been root-caused.</li>
           </ul>
         </div>
         <div class="text">
