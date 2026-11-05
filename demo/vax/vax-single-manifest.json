@@ -1,8 +1,8 @@
 {
   "node": "single",
-  "ref": "V0.7-14",
-  "sha": "386784eeeed7c3a655f3784793a6ebe0d19d0cc3",
-  "version": "V0.7-14",
-  "img_gz_sha256": "ac7342d4c9472ebb392f9a0b04953a258b362f95972004efdf46c8fb2d45d260",
-  "raw_sha256": "369d23652a9a19161145705d22d62b130832e61d34078e984a23b9f22bd52cf7"
+  "ref": "V0.7-15",
+  "sha": "7dc075c7227a60c7423a8531f631a5d77b7f2cd2",
+  "version": "V0.7-15",
+  "img_gz_sha256": "7fe343ca5e01a00ffa8dcb1c31eef0a70aa91960f0b1dd31efb69d828ed7d2d7",
+  "raw_sha256": "a8641e8b2f465b84e5568dcbf71b8b0ede7357184b51bc09c229047d488309f8"
 }
