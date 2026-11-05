@@ -1,0 +1,5 @@
+{
+  "pinned_to": "V0.7-14",
+  "blocked_from": "V0.7-15",
+  "reason": "cluster-demo redeploy for V0.7-15 did not pass (build=success, visitor gate=failure) on 2026-11-05; run 41995206070. The demo stays at V0.7-14."
+}
